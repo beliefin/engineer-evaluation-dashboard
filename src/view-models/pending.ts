@@ -135,6 +135,9 @@ export function selectPendingEvaluations(
         sheets: snapshot.scoreSheets,
         directScores,
         engineerTaskWeights: snapshot.engineerTaskWeights,
+        directScoreRules: snapshot.directScoreRules,
+        languageRecords: snapshot.languageScoreRecords,
+        certificationRecords: snapshot.certificationRecords,
       })
       if (result.status === "complete") return []
 

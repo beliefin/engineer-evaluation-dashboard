@@ -131,6 +131,11 @@
 
 ### Roster Management
 
+- **Edit and delete**: 엔지니어 행에는 수정과 삭제 행동을 제공한다. 수정은 엔지니어 ID와 기존 평가 기록을 유지하며, 삭제는 연결 데이터 범위를 명시한 확인 Dialog를 거친다.
+- **Safety states**: 평가 시즌 잠금 중에는 명단 변경을 막고, 로그인 계정이 연결된 엔지니어는 삭제를 비활성화하면서 `계정 연결됨` 사유를 항상 보이는 텍스트로 표시한다.
+- **Validation**: 수정 입력 오류는 해당 필드의 `aria-invalid`와 `aria-describedby`로 연결한다. 삭제 확인은 엔지니어 이름, 연관 데이터 삭제 범위, 복구 불가 안내를 포함한다.
+- **Responsive actions**: 데스크톱 표와 모바일 카드 모두 동일한 수정·삭제 행동을 제공하며, Dialog는 390px 화면 안에서 가로 넘침 없이 동작해야 한다.
+
 - **Structure**: 엔지니어·평가자 탭, 현재 명단, 개별 등록 폼, 목록 붙여넣기 Dialog.
 - **Teams**: 모든 팀 선택은 `생산 1팀`, `생산 2팀`만 제공한다.
 - **States**: empty, populated, valid preview, row error, duplicate code, saving, saved.

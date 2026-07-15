@@ -5,7 +5,10 @@ import { afterEach, describe, expect, it, vi } from "vitest"
 import { RosterManagementPanel } from "./roster-management-panel"
 import type { EngineerRosterItem, EvaluatorRosterItem } from "./types"
 
-afterEach(cleanup)
+afterEach(() => {
+  cleanup()
+  vi.restoreAllMocks()
+})
 
 const ENGINEERS: readonly EngineerRosterItem[] = [
   {
@@ -37,6 +40,8 @@ describe("RosterManagementPanel", () => {
         evaluators={EVALUATORS}
         onAddEngineers={onAddEngineers}
         onAddEvaluators={() => true}
+        onDeleteEngineer={() => true}
+        onUpdateEngineer={() => true}
       />,
     )
 
@@ -65,6 +70,8 @@ describe("RosterManagementPanel", () => {
         evaluators={EVALUATORS}
         onAddEngineers={() => true}
         onAddEvaluators={onAddEvaluators}
+        onDeleteEngineer={() => true}
+        onUpdateEngineer={() => true}
       />,
     )
 
@@ -94,6 +101,8 @@ describe("RosterManagementPanel", () => {
         evaluators={EVALUATORS}
         onAddEngineers={onAddEngineers}
         onAddEvaluators={() => true}
+        onDeleteEngineer={() => true}
+        onUpdateEngineer={() => true}
       />,
     )
 
@@ -118,6 +127,8 @@ describe("RosterManagementPanel", () => {
         evaluators={EVALUATORS}
         onAddEngineers={onAddEngineers}
         onAddEvaluators={() => true}
+        onDeleteEngineer={() => true}
+        onUpdateEngineer={() => true}
       />,
     )
 
@@ -128,5 +139,77 @@ describe("RosterManagementPanel", () => {
 
     expect(screen.getByRole("alert")).toHaveTextContent("등록하지 못했습니다")
     expect(screen.getByRole("dialog", { name: "엔지니어 개별 등록" })).toBeInTheDocument()
+  })
+
+  it("edits an engineer and opens an explicit destructive confirmation", async () => {
+    const user = userEvent.setup()
+    const onUpdateEngineer = vi.fn(() => true)
+    const onDeleteEngineer = vi.fn(() => true)
+
+    render(
+      <RosterManagementPanel
+        engineers={ENGINEERS}
+        evaluators={EVALUATORS}
+        onAddEngineers={() => true}
+        onAddEvaluators={() => true}
+        onDeleteEngineer={onDeleteEngineer}
+        onUpdateEngineer={onUpdateEngineer}
+      />,
+    )
+
+    await user.click(screen.getAllByRole("button", { name: `${ENGINEERS[0]?.displayName} 수정` })[0]!)
+    const position = screen.getByRole("textbox", { name: "직급" })
+    await user.clear(position)
+    await user.type(position, "선임 엔지니어")
+    await user.click(screen.getByRole("button", { name: "변경사항 저장" }))
+
+    expect(onUpdateEngineer).toHaveBeenCalledWith(
+      "engineer-01",
+      expect.objectContaining({ position: "선임 엔지니어" }),
+    )
+
+    await user.click(screen.getAllByRole("button", { name: `${ENGINEERS[0]?.displayName} 삭제` })[0]!)
+    expect(screen.getByRole("alertdialog")).toHaveTextContent("평가표")
+    await user.click(screen.getByRole("button", { name: "엔지니어 삭제" }))
+    expect(onDeleteEngineer).toHaveBeenCalledWith("engineer-01")
+  })
+
+  it("blocks deletion while an engineer login account is linked", () => {
+    render(
+      <RosterManagementPanel
+        engineers={ENGINEERS}
+        evaluators={EVALUATORS}
+        linkedEngineerIds={["engineer-01"]}
+        onAddEngineers={() => true}
+        onAddEvaluators={() => true}
+        onDeleteEngineer={() => true}
+        onUpdateEngineer={() => true}
+      />,
+    )
+
+    expect(screen.getAllByRole("button", { name: `${ENGINEERS[0]?.displayName} 삭제` }))
+      .toEqual(expect.arrayContaining([expect.objectContaining({ disabled: true })]))
+  })
+
+  it("connects edit validation errors to the affected field", async () => {
+    const user = userEvent.setup()
+    render(
+      <RosterManagementPanel
+        engineers={ENGINEERS}
+        evaluators={EVALUATORS}
+        onAddEngineers={() => true}
+        onAddEvaluators={() => true}
+        onDeleteEngineer={() => true}
+        onUpdateEngineer={() => true}
+      />,
+    )
+
+    await user.click(screen.getAllByRole("button", { name: `${ENGINEERS[0]?.displayName} 수정` })[0]!)
+    const employeeCode = screen.getByRole("textbox", { name: "사번" })
+    await user.clear(employeeCode)
+    await user.click(screen.getByRole("button", { name: "변경사항 저장" }))
+
+    expect(employeeCode).toHaveAttribute("aria-invalid", "true")
+    expect(employeeCode).toHaveAccessibleDescription("사번을 입력해 주세요.")
   })
 })

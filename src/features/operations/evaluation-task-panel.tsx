@@ -23,11 +23,11 @@ type Props = Readonly<{
 }>
 
 export function EvaluationTaskPanel({ tasks, evaluators, weightTotal, disabled, onSave, onDelete }: Props) {
-  const validTotal = Math.abs(weightTotal - 100) < 0.000_001
+  const seasonTotalIs100 = Math.abs(weightTotal - 100) < 0.000_001
   return (
     <OperationPanel
-      aside={<div className="flex items-center gap-2"><Badge variant={validTotal ? "secondary" : "destructive"}>합계 {weightTotal}%</Badge><EvaluationTaskDialog disabled={disabled} evaluators={evaluators} onSave={onSave} /></div>}
-      description={<>과제별 평가방식, 세부 문항, 평가자와 <span className="whitespace-nowrap">최종 반영 가중치</span>를 설정합니다. 순위 산출에는 <span className="whitespace-nowrap">가중치 합계 100%가</span> 필요합니다.</>}
+      aside={<div className="flex items-center gap-2"><Badge variant={seasonTotalIs100 ? "secondary" : "outline"}>합계 {weightTotal}%</Badge><EvaluationTaskDialog disabled={disabled} evaluators={evaluators} onSave={onSave} /></div>}
+      description={<>과제별 평가방식, 세부 문항, 평가자와 <span className="whitespace-nowrap">시즌 기본 가중치</span>를 설정합니다. 택1 과제가 있으면 시즌 합계는 100%를 초과할 수 있으며, 최종 순위는 엔지니어별 적용 가중치로 계산합니다.</>}
       title="시즌 과제 구성"
     >
       {tasks.length === 0 ? (
@@ -49,7 +49,7 @@ export function EvaluationTaskPanel({ tasks, evaluators, weightTotal, disabled, 
           ))}
         </div>
       )}
-      {!validTotal ? <p className="mt-3 text-sm font-medium text-destructive">현재 가중치 합계는 {weightTotal}%입니다. 모든 과제의 합계를 100%로 맞춰야 최종 순위가 산출됩니다.</p> : null}
+      {!seasonTotalIs100 ? <p className="mt-3 text-sm text-muted-foreground">현재 가중치 합계는 {weightTotal}%입니다. 택1 과제 구성에서는 100%를 초과할 수 있습니다. 최종 순위에 반영하려면 엔지니어별 적용 가중치 합계를 100%로 맞춰 주세요.</p> : null}
     </OperationPanel>
   )
 }

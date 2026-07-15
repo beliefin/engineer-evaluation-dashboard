@@ -58,6 +58,15 @@ function readSessionSelection(key: string): string | null {
   }
 }
 
+function writeSessionSelection(key: string, value: string): void {
+  try {
+    window.sessionStorage.setItem(key, value)
+  } catch (error: unknown) {
+    if (error instanceof DOMException) return
+    throw error
+  }
+}
+
 export function EvaluationProvider({ children }: Readonly<{ children: ReactNode }>) {
   const { session } = useAuth()
   const remoteMode = isSupabaseConfigured()
@@ -142,12 +151,12 @@ export function EvaluationProvider({ children }: Readonly<{ children: ReactNode 
 
   const setActiveEvaluatorId = useCallback((evaluatorId: string) => {
     if (role !== "operator") return
-    window.sessionStorage.setItem(EVALUATOR_KEY, evaluatorId)
+    writeSessionSelection(EVALUATOR_KEY, evaluatorId)
     setProxyEvaluatorId(evaluatorId)
   }, [role])
 
   const setActiveCycleId = useCallback((cycleId: string) => {
-    window.sessionStorage.setItem(CYCLE_KEY, cycleId)
+    writeSessionSelection(CYCLE_KEY, cycleId)
     setActiveCycleIdState(cycleId)
   }, [])
 
@@ -216,8 +225,8 @@ export function EvaluationProvider({ children }: Readonly<{ children: ReactNode 
   }, [commitSnapshot, queueRemoteWrite, remoteMode])
 
   const actions = useMemo(() => createEvaluationActions({
-    activeCycleId, actor, mutate, selectCycle: setActiveCycleId,
-  }), [activeCycleId, actor, mutate, setActiveCycleId])
+    activeCycleId, actor, mutate, selectCycle: setActiveCycleId, snapshot,
+  }), [activeCycleId, actor, mutate, setActiveCycleId, snapshot])
 
   const value = useMemo<EvaluationContextValue>(() => ({
     snapshot, role, activeCycleId, activeEvaluatorId,

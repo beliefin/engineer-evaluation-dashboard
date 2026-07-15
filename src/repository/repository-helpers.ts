@@ -94,6 +94,14 @@ export function requireCycle(snapshot: EvaluationSnapshot, cycleId: string): Eva
   return cycle
 }
 
+export function requireCycleUnlocked(snapshot: EvaluationSnapshot, cycleId: string): EvaluationCycle {
+  const cycle = requireCycle(snapshot, cycleId)
+  if (cycle.locked) {
+    throw new RepositoryError("TASK_LOCKED", "잠긴 평가 시즌에서는 평가 데이터와 설정을 변경할 수 없습니다.")
+  }
+  return cycle
+}
+
 export function requireTask(snapshot: EvaluationSnapshot, taskId: string): EvaluationTask {
   const task = snapshot.tasks.find((candidate) => candidate.id === taskId)
   if (task === undefined) {

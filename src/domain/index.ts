@@ -1,4 +1,5 @@
 export * from "./legacy-schema"
+export * from "./direct-score-rules"
 export * from "./migration"
 export * from "./schema"
 export * from "./scoring"

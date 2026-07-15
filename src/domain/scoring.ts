@@ -1,9 +1,13 @@
+import { highestConvertedDirectScore } from "./direct-score-rules"
 import type {
+  CertificationRecord,
   DirectScore,
+  DirectScoreRule,
   EngineerTaskWeight,
   EngineerResult,
   EvaluationTask,
   EvaluatorAssignment,
+  LanguageScoreRecord,
   RankedEngineerResult,
   ScoreSheet,
   TaskResult,
@@ -44,10 +48,20 @@ export function scoreSheetValue(task: EvaluationTask, sheet: ScoreSheet): number
 function operatorTaskResult(
   task: EvaluationTask,
   directScores: ReadonlyArray<DirectScore>,
+  directScoreRules: ReadonlyArray<DirectScoreRule>,
+  languageRecords: ReadonlyArray<LanguageScoreRecord>,
+  certificationRecords: ReadonlyArray<CertificationRecord>,
 ): TaskResult {
   const stored = directScores.find((entry) => entry.taskId === task.id)
+  const rules = directScoreRules.filter((rule) => rule.taskId === task.id)
+  const calculated = rules.length === 0
+    ? null
+    : highestConvertedDirectScore(
+      rules[0]?.kind === "language" ? languageRecords : certificationRecords,
+      rules,
+    )
   const score = task.method === "operator_score"
-    ? (stored?.score ?? null)
+    ? (rules.length > 0 ? calculated : stored?.score ?? null)
     : stored?.passResult === null || stored?.passResult === undefined
       ? null
       : stored.passResult
@@ -72,8 +86,11 @@ export function calculateTaskResult(
   assignments: ReadonlyArray<EvaluatorAssignment>,
   sheets: ReadonlyArray<ScoreSheet>,
   directScores: ReadonlyArray<DirectScore>,
+  directScoreRules: ReadonlyArray<DirectScoreRule> = [],
+  languageRecords: ReadonlyArray<LanguageScoreRecord> = [],
+  certificationRecords: ReadonlyArray<CertificationRecord> = [],
 ): TaskResult {
-  if (!isEvaluatorTask(task)) return operatorTaskResult(task, directScores)
+  if (!isEvaluatorTask(task)) return operatorTaskResult(task, directScores, directScoreRules, languageRecords, certificationRecords)
 
   const scopedAssignments = assignments.filter((entry) => entry.taskId === task.id)
   const totalWeight = task.evaluatorWeights.reduce((total, entry) => total + entry.weight, 0)
@@ -124,6 +141,9 @@ type EngineerResultInput = Readonly<{
   sheets: ReadonlyArray<ScoreSheet>
   directScores: ReadonlyArray<DirectScore>
   engineerTaskWeights?: ReadonlyArray<EngineerTaskWeight>
+  directScoreRules?: ReadonlyArray<DirectScoreRule>
+  languageRecords?: ReadonlyArray<LanguageScoreRecord>
+  certificationRecords?: ReadonlyArray<CertificationRecord>
 }>
 
 export function resolveEngineerTaskWeight(
@@ -147,7 +167,15 @@ export function calculateEngineerResult(input: EngineerResultInput): EngineerRes
     .toSorted((left, right) => left.task.order - right.task.order)
   const tasks = weightedTasks.map((entry) => entry.task)
   const taskResults = tasks.map((task) =>
-    calculateTaskResult(task, input.assignments, input.sheets, input.directScores),
+    calculateTaskResult(
+      task,
+      input.assignments,
+      input.sheets,
+      input.directScores,
+      input.directScoreRules,
+      input.languageRecords,
+      input.certificationRecords,
+    ),
   )
   const contributions = Object.fromEntries(
     weightedTasks.map(({ task, weight }) => {

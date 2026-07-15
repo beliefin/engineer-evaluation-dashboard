@@ -19,6 +19,7 @@ export type EvaluationCycle = Readonly<{
   id: string
   name: string
   status: EvaluationSeasonStatus
+  locked: boolean
   startsAt: string
   endsAt: string
 }>
@@ -66,6 +67,39 @@ export type EngineerTaskWeight = Readonly<{
   engineerId: string
   taskId: string
   weight: number
+}>
+
+export const DIRECT_SCORE_RULE_KINDS = ["language", "certification"] as const
+export type DirectScoreRuleKind = (typeof DIRECT_SCORE_RULE_KINDS)[number]
+
+export const DIRECT_SCORE_RULE_FIELDS = [
+  "examName",
+  "result",
+  "certificateName",
+  "grade",
+] as const
+export type DirectScoreRuleField = (typeof DIRECT_SCORE_RULE_FIELDS)[number]
+
+export const DIRECT_SCORE_RULE_OPERATORS = ["equals", "contains", "gte"] as const
+export type DirectScoreRuleOperator = (typeof DIRECT_SCORE_RULE_OPERATORS)[number]
+
+export const DIRECT_SCORE_RULE_TYPES = ["base", "bonus"] as const
+export type DirectScoreRuleType = (typeof DIRECT_SCORE_RULE_TYPES)[number]
+
+export type DirectScoreRule = Readonly<{
+  id: string
+  cycleId: string
+  taskId: string
+  kind: DirectScoreRuleKind
+  label: string
+  field: DirectScoreRuleField
+  operator: DirectScoreRuleOperator
+  value: string
+  ruleType: DirectScoreRuleType
+  score: number
+  bonus: number
+  enabled: boolean
+  order: number
 }>
 
 export type EvaluatorAssignment = Readonly<{
@@ -148,10 +182,16 @@ export type AuditEvent = Readonly<{
     | "certification_record_deleted"
     | "source_record_verified"
     | "cycle_created"
+    | "cycle_updated"
+    | "cycle_locked"
+    | "cycle_unlocked"
+    | "cycle_deleted"
     | "task_saved"
     | "task_deleted"
     | "engineer_task_weights_updated"
     | "engineer_added"
+    | "engineer_updated"
+    | "engineer_deleted"
     | "evaluator_added"
     | "schedule_event_created"
     | "schedule_event_updated"
@@ -169,6 +209,7 @@ export type EvaluationSnapshot = Readonly<{
   cycles: ReadonlyArray<EvaluationCycle>
   tasks: ReadonlyArray<EvaluationTask>
   engineerTaskWeights: ReadonlyArray<EngineerTaskWeight>
+  directScoreRules: ReadonlyArray<DirectScoreRule>
   engineers: ReadonlyArray<Engineer>
   evaluators: ReadonlyArray<Evaluator>
   assignments: ReadonlyArray<EvaluatorAssignment>

@@ -151,8 +151,8 @@ describe("calculateEngineerResult", () => {
       evaluatorWeights: [],
     })
     const growth = operatorTask("growth", 35)
-    const ots = operatorTask("ots", 17.5)
-    const dx = operatorTask("dx", 17.5)
+    const ots = operatorTask("ots", 35)
+    const dx = operatorTask("dx", 35)
     const direct = operatorTask("direct", 30)
     const tasks = [growth, ots, dx, direct]
     const directScores = [

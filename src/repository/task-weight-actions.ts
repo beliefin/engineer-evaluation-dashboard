@@ -6,7 +6,7 @@ import {
 } from "./input-schemas"
 import { appendAuditEvent, type MutationContext } from "./mutation-context"
 import {
-  requireCycle,
+  requireCycleUnlocked,
   requireEngineer,
   requireOperator,
 } from "./repository-helpers"
@@ -24,7 +24,7 @@ export function updateEngineerTaskWeightsAction(
 ): EvaluationSnapshot {
   const parsed = parseRepositoryInput(updateEngineerTaskWeightsInputSchema, input)
   requireOperator(parsed.actor)
-  requireCycle(context.snapshot, parsed.cycleId)
+  requireCycleUnlocked(context.snapshot, parsed.cycleId)
   requireEngineer(context.snapshot, parsed.engineerId)
 
   const tasks = context.snapshot.tasks.filter((task) => task.cycleId === parsed.cycleId)
@@ -40,8 +40,15 @@ export function updateEngineerTaskWeightsAction(
       "현재 평가 시즌의 모든 과제 가중치를 한 번씩 입력해 주세요.",
     )
   }
+  const seasonWeightTotal = tasks.reduce((sum, task) => sum + task.weight, 0)
+  if (parsed.useSeasonDefaults && Math.abs(seasonWeightTotal - TOTAL_WEIGHT) >= WEIGHT_EPSILON) {
+    throw new RepositoryError(
+      "INVALID_INPUT",
+      `시즌 기본 가중치 합계가 ${seasonWeightTotal}%이므로 개인별 가중치 100%를 확정할 수 없습니다. 택1 과제는 시즌 기본값 적용을 해제해 엔지니어별로 선택해 주세요.`,
+    )
+  }
   const total = parsed.weights.reduce((sum, entry) => sum + entry.weight, 0)
-  if (Math.abs(total - TOTAL_WEIGHT) >= WEIGHT_EPSILON) {
+  if (!parsed.useSeasonDefaults && Math.abs(total - TOTAL_WEIGHT) >= WEIGHT_EPSILON) {
     throw new RepositoryError(
       "INVALID_INPUT",
       `개인별 과제 가중치 합계를 100%로 맞춰 주세요. 현재 ${total}%입니다.`,
@@ -56,13 +63,14 @@ export function updateEngineerTaskWeightsAction(
   const snapshot: EvaluationSnapshot = {
     ...context.snapshot,
     engineerTaskWeights: [
-      ...retained,
-      ...parsed.weights.map((entry) => ({
-        cycleId: parsed.cycleId,
-        engineerId: parsed.engineerId,
-        taskId: entry.taskId,
-        weight: entry.weight,
-      })),
+      ...(!parsed.useSeasonDefaults
+        ? [...retained, ...parsed.weights.map((entry) => ({
+            cycleId: parsed.cycleId,
+            engineerId: parsed.engineerId,
+            taskId: entry.taskId,
+            weight: entry.weight,
+          }))]
+        : retained),
     ],
   }
   return appendAuditEvent(context, snapshot, {

@@ -1,6 +1,6 @@
-import { render, screen } from "@testing-library/react"
+import { cleanup, render, screen } from "@testing-library/react"
 import userEvent from "@testing-library/user-event"
-import { describe, expect, it, vi } from "vitest"
+import { afterEach, describe, expect, it, vi } from "vitest"
 
 import { EngineerTaskWeightPanel } from "./engineer-task-weight-panel"
 
@@ -12,13 +12,30 @@ const ROWS = [{
   customized: true,
   tasks: [
     { taskId: "growth", taskName: "성장탐구계획서", method: "evaluator_score", defaultWeight: 35, weight: 35 },
-    { taskId: "ots", taskName: "OTS 시나리오 제작", method: "evaluator_score", defaultWeight: 17.5, weight: 35 },
-    { taskId: "dx", taskName: "DX 툴 활용", method: "evaluator_score", defaultWeight: 17.5, weight: 0 },
+    { taskId: "ots", taskName: "OTS 시나리오 제작", method: "evaluator_score", defaultWeight: 35, weight: 35 },
+    { taskId: "dx", taskName: "DX 툴 활용", method: "evaluator_score", defaultWeight: 35, weight: 0 },
+    { taskId: "direct", taskName: "기타 점수", method: "operator_score", defaultWeight: 30, weight: 30 },
+  ],
+}] as const
+
+const SEASON_DEFAULT_ROWS = [{
+  engineerId: "engineer-02",
+  engineerName: "샘플 엔지니어 02",
+  employeeLabel: "SAMPLE-002",
+  teamName: "생산 2팀",
+  customized: false,
+  seasonDefaultsEnabled: true,
+  tasks: [
+    { taskId: "growth", taskName: "성장탐구계획서", method: "evaluator_score", defaultWeight: 35, weight: 35 },
+    { taskId: "ots", taskName: "OTS 시나리오 제작", method: "evaluator_score", defaultWeight: 35, weight: 35 },
+    { taskId: "dx", taskName: "DX 툴 활용", method: "evaluator_score", defaultWeight: 35, weight: 35 },
     { taskId: "direct", taskName: "기타 점수", method: "operator_score", defaultWeight: 30, weight: 30 },
   ],
 }] as const
 
 describe("EngineerTaskWeightPanel", () => {
+  afterEach(cleanup)
+
   it("switches an engineer from OTS to DX and saves the complete 100% allocation", async () => {
     const user = userEvent.setup()
     const onSave = vi.fn(() => true)
@@ -38,5 +55,12 @@ describe("EngineerTaskWeightPanel", () => {
       { taskId: "dx", weight: 35 },
       { taskId: "direct", weight: 30 },
     ])
+  })
+
+  it("requires an individual selection when season defaults exceed 100%", () => {
+    render(<EngineerTaskWeightPanel disabled={false} onSave={vi.fn(() => true)} rows={SEASON_DEFAULT_ROWS} />)
+
+    expect(screen.getByText(/시즌 기본값 합계가 135%/)).toBeVisible()
+    expect(screen.getByRole("button", { name: "개인별 가중치 저장" })).toBeDisabled()
   })
 })

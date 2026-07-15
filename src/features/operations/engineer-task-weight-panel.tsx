@@ -20,6 +20,7 @@ import type { EngineerTaskWeightViewModel } from "./types"
 type WeightDraft = Readonly<{
   engineerId: string
   values: Readonly<Record<string, string>>
+  useSeasonDefaults: boolean
 }>
 
 type Props = Readonly<{
@@ -28,6 +29,7 @@ type Props = Readonly<{
   onSave: (
     engineerId: string,
     weights: ReadonlyArray<Readonly<{ taskId: string; weight: number }>>,
+    useSeasonDefaults?: boolean,
   ) => boolean
 }>
 
@@ -37,10 +39,17 @@ export function EngineerTaskWeightPanel({ rows, disabled, onSave }: Props) {
   const [selectedId, setSelectedId] = useState(rows[0]?.engineerId ?? "")
   const [draft, setDraft] = useState<WeightDraft | null>(null)
   const selected = rows.find((row) => row.engineerId === selectedId) ?? rows[0]
+  const seasonDefaultsEnabled = selected === undefined
+    ? true
+    : draft?.engineerId === selected.engineerId
+      ? draft.useSeasonDefaults
+      : (selected.seasonDefaultsEnabled ?? !selected.customized)
   const values = selected?.tasks.map((task) => {
-    const value = draft?.engineerId === selected.engineerId
-      ? (draft.values[task.taskId] ?? String(task.weight))
-      : String(task.weight)
+    const value = seasonDefaultsEnabled
+      ? String(task.defaultWeight)
+      : draft?.engineerId === selected.engineerId
+        ? (draft.values[task.taskId] ?? String(task.weight))
+        : String(task.weight)
     return { task, value, parsed: Number(value) }
   }) ?? []
   const validValues = values.every(({ value, parsed }) =>
@@ -53,7 +62,7 @@ export function EngineerTaskWeightPanel({ rows, disabled, onSave }: Props) {
   const validTotal = validValues && Math.abs(total - 100) < 0.000_001
   const dirty = selected !== undefined && values.some(
     ({ task, parsed }) => parsed !== task.weight,
-  )
+  ) || (selected !== undefined && seasonDefaultsEnabled !== (selected.seasonDefaultsEnabled ?? !selected.customized))
 
   function updateWeight(taskId: string, value: string) {
     if (selected === undefined) return
@@ -61,6 +70,7 @@ export function EngineerTaskWeightPanel({ rows, disabled, onSave }: Props) {
     setDraft({
       engineerId: selected.engineerId,
       values: { ...(draft?.engineerId === selected.engineerId ? draft.values : base), [taskId]: value },
+      useSeasonDefaults: false,
     })
   }
 
@@ -71,15 +81,16 @@ export function EngineerTaskWeightPanel({ rows, disabled, onSave }: Props) {
       values: Object.fromEntries(
         selected.tasks.map((task) => [task.taskId, String(task.defaultWeight)]),
       ),
+      useSeasonDefaults: true,
     })
   }
 
   function save() {
     if (selected === undefined || !validTotal) return
-    const saved = onSave(
-      selected.engineerId,
-      values.map(({ task, parsed }) => ({ taskId: task.taskId, weight: parsed })),
-    )
+    const nextWeights = values.map(({ task, parsed }) => ({ taskId: task.taskId, weight: parsed }))
+    const saved = seasonDefaultsEnabled
+      ? onSave(selected.engineerId, nextWeights, true)
+      : onSave(selected.engineerId, nextWeights)
     if (saved) setDraft(null)
   }
 
@@ -116,7 +127,23 @@ export function EngineerTaskWeightPanel({ rows, disabled, onSave }: Props) {
             </div>
             <div className="flex flex-wrap items-center gap-2 text-xs text-muted-foreground">
               <Badge variant="outline">{selected.teamName}</Badge>
-              <span>{selected.customized ? "개인 설정 저장됨" : "시즌 기본값 적용 중"}</span>
+              <label className="flex items-center gap-2 text-sm text-foreground">
+                <input
+                  checked={seasonDefaultsEnabled}
+                  className="size-4 accent-primary"
+                  disabled={disabled}
+                  onChange={(event) => {
+                    const enabled = event.currentTarget.checked
+                    setDraft({
+                      engineerId: selected.engineerId,
+                      values: Object.fromEntries(selected.tasks.map((task) => [task.taskId, String(enabled ? task.defaultWeight : task.weight)])),
+                      useSeasonDefaults: enabled,
+                    })
+                  }}
+                  type="checkbox"
+                />
+                시즌 기본값 적용
+              </label>
             </div>
           </div>
 
@@ -139,7 +166,7 @@ export function EngineerTaskWeightPanel({ rows, disabled, onSave }: Props) {
                     <Input
                       aria-invalid={value.trim() === "" || !Number.isFinite(parsed) || parsed < 0 || parsed > 100}
                       className="numeric pr-8 text-right"
-                      disabled={disabled}
+                      disabled={disabled || seasonDefaultsEnabled}
                       id={`engineer-task-weight-${task.taskId}`}
                       inputMode="decimal"
                       max="100"
@@ -158,7 +185,9 @@ export function EngineerTaskWeightPanel({ rows, disabled, onSave }: Props) {
 
           {!validTotal ? (
             <p aria-live="polite" className="text-sm font-medium text-destructive">
-              가중치 합계를 100%로 맞춰야 저장할 수 있습니다. 현재 {total}%입니다.
+              {seasonDefaultsEnabled
+                ? `시즌 기본값 합계가 ${total}%입니다. 개인별 선택을 위해 시즌 기본값 적용을 해제하고 합계를 100%로 맞춰 주세요.`
+                : `가중치 합계를 100%로 맞춰야 저장할 수 있습니다. 현재 ${total}%입니다.`}
             </p>
           ) : null}
           <div className="flex flex-col-reverse gap-2 sm:flex-row sm:justify-end">

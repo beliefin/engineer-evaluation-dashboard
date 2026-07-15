@@ -14,6 +14,9 @@ interface RosterSectionProps {
   readonly disabled: boolean
   readonly onAddEngineers: (rows: readonly EngineerRegistration[]) => boolean
   readonly onAddEvaluators: (rows: readonly EvaluatorRegistration[]) => boolean
+  readonly onUpdateEngineer: (engineerId: string, row: EngineerRegistration) => boolean
+  readonly onDeleteEngineer: (engineerId: string) => boolean
+  readonly linkedEngineerIds: readonly string[]
 }
 
 export function RosterSection({
@@ -22,6 +25,9 @@ export function RosterSection({
   disabled,
   onAddEngineers,
   onAddEvaluators,
+  onUpdateEngineer,
+  onDeleteEngineer,
+  linkedEngineerIds,
 }: RosterSectionProps) {
   const label = kind === "engineer" ? "엔지니어" : "평가자"
   const existingEmployeeCodes = rows.map((row) => row.employeeCode)
@@ -51,7 +57,14 @@ export function RosterSection({
           />
         </div>
       </div>
-      <RosterList kind={kind} rows={rows} />
+      <RosterList
+        disabled={disabled}
+        kind={kind}
+        linkedEngineerIds={linkedEngineerIds}
+        onDeleteEngineer={onDeleteEngineer}
+        onUpdateEngineer={onUpdateEngineer}
+        rows={rows}
+      />
     </section>
   )
 }

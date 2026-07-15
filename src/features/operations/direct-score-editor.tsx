@@ -53,7 +53,7 @@ function DirectResultInput({
   if (task.method === "operator_score") {
     return (
       <DirectScoreInput
-        disabled={disabled}
+        disabled={disabled || task.formulaDriven === true}
         engineerName={engineerName}
         fieldLabel={task.taskName}
         onChange={(score) => onChange(score, null)}
@@ -64,7 +64,7 @@ function DirectResultInput({
   const value = task.passResult === null ? "unset" : task.passResult ? "pass" : "fail"
   return (
     <Select
-      disabled={disabled}
+      disabled={disabled || task.formulaDriven === true}
       onValueChange={(next) => onChange(null, next === "unset" ? null : next === "pass")}
       value={value}
     >
@@ -102,8 +102,8 @@ export function DirectScoreEditor({
 
   return (
     <OperationPanel
-      description="운영자 입력형 과제의 0~100점 또는 P/F 결과를 입력합니다. 원천 실적과 자동 환산하지 않습니다."
-      title="운영자 평가 결과 입력"
+      description="환산 규칙이 연결되지 않은 운영자 과제의 0~100점 또는 P/F 결과를 입력합니다. 환산식이 연결된 과제는 원천 실적에서 자동 계산됩니다."
+      title="직접 점수 확인"
     >
       <div className="mb-4 flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
         <div className="relative w-full sm:max-w-sm">
@@ -143,7 +143,7 @@ export function DirectScoreEditor({
             <div className="grid gap-3 sm:grid-cols-2">
               {row.directTasks.map((task) => (
                 <div key={task.taskId}>
-                  <p className="mb-1.5 text-xs font-medium">{task.taskName} <span className="text-muted-foreground">{task.weight}%</span></p>
+                  <p className="mb-1.5 text-xs font-medium">{task.taskName} <span className="text-muted-foreground">{task.weight}%</span>{task.formulaDriven ? <span className="ml-2 text-primary">환산식 적용</span> : null}</p>
                   <DirectResultInput disabled={disabled} engineerName={row.engineerName} onChange={(score, passResult) => onScoreChange(row.engineerId, task.taskId, score, passResult)} task={task} />
                 </div>
               ))}
@@ -183,7 +183,7 @@ export function DirectScoreEditor({
                         <span className="text-xs text-muted-foreground">평가 제외</span>
                       ) : (
                         <div className="flex items-center justify-end gap-2">
-                          <span className="numeric text-xs text-muted-foreground">{task.weight}%</span>
+                          <span className="numeric text-xs text-muted-foreground">{task.weight}%</span>{task.formulaDriven ? <span className="text-xs text-primary">환산식</span> : null}
                           <DirectResultInput disabled={disabled} engineerName={row.engineerName} onChange={(score, passResult) => onScoreChange(row.engineerId, task.taskId, score, passResult)} task={task} />
                         </div>
                       )}

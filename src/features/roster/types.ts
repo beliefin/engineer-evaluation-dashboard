@@ -40,7 +40,13 @@ export interface RosterManagementPanelProps {
   readonly onAddEngineers: (
     engineers: readonly EngineerRegistration[],
   ) => boolean
+  readonly onUpdateEngineer: (
+    engineerId: string,
+    engineer: EngineerRegistration,
+  ) => boolean
+  readonly onDeleteEngineer: (engineerId: string) => boolean
   readonly onAddEvaluators: (
     evaluators: readonly EvaluatorRegistration[],
   ) => boolean
+  readonly linkedEngineerIds?: readonly string[]
 }

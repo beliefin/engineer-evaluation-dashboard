@@ -84,14 +84,19 @@ export function AuthProvider({ children }: Readonly<{ children: ReactNode }>) {
         })
     repositoryRef.current = repository
     let active = true
-    void repository.restoreSession().then(async (restored) => {
-      const visibleAccounts = restored?.role === "operator"
-        ? await repository.listAccounts()
-        : []
+    void repository.restoreSession().then((restored) => {
       if (!active) return
       setSession(restored)
-      setAccounts(visibleAccounts)
+      setAccounts([])
       setLoadState("ready")
+      if (restored?.role === "operator") {
+        void repository.listAccounts().then((visibleAccounts) => {
+          if (active) setAccounts(visibleAccounts)
+        }).catch((error: unknown) => {
+          if (!active) return
+          setErrorMessage(error instanceof Error ? error.message : "계정 목록을 불러오지 못했습니다.")
+        })
+      }
     }).catch((error: unknown) => {
       if (!active) return
       const failure = failureResult(error)

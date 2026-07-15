@@ -7,6 +7,7 @@ import { RosterManagementPanel } from "@/features/roster"
 import { CycleCreatorPanel } from "./cycle-creator-panel"
 import { DirectScoreEditor } from "./direct-score-editor"
 import { DirectScoreSourceEditor } from "./direct-score-source-editor"
+import { DirectScoreRulePanel } from "./direct-score-rule-panel"
 import { EvaluationTaskPanel } from "./evaluation-task-panel"
 import { EngineerTaskWeightPanel } from "./engineer-task-weight-panel"
 import { ResetDemoPanel } from "./reset-demo-panel"
@@ -17,21 +18,29 @@ export function OperationsConsole({
   disabled = false,
   showReset = true,
   onCreateCycle,
+  onUpdateCycle,
+  onSetCycleLock,
+  onDeleteCycle,
   onSaveTask,
   onDeleteTask,
   onEngineerTaskWeightsChange,
   onDirectScoreChange,
   onSaveLanguageRecord,
   onDeleteLanguageRecord,
+  onSaveDirectScoreRule,
+  onDeleteDirectScoreRule,
   onSaveCertificationRecord,
   onDeleteCertificationRecord,
   onVerifySourceRecord,
   onAddEngineers,
+  onUpdateEngineer,
+  onDeleteEngineer,
   onAddEvaluators,
   onResetDemoData,
   activeTab = "roster",
   directScoreQuery = "",
   onTabChange,
+  linkedEngineerIds = [],
 }: OperationsConsoleProps) {
   return (
     <div className="space-y-6">
@@ -73,33 +82,41 @@ export function OperationsConsole({
             <TabsTrigger value="season">평가 시즌</TabsTrigger>
             <TabsTrigger value="tasks">과제 구성</TabsTrigger>
             <TabsTrigger value="weights">개인별 가중치</TabsTrigger>
-            <TabsTrigger value="scores">결과 입력</TabsTrigger>
+            <TabsTrigger value="scores">자격, 어학 입력</TabsTrigger>
             {showReset ? <TabsTrigger value="reset">초기화</TabsTrigger> : null}
           </TabsList>
         </div>
         <TabsContent value="roster">
           <RosterManagementPanel
-            disabled={disabled}
+            disabled={disabled || viewModel.cycleLocked}
             engineers={viewModel.rosterEngineers}
             evaluators={viewModel.rosterEvaluators}
+            linkedEngineerIds={linkedEngineerIds}
             onAddEngineers={onAddEngineers}
             onAddEvaluators={onAddEvaluators}
+            onDeleteEngineer={onDeleteEngineer}
+            onUpdateEngineer={onUpdateEngineer}
           />
         </TabsContent>
         <TabsContent value="season">
           <CycleCreatorPanel
+            cycleId={viewModel.cycleId}
             cycleCount={viewModel.cycleCount}
             cycleLabel={viewModel.cycleLabel}
+            cycleLocked={viewModel.cycleLocked}
             cycleStatus={viewModel.cycleStatus}
             disabled={disabled}
             endsAt={viewModel.cycleEndsAt}
             onCreate={onCreateCycle}
+            onSetLock={onSetCycleLock}
+            onUpdate={onUpdateCycle}
+            onDelete={onDeleteCycle}
             startsAt={viewModel.cycleStartsAt}
           />
         </TabsContent>
         <TabsContent value="tasks">
           <EvaluationTaskPanel
-            disabled={disabled}
+            disabled={disabled || viewModel.cycleLocked}
             evaluators={viewModel.evaluatorOptions}
             onDelete={onDeleteTask}
             onSave={onSaveTask}
@@ -109,7 +126,7 @@ export function OperationsConsole({
         </TabsContent>
         <TabsContent value="weights">
           <EngineerTaskWeightPanel
-            disabled={disabled}
+            disabled={disabled || viewModel.cycleLocked}
             onSave={onEngineerTaskWeightsChange}
             rows={viewModel.engineerTaskWeights}
           />
@@ -117,7 +134,7 @@ export function OperationsConsole({
         <TabsContent value="scores">
           <div className="space-y-4">
             <DirectScoreSourceEditor
-              disabled={disabled}
+              disabled={disabled || viewModel.cycleLocked}
               onDeleteCertificationRecord={onDeleteCertificationRecord}
               onDeleteLanguageRecord={onDeleteLanguageRecord}
               onSaveCertificationRecord={onSaveCertificationRecord}
@@ -125,8 +142,15 @@ export function OperationsConsole({
               onVerifySourceRecord={onVerifySourceRecord}
               rows={viewModel.directScores}
             />
+            <DirectScoreRulePanel
+              disabled={disabled || viewModel.cycleLocked}
+              onDelete={onDeleteDirectScoreRule}
+              onSave={onSaveDirectScoreRule}
+              operatorTasks={viewModel.operatorTasks ?? []}
+              rules={viewModel.directScoreRules ?? []}
+            />
             <DirectScoreEditor
-              disabled={disabled}
+              disabled={disabled || viewModel.cycleLocked}
               initialQuery={directScoreQuery}
               key={directScoreQuery}
               onScoreChange={onDirectScoreChange}
@@ -136,7 +160,7 @@ export function OperationsConsole({
         </TabsContent>
         {showReset ? (
           <TabsContent value="reset">
-            <ResetDemoPanel disabled={disabled} onReset={onResetDemoData} />
+            <ResetDemoPanel disabled={disabled || viewModel.cycleLocked} onReset={onResetDemoData} />
           </TabsContent>
         ) : null}
       </Tabs>

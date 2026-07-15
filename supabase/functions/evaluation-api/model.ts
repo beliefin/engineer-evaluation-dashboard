@@ -19,7 +19,7 @@ export type Profile = z.infer<typeof profileSchema>
 
 const cycle = z.object({
   id, name: z.string().trim().min(1), status: z.enum(["setup", "active", "closed"]),
-  startsAt: timestamp, endsAt: timestamp,
+  locked: z.boolean().default(false), startsAt: timestamp, endsAt: timestamp,
 })
 const engineer = z.object({
   id, employeeCode: z.string().trim().min(1), displayName: z.string().trim().min(1),
@@ -40,6 +40,17 @@ export const taskSchema = z.object({
 export type Task = z.infer<typeof taskSchema>
 const engineerTaskWeight = z.object({
   cycleId: id, engineerId: id, taskId: id, weight: z.number().min(0).max(100),
+})
+const directScoreRule = z.object({
+  id, cycleId: id, taskId: id,
+  kind: z.enum(["language", "certification"]),
+  label: z.string().trim().min(1).max(100),
+  field: z.enum(["examName", "result", "certificateName", "grade"]),
+  operator: z.enum(["equals", "contains", "gte"]),
+  value: z.string().trim().min(1).max(100),
+  ruleType: z.enum(["base", "bonus"]),
+  score: z.number().min(0).max(100), bonus: z.number().min(0).max(100),
+  enabled: z.boolean(), order: z.number().int().min(1),
 })
 export const assignmentSchema = z.object({
   id, cycleId: id, engineerId: id, evaluatorId: id, taskId: id,
@@ -80,7 +91,7 @@ const auditEvent = z.object({
 
 export const snapshotSchema = z.object({
   schemaVersion: z.literal(5), cycles: z.array(cycle).min(1), tasks: z.array(taskSchema),
-  engineerTaskWeights: z.array(engineerTaskWeight), engineers: z.array(engineer),
+  engineerTaskWeights: z.array(engineerTaskWeight), directScoreRules: z.array(directScoreRule).default([]), engineers: z.array(engineer),
   evaluators: z.array(evaluator), assignments: z.array(assignmentSchema),
   scoreSheets: z.array(scoreSheetSchema), directScores: z.array(directScoreSchema),
   languageScoreRecords: z.array(languageRecordSchema),

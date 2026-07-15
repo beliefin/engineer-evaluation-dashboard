@@ -11,7 +11,10 @@ export function RosterManagementPanel({
   evaluators,
   disabled = false,
   onAddEngineers,
+  onUpdateEngineer,
+  onDeleteEngineer,
   onAddEvaluators,
+  linkedEngineerIds = [],
 }: RosterManagementPanelProps) {
   return (
     <section
@@ -43,6 +46,9 @@ export function RosterManagementPanel({
               kind="engineer"
               onAddEngineers={onAddEngineers}
               onAddEvaluators={onAddEvaluators}
+              onDeleteEngineer={onDeleteEngineer}
+              onUpdateEngineer={onUpdateEngineer}
+              linkedEngineerIds={linkedEngineerIds}
               rows={engineers}
             />
           </TabsContent>
@@ -52,6 +58,9 @@ export function RosterManagementPanel({
               kind="evaluator"
               onAddEngineers={onAddEngineers}
               onAddEvaluators={onAddEvaluators}
+              onDeleteEngineer={onDeleteEngineer}
+              onUpdateEngineer={onUpdateEngineer}
+              linkedEngineerIds={linkedEngineerIds}
               rows={evaluators}
             />
           </TabsContent>

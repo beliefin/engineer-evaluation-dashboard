@@ -1,4 +1,5 @@
 import {
+  highestConvertedDirectScore,
   resolveEngineerTaskWeight,
   type EvaluationSnapshot,
 } from "@/domain"
@@ -58,9 +59,11 @@ export function selectOperationsViewModel(
   )
 
   return {
+    cycleId: cycle.id,
     cycleLabel: cycle.name,
     cycleCount: snapshot.cycles.length,
     cycleStatus: cycle.status,
+    cycleLocked: cycle.locked,
     cycleStartsAt: cycle.startsAt,
     cycleEndsAt: cycle.endsAt,
     tasks: tasks.map((task) => {
@@ -97,6 +100,9 @@ export function selectOperationsViewModel(
       customized: snapshot.engineerTaskWeights.some(
         (entry) => entry.cycleId === cycleId && entry.engineerId === engineer.id,
       ),
+      seasonDefaultsEnabled: !snapshot.engineerTaskWeights.some(
+        (entry) => entry.cycleId === cycleId && entry.engineerId === engineer.id,
+      ),
       tasks: tasks.map((task) => ({
         taskId: task.id,
         taskName: task.name,
@@ -124,13 +130,29 @@ export function selectOperationsViewModel(
         const stored = snapshot.directScores.find(
           (entry) => entry.cycleId === cycleId && entry.engineerId === engineer.id && entry.taskId === task.id,
         )
+        const taskRules = snapshot.directScoreRules.filter(
+          (rule) => rule.cycleId === cycleId && rule.taskId === task.id,
+        )
+        const languageRecords = snapshot.languageScoreRecords.filter(
+          (record) => record.cycleId === cycleId && record.engineerId === engineer.id,
+        )
+        const certificationRecords = snapshot.certificationRecords.filter(
+          (record) => record.cycleId === cycleId && record.engineerId === engineer.id,
+        )
+        const calculatedScore = taskRules.length === 0
+          ? null
+          : highestConvertedDirectScore(
+            taskRules[0]?.kind === "language" ? languageRecords : certificationRecords,
+            taskRules,
+          )
         return [{
           taskId: task.id,
           taskName: task.name,
           method: task.method === "operator_score" ? "operator_score" : "operator_pass_fail",
           weight: effectiveWeight,
-          score: stored?.score ?? null,
+          score: taskRules.length > 0 ? calculatedScore : stored?.score ?? null,
           passResult: stored?.passResult ?? null,
+          formulaDriven: taskRules.length > 0,
         }]
       }),
       languageRecords: snapshot.languageScoreRecords
@@ -162,6 +184,8 @@ export function selectOperationsViewModel(
     })),
     rosterEngineers: snapshot.engineers,
     rosterEvaluators: snapshot.evaluators,
+    directScoreRules: snapshot.directScoreRules.filter((rule) => rule.cycleId === cycleId),
+    operatorTasks: operatorTasks.map((task) => ({ taskId: task.id, taskName: task.name })),
     submittedSheets: selectSubmittedSheets(snapshot, cycleId),
   }
 }

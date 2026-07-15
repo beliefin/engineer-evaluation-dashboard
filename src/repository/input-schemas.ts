@@ -1,4 +1,8 @@
 import {
+  DIRECT_SCORE_RULE_FIELDS,
+  DIRECT_SCORE_RULE_KINDS,
+  DIRECT_SCORE_RULE_OPERATORS,
+  DIRECT_SCORE_RULE_TYPES,
   evaluationMethodSchema,
   roleSchema,
   scoreEntrySchema,
@@ -85,6 +89,50 @@ export const createEvaluationCycleInputSchema = z.object({
   path: ["endsAt"],
 })
 
+export const deleteEvaluationCycleInputSchema = z.object({
+  cycleId: idSchema,
+  actor: actorSchema,
+})
+
+export const updateEvaluationCycleInputSchema = z.object({
+  cycleId: idSchema,
+  name: z.string().trim().min(1).max(100),
+  status: z.enum(["setup", "active", "closed"]),
+  startsAt: z.iso.date(),
+  endsAt: z.iso.date(),
+  actor: actorSchema,
+}).refine((value) => value.startsAt <= value.endsAt, {
+  message: "?됯? 醫낅즺?쇱? ?쒖옉?쇰낫??鍮좊? ???놁뒿?덈뒗.",
+  path: ["endsAt"],
+})
+
+export const setEvaluationCycleLockInputSchema = z.object({
+  cycleId: idSchema,
+  locked: z.boolean(),
+  actor: actorSchema,
+})
+
+export const saveDirectScoreRuleInputSchema = z.object({
+  ruleId: idSchema.nullable(),
+  cycleId: idSchema,
+  taskId: idSchema,
+  kind: z.enum(DIRECT_SCORE_RULE_KINDS),
+  label: z.string().trim().min(1).max(100),
+  field: z.enum(DIRECT_SCORE_RULE_FIELDS),
+  operator: z.enum(DIRECT_SCORE_RULE_OPERATORS),
+  value: z.string().trim().min(1).max(100),
+  ruleType: z.enum(DIRECT_SCORE_RULE_TYPES),
+  score: z.number().finite().min(0).max(100).multipleOf(0.1),
+  bonus: z.number().finite().min(0).max(100).multipleOf(0.1),
+  enabled: z.boolean(),
+  actor: actorSchema,
+})
+
+export const deleteDirectScoreRuleInputSchema = z.object({
+  ruleId: idSchema,
+  actor: actorSchema,
+})
+
 export const saveEvaluationTaskInputSchema = z.object({
   taskId: idSchema.nullable(),
   cycleId: idSchema,
@@ -130,23 +178,33 @@ export const updateEngineerTaskWeightsInputSchema = z.object({
     taskId: idSchema,
     weight: z.number().finite().min(0).max(100).multipleOf(0.1),
   })).min(1).max(100),
+  useSeasonDefaults: z.boolean().default(false),
   actor: actorSchema,
 })
 
 const employeeCodeSchema = z.string().trim().min(1).max(50)
+const engineerFieldsSchema = z.object({
+  employeeCode: employeeCodeSchema,
+  displayName: z.string().trim().min(1).max(100),
+  team: teamSchema,
+  position: z.string().trim().min(1).max(100),
+})
 
 export const addEngineersInputSchema = z.object({
   cycleId: idSchema,
-  engineers: z
-    .array(
-      z.object({
-        employeeCode: employeeCodeSchema,
-        displayName: z.string().trim().min(1).max(100),
-        team: teamSchema,
-        position: z.string().trim().min(1).max(100),
-      }),
-    )
-    .min(1),
+  engineers: z.array(engineerFieldsSchema).min(1),
+  actor: actorSchema,
+})
+
+export const updateEngineerInputSchema = engineerFieldsSchema.extend({
+  cycleId: idSchema,
+  engineerId: idSchema,
+  actor: actorSchema,
+})
+
+export const deleteEngineerInputSchema = z.object({
+  cycleId: idSchema,
+  engineerId: idSchema,
   actor: actorSchema,
 })
 

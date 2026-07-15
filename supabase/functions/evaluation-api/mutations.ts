@@ -12,6 +12,16 @@ function audit(snapshot: Snapshot, profile: Profile, type: string, cycleId: stri
   }
 }
 
+function requireUnlockedCycle(snapshot: Snapshot, cycleId: string): void {
+  const cycle = snapshot.cycles.find((entry) => entry.id === cycleId)
+  if (cycle === undefined) {
+    throw new ApiError(404, "NOT_FOUND", "evaluation cycle not found")
+  }
+  if (cycle.locked) {
+    throw new ApiError(409, "TASK_LOCKED", "locked evaluation cycles cannot accept score changes")
+  }
+}
+
 function validateSheet(task: Task, request: SheetRequest): void {
   if (task.method === "evaluator_pass_fail") {
     if (request.scores.length > 0) throw new ApiError(400, "INVALID_INPUT", "P/F 평가는 점수 항목을 받지 않습니다.")
@@ -41,6 +51,7 @@ export function mutateSheet(snapshot: Snapshot, profile: Profile, request: Sheet
   if (assignment === undefined || assignment.evaluatorId !== profile.evaluator_id) {
     throw new ApiError(403, "FORBIDDEN", "배정된 평가지만 수정할 수 있습니다.")
   }
+  requireUnlockedCycle(snapshot, assignment.cycleId)
   const task = snapshot.tasks.find((entry) => entry.id === assignment.taskId)
   if (task === undefined) throw new ApiError(404, "NOT_FOUND", "평가 과제를 찾을 수 없습니다.")
   validateSheet(task, request)
@@ -67,6 +78,7 @@ function requireEngineer(snapshot: Snapshot, profile: Profile, engineerId: strin
       !snapshot.cycles.some((entry) => entry.id === cycleId)) {
     throw new ApiError(404, "NOT_FOUND", "평가 대상 또는 평가 시즌을 찾을 수 없습니다.")
   }
+  requireUnlockedCycle(snapshot, cycleId)
 }
 
 export function mutateSource(snapshot: Snapshot, profile: Profile, request: SourceRequest): Snapshot {

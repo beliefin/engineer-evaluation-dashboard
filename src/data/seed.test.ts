@@ -38,7 +38,7 @@ describe("createSeedSnapshot", () => {
       "자격증",
       "고등급제안",
     ])
-    expect(snapshot.tasks.reduce((total, task) => total + task.weight, 0)).toBe(100)
+    expect(snapshot.tasks.reduce((total, task) => total + task.weight, 0)).toBe(135)
     const firstEngineerWeights = snapshot.engineerTaskWeights.filter(
       (entry) => entry.engineerId === snapshot.engineers[0]?.id,
     )

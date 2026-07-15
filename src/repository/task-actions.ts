@@ -17,7 +17,7 @@ import {
   type MutationContext,
 } from "./mutation-context"
 import {
-  requireCycle,
+  requireCycleUnlocked,
   requireOperator,
   requireTask,
 } from "./repository-helpers"
@@ -126,7 +126,7 @@ export function saveEvaluationTaskAction(
 ): EvaluationSnapshot {
   const parsed = parseRepositoryInput(saveEvaluationTaskInputSchema, input)
   requireOperator(parsed.actor)
-  requireCycle(context.snapshot, parsed.cycleId)
+  requireCycleUnlocked(context.snapshot, parsed.cycleId)
 
   const existing = parsed.taskId === null
     ? undefined
@@ -197,12 +197,16 @@ export function deleteEvaluationTaskAction(
   const parsed = parseRepositoryInput(deleteEvaluationTaskInputSchema, input)
   requireOperator(parsed.actor)
   const task = requireTask(context.snapshot, parsed.taskId)
+  requireCycleUnlocked(context.snapshot, task.cycleId)
   assertTaskEditable(context.snapshot, task.id)
   const artifacts = removeTaskArtifacts(context.snapshot, task.id)
   const snapshot: EvaluationSnapshot = {
     ...context.snapshot,
     tasks: context.snapshot.tasks.filter((candidate) => candidate.id !== task.id),
     engineerTaskWeights: context.snapshot.engineerTaskWeights.filter(
+      (entry) => entry.taskId !== task.id,
+    ),
+    directScoreRules: context.snapshot.directScoreRules.filter(
       (entry) => entry.taskId !== task.id,
     ),
     ...artifacts,

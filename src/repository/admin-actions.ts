@@ -3,7 +3,7 @@ import type { DirectScore, EvaluationSnapshot } from "@/domain"
 import { parseRepositoryInput, updateDirectScoreInputSchema } from "./input-schemas"
 import { appendAuditEvent, type MutationContext } from "./mutation-context"
 import {
-  requireCycle,
+  requireCycleUnlocked,
   requireEngineer,
   requireOperator,
   requireTask,
@@ -16,7 +16,7 @@ export function updateDirectScoreAction(
 ): EvaluationSnapshot {
   const parsed = parseRepositoryInput(updateDirectScoreInputSchema, input)
   requireOperator(parsed.actor)
-  requireCycle(context.snapshot, parsed.cycleId)
+  requireCycleUnlocked(context.snapshot, parsed.cycleId)
   requireEngineer(context.snapshot, parsed.engineerId)
   const task = requireTask(context.snapshot, parsed.taskId)
   if (task.cycleId !== parsed.cycleId) {

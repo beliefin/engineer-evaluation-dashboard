@@ -9,9 +9,12 @@ import type {
   RepositoryActor,
   SaveCertificationRecordInput,
   SaveLanguageScoreRecordInput,
+  SaveDirectScoreRuleInput,
   SaveEvaluationTaskInput,
+  SetEvaluationCycleLockInput,
   SourceRecordKind,
   UpdateScheduleEventInput,
+  UpdateEvaluationCycleInput,
 } from "@/repository"
 
 export type RepositoryMutation = (repository: EvaluationRepository) => EvaluationSnapshot
@@ -43,6 +46,13 @@ export type EvaluationActions = Readonly<{
   deleteCertificationRecord: (recordId: string) => boolean
   verifySourceRecord: (recordId: string, recordKind: SourceRecordKind) => boolean
   createEvaluationCycle: (input: NewEvaluationCycleInput) => boolean
+  updateEvaluationCycle: (
+    input: Omit<UpdateEvaluationCycleInput, "cycleId" | "actor">,
+  ) => boolean
+  setEvaluationCycleLock: (locked: boolean) => boolean
+  deleteEvaluationCycle: (cycleId: string) => boolean
+  saveDirectScoreRule: (input: Omit<SaveDirectScoreRuleInput, "cycleId" | "actor" | "ruleId"> & Readonly<{ ruleId: string | null }>) => boolean
+  deleteDirectScoreRule: (ruleId: string) => boolean
   saveEvaluationTask: (
     input: Omit<SaveEvaluationTaskInput, "cycleId" | "actor">,
   ) => boolean
@@ -50,8 +60,11 @@ export type EvaluationActions = Readonly<{
   updateEngineerTaskWeights: (
     engineerId: string,
     weights: ReadonlyArray<Readonly<{ taskId: string; weight: number }>>,
+    useSeasonDefaults?: boolean,
   ) => boolean
   addEngineers: (engineers: ReadonlyArray<NewEngineerInput>) => boolean
+  updateEngineer: (engineerId: string, engineer: NewEngineerInput) => boolean
+  deleteEngineer: (engineerId: string) => boolean
   addEvaluators: (evaluators: ReadonlyArray<NewEvaluatorInput>) => boolean
   createScheduleEvent: (
     input: Omit<CreateScheduleEventInput, "cycleId" | "actor">,
@@ -66,6 +79,7 @@ export type EvaluationActions = Readonly<{
 
 type EvaluationActionDependencies = Readonly<{
   activeCycleId: string
+  snapshot: EvaluationSnapshot | null
   actor: RepositoryActor
   mutate: MutateRepository
   selectCycle: (cycleId: string) => void
@@ -73,6 +87,7 @@ type EvaluationActionDependencies = Readonly<{
 
 export function createEvaluationActions({
   activeCycleId,
+  snapshot,
   actor,
   mutate,
   selectCycle,
@@ -172,6 +187,54 @@ export function createEvaluationActions({
       if (saved && createdCycleId !== null) selectCycle(createdCycleId)
       return saved
     },
+    updateEvaluationCycle: (input) =>
+      mutate(
+        (repository) => repository.updateEvaluationCycle({
+          ...input,
+          cycleId: activeCycleId,
+          actor,
+        }),
+        "평가 시즌 설정을 저장했습니다.",
+        { type: "operator", action: "cycle_updated", targetId: activeCycleId },
+      ),
+    setEvaluationCycleLock: (locked) =>
+      mutate(
+        (repository) => repository.setEvaluationCycleLock({
+          cycleId: activeCycleId,
+          locked,
+          actor,
+        } satisfies SetEvaluationCycleLockInput),
+        locked ? "평가 시즌을 잠갔습니다." : "평가 시즌 잠금을 해제했습니다.",
+        {
+          type: "operator",
+          action: locked ? "cycle_locked" : "cycle_unlocked",
+          targetId: activeCycleId,
+        },
+      ),
+    deleteEvaluationCycle: (cycleId) => {
+      const saved = mutate(
+        (repository) => repository.deleteEvaluationCycle({ cycleId, actor }),
+        "평가 시즌을 삭제했습니다.",
+        { type: "operator", action: "cycle_deleted", targetId: cycleId },
+      )
+      if (saved && cycleId === activeCycleId) {
+        const nextCycle = snapshot?.cycles.find((cycle) => cycle.id !== cycleId)?.id
+        if (nextCycle !== undefined) selectCycle(nextCycle)
+      }
+      return saved
+    },
+    saveDirectScoreRule: (input) =>
+      mutate(
+        (repository) => repository.saveDirectScoreRule({ ...input, cycleId: activeCycleId, actor }),
+        "환산 규칙을 저장했습니다.",
+        { type: "operator", action: "direct_score_rule_saved", targetId: input.ruleId },
+      ),
+    deleteDirectScoreRule: (ruleId) =>
+      mutate(
+        (repository) => repository.deleteDirectScoreRule({ ruleId, actor }),
+        "환산 규칙을 삭제했습니다.",
+        { type: "operator", action: "direct_score_rule_deleted", targetId: ruleId },
+      ),
     saveEvaluationTask: (input) =>
       mutate(
         (repository) => repository.saveEvaluationTask({
@@ -188,12 +251,13 @@ export function createEvaluationActions({
         "과제를 삭제했습니다.",
         { type: "operator", action: "task_deleted", targetId: taskId },
       ),
-    updateEngineerTaskWeights: (engineerId, weights) =>
+    updateEngineerTaskWeights: (engineerId, weights, useSeasonDefaults = false) =>
       mutate(
         (repository) => repository.updateEngineerTaskWeights({
           cycleId: activeCycleId,
           engineerId,
           weights,
+          useSeasonDefaults,
           actor,
         }),
         "개인별 과제 가중치를 저장했습니다.",
@@ -208,6 +272,27 @@ export function createEvaluationActions({
         }),
         `${engineers.length}명의 엔지니어를 등록했습니다.`,
         { type: "operator", action: "engineer_added", targetId: null },
+      ),
+    updateEngineer: (engineerId, engineer) =>
+      mutate(
+        (repository) => repository.updateEngineer({
+          ...engineer,
+          cycleId: activeCycleId,
+          engineerId,
+          actor,
+        }),
+        "엔지니어 정보를 수정했습니다.",
+        { type: "operator", action: "engineer_updated", targetId: engineerId },
+      ),
+    deleteEngineer: (engineerId) =>
+      mutate(
+        (repository) => repository.deleteEngineer({
+          cycleId: activeCycleId,
+          engineerId,
+          actor,
+        }),
+        "엔지니어를 삭제했습니다.",
+        { type: "operator", action: "engineer_deleted", targetId: engineerId },
       ),
     addEvaluators: (evaluators) =>
       mutate(

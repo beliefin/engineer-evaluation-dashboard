@@ -1,6 +1,6 @@
 "use client"
 
-import { CalendarPlus } from "lucide-react"
+import { CalendarPlus, LockKeyhole, UnlockKeyhole } from "lucide-react"
 import { useState, type FormEvent } from "react"
 
 import { Badge } from "@/components/ui/badge"
@@ -26,19 +26,25 @@ import {
 } from "@/components/ui/select"
 
 import { OperationPanel } from "./operation-panel"
+import { CycleSettingsDialog } from "./cycle-settings-dialog"
 import type {
   EvaluationCycleDraft,
-  OperationsCycleStatus,
+  EvaluationCycleSettingsDraft,
 } from "./types"
 
 interface CycleCreatorPanelProps {
+  readonly cycleId?: string | undefined
   readonly cycleLabel: string
   readonly cycleCount: number
   readonly cycleStatus: "setup" | "active" | "closed"
+  readonly cycleLocked: boolean
   readonly startsAt: string
   readonly endsAt: string
   readonly disabled: boolean
   readonly onCreate: (cycle: EvaluationCycleDraft) => boolean
+  readonly onUpdate: (cycle: EvaluationCycleSettingsDraft) => boolean
+  readonly onSetLock: (locked: boolean) => boolean
+  readonly onDelete?: ((cycleId: string) => boolean) | undefined
 }
 
 const STATUS_LABELS = {
@@ -49,16 +55,21 @@ const STATUS_LABELS = {
 
 export function CycleCreatorPanel({
   cycleLabel,
+  cycleId,
   cycleCount,
   cycleStatus,
+  cycleLocked,
   startsAt,
   endsAt,
   disabled,
   onCreate,
+  onUpdate,
+  onSetLock,
+  onDelete,
 }: CycleCreatorPanelProps) {
   const [open, setOpen] = useState(false)
   const [name, setName] = useState("")
-  const [status, setStatus] = useState<OperationsCycleStatus>("setup")
+  const [status, setStatus] = useState<"setup" | "active">("setup")
   const [cycleStartsAt, setCycleStartsAt] = useState("")
   const [cycleEndsAt, setCycleEndsAt] = useState("")
   const [copyConfiguration, setCopyConfiguration] = useState(true)
@@ -117,7 +128,41 @@ export function CycleCreatorPanel({
             {STATUS_LABELS[cycleStatus]} · {startsAt} ~ {endsAt}
           </p>
         </div>
-        <Dialog onOpenChange={handleOpenChange} open={open}>
+        <div className="flex flex-wrap justify-end gap-2">
+          <CycleSettingsDialog
+            cycleLabel={cycleLabel}
+            cycleStatus={cycleStatus}
+            disabled={disabled || cycleLocked}
+            endsAt={endsAt}
+            onUpdate={onUpdate}
+            startsAt={startsAt}
+          />
+          <Button
+            disabled={disabled}
+            onClick={() => {
+              const action = cycleLocked ? "잠금 해제" : "잠금"
+              if (window.confirm(`${cycleLabel} 시즌을 ${action}하시겠습니까?`)) {
+                onSetLock(!cycleLocked)
+              }
+            }}
+            type="button"
+            variant="outline"
+          >
+            {cycleLocked ? <UnlockKeyhole aria-hidden="true" /> : <LockKeyhole aria-hidden="true" />}
+            {cycleLocked ? "시즌 잠금 해제" : "시즌 잠금"}
+          </Button>
+          <Button
+            disabled={disabled || cycleLocked || onDelete === undefined || cycleCount <= 1 || cycleStatus === "active"}
+            onClick={() => {
+              if (onDelete !== undefined && cycleId !== undefined && window.confirm(`${cycleLabel} 시즌을 삭제할까요? 제출된 평가가 있는 시즌은 삭제할 수 없습니다.`)) onDelete(cycleId)
+            }}
+            title={cycleLocked ? "잠긴 시즌은 잠금 해제 후 삭제할 수 있습니다." : cycleStatus === "active" ? "진행 중인 시즌은 삭제할 수 없습니다." : undefined}
+            type="button"
+            variant="outline"
+          >
+            시즌 삭제
+          </Button>
+          <Dialog onOpenChange={handleOpenChange} open={open}>
           <DialogTrigger asChild>
             <Button disabled={disabled} type="button">
               <CalendarPlus aria-hidden="true" />
@@ -192,7 +237,8 @@ export function CycleCreatorPanel({
               </DialogFooter>
             </form>
           </DialogContent>
-        </Dialog>
+          </Dialog>
+        </div>
       </div>
     </OperationPanel>
   )

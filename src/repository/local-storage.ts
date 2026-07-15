@@ -2,7 +2,14 @@ import type { EvaluationSnapshot } from "@/domain"
 
 import { createSeedSnapshot } from "@/data/seed"
 
-import { createEvaluationCycleAction } from "./cycle-actions"
+import {
+  createEvaluationCycleAction,
+  deleteEvaluationCycleAction,
+  setEvaluationCycleLockAction,
+  updateEvaluationCycleAction,
+} from "./cycle-actions"
+import { deleteDirectScoreRuleAction, saveDirectScoreRuleAction } from "./direct-score-rule-actions"
+import { deleteEngineerAction, updateEngineerAction } from "./engineer-roster-actions"
 
 import { updateDirectScoreAction } from "./admin-actions"
 import { type MutationContext } from "./mutation-context"
@@ -39,8 +46,11 @@ import type {
   CreateScheduleEventInput,
   CreateEvaluationCycleInput,
   DeleteSourceRecordInput,
+  DeleteEngineerInput,
   DeleteScheduleEventInput,
   DeleteEvaluationTaskInput,
+  DeleteEvaluationCycleInput,
+  DeleteDirectScoreRuleInput,
   EvaluationRepository,
   ReopenSheetInput,
   RepositoryConfig,
@@ -48,8 +58,12 @@ import type {
   SaveCertificationRecordInput,
   SaveLanguageScoreRecordInput,
   SaveEvaluationTaskInput,
+  SaveDirectScoreRuleInput,
+  SetEvaluationCycleLockInput,
   SheetActionInput,
   UpdateDirectScoreInput,
+  UpdateEngineerInput,
+  UpdateEvaluationCycleInput,
   UpdateEngineerTaskWeightsInput,
   UpdateScheduleEventInput,
   VerifySourceRecordInput,
@@ -108,6 +122,26 @@ class LocalStorageEvaluationRepository implements EvaluationRepository {
     return this.persist(createEvaluationCycleAction(this.context(), input))
   }
 
+  updateEvaluationCycle(input: UpdateEvaluationCycleInput): EvaluationSnapshot {
+    return this.persist(updateEvaluationCycleAction(this.context(), input))
+  }
+
+  setEvaluationCycleLock(input: SetEvaluationCycleLockInput): EvaluationSnapshot {
+    return this.persist(setEvaluationCycleLockAction(this.context(), input))
+  }
+
+  deleteEvaluationCycle(input: DeleteEvaluationCycleInput): EvaluationSnapshot {
+    return this.persist(deleteEvaluationCycleAction(this.context(), input))
+  }
+
+  saveDirectScoreRule(input: SaveDirectScoreRuleInput): EvaluationSnapshot {
+    return this.persist(saveDirectScoreRuleAction(this.context(), input))
+  }
+
+  deleteDirectScoreRule(input: DeleteDirectScoreRuleInput): EvaluationSnapshot {
+    return this.persist(deleteDirectScoreRuleAction(this.context(), input))
+  }
+
   saveEvaluationTask(input: SaveEvaluationTaskInput): EvaluationSnapshot {
     return this.persist(saveEvaluationTaskAction(this.context(), input))
   }
@@ -122,6 +156,14 @@ class LocalStorageEvaluationRepository implements EvaluationRepository {
 
   addEngineers(input: AddEngineersInput): EvaluationSnapshot {
     return this.persist(addEngineersAction(this.context(), input))
+  }
+
+  updateEngineer(input: UpdateEngineerInput): EvaluationSnapshot {
+    return this.persist(updateEngineerAction(this.context(), input))
+  }
+
+  deleteEngineer(input: DeleteEngineerInput): EvaluationSnapshot {
+    return this.persist(deleteEngineerAction(this.context(), input))
   }
 
   addEvaluators(input: AddEvaluatorsInput): EvaluationSnapshot {

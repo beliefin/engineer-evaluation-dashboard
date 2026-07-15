@@ -8,10 +8,11 @@ import {
   OperationsConsole,
   type OperationsTab,
 } from "@/features/operations"
-import { useEvaluation } from "@/providers"
+import { useAuth, useEvaluation } from "@/providers"
 import { selectOperationsViewModel } from "@/view-models/operations"
 
 export function OperationsScreen() {
+  const { accounts } = useAuth()
   const pathname = usePathname()
   const router = useRouter()
   const searchParams = useSearchParams()
@@ -20,6 +21,9 @@ export function OperationsScreen() {
     activeCycleId,
     backendMode,
     createEvaluationCycle,
+    updateEvaluationCycle,
+    setEvaluationCycleLock,
+    deleteEvaluationCycle,
     saveEvaluationTask,
     deleteEvaluationTask,
     updateEngineerTaskWeights,
@@ -30,8 +34,12 @@ export function OperationsScreen() {
     deleteCertificationRecord,
     verifySourceRecord,
     addEngineers,
+    updateEngineer,
+    deleteEngineer,
     addEvaluators,
     resetDemoData,
+    saveDirectScoreRule,
+    deleteDirectScoreRule,
   } = useEvaluation()
   const requestedTab = parseOperationsTab(searchParams.get("tab"))
   const urlTab = backendMode === "supabase" && requestedTab === "reset" ? "roster" : requestedTab
@@ -72,8 +80,12 @@ export function OperationsScreen() {
     <OperationsConsole
       activeTab={tab}
       directScoreQuery={searchParams.get("q") ?? ""}
+      linkedEngineerIds={accounts.flatMap((account) =>
+        account.engineerId === null ? [] : [account.engineerId])}
       onAddEngineers={addEngineers}
       onAddEvaluators={addEvaluators}
+      onDeleteEngineer={deleteEngineer}
+      onUpdateEngineer={updateEngineer}
       onDirectScoreChange={changeDirectScore}
       onSaveLanguageRecord={saveLanguageScoreRecord}
       onDeleteLanguageRecord={deleteLanguageScoreRecord}
@@ -82,9 +94,14 @@ export function OperationsScreen() {
       onVerifySourceRecord={verifySourceRecord}
       onResetDemoData={resetDemoData}
       onCreateCycle={createEvaluationCycle}
+      onUpdateCycle={updateEvaluationCycle}
+      onSetCycleLock={setEvaluationCycleLock}
+      onDeleteCycle={deleteEvaluationCycle}
       onSaveTask={saveEvaluationTask}
       onDeleteTask={deleteEvaluationTask}
       onEngineerTaskWeightsChange={updateEngineerTaskWeights}
+      onSaveDirectScoreRule={saveDirectScoreRule}
+      onDeleteDirectScoreRule={deleteDirectScoreRule}
       onTabChange={changeTab}
       showReset={backendMode === "local"}
       viewModel={model}

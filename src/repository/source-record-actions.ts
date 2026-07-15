@@ -17,7 +17,7 @@ import {
   type MutationContext,
 } from "./mutation-context"
 import {
-  requireCycle,
+  requireCycleUnlocked,
   requireEngineer,
   requireOperator,
   requireSourceRecordActor,
@@ -40,7 +40,7 @@ export function saveLanguageScoreRecordAction(
 ): EvaluationSnapshot {
   const parsed = parseRepositoryInput(saveLanguageScoreRecordInputSchema, input)
   requireSourceRecordActor(parsed.actor, parsed.engineerId)
-  requireCycle(context.snapshot, parsed.cycleId)
+  requireCycleUnlocked(context.snapshot, parsed.cycleId)
   requireEngineer(context.snapshot, parsed.engineerId)
   const existing = parsed.recordId === null
     ? undefined
@@ -90,6 +90,7 @@ export function deleteLanguageScoreRecordAction(
     throw new RepositoryError("NOT_FOUND", "어학 성적 기록을 찾을 수 없습니다.")
   }
   requireSourceRecordActor(parsed.actor, record.engineerId)
+  requireCycleUnlocked(context.snapshot, record.cycleId)
   return appendAuditEvent(context, {
     ...context.snapshot,
     languageScoreRecords: context.snapshot.languageScoreRecords.filter(
@@ -109,7 +110,7 @@ export function saveCertificationRecordAction(
 ): EvaluationSnapshot {
   const parsed = parseRepositoryInput(saveCertificationRecordInputSchema, input)
   requireSourceRecordActor(parsed.actor, parsed.engineerId)
-  requireCycle(context.snapshot, parsed.cycleId)
+  requireCycleUnlocked(context.snapshot, parsed.cycleId)
   requireEngineer(context.snapshot, parsed.engineerId)
   const existing = parsed.recordId === null
     ? undefined
@@ -159,6 +160,7 @@ export function deleteCertificationRecordAction(
     throw new RepositoryError("NOT_FOUND", "자격증 기록을 찾을 수 없습니다.")
   }
   requireSourceRecordActor(parsed.actor, record.engineerId)
+  requireCycleUnlocked(context.snapshot, record.cycleId)
   return appendAuditEvent(context, {
     ...context.snapshot,
     certificationRecords: context.snapshot.certificationRecords.filter(
@@ -184,6 +186,7 @@ export function verifySourceRecordAction(
   if (record === undefined) {
     throw new RepositoryError("NOT_FOUND", "검토할 원천 실적을 찾을 수 없습니다.")
   }
+  requireCycleUnlocked(context.snapshot, record.cycleId)
   return appendAuditEvent(context, context.snapshot, {
     cycleId: record.cycleId,
     type: "source_record_verified",

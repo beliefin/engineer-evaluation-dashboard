@@ -136,11 +136,13 @@ export function migrateVersionThreeSnapshot(
       id: cycle.id,
       name: cycle.name,
       status: cycle.status,
+      locked: false,
       startsAt: cycle.startsAt,
       endsAt: cycle.endsAt,
     })),
     tasks,
     engineerTaskWeights: [],
+    directScoreRules: [],
     engineers: previous.engineers.map((engineer, index) => ({
       ...engineer,
       team: teamForLegacyValue(engineer.team, index),
@@ -186,6 +188,7 @@ export function migrateVersionFourSnapshot(
     ...previous,
     schemaVersion: 5,
     engineerTaskWeights: [],
+    directScoreRules: [],
   }
 }
 

@@ -17,7 +17,7 @@ import {
   createEntityId,
   type MutationContext,
 } from "./mutation-context"
-import { requireCycle, requireOperator } from "./repository-helpers"
+import { requireCycleUnlocked, requireOperator } from "./repository-helpers"
 import {
   RepositoryError,
   type AddEngineersInput,
@@ -48,7 +48,7 @@ export function addEngineersAction(
 ): EvaluationSnapshot {
   const parsed = parseRepositoryInput(addEngineersInputSchema, input)
   requireOperator(parsed.actor)
-  requireCycle(context.snapshot, parsed.cycleId)
+  requireCycleUnlocked(context.snapshot, parsed.cycleId)
   requireUniqueCodes(
     context.snapshot.engineers.map((engineer) => engineer.employeeCode),
     parsed.engineers.map((engineer) => engineer.employeeCode),
@@ -124,7 +124,7 @@ export function addEvaluatorsAction(
 ): EvaluationSnapshot {
   const parsed = parseRepositoryInput(addEvaluatorsInputSchema, input)
   requireOperator(parsed.actor)
-  requireCycle(context.snapshot, parsed.cycleId)
+  requireCycleUnlocked(context.snapshot, parsed.cycleId)
   requireUniqueCodes(
     context.snapshot.evaluators.map((evaluator) => evaluator.employeeCode),
     parsed.evaluators.map((evaluator) => evaluator.employeeCode),

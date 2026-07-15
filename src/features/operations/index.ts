@@ -2,8 +2,11 @@ export { OperationsConsole } from "./operations-console"
 export type {
   CertificationRecordDraft,
   CertificationRecordViewModel,
+  DirectScoreRuleDraft,
+  DirectScoreRuleViewModel,
   EngineerDirectScoreViewModel,
   EvaluationCycleDraft,
+  EvaluationCycleSettingsDraft,
   EvaluationTaskDraft,
   EvaluationTaskViewModel,
   EngineerTaskWeightItemViewModel,

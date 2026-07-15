@@ -6,6 +6,7 @@ import { OperationsConsole } from "./operations-console"
 const VIEW_MODEL = {
   cycleLabel: "2026 상반기",
   cycleCount: 1,
+  cycleLocked: false,
   cycleStatus: "active",
   cycleStartsAt: "2026-01-02",
   cycleEndsAt: "2026-06-30",
@@ -31,8 +32,12 @@ describe("OperationsConsole", () => {
         onVerifySourceRecord={vi.fn(() => true)}
         onAddEngineers={vi.fn(() => true)}
         onAddEvaluators={vi.fn(() => true)}
+        onDeleteEngineer={vi.fn(() => true)}
+        onUpdateEngineer={vi.fn(() => true)}
         onResetDemoData={vi.fn()}
         onCreateCycle={vi.fn(() => true)}
+        onUpdateCycle={vi.fn(() => true)}
+        onSetCycleLock={vi.fn(() => true)}
         onSaveTask={vi.fn(() => true)}
         onDeleteTask={vi.fn(() => true)}
         onEngineerTaskWeightsChange={vi.fn(() => true)}

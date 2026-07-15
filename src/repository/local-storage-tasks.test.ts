@@ -42,6 +42,21 @@ describe("LocalStorageEvaluationRepository task configuration", () => {
     expect(JSON.stringify(repository.loadSnapshot())).toContain('"taskId":"task-ots-scenario","weight":35')
   })
 
+  it("blocks season defaults when optional task weights do not form a 100% personal allocation", () => {
+    const repository = createRepository()
+    const snapshot = repository.loadSnapshot()
+    const engineer = snapshot.engineers[0]
+    if (engineer === undefined) throw new RangeError("engineer missing")
+
+    expect(() => repository.updateEngineerTaskWeights({
+      cycleId: CYCLE_ID,
+      engineerId: engineer.id,
+      weights: snapshot.tasks.map((task) => ({ taskId: task.id, weight: task.weight })),
+      useSeasonDefaults: true,
+      actor: OPERATOR,
+    })).toThrowError(expect.objectContaining({ code: "INVALID_INPUT" }))
+  })
+
   it("Given an evaluator P/F task When saved Then assignments and blank sheets are synchronized for every engineer", () => {
     const repository = createRepository()
     const snapshot = repository.loadSnapshot()

@@ -83,7 +83,7 @@ export function DashboardScreen() {
         asOfLabel={cycle === undefined ? "평가 시즌 기준" : `${cycle.startsAt} ~ ${cycle.endsAt}`}
         contextLabel="평가 운영"
         cycleLabel={cycle?.name ?? "평가 시즌"}
-        description="시즌 과제의 평가와 운영자 입력이 모두 끝나고 가중치 합계가 100%인 대상만 공식 순위에 반영됩니다."
+        description="시즌 과제의 평가와 운영자 입력이 모두 끝나고 엔지니어별 적용 가중치 합계가 100%인 대상만 공식 순위에 반영됩니다."
         sampleLabel={backendMode === "supabase" ? "운영 데이터" : "샘플 데이터"}
         title="엔지니어 역량평가 전체 현황"
       />

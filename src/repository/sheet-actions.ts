@@ -9,6 +9,7 @@ import {
 import { appendAuditEvent, type MutationContext } from "./mutation-context"
 import {
   requireAssignment,
+  requireCycleUnlocked,
   requireOperator,
   requireSheet,
   requireSheetActor,
@@ -30,6 +31,7 @@ export function saveDraftAction(
   const sheet = requireSheet(context.snapshot, parsed.sheetId)
   const assignment = requireAssignment(context.snapshot, sheet.assignmentId)
   requireSheetActor(parsed.actor, assignment)
+  requireCycleUnlocked(context.snapshot, assignment.cycleId)
   if (sheet.status === "submitted") {
     throw new RepositoryError("SHEET_LOCKED", "submitted score sheets are locked")
   }
@@ -56,6 +58,7 @@ export function submitSheetAction(
   const sheet = requireSheet(context.snapshot, parsed.sheetId)
   const assignment = requireAssignment(context.snapshot, sheet.assignmentId)
   requireSheetActor(parsed.actor, assignment)
+  requireCycleUnlocked(context.snapshot, assignment.cycleId)
   if (sheet.status === "submitted") {
     throw new RepositoryError("SHEET_LOCKED", "score sheet is already submitted")
   }
@@ -104,6 +107,7 @@ export function reopenSheetAction(
     throw new RepositoryError("INVALID_INPUT", "score sheet is already open")
   }
   const assignment = requireAssignment(context.snapshot, sheet.assignmentId)
+  requireCycleUnlocked(context.snapshot, assignment.cycleId)
   const nextSheet: ScoreSheet = {
     ...sheet,
     status: "draft",

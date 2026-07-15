@@ -1,6 +1,8 @@
 import type {
+  DirectScoreRule,
   EvaluationMethod,
   EvaluationSnapshot,
+  EvaluationSeasonStatus,
   Role,
   ScoreEntry,
   Team,
@@ -100,6 +102,47 @@ export type NewEvaluationCycleInput = Readonly<{
   copyConfiguration: boolean
 }>
 
+export type DeleteEvaluationCycleInput = Readonly<{
+  cycleId: string
+  actor: RepositoryActor
+}>
+
+export type UpdateEvaluationCycleInput = Readonly<{
+  cycleId: string
+  name: string
+  status: EvaluationSeasonStatus
+  startsAt: string
+  endsAt: string
+  actor: RepositoryActor
+}>
+
+export type SetEvaluationCycleLockInput = Readonly<{
+  cycleId: string
+  locked: boolean
+  actor: RepositoryActor
+}>
+
+export type SaveDirectScoreRuleInput = Readonly<{
+  ruleId: string | null
+  cycleId: string
+  taskId: string
+  kind: DirectScoreRule["kind"]
+  label: string
+  field: DirectScoreRule["field"]
+  operator: DirectScoreRule["operator"]
+  value: string
+  ruleType: DirectScoreRule["ruleType"]
+  score: number
+  bonus: number
+  enabled: boolean
+  actor: RepositoryActor
+}>
+
+export type DeleteDirectScoreRuleInput = Readonly<{
+  ruleId: string
+  actor: RepositoryActor
+}>
+
 export type CreateEvaluationCycleInput = NewEvaluationCycleInput & Readonly<{
   sourceCycleId: string
   actor: RepositoryActor
@@ -136,6 +179,7 @@ export type UpdateEngineerTaskWeightsInput = Readonly<{
   cycleId: string
   engineerId: string
   weights: ReadonlyArray<Readonly<{ taskId: string; weight: number }>>
+  useSeasonDefaults?: boolean
   actor: RepositoryActor
 }>
 
@@ -149,6 +193,18 @@ export type NewEngineerInput = Readonly<{
 export type AddEngineersInput = Readonly<{
   cycleId: string
   engineers: ReadonlyArray<NewEngineerInput>
+  actor: RepositoryActor
+}>
+
+export type UpdateEngineerInput = NewEngineerInput & Readonly<{
+  cycleId: string
+  engineerId: string
+  actor: RepositoryActor
+}>
+
+export type DeleteEngineerInput = Readonly<{
+  cycleId: string
+  engineerId: string
   actor: RepositoryActor
 }>
 
@@ -201,10 +257,17 @@ export interface EvaluationRepository {
   deleteCertificationRecord(input: DeleteSourceRecordInput): EvaluationSnapshot
   verifySourceRecord(input: VerifySourceRecordInput): EvaluationSnapshot
   createEvaluationCycle(input: CreateEvaluationCycleInput): EvaluationSnapshot
+  updateEvaluationCycle(input: UpdateEvaluationCycleInput): EvaluationSnapshot
+  setEvaluationCycleLock(input: SetEvaluationCycleLockInput): EvaluationSnapshot
+  deleteEvaluationCycle(input: DeleteEvaluationCycleInput): EvaluationSnapshot
+  saveDirectScoreRule(input: SaveDirectScoreRuleInput): EvaluationSnapshot
+  deleteDirectScoreRule(input: DeleteDirectScoreRuleInput): EvaluationSnapshot
   saveEvaluationTask(input: SaveEvaluationTaskInput): EvaluationSnapshot
   deleteEvaluationTask(input: DeleteEvaluationTaskInput): EvaluationSnapshot
   updateEngineerTaskWeights(input: UpdateEngineerTaskWeightsInput): EvaluationSnapshot
   addEngineers(input: AddEngineersInput): EvaluationSnapshot
+  updateEngineer(input: UpdateEngineerInput): EvaluationSnapshot
+  deleteEngineer(input: DeleteEngineerInput): EvaluationSnapshot
   addEvaluators(input: AddEvaluatorsInput): EvaluationSnapshot
   createScheduleEvent(input: CreateScheduleEventInput): EvaluationSnapshot
   updateScheduleEvent(input: UpdateScheduleEventInput): EvaluationSnapshot

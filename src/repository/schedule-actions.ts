@@ -12,7 +12,7 @@ import {
   type MutationContext,
 } from "./mutation-context"
 import {
-  requireCycle,
+  requireCycleUnlocked,
   requireEngineer,
   requireOperator,
   requireScheduleEvent,
@@ -29,7 +29,7 @@ export function createScheduleEventAction(
 ): EvaluationSnapshot {
   const parsed = parseRepositoryInput(createScheduleEventInputSchema, input)
   requireOperator(parsed.actor)
-  requireCycle(context.snapshot, parsed.cycleId)
+  requireCycleUnlocked(context.snapshot, parsed.cycleId)
   requireEngineer(context.snapshot, parsed.engineerId)
   const event: EvaluationScheduleEvent = {
     id: createEntityId(context, "schedule"),
@@ -61,6 +61,7 @@ export function updateScheduleEventAction(
   const parsed = parseRepositoryInput(updateScheduleEventInputSchema, input)
   requireOperator(parsed.actor)
   const event = requireScheduleEvent(context.snapshot, parsed.eventId)
+  requireCycleUnlocked(context.snapshot, event.cycleId)
   requireEngineer(context.snapshot, parsed.engineerId)
   const nextEvent: EvaluationScheduleEvent = {
     ...event,
@@ -95,6 +96,7 @@ export function deleteScheduleEventAction(
   const parsed = parseRepositoryInput(deleteScheduleEventInputSchema, input)
   requireOperator(parsed.actor)
   const event = requireScheduleEvent(context.snapshot, parsed.eventId)
+  requireCycleUnlocked(context.snapshot, event.cycleId)
   return appendAuditEvent(
     context,
     {

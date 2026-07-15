@@ -2,6 +2,10 @@ import { z } from "zod"
 
 import {
   CYCLE_STATUSES,
+  DIRECT_SCORE_RULE_FIELDS,
+  DIRECT_SCORE_RULE_KINDS,
+  DIRECT_SCORE_RULE_OPERATORS,
+  DIRECT_SCORE_RULE_TYPES,
   EVALUATION_METHODS,
   ROLES,
   TEAMS,
@@ -19,6 +23,7 @@ export const evaluationCycleSchema = z.object({
   id: idSchema,
   name: z.string().trim().min(1),
   status: z.enum(CYCLE_STATUSES),
+  locked: z.boolean().default(false),
   startsAt: timestampSchema,
   endsAt: timestampSchema,
 })
@@ -103,6 +108,22 @@ export const engineerTaskWeightSchema = z.object({
   weight: z.number().finite().min(0).max(100).multipleOf(0.1),
 })
 
+export const directScoreRuleSchema = z.object({
+  id: idSchema,
+  cycleId: idSchema,
+  taskId: idSchema,
+  kind: z.enum(DIRECT_SCORE_RULE_KINDS),
+  label: z.string().trim().min(1).max(100),
+  field: z.enum(DIRECT_SCORE_RULE_FIELDS),
+  operator: z.enum(DIRECT_SCORE_RULE_OPERATORS),
+  value: z.string().trim().min(1).max(100),
+  ruleType: z.enum(DIRECT_SCORE_RULE_TYPES),
+  score: z.number().min(0).max(100).multipleOf(0.1),
+  bonus: z.number().min(0).max(100).multipleOf(0.1),
+  enabled: z.boolean(),
+  order: z.number().int().min(1),
+})
+
 export const assignmentSchema = z.object({
   id: idSchema,
   cycleId: idSchema,
@@ -183,14 +204,20 @@ export const auditEventSchema = z.object({
     "certification_record_deleted",
     "source_record_verified",
     "cycle_created",
+    "cycle_updated",
+    "cycle_locked",
+    "cycle_unlocked",
     "task_saved",
     "task_deleted",
     "engineer_task_weights_updated",
     "engineer_added",
+    "engineer_updated",
+    "engineer_deleted",
     "evaluator_added",
     "schedule_event_created",
     "schedule_event_updated",
     "schedule_event_deleted",
+    "cycle_deleted",
     "demo_reset",
   ]),
   actorId: idSchema,
@@ -226,4 +253,5 @@ export const evaluationSnapshotSchema = z.object({
   schemaVersion: z.literal(5),
   ...versionFourSnapshotFields,
   engineerTaskWeights: z.array(engineerTaskWeightSchema),
+  directScoreRules: z.array(directScoreRuleSchema).default([]),
 })

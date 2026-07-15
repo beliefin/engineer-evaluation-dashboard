@@ -51,7 +51,7 @@ describe("analysis and operations view models", () => {
     const model = selectOperationsViewModel(snapshot, CYCLE_ID)
 
     expect(model?.tasks).toHaveLength(6)
-    expect(model?.weightTotal).toBe(100)
+    expect(model?.weightTotal).toBe(135)
     expect(model?.evaluatorOptions).toHaveLength(snapshot.evaluators.length)
     expect(model?.directScores[0]?.directTasks).toHaveLength(3)
     expect(model?.tasks.find((task) => task.taskId === "task-growth-plan")?.locked).toBe(true)
