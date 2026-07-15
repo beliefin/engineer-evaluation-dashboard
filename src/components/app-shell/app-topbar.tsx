@@ -9,11 +9,12 @@ import { MobileMenu } from "./mobile-menu"
 import { SampleDataBadge } from "./sample-data-badge"
 import { SaveStateIndicator } from "./save-state-indicator"
 import { ShellControls } from "./shell-controls"
-import type {
-  AppShellCycleOption,
-  AppShellEvaluatorOption,
-  AppShellRole,
-  AppShellSaveState,
+import {
+  APP_SHELL_HOME_PATHS,
+  type AppShellCycleOption,
+  type AppShellEvaluatorOption,
+  type AppShellRole,
+  type AppShellSaveState,
 } from "./types"
 
 interface AppTopbarProps {
@@ -55,7 +56,7 @@ export function AppTopbar({
           onLogout={onLogout}
           role={role}
         />
-        <AppBrand compact />
+        <AppBrand compact href={APP_SHELL_HOME_PATHS[role]} />
       </div>
 
       <div className="hidden min-w-0 flex-1 lg:block">

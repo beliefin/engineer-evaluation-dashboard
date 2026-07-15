@@ -40,3 +40,10 @@ export const APP_SHELL_ROLE_LABELS: Readonly<Record<AppShellRole, string>> = {
   approver: "승인자",
   engineer: "엔지니어",
 }
+
+export const APP_SHELL_HOME_PATHS: Readonly<Record<AppShellRole, string>> = {
+  operator: "/dashboard",
+  evaluator: "/evaluations",
+  approver: "/dashboard",
+  engineer: "/my",
+}

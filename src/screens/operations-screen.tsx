@@ -18,6 +18,7 @@ export function OperationsScreen() {
   const {
     snapshot,
     activeCycleId,
+    backendMode,
     createEvaluationCycle,
     saveEvaluationTask,
     deleteEvaluationTask,
@@ -32,7 +33,8 @@ export function OperationsScreen() {
     addEvaluators,
     resetDemoData,
   } = useEvaluation()
-  const urlTab = parseOperationsTab(searchParams.get("tab"))
+  const requestedTab = parseOperationsTab(searchParams.get("tab"))
+  const urlTab = backendMode === "supabase" && requestedTab === "reset" ? "roster" : requestedTab
   const [pendingTab, setPendingTab] = useState<Readonly<{
     from: OperationsTab
     to: OperationsTab
@@ -84,6 +86,7 @@ export function OperationsScreen() {
       onDeleteTask={deleteEvaluationTask}
       onEngineerTaskWeightsChange={updateEngineerTaskWeights}
       onTabChange={changeTab}
+      showReset={backendMode === "local"}
       viewModel={model}
     />
   )

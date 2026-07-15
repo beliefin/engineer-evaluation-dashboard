@@ -23,7 +23,7 @@ export function PendingActionLink({ row, role }: PendingActionLinkProps) {
       return (
         <Button asChild variant="outline" size="sm">
           <Link
-            href={`/engineers/${row.engineerId}`}
+            href={`/engineers/detail?engineerId=${encodeURIComponent(row.engineerId)}`}
             aria-label={`${row.engineerName} 상세 보기`}
           >
             상세 보기
@@ -35,7 +35,7 @@ export function PendingActionLink({ row, role }: PendingActionLinkProps) {
       const hasPendingSheet = row.firstPendingAssignmentId !== null
       const label = hasPendingSheet ? "평가 입력" : "직접점수 입력"
       const href = hasPendingSheet
-        ? `/evaluations/${row.firstPendingAssignmentId}`
+        ? `/evaluations/detail?assignmentId=${encodeURIComponent(row.firstPendingAssignmentId)}`
         : `/operations?tab=scores&q=${encodeURIComponent(row.engineerName)}`
       return (
         <Button asChild size="sm">

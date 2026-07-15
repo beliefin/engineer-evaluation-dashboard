@@ -6,6 +6,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table"
+import { isSupabaseConfigured } from "@/backend/supabase-client"
 
 import { DetailStatusBadge } from "./detail-status-badge"
 import type { EvaluatorScoreViewModel } from "./engineer-detail.types"
@@ -29,7 +30,7 @@ export function EvaluatorDetailPanel({
             평가자별 상세
           </h2>
           <span className="text-xs font-medium text-muted-foreground">
-            운영자 전용 · 샘플 데이터
+            운영자 전용 · {isSupabaseConfigured() ? "운영 데이터" : "샘플 데이터"}
           </span>
         </div>
         <p className="mt-1 text-sm leading-6 text-muted-foreground">

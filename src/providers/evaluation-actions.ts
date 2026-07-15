@@ -1,4 +1,5 @@
 import type { EvaluationSnapshot, ScoreEntry } from "@/domain"
+import type { RemoteEvaluationCommand } from "@/backend/evaluation-backend"
 import type {
   CreateScheduleEventInput,
   EvaluationRepository,
@@ -13,13 +14,9 @@ import type {
   UpdateScheduleEventInput,
 } from "@/repository"
 
-export type RepositoryMutation = (
-  repository: EvaluationRepository,
-) => EvaluationSnapshot
-
+export type RepositoryMutation = (repository: EvaluationRepository) => EvaluationSnapshot
 export type MutateRepository = (
-  mutation: RepositoryMutation,
-  successMessage?: string,
+  mutation: RepositoryMutation, successMessage?: string, remoteCommand?: RemoteEvaluationCommand,
 ) => boolean
 
 export type EvaluationActions = Readonly<{
@@ -82,26 +79,35 @@ export function createEvaluationActions({
 }: EvaluationActionDependencies): EvaluationActions {
   return {
     saveDraft: (sheetId, scores, passResult) =>
-      mutate((repository) => repository.saveDraft({ sheetId, scores, passResult, actor })),
+      mutate(
+        (repository) => repository.saveDraft({ sheetId, scores, passResult, actor }),
+        undefined,
+        actor.role === "evaluator"
+          ? { type: "sheet", operation: "save_draft", sheetId }
+          : { type: "operator", action: "sheet_draft_saved", targetId: sheetId },
+      ),
     submitSheet: (sheetId) =>
       mutate(
         (repository) => repository.submitSheet({ sheetId, actor }),
         "평가표를 제출하고 잠갔습니다.",
+        actor.role === "evaluator"
+          ? { type: "sheet", operation: "submit_sheet", sheetId }
+          : { type: "operator", action: "sheet_submitted", targetId: sheetId },
       ),
     reopenSheet: (sheetId, reason) =>
       mutate(
         (repository) => repository.reopenSheet({ sheetId, actor, reason }),
         "평가표를 재오픈하고 감사 이력을 남겼습니다.",
+        { type: "operator", action: "sheet_reopened", targetId: sheetId },
       ),
     updateDirectScore: (engineerId, taskId, score, passResult) =>
-      mutate((repository) => repository.updateDirectScore({
-        cycleId: activeCycleId,
-        engineerId,
-        taskId,
-        score,
-        passResult,
-        actor,
-      })),
+      mutate(
+        (repository) => repository.updateDirectScore({
+          cycleId: activeCycleId, engineerId, taskId, score, passResult, actor,
+        }),
+        undefined,
+        { type: "operator", action: "direct_score_updated", targetId: `${engineerId}:${taskId}` },
+      ),
     saveLanguageScoreRecord: (input) =>
       mutate(
         (repository) => repository.saveLanguageScoreRecord({
@@ -110,11 +116,17 @@ export function createEvaluationActions({
           actor,
         }),
         "어학 성적을 저장했습니다.",
+        actor.role === "engineer"
+          ? { type: "language_save", record: { ...input, cycleId: activeCycleId } }
+          : { type: "operator", action: "language_record_saved", targetId: input.recordId },
       ),
     deleteLanguageScoreRecord: (recordId) =>
       mutate(
         (repository) => repository.deleteLanguageScoreRecord({ recordId, actor }),
         "어학 성적을 삭제했습니다.",
+        actor.role === "engineer"
+          ? { type: "language_delete", recordId }
+          : { type: "operator", action: "language_record_deleted", targetId: recordId },
       ),
     saveCertificationRecord: (input) =>
       mutate(
@@ -124,16 +136,23 @@ export function createEvaluationActions({
           actor,
         }),
         "자격증 정보를 저장했습니다.",
+        actor.role === "engineer"
+          ? { type: "certification_save", record: { ...input, cycleId: activeCycleId } }
+          : { type: "operator", action: "certification_record_saved", targetId: input.recordId },
       ),
     deleteCertificationRecord: (recordId) =>
       mutate(
         (repository) => repository.deleteCertificationRecord({ recordId, actor }),
         "자격증 정보를 삭제했습니다.",
+        actor.role === "engineer"
+          ? { type: "certification_delete", recordId }
+          : { type: "operator", action: "certification_record_deleted", targetId: recordId },
       ),
     verifySourceRecord: (recordId, recordKind) =>
       mutate(
         (repository) => repository.verifySourceRecord({ recordId, recordKind, actor }),
         "원천 실적 검토를 완료했습니다.",
+        { type: "operator", action: "source_record_verified", targetId: recordId },
       ),
     createEvaluationCycle: (input) => {
       let createdCycleId: string | null = null
@@ -148,6 +167,7 @@ export function createEvaluationActions({
           return snapshot
         },
         "새 평가 시즌을 만들었습니다.",
+        { type: "operator", action: "cycle_created", targetId: null },
       )
       if (saved && createdCycleId !== null) selectCycle(createdCycleId)
       return saved
@@ -160,11 +180,13 @@ export function createEvaluationActions({
           actor,
         }),
         input.taskId === null ? "새 과제를 추가했습니다." : "과제 설정을 저장했습니다.",
+        { type: "operator", action: "task_saved", targetId: input.taskId },
       ),
     deleteEvaluationTask: (taskId) =>
       mutate(
         (repository) => repository.deleteEvaluationTask({ taskId, actor }),
         "과제를 삭제했습니다.",
+        { type: "operator", action: "task_deleted", targetId: taskId },
       ),
     updateEngineerTaskWeights: (engineerId, weights) =>
       mutate(
@@ -175,6 +197,7 @@ export function createEvaluationActions({
           actor,
         }),
         "개인별 과제 가중치를 저장했습니다.",
+        { type: "operator", action: "engineer_task_weights_updated", targetId: engineerId },
       ),
     addEngineers: (engineers) =>
       mutate(
@@ -184,6 +207,7 @@ export function createEvaluationActions({
           actor,
         }),
         `${engineers.length}명의 엔지니어를 등록했습니다.`,
+        { type: "operator", action: "engineer_added", targetId: null },
       ),
     addEvaluators: (evaluators) =>
       mutate(
@@ -193,6 +217,7 @@ export function createEvaluationActions({
           actor,
         }),
         `${evaluators.length}명의 평가자를 등록했습니다.`,
+        { type: "operator", action: "evaluator_added", targetId: null },
       ),
     createScheduleEvent: (input) =>
       mutate(
@@ -202,21 +227,25 @@ export function createEvaluationActions({
           actor,
         }),
         "평가 일정을 등록했습니다.",
+        { type: "operator", action: "schedule_event_created", targetId: null },
       ),
     updateScheduleEvent: (eventId, input) =>
       mutate(
         (repository) => repository.updateScheduleEvent({ ...input, eventId, actor }),
         "평가 일정을 수정했습니다.",
+        { type: "operator", action: "schedule_event_updated", targetId: eventId },
       ),
     deleteScheduleEvent: (eventId) =>
       mutate(
         (repository) => repository.deleteScheduleEvent({ eventId, actor }),
         "평가 일정을 삭제했습니다.",
+        { type: "operator", action: "schedule_event_deleted", targetId: eventId },
       ),
     resetDemoData: () =>
       mutate(
         (repository) => repository.resetDemoData(),
         "샘플 데이터를 초기 상태로 복원했습니다.",
+        { type: "operator", action: "demo_reset", targetId: null },
       ),
   }
 }

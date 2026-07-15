@@ -5,7 +5,7 @@ import { clearDemoStorage, loginAs, switchRole, waitForApp } from "./helpers"
 
 const ROUTES = [
   "/dashboard",
-  "/engineers/engineer-01",
+  "/engineers/detail?engineerId=engineer-01",
   "/analysis",
   "/evaluations",
   "/pending",
@@ -99,7 +99,7 @@ test("/my 엔지니어 포털과 원천 실적 Dialog에 치명적 접근성 오
 
 for (const route of [
   "/evaluations",
-  "/evaluations/engineer-13-task-dx-tool-evaluator-01",
+  "/evaluations/detail?assignmentId=engineer-13-task-dx-tool-evaluator-01",
 ] as const) {
   test(`${route} 평가자 화면에 치명적 접근성 오류가 없다`, async ({ page }) => {
     await page.goto("/dashboard")

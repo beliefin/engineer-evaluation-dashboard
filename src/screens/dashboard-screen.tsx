@@ -28,12 +28,12 @@ export function DashboardScreen() {
   const pathname = usePathname()
   const router = useRouter()
   const searchParams = useSearchParams()
-  const { snapshot, activeCycleId } = useEvaluation()
+  const { snapshot, activeCycleId, backendMode } = useEvaluation()
 
   if (snapshot === null) return null
   const model = selectDashboardViewModel(snapshot, activeCycleId)
   if (model === null) {
-    return <ErrorState description="선택한 평가 시즌의 샘플 데이터를 찾을 수 없습니다." />
+    return <ErrorState description="선택한 평가 시즌의 데이터를 찾을 수 없습니다." />
   }
   const cycle = snapshot.cycles.find((entry) => entry.id === activeCycleId)
   const filters: RankingFilterState = {
@@ -80,11 +80,11 @@ export function DashboardScreen() {
   return (
     <div className="space-y-6">
       <DashboardHeader
-        asOfLabel="샘플 기준 2026. 06. 30."
+        asOfLabel={cycle === undefined ? "평가 시즌 기준" : `${cycle.startsAt} ~ ${cycle.endsAt}`}
         contextLabel="평가 운영"
         cycleLabel={cycle?.name ?? "평가 시즌"}
         description="시즌 과제의 평가와 운영자 입력이 모두 끝나고 가중치 합계가 100%인 대상만 공식 순위에 반영됩니다."
-        sampleLabel="샘플 데이터"
+        sampleLabel={backendMode === "supabase" ? "운영 데이터" : "샘플 데이터"}
         title="엔지니어 역량평가 전체 현황"
       />
       <MetricStrip metrics={model.metrics} />

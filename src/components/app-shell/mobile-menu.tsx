@@ -4,6 +4,7 @@ import { useState } from "react"
 import { LogOutIcon, MenuIcon, XIcon } from "lucide-react"
 
 import { Button } from "@/components/ui/button"
+import { isSupabaseConfigured } from "@/backend/supabase-client"
 import {
   Sheet,
   SheetClose,
@@ -18,6 +19,7 @@ import { AppNavigation } from "./app-navigation"
 import { AppBrand } from "./app-sidebar"
 import { ShellControls } from "./shell-controls"
 import {
+  APP_SHELL_HOME_PATHS,
   APP_SHELL_ROLE_LABELS,
   type AppShellCycleOption,
   type AppShellEvaluatorOption,
@@ -49,6 +51,7 @@ export function MobileMenu({
 }: MobileMenuProps) {
   const [open, setOpen] = useState(false)
   const currentActor = actorLabel ?? `데모 ${APP_SHELL_ROLE_LABELS[role]}`
+  const authLabel = isSupabaseConfigured() ? "Supabase 인증" : "샘플 인증"
 
   return (
     <Sheet onOpenChange={setOpen} open={open}>
@@ -65,7 +68,10 @@ export function MobileMenu({
         <SheetHeader className="relative border-b border-sidebar-border px-4 py-3 text-left">
           <SheetTitle className="pr-10">
             <span className="sr-only">엔지니어 역량평가 메뉴</span>
-            <AppBrand />
+            <AppBrand
+              href={APP_SHELL_HOME_PATHS[role]}
+              onNavigate={() => setOpen(false)}
+            />
           </SheetTitle>
           <SheetDescription className="sr-only">
             평가 화면 이동과 평가 시즌을 변경하고 현재 계정에서 로그아웃합니다.
@@ -108,7 +114,7 @@ export function MobileMenu({
             {currentActor}
           </p>
           <p className="mt-0.5 text-xs text-muted-foreground">
-            {APP_SHELL_ROLE_LABELS[role]} · 샘플 인증
+            {APP_SHELL_ROLE_LABELS[role]} · {authLabel}
           </p>
           <Button
             className="mt-3 w-full justify-start"

@@ -2,6 +2,7 @@ import { CircleAlert } from "lucide-react"
 
 import { Badge } from "@/components/ui/badge"
 import { Progress } from "@/components/ui/progress"
+import { isSupabaseConfigured } from "@/backend/supabase-client"
 
 import { DetailStatusBadge } from "./detail-status-badge"
 import type {
@@ -33,7 +34,7 @@ export function EngineerSummary({ engineer, result, contextLabel = "엔지니어
               {contextLabel}
             </span>
             <Badge variant="outline" className="bg-muted text-muted-foreground">
-              샘플 데이터
+              {isSupabaseConfigured() ? "운영 데이터" : "샘플 데이터"}
             </Badge>
             <DetailStatusBadge status={result.status} />
           </div>

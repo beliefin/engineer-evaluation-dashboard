@@ -4,6 +4,7 @@ export {
   AUTH_STORAGE_KEY,
   createLocalStorageAuthRepository,
 } from "./repository"
+export { createSupabaseAuthRepository } from "./supabase-repository"
 export { DEMO_LOGIN_ACCOUNTS, DEMO_PASSWORD } from "./seed"
 export { passwordSchema, usernameSchema } from "./schema"
 export type {

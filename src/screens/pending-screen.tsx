@@ -6,7 +6,7 @@ import { useEvaluation } from "@/providers"
 import { selectPendingEvaluations } from "@/view-models/pending"
 
 export function PendingScreen() {
-  const { snapshot, activeCycleId, role } = useEvaluation()
+  const { snapshot, activeCycleId, backendMode, role } = useEvaluation()
   if (snapshot === null) return null
 
   const selection = selectPendingEvaluations(snapshot, activeCycleId)
@@ -19,7 +19,7 @@ export function PendingScreen() {
   return (
     <div className="space-y-6">
       <PageHeader
-        context="평가 운영 · 샘플 데이터"
+        context={`평가 운영 · ${backendMode === "supabase" ? "운영 데이터" : "샘플 데이터"}`}
         description={"평가자 미배정, 미제출, 직접점수 누락을 구분해 후속\u00A0작업을 찾습니다."}
         title="미평가 현황"
       />

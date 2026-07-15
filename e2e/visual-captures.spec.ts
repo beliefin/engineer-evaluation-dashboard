@@ -24,7 +24,7 @@ const REVIEW_VIEWPORTS = [
 
 const OPERATOR_ROUTES = [
   { name: "dashboard", path: "/dashboard" },
-  { name: "engineer-detail", path: "/engineers/engineer-01" },
+  { name: "engineer-detail", path: "/engineers/detail?engineerId=engineer-01" },
   { name: "analysis", path: "/analysis" },
   { name: "operator-evaluations", path: "/evaluations" },
   { name: "pending", path: "/pending" },
@@ -34,7 +34,7 @@ const OPERATOR_ROUTES = [
 
 const EVALUATOR_ROUTES = [
   { name: "evaluations", path: "/evaluations" },
-  { name: "evaluation-form", path: "/evaluations/engineer-13-task-dx-tool-evaluator-01" },
+  { name: "evaluation-form", path: "/evaluations/detail?assignmentId=engineer-13-task-dx-tool-evaluator-01" },
 ] as const
 
 async function capture(page: Page, name: string, viewportName: string): Promise<void> {
@@ -180,7 +180,7 @@ test("모바일 필터 Sheet와 평가 폼 하단 고정 액션을 캡처한다"
   await capture(page, "evaluations-filter-sheet", "mobile-390")
 
   await page.keyboard.press("Escape")
-  await page.goto("/evaluations/engineer-13-task-dx-tool-evaluator-01")
+  await page.goto("/evaluations/detail?assignmentId=engineer-13-task-dx-tool-evaluator-01")
   await waitForApp(page)
   await page.evaluate(() => window.scrollTo(0, document.body.scrollHeight))
   await capture(page, "evaluation-form-sticky-bottom", "mobile-390")

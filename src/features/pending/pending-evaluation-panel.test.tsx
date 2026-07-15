@@ -68,7 +68,7 @@ describe("PendingEvaluationPanel", () => {
     expect(screen.getAllByText("평가자 배정이 필요합니다.").length).toBeGreaterThan(0)
     expect(screen.getAllByRole("link", { name: "김생산 평가 입력" })[0]).toHaveAttribute(
       "href",
-      "/evaluations/assignment-01",
+      "/evaluations/detail?assignmentId=assignment-01",
     )
     expect(screen.getAllByRole("link", { name: "이점수 직접점수 입력" })[0]).toHaveAttribute(
       "href",
@@ -100,7 +100,7 @@ describe("PendingEvaluationPanel", () => {
     // Then
     expect(screen.getAllByRole("link", { name: "김생산 상세 보기" })[0]).toHaveAttribute(
       "href",
-      "/engineers/engineer-01",
+      "/engineers/detail?engineerId=engineer-01",
     )
     expect(screen.queryByRole("link", { name: "김생산 평가 입력" })).not.toBeInTheDocument()
   })

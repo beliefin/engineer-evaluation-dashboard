@@ -189,6 +189,7 @@ export interface OperationsCallbacks {
 export interface OperationsConsoleProps extends OperationsCallbacks {
   readonly viewModel: OperationsViewModel
   readonly disabled?: boolean
+  readonly showReset?: boolean
   readonly activeTab?: OperationsTab
   readonly directScoreQuery?: string
   readonly onTabChange?: (tab: OperationsTab) => void

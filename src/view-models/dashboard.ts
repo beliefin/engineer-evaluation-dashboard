@@ -128,7 +128,7 @@ function createRankingRows(
     const tied = ranked.filter((entry) => entry.rank === result.rank).length > 1
     return [{
       id: engineer.id,
-      href: `/engineers/${engineer.id}`,
+      href: `/engineers/detail?engineerId=${encodeURIComponent(engineer.id)}`,
       rank: result.rank,
       name: engineer.displayName,
       team: engineer.team,

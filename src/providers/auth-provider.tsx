@@ -15,6 +15,7 @@ import { toast } from "sonner"
 import {
   AuthError,
   createLocalStorageAuthRepository,
+  createSupabaseAuthRepository,
   hashPasswordWithWebCrypto,
   type AuthAccount,
   type AuthErrorCode,
@@ -24,6 +25,7 @@ import {
   type ResetPasswordInput,
   type UpdateAccountInput,
 } from "@/auth"
+import { getSupabaseBrowserClient, getSupabasePublicConfig } from "@/backend/supabase-client"
 import type { Role } from "@/domain"
 
 export type AuthActionResult =
@@ -73,10 +75,13 @@ export function AuthProvider({ children }: Readonly<{ children: ReactNode }>) {
   const [errorMessage, setErrorMessage] = useState<string | null>(null)
 
   useEffect(() => {
-    const repository = createLocalStorageAuthRepository({
-      storage: window.localStorage,
-      hashPassword: hashPasswordWithWebCrypto,
-    })
+    const config = getSupabasePublicConfig()
+    const repository = config !== null
+      ? createSupabaseAuthRepository(getSupabaseBrowserClient(), config.url)
+      : createLocalStorageAuthRepository({
+          storage: window.localStorage,
+          hashPassword: hashPasswordWithWebCrypto,
+        })
     repositoryRef.current = repository
     let active = true
     void repository.restoreSession().then(async (restored) => {

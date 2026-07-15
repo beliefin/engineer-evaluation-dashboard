@@ -33,6 +33,7 @@ export function ConnectedAppShell({ children }: Readonly<{ children: ReactNode }
     role,
     activeCycleId,
     activeEvaluatorId,
+    backendMode,
     saveState,
     loadState,
     errorMessage,
@@ -50,7 +51,7 @@ export function ConnectedAppShell({ children }: Readonly<{ children: ReactNode }
     return (
       <main className="mx-auto flex min-h-dvh max-w-[1440px] items-center px-4 py-6 sm:px-5 lg:px-6">
         <ErrorState
-          description={authErrorMessage ?? "샘플 인증 저장소를 불러오지 못했습니다."}
+          description={authErrorMessage ?? "로그인 정보를 불러오지 못했습니다."}
           title="로그인 정보를 불러오지 못했습니다"
         />
       </main>
@@ -67,6 +68,23 @@ export function ConnectedAppShell({ children }: Readonly<{ children: ReactNode }
 
   switch (loadState.status) {
     case "error":
+      if (backendMode === "supabase") {
+        return (
+          <main className="mx-auto flex min-h-dvh max-w-[1440px] items-center px-4 py-6 sm:px-5 lg:px-6">
+            <ErrorState
+              action={(
+                <Button onClick={retryLoad} type="button" variant="outline">
+                  <RefreshCw aria-hidden="true" />
+                  다시 시도
+                </Button>
+              )}
+              className="mx-auto w-full max-w-2xl"
+              description={errorMessage ?? loadState.error.message}
+              title="운영 데이터를 불러오지 못했습니다"
+            />
+          </main>
+        )
+      }
       return (
         <main className="mx-auto flex min-h-dvh max-w-[1440px] items-center px-4 py-6 sm:px-5 lg:px-6">
           <Dialog>

@@ -15,6 +15,7 @@ import type { OperationsConsoleProps } from "./types"
 export function OperationsConsole({
   viewModel,
   disabled = false,
+  showReset = true,
   onCreateCycle,
   onSaveTask,
   onDeleteTask,
@@ -73,7 +74,7 @@ export function OperationsConsole({
             <TabsTrigger value="tasks">과제 구성</TabsTrigger>
             <TabsTrigger value="weights">개인별 가중치</TabsTrigger>
             <TabsTrigger value="scores">결과 입력</TabsTrigger>
-            <TabsTrigger value="reset">초기화</TabsTrigger>
+            {showReset ? <TabsTrigger value="reset">초기화</TabsTrigger> : null}
           </TabsList>
         </div>
         <TabsContent value="roster">
@@ -133,9 +134,11 @@ export function OperationsConsole({
             />
           </div>
         </TabsContent>
-        <TabsContent value="reset">
-          <ResetDemoPanel disabled={disabled} onReset={onResetDemoData} />
-        </TabsContent>
+        {showReset ? (
+          <TabsContent value="reset">
+            <ResetDemoPanel disabled={disabled} onReset={onResetDemoData} />
+          </TabsContent>
+        ) : null}
       </Tabs>
     </div>
   )

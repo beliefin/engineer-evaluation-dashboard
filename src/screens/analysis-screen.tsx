@@ -15,7 +15,7 @@ export function AnalysisScreen() {
   const pathname = usePathname()
   const router = useRouter()
   const searchParams = useSearchParams()
-  const { snapshot, activeCycleId } = useEvaluation()
+  const { snapshot, activeCycleId, backendMode } = useEvaluation()
   if (snapshot === null) return null
 
   const requestedFilters: AnalysisFilterState = {
@@ -47,7 +47,7 @@ export function AnalysisScreen() {
     <div className="space-y-6">
       <PageHeader
         description="점수 분포, 완료 병목, 팀별 성과와 평가자 편차를 함께 비교합니다."
-        context="평가 인사이트 · 샘플 데이터"
+        context={`평가 인사이트 · ${backendMode === "supabase" ? "운영 데이터" : "샘플 데이터"}`}
         title="평가 항목 분석"
       />
       <AnalysisDashboard
