@@ -1,0 +1,102 @@
+import { z } from "zod"
+
+import { roleSchema } from "@/domain"
+
+const idSchema = z.string().trim().min(1)
+export const usernameSchema = z
+  .string()
+  .trim()
+  .min(4, "아이디는 4자 이상 입력해 주세요.")
+  .max(40, "아이디는 40자 이하로 입력해 주세요.")
+  .regex(/^[a-z0-9._-]+$/, "아이디는 영문 소문자, 숫자, 점, 밑줄, 하이픈만 사용할 수 있습니다.")
+
+export const passwordSchema = z
+  .string()
+  .min(8, "비밀번호는 8자 이상 입력해 주세요.")
+  .max(64, "비밀번호는 64자 이하로 입력해 주세요.")
+  .regex(/[A-Za-z]/, "비밀번호에 영문자를 포함해 주세요.")
+  .regex(/[0-9]/, "비밀번호에 숫자를 포함해 주세요.")
+  .regex(/[^A-Za-z0-9]/, "비밀번호에 특수문자를 포함해 주세요.")
+
+export const loginInputSchema = z.object({
+  username: usernameSchema.transform((value) => value.toLowerCase()),
+  password: z.string().min(1, "비밀번호를 입력해 주세요."),
+})
+
+const accountFieldsSchema = z.object({
+  displayName: z.string().trim().min(2, "표시 이름은 2자 이상 입력해 주세요.").max(50),
+  role: roleSchema,
+  evaluatorId: idSchema.nullable(),
+  engineerId: idSchema.nullable(),
+  active: z.boolean(),
+}).superRefine((account, context) => {
+  if (account.role === "evaluator" && account.evaluatorId === null) {
+    context.addIssue({
+      code: "custom",
+      message: "평가자 역할은 등록된 평가자와 연결해야 합니다.",
+      path: ["evaluatorId"],
+    })
+  }
+  if (account.role !== "evaluator" && account.evaluatorId !== null) {
+    context.addIssue({
+      code: "custom",
+      message: "평가자 역할만 평가자 연결을 사용할 수 있습니다.",
+      path: ["evaluatorId"],
+    })
+  }
+  if (account.role === "engineer" && account.engineerId === null) {
+    context.addIssue({
+      code: "custom",
+      message: "엔지니어 역할은 등록된 엔지니어와 연결해야 합니다.",
+      path: ["engineerId"],
+    })
+  }
+  if (account.role !== "engineer" && account.engineerId !== null) {
+    context.addIssue({
+      code: "custom",
+      message: "엔지니어 역할만 엔지니어 연결을 사용할 수 있습니다.",
+      path: ["engineerId"],
+    })
+  }
+})
+
+export const createAccountInputSchema = z.object({
+  username: usernameSchema.transform((value) => value.toLowerCase()),
+  password: passwordSchema,
+  displayName: z.string(),
+  role: roleSchema,
+  evaluatorId: idSchema.nullable(),
+  engineerId: idSchema.nullable(),
+  active: z.boolean(),
+}).pipe(accountFieldsSchema.extend({
+  username: usernameSchema,
+  password: passwordSchema,
+}))
+
+export const updateAccountInputSchema = accountFieldsSchema.and(z.object({ accountId: idSchema }))
+export const resetPasswordInputSchema = z.object({ accountId: idSchema, password: passwordSchema })
+
+export const authAccountRecordSchema = z.object({
+  id: idSchema,
+  username: usernameSchema,
+  displayName: z.string().trim().min(1),
+  role: roleSchema,
+  evaluatorId: idSchema.nullable(),
+  engineerId: idSchema.nullable().default(null),
+  active: z.boolean(),
+  createdAt: z.string().trim().min(1),
+  updatedAt: z.string().trim().min(1),
+  passwordSalt: idSchema,
+  passwordHash: idSchema,
+})
+
+export const authSnapshotSchema = z.object({
+  schemaVersion: z.literal(1),
+  accounts: z.array(authAccountRecordSchema).min(1),
+})
+
+export const authSessionSchema = z.object({
+  schemaVersion: z.literal(1),
+  accountId: idSchema,
+  expiresAt: z.number().int().positive(),
+})

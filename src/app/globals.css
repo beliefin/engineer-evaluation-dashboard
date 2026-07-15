@@ -1,26 +1,156 @@
 @import "tailwindcss";
+@import "tw-animate-css";
+@import "shadcn/tailwind.css";
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
-}
+@custom-variant dark (&:is(.dark *));
 
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  --font-sans: var(--font-pretendard);
+  --font-mono: ui-monospace, SFMono-Regular, Consolas, monospace;
+  --font-heading: var(--font-pretendard);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-danger-soft: var(--danger-soft);
+  --color-success: var(--success);
+  --color-success-soft: var(--success-soft);
+  --color-warning: var(--warning);
+  --color-warning-soft: var(--warning-soft);
+  --color-border: var(--border);
+  --color-border-subtle: var(--border-subtle);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+  --color-chart-1: var(--chart-1);
+  --color-chart-2: var(--chart-2);
+  --color-chart-3: var(--chart-3);
+  --color-chart-4: var(--chart-4);
+  --color-chart-5: var(--chart-5);
+  --color-sidebar: var(--sidebar);
+  --color-sidebar-foreground: var(--sidebar-foreground);
+  --color-sidebar-primary: var(--sidebar-primary);
+  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+  --color-sidebar-accent: var(--sidebar-accent);
+  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+  --color-sidebar-border: var(--sidebar-border);
+  --color-sidebar-ring: var(--sidebar-ring);
+  --radius-sm: 0.375rem;
+  --radius-md: 0.375rem;
+  --radius-lg: 0.5rem;
+  --radius-xl: 0.625rem;
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+:root {
+  --background: #f7f8fb;
+  --foreground: #171a21;
+  --card: #ffffff;
+  --card-foreground: #171a21;
+  --popover: #ffffff;
+  --popover-foreground: #171a21;
+  --primary: #4056e8;
+  --primary-foreground: #ffffff;
+  --primary-hover: #3045c9;
+  --secondary: #f1f3f7;
+  --secondary-foreground: #303745;
+  --muted: #f1f3f7;
+  --muted-foreground: #545e6d;
+  --accent: #eef1ff;
+  --accent-foreground: #273dd6;
+  --destructive: #c43d38;
+  --danger-soft: #fff0ef;
+  --success: #08724c;
+  --success-soft: #eaf7f1;
+  --warning: #8a4b00;
+  --warning-soft: #fff4de;
+  --border: #dde2ea;
+  --border-subtle: #e9ecf2;
+  --input: #d7dce5;
+  --ring: #4056e8;
+  --chart-1: #4056e8;
+  --chart-2: #7b8cfb;
+  --chart-3: #a7b0c0;
+  --chart-4: #0f845c;
+  --chart-5: #a96300;
+  --radius: 0.5rem;
+  --sidebar: #fbfcfe;
+  --sidebar-foreground: #303745;
+  --sidebar-primary: #4056e8;
+  --sidebar-primary-foreground: #ffffff;
+  --sidebar-accent: #eef1ff;
+  --sidebar-accent-foreground: #273dd6;
+  --sidebar-border: #dde2ea;
+  --sidebar-ring: #4056e8;
+}
+
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+
+  html {
+    @apply font-sans;
+  }
+
+  body {
+    @apply min-h-dvh bg-background text-foreground antialiased;
+    overflow-wrap: anywhere;
+    word-break: keep-all;
+  }
+
+  p {
+    text-wrap: pretty;
+  }
+
+  button,
+  a,
+  input,
+  select,
+  textarea {
+    @apply focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring;
+  }
+
+  button:not(:disabled),
+  [role="button"]:not([aria-disabled="true"]) {
+    cursor: pointer;
   }
 }
 
-body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+@layer utilities {
+  .numeric {
+    font-variant-numeric: tabular-nums;
+  }
+
+  .scrollbar-thin {
+    scrollbar-color: var(--border) transparent;
+    scrollbar-width: thin;
+  }
+
+  .toaster {
+    --normal-bg: var(--popover);
+    --normal-text: var(--popover-foreground);
+    --normal-border: var(--border);
+    --border-radius: var(--radius);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    scroll-behavior: auto !important;
+    transition-duration: 0.01ms !important;
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+  }
 }

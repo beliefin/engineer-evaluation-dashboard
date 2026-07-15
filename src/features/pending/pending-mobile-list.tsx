@@ -1,0 +1,53 @@
+import type { Role } from "@/domain"
+import type { PendingEvaluationRow } from "@/view-models/pending"
+
+import { PendingActionLink } from "./pending-action-link"
+import { getPendingReason, PendingStatusBadge } from "./pending-status"
+
+type PendingMobileListProps = Readonly<{
+  rows: ReadonlyArray<PendingEvaluationRow>
+  role: Role
+}>
+
+export function PendingMobileList({ rows, role }: PendingMobileListProps) {
+  return (
+    <ul className="grid gap-3 p-4 md:hidden" aria-label="미평가 엔지니어 목록">
+      {rows.map((row) => (
+        <li key={row.engineerId} className="rounded-lg border border-border bg-card p-4">
+          <div className="flex items-start justify-between gap-3">
+            <div className="min-w-0">
+              <p className="truncate font-semibold text-foreground">{row.engineerName}</p>
+              <p className="mt-1 text-xs text-muted-foreground">
+                {row.employeeCode} · {row.team}
+              </p>
+            </div>
+            <PendingStatusBadge status={row.status} className="shrink-0" />
+          </div>
+
+          <p className="mt-3 rounded-md bg-muted/60 px-3 py-2 text-sm leading-5 text-foreground">
+            {getPendingReason(row)}
+          </p>
+
+          <dl className="mt-3 grid grid-cols-2 gap-3 border-t border-border-subtle pt-3 text-sm">
+            <div>
+              <dt className="text-xs text-muted-foreground">평가지 제출</dt>
+              <dd className="numeric mt-1 font-semibold">
+                {row.submittedSheetCount}/{row.totalSheetCount}
+              </dd>
+            </div>
+            <div>
+              <dt className="text-xs text-muted-foreground">직접점수 입력</dt>
+              <dd className="numeric mt-1 font-semibold">
+                {row.enteredDirectScoreCount}/{row.totalDirectScoreCount}
+              </dd>
+            </div>
+          </dl>
+
+          <div className="mt-4 flex justify-end">
+            <PendingActionLink row={row} role={role} />
+          </div>
+        </li>
+      ))}
+    </ul>
+  )
+}

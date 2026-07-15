@@ -1,0 +1,5 @@
+export const LOCAL_STORAGE_KEY = "engineer-evaluation-dashboard:v5"
+export const VERSION_FOUR_LOCAL_STORAGE_KEY = "engineer-evaluation-dashboard:v4"
+export const PREVIOUS_LOCAL_STORAGE_KEY = "engineer-evaluation-dashboard:v3"
+export const LEGACY_LOCAL_STORAGE_KEY = "engineer-evaluation-dashboard:v2"
+export const OLDEST_LOCAL_STORAGE_KEY = "engineer-evaluation-dashboard:v1"

@@ -1,0 +1,208 @@
+"use client"
+
+import {
+  createContext,
+  useCallback,
+  useContext,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+  type ReactNode,
+} from "react"
+import { toast } from "sonner"
+
+import {
+  AuthError,
+  createLocalStorageAuthRepository,
+  hashPasswordWithWebCrypto,
+  type AuthAccount,
+  type AuthErrorCode,
+  type AuthRepository,
+  type CreateAccountInput,
+  type LoginInput,
+  type ResetPasswordInput,
+  type UpdateAccountInput,
+} from "@/auth"
+import type { Role } from "@/domain"
+
+export type AuthActionResult =
+  | Readonly<{ ok: true }>
+  | Readonly<{ ok: false; message: string; code?: AuthErrorCode }>
+
+export type AuthLoginResult =
+  | Readonly<{ ok: true; role: Role }>
+  | Readonly<{ ok: false; message: string }>
+
+export type AuthLoadState = "loading" | "ready" | "error"
+
+type AuthContextValue = Readonly<{
+  session: AuthAccount | null
+  accounts: ReadonlyArray<AuthAccount>
+  loadState: AuthLoadState
+  pending: boolean
+  errorMessage: string | null
+  login: (input: LoginInput) => Promise<AuthLoginResult>
+  logout: () => void
+  createAccount: (input: CreateAccountInput) => Promise<AuthActionResult>
+  updateAccount: (input: UpdateAccountInput) => Promise<AuthActionResult>
+  resetPassword: (input: ResetPasswordInput) => Promise<AuthActionResult>
+  deleteAccount: (accountId: string) => Promise<AuthActionResult>
+}>
+
+const AuthContext = createContext<AuthContextValue | null>(null)
+type AccountMutation = (repository: AuthRepository) => Promise<ReadonlyArray<AuthAccount>>
+
+function failureResult(error: unknown): Readonly<{
+  ok: false
+  message: string
+  code?: AuthErrorCode
+}> {
+  if (error instanceof AuthError) {
+    return { ok: false, message: error.message, code: error.code }
+  }
+  return { ok: false, message: "인증 저장소 처리 중 오류가 발생했습니다." }
+}
+
+export function AuthProvider({ children }: Readonly<{ children: ReactNode }>) {
+  const repositoryRef = useRef<AuthRepository | null>(null)
+  const [session, setSession] = useState<AuthAccount | null>(null)
+  const [accounts, setAccounts] = useState<ReadonlyArray<AuthAccount>>([])
+  const [loadState, setLoadState] = useState<AuthLoadState>("loading")
+  const [pending, setPending] = useState(false)
+  const [errorMessage, setErrorMessage] = useState<string | null>(null)
+
+  useEffect(() => {
+    const repository = createLocalStorageAuthRepository({
+      storage: window.localStorage,
+      hashPassword: hashPasswordWithWebCrypto,
+    })
+    repositoryRef.current = repository
+    let active = true
+    void repository.restoreSession().then(async (restored) => {
+      const visibleAccounts = restored?.role === "operator"
+        ? await repository.listAccounts()
+        : []
+      if (!active) return
+      setSession(restored)
+      setAccounts(visibleAccounts)
+      setLoadState("ready")
+    }).catch((error: unknown) => {
+      if (!active) return
+      const failure = failureResult(error)
+      setErrorMessage(failure.message)
+      setLoadState("error")
+    })
+    return () => {
+      active = false
+    }
+  }, [])
+
+  const login = useCallback(async (input: LoginInput): Promise<AuthLoginResult> => {
+    const repository = repositoryRef.current
+    if (repository === null) return { ok: false, message: "인증 저장소를 준비하고 있습니다." }
+    setPending(true)
+    setErrorMessage(null)
+    try {
+      const account = await repository.login(input)
+      const visibleAccounts = account.role === "operator" ? await repository.listAccounts() : []
+      setSession(account)
+      setAccounts(visibleAccounts)
+      return { ok: true, role: account.role }
+    } catch (error) {
+      const failure = failureResult(error)
+      setErrorMessage(failure.message)
+      return failure
+    } finally {
+      setPending(false)
+    }
+  }, [])
+
+  const logout = useCallback(() => {
+    repositoryRef.current?.logout()
+    setSession(null)
+    setAccounts([])
+    setErrorMessage(null)
+  }, [])
+
+  const runAccountMutation = useCallback(async (
+    mutation: AccountMutation,
+    successMessage: string,
+  ): Promise<AuthActionResult> => {
+    const repository = repositoryRef.current
+    if (repository === null) return { ok: false, message: "인증 저장소를 준비하고 있습니다." }
+    setPending(true)
+    setErrorMessage(null)
+    try {
+      const nextAccounts = await mutation(repository)
+      setAccounts(nextAccounts)
+      toast.success(successMessage)
+      return { ok: true }
+    } catch (error) {
+      const failure = failureResult(error)
+      setErrorMessage(failure.message)
+      toast.error(failure.message)
+      return failure
+    } finally {
+      setPending(false)
+    }
+  }, [])
+
+  const createAccount = useCallback((input: CreateAccountInput) =>
+    runAccountMutation(
+      (repository) => repository.createAccount(input),
+      "계정을 추가했습니다.",
+    ), [runAccountMutation])
+
+  const updateAccount = useCallback((input: UpdateAccountInput) =>
+    runAccountMutation(
+      (repository) => repository.updateAccount(input),
+      "계정 정보를 저장했습니다.",
+    ), [runAccountMutation])
+
+  const resetPassword = useCallback((input: ResetPasswordInput) =>
+    runAccountMutation(
+      (repository) => repository.resetPassword(input),
+      "비밀번호를 재설정했습니다.",
+    ), [runAccountMutation])
+
+  const deleteAccount = useCallback((accountId: string) =>
+    runAccountMutation(
+      (repository) => repository.deleteAccount(accountId),
+      "계정을 삭제했습니다.",
+    ), [runAccountMutation])
+
+  const value = useMemo<AuthContextValue>(() => ({
+    session,
+    accounts,
+    loadState,
+    pending,
+    errorMessage,
+    login,
+    logout,
+    createAccount,
+    updateAccount,
+    resetPassword,
+    deleteAccount,
+  }), [
+    accounts,
+    createAccount,
+    deleteAccount,
+    errorMessage,
+    loadState,
+    login,
+    logout,
+    pending,
+    resetPassword,
+    session,
+    updateAccount,
+  ])
+
+  return <AuthContext value={value}>{children}</AuthContext>
+}
+
+export function useAuth(): AuthContextValue {
+  const context = useContext(AuthContext)
+  if (context === null) throw new Error("useAuth must be used within AuthProvider")
+  return context
+}

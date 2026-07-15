@@ -1,7 +1,20 @@
-import type { NextConfig } from "next";
+import type { NextConfig } from "next"
+
+const isGitHubPagesBuild = process.env.GITHUB_PAGES === "true"
+const repositoryName = process.env.GITHUB_REPOSITORY?.split("/")[1]
+const basePath = isGitHubPagesBuild && repositoryName ? `/${repositoryName}` : ""
 
 const nextConfig: NextConfig = {
-  /* config options here */
-};
+  devIndicators: false,
+  ...(isGitHubPagesBuild
+    ? {
+        output: "export" as const,
+        basePath,
+        assetPrefix: basePath,
+        trailingSlash: true,
+        images: { unoptimized: true },
+      }
+    : {}),
+}
 
-export default nextConfig;
+export default nextConfig
