@@ -222,6 +222,24 @@ export const addEvaluatorsInputSchema = z.object({
   actor: actorSchema,
 })
 
+const evaluatorFieldsSchema = z.object({
+  employeeCode: employeeCodeSchema,
+  displayName: z.string().trim().min(1).max(100),
+  team: teamSchema,
+})
+
+export const updateEvaluatorInputSchema = evaluatorFieldsSchema.extend({
+  cycleId: idSchema,
+  evaluatorId: idSchema,
+  actor: actorSchema,
+})
+
+export const deleteEvaluatorInputSchema = z.object({
+  cycleId: idSchema,
+  evaluatorId: idSchema,
+  actor: actorSchema,
+})
+
 const scheduleEventFieldsSchema = z.object({
   engineerId: idSchema,
   title: z.string().trim().min(1).max(100),

@@ -113,6 +113,8 @@ function migratedAuditType(type: string): AuditEvent["type"] | null {
     case "cycle_created":
     case "engineer_added":
     case "evaluator_added":
+    case "evaluator_updated":
+    case "evaluator_deleted":
     case "schedule_event_created":
     case "schedule_event_updated":
     case "schedule_event_deleted":

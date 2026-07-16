@@ -214,6 +214,8 @@ export const auditEventSchema = z.object({
     "engineer_updated",
     "engineer_deleted",
     "evaluator_added",
+    "evaluator_updated",
+    "evaluator_deleted",
     "schedule_event_created",
     "schedule_event_updated",
     "schedule_event_deleted",

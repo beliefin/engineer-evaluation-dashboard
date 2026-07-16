@@ -1,9 +1,8 @@
 "use client"
 
-import { PencilIcon, SearchIcon, Trash2Icon, UsersIcon } from "lucide-react"
+import { SearchIcon, UsersIcon } from "lucide-react"
 import { useMemo, useState } from "react"
 
-import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import {
   Table,
@@ -14,11 +13,15 @@ import {
   TableRow,
 } from "@/components/ui/table"
 
+import { DeleteEvaluatorDialog } from "./delete-evaluator-dialog"
 import { DeleteEngineerDialog } from "./delete-engineer-dialog"
 import { EngineerEditorDialog } from "./engineer-editor-dialog"
+import { EvaluatorEditorDialog } from "./evaluator-editor-dialog"
+import { RosterItemActions } from "./roster-item-actions"
 import type {
   EngineerRegistration,
   EngineerRosterItem,
+  EvaluatorRegistration,
   EvaluatorRosterItem,
 } from "./types"
 
@@ -27,8 +30,11 @@ interface RosterListProps {
   readonly rows: readonly (EngineerRosterItem | EvaluatorRosterItem)[]
   readonly disabled: boolean
   readonly linkedEngineerIds: readonly string[]
+  readonly linkedEvaluatorIds: readonly string[]
   readonly onUpdateEngineer: (engineerId: string, engineer: EngineerRegistration) => boolean
   readonly onDeleteEngineer: (engineerId: string) => boolean
+  readonly onUpdateEvaluator: (evaluatorId: string, evaluator: EvaluatorRegistration) => boolean
+  readonly onDeleteEvaluator: (evaluatorId: string) => boolean
 }
 
 function matchesQuery(row: EngineerRosterItem | EvaluatorRosterItem, query: string): boolean {
@@ -43,18 +49,24 @@ export function RosterList({
   rows,
   disabled,
   linkedEngineerIds,
+  linkedEvaluatorIds,
   onUpdateEngineer,
   onDeleteEngineer,
+  onUpdateEvaluator,
+  onDeleteEvaluator,
 }: RosterListProps) {
   const label = kind === "engineer" ? "엔지니어" : "평가자"
   const [query, setQuery] = useState("")
   const [editingEngineer, setEditingEngineer] = useState<EngineerRosterItem | null>(null)
   const [deletingEngineer, setDeletingEngineer] = useState<EngineerRosterItem | null>(null)
+  const [editingEvaluator, setEditingEvaluator] = useState<EvaluatorRosterItem | null>(null)
+  const [deletingEvaluator, setDeletingEvaluator] = useState<EvaluatorRosterItem | null>(null)
   const filteredRows = useMemo(
     () => rows.filter((row) => matchesQuery(row, query)),
     [query, rows],
   )
   const linkedIds = useMemo(() => new Set(linkedEngineerIds), [linkedEngineerIds])
+  const linkedEvaluatorIdSet = useMemo(() => new Set(linkedEvaluatorIds), [linkedEvaluatorIds])
 
   return (
     <div className="space-y-4">
@@ -98,19 +110,28 @@ export function RosterList({
                 </div>
                 <div className="shrink-0 text-right text-xs text-muted-foreground">
                   <p>{row.team}</p>
-                  {kind === "engineer" && "position" in row ? (
+                  {"position" in row ? (
                     <>
                       <p className="mt-1">{row.position}</p>
-                      <EngineerActions
+                      <RosterItemActions
                         disabled={disabled}
-                        engineer={row}
+                        item={row}
                         linkedAccount={linkedIds.has(row.id)}
                         onDelete={setDeletingEngineer}
                         onEdit={setEditingEngineer}
                         surface="mobile"
                       />
                     </>
-                  ) : null}
+                  ) : (
+                    <RosterItemActions
+                      disabled={disabled}
+                      item={row}
+                      linkedAccount={linkedEvaluatorIdSet.has(row.id)}
+                      onDelete={setDeletingEvaluator}
+                      onEdit={setEditingEvaluator}
+                      surface="mobile"
+                    />
+                  )}
                 </div>
               </li>
             ))}
@@ -128,7 +149,7 @@ export function RosterList({
                   <TableHead>사번</TableHead>
                   <TableHead>팀</TableHead>
                   {kind === "engineer" ? <TableHead>직급</TableHead> : null}
-                  {kind === "engineer" ? <TableHead className="text-right">관리</TableHead> : null}
+                  <TableHead className="text-right">관리</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -137,13 +158,13 @@ export function RosterList({
                     <TableCell className="font-medium">{row.displayName}</TableCell>
                     <TableCell className="numeric">{row.employeeCode}</TableCell>
                     <TableCell>{row.team}</TableCell>
-                    {kind === "engineer" && "position" in row ? (
+                    {"position" in row ? (
                       <>
                         <TableCell>{row.position}</TableCell>
                         <TableCell>
-                          <EngineerActions
+                          <RosterItemActions
                             disabled={disabled}
-                            engineer={row}
+                            item={row}
                             linkedAccount={linkedIds.has(row.id)}
                             onDelete={setDeletingEngineer}
                             onEdit={setEditingEngineer}
@@ -151,7 +172,18 @@ export function RosterList({
                           />
                         </TableCell>
                       </>
-                    ) : null}
+                    ) : (
+                      <TableCell>
+                        <RosterItemActions
+                          disabled={disabled}
+                          item={row}
+                          linkedAccount={linkedEvaluatorIdSet.has(row.id)}
+                          onDelete={setDeletingEvaluator}
+                          onEdit={setEditingEvaluator}
+                          surface="desktop"
+                        />
+                      </TableCell>
+                    )}
                   </TableRow>
                 ))}
               </TableBody>
@@ -179,58 +211,25 @@ export function RosterList({
           onDelete={onDeleteEngineer}
         />
       )}
-    </div>
-  )
-}
-
-function EngineerActions({
-  engineer,
-  disabled,
-  linkedAccount,
-  onEdit,
-  onDelete,
-  surface,
-}: Readonly<{
-  engineer: EngineerRosterItem
-  disabled: boolean
-  linkedAccount: boolean
-  onEdit: (engineer: EngineerRosterItem) => void
-  onDelete: (engineer: EngineerRosterItem) => void
-  surface: "mobile" | "desktop"
-}>) {
-  const linkedDescriptionId = `${engineer.id}-${surface}-linked-account-description`
-  return (
-    <div className="mt-2 flex items-center justify-end gap-1 md:mt-0">
-      {linkedAccount ? (
-        <span
-          className="mr-1 text-[11px] whitespace-nowrap text-muted-foreground"
-          id={linkedDescriptionId}
-        >
-          계정 연결됨
-        </span>
-      ) : null}
-      <Button
-        aria-label={`${engineer.displayName} 수정`}
-        disabled={disabled}
-        onClick={() => onEdit(engineer)}
-        size="icon-sm"
-        type="button"
-        variant="ghost"
-      >
-        <PencilIcon aria-hidden="true" />
-      </Button>
-      <Button
-        aria-describedby={linkedAccount ? linkedDescriptionId : undefined}
-        aria-label={`${engineer.displayName} 삭제`}
-        disabled={disabled || linkedAccount}
-        onClick={() => onDelete(engineer)}
-        size="icon-sm"
-        title={linkedAccount ? "연결된 로그인 계정을 먼저 변경하거나 삭제해 주세요." : undefined}
-        type="button"
-        variant="destructive"
-      >
-        <Trash2Icon aria-hidden="true" />
-      </Button>
+      {editingEvaluator === null ? null : (
+        <EvaluatorEditorDialog
+          evaluator={editingEvaluator}
+          existingEmployeeCodes={rows
+            .filter((row) => row.id !== editingEvaluator.id)
+            .map((row) => row.employeeCode)}
+          key={editingEvaluator.id}
+          onClose={() => setEditingEvaluator(null)}
+          onSave={onUpdateEvaluator}
+        />
+      )}
+      {deletingEvaluator === null ? null : (
+        <DeleteEvaluatorDialog
+          evaluator={deletingEvaluator}
+          key={deletingEvaluator.id}
+          onClose={() => setDeletingEvaluator(null)}
+          onDelete={onDeleteEvaluator}
+        />
+      )}
     </div>
   )
 }

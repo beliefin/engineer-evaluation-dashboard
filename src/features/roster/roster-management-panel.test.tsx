@@ -41,7 +41,9 @@ describe("RosterManagementPanel", () => {
         onAddEngineers={onAddEngineers}
         onAddEvaluators={() => true}
         onDeleteEngineer={() => true}
+        onDeleteEvaluator={() => true}
         onUpdateEngineer={() => true}
+        onUpdateEvaluator={() => true}
       />,
     )
 
@@ -71,7 +73,9 @@ describe("RosterManagementPanel", () => {
         onAddEngineers={() => true}
         onAddEvaluators={onAddEvaluators}
         onDeleteEngineer={() => true}
+        onDeleteEvaluator={() => true}
         onUpdateEngineer={() => true}
+        onUpdateEvaluator={() => true}
       />,
     )
 
@@ -102,7 +106,9 @@ describe("RosterManagementPanel", () => {
         onAddEngineers={onAddEngineers}
         onAddEvaluators={() => true}
         onDeleteEngineer={() => true}
+        onDeleteEvaluator={() => true}
         onUpdateEngineer={() => true}
+        onUpdateEvaluator={() => true}
       />,
     )
 
@@ -128,7 +134,9 @@ describe("RosterManagementPanel", () => {
         onAddEngineers={onAddEngineers}
         onAddEvaluators={() => true}
         onDeleteEngineer={() => true}
+        onDeleteEvaluator={() => true}
         onUpdateEngineer={() => true}
+        onUpdateEvaluator={() => true}
       />,
     )
 
@@ -153,7 +161,9 @@ describe("RosterManagementPanel", () => {
         onAddEngineers={() => true}
         onAddEvaluators={() => true}
         onDeleteEngineer={onDeleteEngineer}
+        onDeleteEvaluator={() => true}
         onUpdateEngineer={onUpdateEngineer}
+        onUpdateEvaluator={() => true}
       />,
     )
 
@@ -183,11 +193,70 @@ describe("RosterManagementPanel", () => {
         onAddEngineers={() => true}
         onAddEvaluators={() => true}
         onDeleteEngineer={() => true}
+        onDeleteEvaluator={() => true}
         onUpdateEngineer={() => true}
+        onUpdateEvaluator={() => true}
       />,
     )
 
     expect(screen.getAllByRole("button", { name: `${ENGINEERS[0]?.displayName} 삭제` }))
+      .toEqual(expect.arrayContaining([expect.objectContaining({ disabled: true })]))
+  })
+
+  it("edits an evaluator and requires confirmation before deletion", async () => {
+    const user = userEvent.setup()
+    const onUpdateEvaluator = vi.fn(() => true)
+    const onDeleteEvaluator = vi.fn(() => true)
+
+    render(
+      <RosterManagementPanel
+        engineers={ENGINEERS}
+        evaluators={EVALUATORS}
+        onAddEngineers={() => true}
+        onAddEvaluators={() => true}
+        onDeleteEngineer={() => true}
+        onDeleteEvaluator={onDeleteEvaluator}
+        onUpdateEngineer={() => true}
+        onUpdateEvaluator={onUpdateEvaluator}
+      />,
+    )
+
+    await user.click(screen.getByRole("tab", { name: "평가자 1명" }))
+    await user.click(screen.getAllByRole("button", { name: `${EVALUATORS[0]?.displayName} 수정` })[0]!)
+    const name = screen.getByRole("textbox", { name: "이름" })
+    await user.clear(name)
+    await user.type(name, "수정 평가자")
+    await user.click(screen.getByRole("button", { name: "변경사항 저장" }))
+
+    expect(onUpdateEvaluator).toHaveBeenCalledWith(
+      "evaluator-01",
+      expect.objectContaining({ displayName: "수정 평가자" }),
+    )
+
+    await user.click(screen.getAllByRole("button", { name: `${EVALUATORS[0]?.displayName} 삭제` })[0]!)
+    expect(screen.getByRole("alertdialog")).toHaveTextContent("평가표")
+    await user.click(screen.getByRole("button", { name: "평가자 삭제" }))
+    expect(onDeleteEvaluator).toHaveBeenCalledWith("evaluator-01")
+  })
+
+  it("blocks deletion while an evaluator login account is linked", async () => {
+    const user = userEvent.setup()
+    render(
+      <RosterManagementPanel
+        engineers={ENGINEERS}
+        evaluators={EVALUATORS}
+        linkedEvaluatorIds={["evaluator-01"]}
+        onAddEngineers={() => true}
+        onAddEvaluators={() => true}
+        onDeleteEngineer={() => true}
+        onDeleteEvaluator={() => true}
+        onUpdateEngineer={() => true}
+        onUpdateEvaluator={() => true}
+      />,
+    )
+
+    await user.click(screen.getByRole("tab", { name: "평가자 1명" }))
+    expect(screen.getAllByRole("button", { name: `${EVALUATORS[0]?.displayName} 삭제` }))
       .toEqual(expect.arrayContaining([expect.objectContaining({ disabled: true })]))
   })
 
@@ -200,7 +269,9 @@ describe("RosterManagementPanel", () => {
         onAddEngineers={() => true}
         onAddEvaluators={() => true}
         onDeleteEngineer={() => true}
+        onDeleteEvaluator={() => true}
         onUpdateEngineer={() => true}
+        onUpdateEvaluator={() => true}
       />,
     )
 

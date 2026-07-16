@@ -6,6 +6,7 @@ import type {
   EvaluationSnapshot,
   EvaluationTask,
   EvaluatorAssignment,
+  Evaluator,
   Role,
   ScoreEntry,
   ScoreSheet,
@@ -116,6 +117,14 @@ export function requireEngineer(snapshot: EvaluationSnapshot, engineerId: string
     throw new RepositoryError("NOT_FOUND", `engineer ${engineerId} was not found`)
   }
   return engineer
+}
+
+export function requireEvaluator(snapshot: EvaluationSnapshot, evaluatorId: string): Evaluator {
+  const evaluator = snapshot.evaluators.find((candidate) => candidate.id === evaluatorId)
+  if (evaluator === undefined) {
+    throw new RepositoryError("NOT_FOUND", `evaluator ${evaluatorId} was not found`)
+  }
+  return evaluator
 }
 
 export function requireScheduleEvent(

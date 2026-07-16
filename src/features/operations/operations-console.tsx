@@ -36,11 +36,14 @@ export function OperationsConsole({
   onUpdateEngineer,
   onDeleteEngineer,
   onAddEvaluators,
+  onUpdateEvaluator,
+  onDeleteEvaluator,
   onResetDemoData,
   activeTab = "roster",
   directScoreQuery = "",
   onTabChange,
   linkedEngineerIds = [],
+  linkedEvaluatorIds = [],
 }: OperationsConsoleProps) {
   return (
     <div className="space-y-6">
@@ -92,10 +95,13 @@ export function OperationsConsole({
             engineers={viewModel.rosterEngineers}
             evaluators={viewModel.rosterEvaluators}
             linkedEngineerIds={linkedEngineerIds}
+            linkedEvaluatorIds={linkedEvaluatorIds}
             onAddEngineers={onAddEngineers}
             onAddEvaluators={onAddEvaluators}
+            onDeleteEvaluator={onDeleteEvaluator}
             onDeleteEngineer={onDeleteEngineer}
             onUpdateEngineer={onUpdateEngineer}
+            onUpdateEvaluator={onUpdateEvaluator}
           />
         </TabsContent>
         <TabsContent value="season">

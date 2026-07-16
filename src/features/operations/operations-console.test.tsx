@@ -33,7 +33,9 @@ describe("OperationsConsole", () => {
         onAddEngineers={vi.fn(() => true)}
         onAddEvaluators={vi.fn(() => true)}
         onDeleteEngineer={vi.fn(() => true)}
+        onDeleteEvaluator={vi.fn(() => true)}
         onUpdateEngineer={vi.fn(() => true)}
+        onUpdateEvaluator={vi.fn(() => true)}
         onResetDemoData={vi.fn()}
         onCreateCycle={vi.fn(() => true)}
         onUpdateCycle={vi.fn(() => true)}

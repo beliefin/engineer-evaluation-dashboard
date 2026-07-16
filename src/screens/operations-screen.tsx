@@ -37,6 +37,8 @@ export function OperationsScreen() {
     updateEngineer,
     deleteEngineer,
     addEvaluators,
+    updateEvaluator,
+    deleteEvaluator,
     resetDemoData,
     saveDirectScoreRule,
     deleteDirectScoreRule,
@@ -82,10 +84,14 @@ export function OperationsScreen() {
       directScoreQuery={searchParams.get("q") ?? ""}
       linkedEngineerIds={accounts.flatMap((account) =>
         account.engineerId === null ? [] : [account.engineerId])}
+      linkedEvaluatorIds={accounts.flatMap((account) =>
+        account.evaluatorId === null ? [] : [account.evaluatorId])}
       onAddEngineers={addEngineers}
       onAddEvaluators={addEvaluators}
+      onDeleteEvaluator={deleteEvaluator}
       onDeleteEngineer={deleteEngineer}
       onUpdateEngineer={updateEngineer}
+      onUpdateEvaluator={updateEvaluator}
       onDirectScoreChange={changeDirectScore}
       onSaveLanguageRecord={saveLanguageScoreRecord}
       onDeleteLanguageRecord={deleteLanguageScoreRecord}

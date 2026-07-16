@@ -10,6 +10,7 @@ import {
 } from "./cycle-actions"
 import { deleteDirectScoreRuleAction, saveDirectScoreRuleAction } from "./direct-score-rule-actions"
 import { deleteEngineerAction, updateEngineerAction } from "./engineer-roster-actions"
+import { deleteEvaluatorAction, updateEvaluatorAction } from "./evaluator-roster-actions"
 
 import { updateDirectScoreAction } from "./admin-actions"
 import { type MutationContext } from "./mutation-context"
@@ -47,6 +48,7 @@ import type {
   CreateEvaluationCycleInput,
   DeleteSourceRecordInput,
   DeleteEngineerInput,
+  DeleteEvaluatorInput,
   DeleteScheduleEventInput,
   DeleteEvaluationTaskInput,
   DeleteEvaluationCycleInput,
@@ -63,6 +65,7 @@ import type {
   SheetActionInput,
   UpdateDirectScoreInput,
   UpdateEngineerInput,
+  UpdateEvaluatorInput,
   UpdateEvaluationCycleInput,
   UpdateEngineerTaskWeightsInput,
   UpdateScheduleEventInput,
@@ -168,6 +171,14 @@ class LocalStorageEvaluationRepository implements EvaluationRepository {
 
   addEvaluators(input: AddEvaluatorsInput): EvaluationSnapshot {
     return this.persist(addEvaluatorsAction(this.context(), input))
+  }
+
+  updateEvaluator(input: UpdateEvaluatorInput): EvaluationSnapshot {
+    return this.persist(updateEvaluatorAction(this.context(), input))
+  }
+
+  deleteEvaluator(input: DeleteEvaluatorInput): EvaluationSnapshot {
+    return this.persist(deleteEvaluatorAction(this.context(), input))
   }
 
   createScheduleEvent(input: CreateScheduleEventInput): EvaluationSnapshot {

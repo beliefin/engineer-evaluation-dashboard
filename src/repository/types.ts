@@ -220,6 +220,18 @@ export type AddEvaluatorsInput = Readonly<{
   actor: RepositoryActor
 }>
 
+export type UpdateEvaluatorInput = NewEvaluatorInput & Readonly<{
+  cycleId: string
+  evaluatorId: string
+  actor: RepositoryActor
+}>
+
+export type DeleteEvaluatorInput = Readonly<{
+  cycleId: string
+  evaluatorId: string
+  actor: RepositoryActor
+}>
+
 type ScheduleEventFields = Readonly<{
   engineerId: string
   title: string
@@ -269,6 +281,8 @@ export interface EvaluationRepository {
   updateEngineer(input: UpdateEngineerInput): EvaluationSnapshot
   deleteEngineer(input: DeleteEngineerInput): EvaluationSnapshot
   addEvaluators(input: AddEvaluatorsInput): EvaluationSnapshot
+  updateEvaluator(input: UpdateEvaluatorInput): EvaluationSnapshot
+  deleteEvaluator(input: DeleteEvaluatorInput): EvaluationSnapshot
   createScheduleEvent(input: CreateScheduleEventInput): EvaluationSnapshot
   updateScheduleEvent(input: UpdateScheduleEventInput): EvaluationSnapshot
   deleteScheduleEvent(input: DeleteScheduleEventInput): EvaluationSnapshot

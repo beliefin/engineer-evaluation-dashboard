@@ -8,6 +8,7 @@ import { profileSchema, snapshotSchema, type Profile, type Snapshot } from "./mo
 import { mutateSheet, mutateSource } from "./mutations.ts"
 import { projectSnapshot } from "./projection.ts"
 import { evaluationRequestSchema } from "./request-schema.ts"
+import { findMissingLinkedRosterIds } from "./roster-integrity.ts"
 import { commitState, loadState } from "./state-store.ts"
 
 const supabaseUrl = Deno.env.get("SUPABASE_URL")
@@ -76,6 +77,21 @@ function applyMutation(
   }
 }
 
+async function requireLinkedRosterMembers(snapshot: Snapshot): Promise<void> {
+  const response = await service.from("profiles").select("evaluator_id, engineer_id")
+  if (response.error !== null) {
+    throw new ApiError(500, "PROFILE_LOOKUP_FAILED", "계정 연결 정보를 확인하지 못했습니다.")
+  }
+  const missing = findMissingLinkedRosterIds(snapshot, response.data)
+  if (missing.evaluatorIds.length > 0 || missing.engineerIds.length > 0) {
+    throw new ApiError(
+      409,
+      "ACCOUNT_LINKED",
+      "로그인 계정이 연결된 엔지니어 또는 평가자는 삭제할 수 없습니다.",
+    )
+  }
+}
+
 Deno.serve(async (request: Request) => {
   if (request.method === "OPTIONS") return new Response(null, { status: 204, headers: corsHeaders(request) })
   if (request.method !== "POST") return jsonResponse(request, { error: { code: "METHOD_NOT_ALLOWED", message: "POST 요청만 허용됩니다." } }, 405)
@@ -88,6 +104,9 @@ Deno.serve(async (request: Request) => {
       return jsonResponse(request, { snapshot: projectSnapshot(state.snapshot, profile), revision: state.revision })
     }
     const mutation = applyMutation(state.snapshot, profile, parsed)
+    if (parsed.operation === "operator_commit") {
+      await requireLinkedRosterMembers(mutation.snapshot)
+    }
     const revision = await commitState(
       service, mutation.revision, mutation.snapshot, profile, mutation.operation, mutation.targetId,
     )

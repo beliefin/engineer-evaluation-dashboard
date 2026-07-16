@@ -223,6 +223,8 @@ export interface OperationsCallbacks {
   readonly onUpdateEngineer: (engineerId: string, engineer: EngineerRegistration) => boolean
   readonly onDeleteEngineer: (engineerId: string) => boolean
   readonly onAddEvaluators: (evaluators: readonly EvaluatorRegistration[]) => boolean
+  readonly onUpdateEvaluator: (evaluatorId: string, evaluator: EvaluatorRegistration) => boolean
+  readonly onDeleteEvaluator: (evaluatorId: string) => boolean
   readonly onResetDemoData: () => void
 }
 
@@ -234,4 +236,5 @@ export interface OperationsConsoleProps extends OperationsCallbacks {
   readonly directScoreQuery?: string
   readonly onTabChange?: (tab: OperationsTab) => void
   readonly linkedEngineerIds?: readonly string[]
+  readonly linkedEvaluatorIds?: readonly string[]
 }

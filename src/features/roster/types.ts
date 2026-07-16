@@ -48,5 +48,11 @@ export interface RosterManagementPanelProps {
   readonly onAddEvaluators: (
     evaluators: readonly EvaluatorRegistration[],
   ) => boolean
+  readonly onUpdateEvaluator: (
+    evaluatorId: string,
+    evaluator: EvaluatorRegistration,
+  ) => boolean
+  readonly onDeleteEvaluator: (evaluatorId: string) => boolean
   readonly linkedEngineerIds?: readonly string[]
+  readonly linkedEvaluatorIds?: readonly string[]
 }

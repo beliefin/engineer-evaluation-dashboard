@@ -66,6 +66,8 @@ export type EvaluationActions = Readonly<{
   updateEngineer: (engineerId: string, engineer: NewEngineerInput) => boolean
   deleteEngineer: (engineerId: string) => boolean
   addEvaluators: (evaluators: ReadonlyArray<NewEvaluatorInput>) => boolean
+  updateEvaluator: (evaluatorId: string, evaluator: NewEvaluatorInput) => boolean
+  deleteEvaluator: (evaluatorId: string) => boolean
   createScheduleEvent: (
     input: Omit<CreateScheduleEventInput, "cycleId" | "actor">,
   ) => boolean
@@ -303,6 +305,27 @@ export function createEvaluationActions({
         }),
         `${evaluators.length}명의 평가자를 등록했습니다.`,
         { type: "operator", action: "evaluator_added", targetId: null },
+      ),
+    updateEvaluator: (evaluatorId, evaluator) =>
+      mutate(
+        (repository) => repository.updateEvaluator({
+          ...evaluator,
+          cycleId: activeCycleId,
+          evaluatorId,
+          actor,
+        }),
+        "평가자 정보를 수정했습니다.",
+        { type: "operator", action: "evaluator_updated", targetId: evaluatorId },
+      ),
+    deleteEvaluator: (evaluatorId) =>
+      mutate(
+        (repository) => repository.deleteEvaluator({
+          cycleId: activeCycleId,
+          evaluatorId,
+          actor,
+        }),
+        "평가자를 삭제했습니다.",
+        { type: "operator", action: "evaluator_deleted", targetId: evaluatorId },
       ),
     createScheduleEvent: (input) =>
       mutate(
