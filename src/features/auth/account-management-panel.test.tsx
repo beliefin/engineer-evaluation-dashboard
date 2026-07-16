@@ -71,7 +71,7 @@ describe("AccountManagementPanel", () => {
     await userEvent.type(screen.getByLabelText("표시 이름"), "평가 담당자 02")
     await userEvent.selectOptions(screen.getByLabelText("역할"), "evaluator")
     await userEvent.selectOptions(screen.getByLabelText("연결 평가자"), "evaluator-02")
-    await userEvent.type(screen.getByLabelText("초기 비밀번호"), "Evaluate!2026")
+    await userEvent.type(screen.getByLabelText("초기 비밀번호"), "Evaluate2026")
     await userEvent.click(screen.getByRole("button", { name: "계정 저장" }))
 
     // Then
@@ -81,7 +81,7 @@ describe("AccountManagementPanel", () => {
       role: "evaluator",
       evaluatorId: "evaluator-02",
       engineerId: null,
-      password: "Evaluate!2026",
+      password: "Evaluate2026",
       active: true,
     })
   })

@@ -46,6 +46,7 @@ export function selectEngineerResultSummaries(
     const tasks = snapshot.tasks.filter((task) => task.cycleId === cycleId)
     const result = calculateEngineerResult({
       cycleId,
+      cycleStartsAt: cycle.startsAt,
       engineerId: engineer.id,
       tasks,
       assignments,
@@ -55,6 +56,7 @@ export function selectEngineerResultSummaries(
       directScoreRules: snapshot.directScoreRules,
       languageRecords: snapshot.languageScoreRecords,
       certificationRecords: snapshot.certificationRecords,
+      scoreAdjustments: snapshot.scoreAdjustments,
     })
 
     return {

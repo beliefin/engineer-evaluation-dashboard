@@ -11,6 +11,8 @@ import { DirectScoreRulePanel } from "./direct-score-rule-panel"
 import { EvaluationTaskPanel } from "./evaluation-task-panel"
 import { EngineerTaskWeightPanel } from "./engineer-task-weight-panel"
 import { ResetDemoPanel } from "./reset-demo-panel"
+import { ReopenSheetPanel } from "./reopen-sheet-panel"
+import { ScoreAdjustmentPanel } from "./score-adjustment-panel"
 import type { OperationsConsoleProps } from "./types"
 
 export function OperationsConsole({
@@ -25,6 +27,8 @@ export function OperationsConsole({
   onDeleteTask,
   onEngineerTaskWeightsChange,
   onDirectScoreChange,
+  onSaveScoreAdjustment,
+  onDeleteScoreAdjustment,
   onSaveLanguageRecord,
   onDeleteLanguageRecord,
   onSaveDirectScoreRule,
@@ -38,6 +42,7 @@ export function OperationsConsole({
   onAddEvaluators,
   onUpdateEvaluator,
   onDeleteEvaluator,
+  onReopenSheet,
   onResetDemoData,
   activeTab = "roster",
   directScoreQuery = "",
@@ -72,6 +77,9 @@ export function OperationsConsole({
             value === "tasks" ||
             value === "weights" ||
             value === "scores" ||
+            value === "scoreTables" ||
+            value === "adjustments" ||
+            value === "unlocks" ||
             value === "reset"
           ) {
             onTabChange?.(value)
@@ -86,6 +94,9 @@ export function OperationsConsole({
             <TabsTrigger value="tasks">과제 구성</TabsTrigger>
             <TabsTrigger value="weights">개인별 가중치</TabsTrigger>
             <TabsTrigger value="scores">자격, 어학 입력</TabsTrigger>
+            <TabsTrigger value="scoreTables">자격·어학 평가표</TabsTrigger>
+            <TabsTrigger value="adjustments">개인 총점 가·감점</TabsTrigger>
+            <TabsTrigger value="unlocks">평가 잠금 해제</TabsTrigger>
             {showReset ? <TabsTrigger value="reset">초기화</TabsTrigger> : null}
           </TabsList>
         </div>
@@ -140,6 +151,9 @@ export function OperationsConsole({
         <TabsContent value="scores">
           <div className="space-y-4">
             <DirectScoreSourceEditor
+              certificationOptions={viewModel.certificationOptions ?? []}
+              languageOptions={viewModel.languageOptions ?? []}
+              cycleStartsAt={viewModel.cycleStartsAt}
               disabled={disabled || viewModel.cycleLocked}
               onDeleteCertificationRecord={onDeleteCertificationRecord}
               onDeleteLanguageRecord={onDeleteLanguageRecord}
@@ -147,13 +161,6 @@ export function OperationsConsole({
               onSaveLanguageRecord={onSaveLanguageRecord}
               onVerifySourceRecord={onVerifySourceRecord}
               rows={viewModel.directScores}
-            />
-            <DirectScoreRulePanel
-              disabled={disabled || viewModel.cycleLocked}
-              onDelete={onDeleteDirectScoreRule}
-              onSave={onSaveDirectScoreRule}
-              operatorTasks={viewModel.operatorTasks ?? []}
-              rules={viewModel.directScoreRules ?? []}
             />
             <DirectScoreEditor
               disabled={disabled || viewModel.cycleLocked}
@@ -163,6 +170,30 @@ export function OperationsConsole({
               rows={viewModel.directScores}
             />
           </div>
+        </TabsContent>
+        <TabsContent value="scoreTables">
+          <DirectScoreRulePanel
+            disabled={disabled || viewModel.cycleLocked}
+            onDelete={onDeleteDirectScoreRule}
+            onSave={onSaveDirectScoreRule}
+            operatorTasks={viewModel.operatorTasks ?? []}
+            rules={viewModel.directScoreRules ?? []}
+          />
+        </TabsContent>
+        <TabsContent value="adjustments">
+          <ScoreAdjustmentPanel
+            disabled={disabled || viewModel.cycleLocked}
+            onDelete={onDeleteScoreAdjustment}
+            onSave={onSaveScoreAdjustment}
+            rows={viewModel.scoreAdjustments}
+          />
+        </TabsContent>
+        <TabsContent value="unlocks">
+          <ReopenSheetPanel
+            disabled={disabled || viewModel.cycleLocked}
+            onReopen={(sheetId, reason) => { onReopenSheet(sheetId, reason) }}
+            sheets={viewModel.submittedSheets}
+          />
         </TabsContent>
         {showReset ? (
           <TabsContent value="reset">

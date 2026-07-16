@@ -1,6 +1,6 @@
 "use client"
 
-import { Plus, Trash2 } from "lucide-react"
+import { Plus } from "lucide-react"
 import { useState, type FormEvent } from "react"
 
 import { Button } from "@/components/ui/button"
@@ -33,6 +33,7 @@ import type {
   TaskEvaluatorDraft,
   TaskItemDraft,
 } from "./types"
+import { RubricItemEditor } from "./rubric-item-editor"
 
 const METHOD_LABELS: Readonly<Record<EvaluationMethod, string>> = {
   evaluator_score: "평가자 점수형",
@@ -66,7 +67,7 @@ export function EvaluationTaskDialog({ evaluators, initial, disabled, onSave }: 
   const [method, setMethod] = useState<EvaluationMethod>(initial?.method ?? "evaluator_score")
   const [weight, setWeight] = useState(String(initial?.weight ?? 10))
   const [items, setItems] = useState<ReadonlyArray<TaskItemDraft>>(
-    initial?.items ?? [{ id: null, label: "평가 항목 1" }],
+    initial?.items ?? [{ id: null, label: "평가 항목 1", section: null, criteria: [] }],
   )
   const [evaluatorWeights, setEvaluatorWeights] = useState<ReadonlyArray<TaskEvaluatorDraft>>(
     initial?.evaluatorWeights ?? [],
@@ -76,7 +77,9 @@ export function EvaluationTaskDialog({ evaluators, initial, disabled, onSave }: 
   function changeMethod(next: EvaluationMethod) {
     setMethod(next)
     if (next !== "evaluator_score") setItems([])
-    else if (items.length === 0) setItems([{ id: null, label: "평가 항목 1" }])
+    else if (items.length === 0) {
+      setItems([{ id: null, label: "평가 항목 1", section: null, criteria: [] }])
+    }
     if (!isEvaluatorMethod(next)) setEvaluatorWeights([])
   }
 
@@ -97,6 +100,19 @@ export function EvaluationTaskDialog({ evaluators, initial, disabled, onSave }: 
       setError("모든 평가 항목의 내용을 입력해 주세요.")
       return
     }
+    const criteriaInvalid = items.some((item) => {
+      const scores = item.criteria.map((criterion) => criterion.score)
+      return item.criteria.some((criterion) =>
+        !Number.isInteger(criterion.score)
+        || criterion.score < 0
+        || criterion.score > 10
+        || criterion.description.trim().length === 0
+      ) || new Set(scores).size !== scores.length
+    })
+    if (method === "evaluator_score" && criteriaInvalid) {
+      setError("평가기준은 0~10점의 중복 없는 정수와 설명을 입력해 주세요.")
+      return
+    }
     const saved = onSave({
       taskId: initial?.taskId ?? null,
       name: name.trim(),
@@ -104,7 +120,14 @@ export function EvaluationTaskDialog({ evaluators, initial, disabled, onSave }: 
       method,
       weight: parsedWeight,
       items: method === "evaluator_score"
-        ? items.map((item) => ({ ...item, label: item.label.trim() }))
+        ? items.map((item) => ({
+          ...item,
+          label: item.label.trim(),
+          section: item.section?.trim() || null,
+          criteria: item.criteria
+            .map((criterion) => ({ ...criterion, description: criterion.description.trim() }))
+            .toSorted((left, right) => left.score - right.score),
+        }))
         : [],
       evaluatorWeights: isEvaluatorMethod(method) ? evaluatorWeights : [],
     })
@@ -149,8 +172,21 @@ export function EvaluationTaskDialog({ evaluators, initial, disabled, onSave }: 
             </div>
             {method === "evaluator_score" ? (
               <section className="space-y-3 border-t pt-5 sm:col-span-2" aria-labelledby="task-items-title">
-                <div className="flex items-center justify-between gap-3"><div><h3 className="font-semibold" id="task-items-title">세부 평가 항목</h3><p className="mt-1 text-xs text-muted-foreground">각 항목을 0~10점으로 평가하고 100점 기준으로 자동 환산합니다.</p></div><Button disabled={items.length >= 20} onClick={() => setItems((current) => [...current, { id: null, label: `평가 항목 ${current.length + 1}` }])} size="sm" type="button" variant="outline"><Plus aria-hidden="true" />항목</Button></div>
-                <div className="space-y-2">{items.map((item, index) => <div className="flex items-center gap-2" key={`${item.id ?? "new"}-${index}`}><span className="numeric w-6 text-center text-xs text-muted-foreground">{index + 1}</span><Input aria-label={`평가 항목 ${index + 1}`} onChange={(event) => { const nextLabel = event.currentTarget.value; setItems((current) => current.map((entry, itemIndex) => itemIndex === index ? { ...entry, label: nextLabel } : entry)) }} value={item.label} /><Button aria-label={`평가 항목 ${index + 1} 삭제`} disabled={items.length <= 1} onClick={() => setItems((current) => current.filter((_, itemIndex) => itemIndex !== index))} size="icon-sm" type="button" variant="ghost"><Trash2 aria-hidden="true" /></Button></div>)}</div>
+                <div className="flex items-center justify-between gap-3"><div><h3 className="font-semibold" id="task-items-title">세부 평가 항목</h3><p className="mt-1 text-xs text-muted-foreground">각 항목을 0~10점으로 평가하고 100점 기준으로 자동 환산합니다.</p></div><Button disabled={items.length >= 20} onClick={() => setItems((current) => [...current, { id: null, label: `평가 항목 ${current.length + 1}`, section: null, criteria: [] }])} size="sm" type="button" variant="outline"><Plus aria-hidden="true" />항목</Button></div>
+                <div className="space-y-2">{items.map((item, index) => (
+                  <RubricItemEditor
+                    index={index}
+                    item={item}
+                    itemCount={items.length}
+                    key={`${item.id ?? "new"}-${index}`}
+                    onChange={(nextItem) => setItems((current) => current.map(
+                      (entry, itemIndex) => itemIndex === index ? nextItem : entry,
+                    ))}
+                    onDelete={() => setItems((current) => current.filter(
+                      (_, itemIndex) => itemIndex !== index,
+                    ))}
+                  />
+                ))}</div>
               </section>
             ) : null}
             {isEvaluatorMethod(method) ? (

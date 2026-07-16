@@ -38,7 +38,16 @@ interface RosterListProps {
 }
 
 function matchesQuery(row: EngineerRosterItem | EvaluatorRosterItem, query: string): boolean {
-  return [row.employeeCode, row.displayName, row.team, "position" in row ? row.position : ""]
+  return [
+    row.employeeCode,
+    row.displayName,
+    row.division,
+    row.team,
+    row.department,
+    row.organizationUnit ?? "",
+    "position" in row ? row.position : row.rank ?? "",
+    row.jobTitle ?? "",
+  ]
     .join(" ")
     .toLocaleLowerCase("ko-KR")
     .includes(query.trim().toLocaleLowerCase("ko-KR"))
@@ -81,7 +90,7 @@ export function RosterList({
             className="pl-9"
             id={`${kind}-roster-search`}
             onChange={(event) => setQuery(event.currentTarget.value)}
-            placeholder="이름, 사번 또는 팀 검색"
+            placeholder="이름, 사번, 팀 또는 담당 검색"
             type="search"
             value={query}
           />
@@ -109,10 +118,16 @@ export function RosterList({
                   <p className="mt-1 text-xs text-muted-foreground">{row.employeeCode}</p>
                 </div>
                 <div className="shrink-0 text-right text-xs text-muted-foreground">
+                  <p>{row.division}</p>
                   <p>{row.team}</p>
+                  <p className="mt-1">{row.organizationUnit ?? row.department}</p>
+                  {row.organizationUnit === null || row.organizationUnit === undefined
+                    ? null
+                    : <p>{row.department}</p>}
                   {"position" in row ? (
                     <>
                       <p className="mt-1">{row.position}</p>
+                      {row.jobTitle === null || row.jobTitle === undefined ? null : <p>{row.jobTitle}</p>}
                       <RosterItemActions
                         disabled={disabled}
                         item={row}
@@ -123,14 +138,18 @@ export function RosterList({
                       />
                     </>
                   ) : (
-                    <RosterItemActions
-                      disabled={disabled}
-                      item={row}
-                      linkedAccount={linkedEvaluatorIdSet.has(row.id)}
-                      onDelete={setDeletingEvaluator}
-                      onEdit={setEditingEvaluator}
-                      surface="mobile"
-                    />
+                    <>
+                      {row.rank === null || row.rank === undefined ? null : <p className="mt-1">{row.rank}</p>}
+                      {row.jobTitle === null || row.jobTitle === undefined ? null : <p>{row.jobTitle}</p>}
+                      <RosterItemActions
+                        disabled={disabled}
+                        item={row}
+                        linkedAccount={linkedEvaluatorIdSet.has(row.id)}
+                        onDelete={setDeletingEvaluator}
+                        onEdit={setEditingEvaluator}
+                        surface="mobile"
+                      />
+                    </>
                   )}
                 </div>
               </li>
@@ -147,8 +166,12 @@ export function RosterList({
                 <TableRow>
                   <TableHead>이름</TableHead>
                   <TableHead>사번</TableHead>
+                  <TableHead>부문</TableHead>
                   <TableHead>팀</TableHead>
-                  {kind === "engineer" ? <TableHead>직급</TableHead> : null}
+                  <TableHead>부서</TableHead>
+                  <TableHead>담당</TableHead>
+                  <TableHead>직급</TableHead>
+                  <TableHead>직책</TableHead>
                   <TableHead className="text-right">관리</TableHead>
                 </TableRow>
               </TableHeader>
@@ -157,10 +180,14 @@ export function RosterList({
                   <TableRow key={row.id}>
                     <TableCell className="font-medium">{row.displayName}</TableCell>
                     <TableCell className="numeric">{row.employeeCode}</TableCell>
+                    <TableCell>{row.division}</TableCell>
                     <TableCell>{row.team}</TableCell>
+                    <TableCell>{row.organizationUnit ?? "-"}</TableCell>
+                    <TableCell>{row.department}</TableCell>
                     {"position" in row ? (
                       <>
                         <TableCell>{row.position}</TableCell>
+                        <TableCell>{row.jobTitle ?? "-"}</TableCell>
                         <TableCell>
                           <RosterItemActions
                             disabled={disabled}
@@ -173,16 +200,20 @@ export function RosterList({
                         </TableCell>
                       </>
                     ) : (
-                      <TableCell>
-                        <RosterItemActions
-                          disabled={disabled}
-                          item={row}
-                          linkedAccount={linkedEvaluatorIdSet.has(row.id)}
-                          onDelete={setDeletingEvaluator}
-                          onEdit={setEditingEvaluator}
-                          surface="desktop"
-                        />
-                      </TableCell>
+                      <>
+                        <TableCell>{row.rank ?? "-"}</TableCell>
+                        <TableCell>{row.jobTitle ?? "-"}</TableCell>
+                        <TableCell>
+                          <RosterItemActions
+                            disabled={disabled}
+                            item={row}
+                            linkedAccount={linkedEvaluatorIdSet.has(row.id)}
+                            onDelete={setDeletingEvaluator}
+                            onEdit={setEditingEvaluator}
+                            surface="desktop"
+                          />
+                        </TableCell>
+                      </>
                     )}
                   </TableRow>
                 ))}

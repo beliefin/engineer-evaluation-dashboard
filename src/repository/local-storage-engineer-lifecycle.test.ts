@@ -32,7 +32,9 @@ describe("LocalStorageEvaluationRepository engineer lifecycle", () => {
       engineerId: engineer.id,
       employeeCode: "EDIT-001",
       displayName: "수정 엔지니어",
+      division: "1부문",
       team: "생산 2팀",
+      department: "염화메탄담당",
       position: "선임 엔지니어",
       actor: OPERATOR,
     })
@@ -41,8 +43,12 @@ describe("LocalStorageEvaluationRepository engineer lifecycle", () => {
       id: engineer.id,
       employeeCode: "EDIT-001",
       displayName: "수정 엔지니어",
+      division: "1부문",
       team: "생산 2팀",
+      department: "염화메탄담당",
+      organizationUnit: engineer.organizationUnit,
       position: "선임 엔지니어",
+      jobTitle: engineer.jobTitle,
     })
     expect(updated.assignments.filter((assignment) => assignment.engineerId === engineer.id))
       .toHaveLength(assignmentIds.length)
@@ -65,7 +71,9 @@ describe("LocalStorageEvaluationRepository engineer lifecycle", () => {
       engineerId: engineer.id,
       employeeCode: duplicate.employeeCode,
       displayName: engineer.displayName,
+      division: engineer.division,
       team: engineer.team,
+      department: engineer.department,
       position: engineer.position,
       actor: OPERATOR,
     })).toThrowError(expect.objectContaining({ code: "DUPLICATE_EMPLOYEE_CODE" }))

@@ -26,6 +26,8 @@ function makeViewModel(
       id: `item-${itemIndex + 1}`,
       index: itemIndex + 1,
       label: `평가 항목 ${itemIndex + 1}`,
+      section: null,
+      criteria: [],
       value,
     })),
     passResult: null,
@@ -37,6 +39,34 @@ function makeViewModel(
 }
 
 describe("ScoreInputRow", () => {
+  it("평가항목을 펼치면 점수별 세부 평가기준을 확인할 수 있다", async () => {
+    const user = userEvent.setup()
+
+    render(
+      <ScoreInputRow
+        assignmentId="assignment-01"
+        item={{
+          id: "item-1",
+          index: 1,
+          label: "주제의 전략적 적합성과 집중도",
+          section: "서론",
+          criteria: [
+            { score: 3, description: "목표가 불분명함." },
+            { score: 9, description: "목표가 명확하고 기대되는 모습이 잘 그려짐." },
+          ],
+          value: null,
+        }}
+        locked={false}
+        onChange={vi.fn()}
+      />,
+    )
+
+    await user.click(screen.getByText("주제의 전략적 적합성과 집중도"))
+
+    expect(screen.getByText("3점")).toBeVisible()
+    expect(screen.getByText("목표가 명확하고 기대되는 모습이 잘 그려짐.")).toBeVisible()
+  })
+
   it("0~10 사이 정수만 변경값으로 전달한다", async () => {
     const user = userEvent.setup()
     const onChange = vi.fn()
@@ -44,7 +74,7 @@ describe("ScoreInputRow", () => {
     render(
       <ScoreInputRow
         assignmentId="assignment-01"
-        item={{ id: "item-1", index: 1, label: "평가 항목 1", value: null }}
+        item={{ id: "item-1", index: 1, label: "평가 항목 1", section: null, criteria: [], value: null }}
         locked={false}
         onChange={onChange}
       />
@@ -66,7 +96,7 @@ describe("ScoreInputRow", () => {
     render(
       <ScoreInputRow
         assignmentId="assignment-01"
-        item={{ id: "item-1", index: 1, label: "평가 항목 1", value: 5 }}
+        item={{ id: "item-1", index: 1, label: "평가 항목 1", section: null, criteria: [], value: 5 }}
         locked={false}
         onChange={onChange}
       />
@@ -162,7 +192,7 @@ describe("EvaluationScoreForm", () => {
 
     expect(screen.getByText("제출 완료되어 잠겼습니다")).toBeInTheDocument()
     expect(
-      screen.getByText(/현재 버전에서는 제출 후 수정할 수 없습니다/),
+      screen.getByText(/운영자에게 잠금 해제를 요청하세요/),
     ).toBeInTheDocument()
     for (const input of screen.getAllByRole("spinbutton")) {
       expect(input).toBeDisabled()

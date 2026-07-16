@@ -42,4 +42,34 @@ describe("createRemoteRequest", () => {
       snapshot,
     })
   })
+
+  it("Given a score adjustment command When serialized Then no whole snapshot is sent", () => {
+    const request = createRemoteRequest(
+      {
+        type: "score_adjustment_save",
+        adjustment: {
+          adjustmentId: null,
+          cycleId: "cycle-2026-h1",
+          engineerId: "engineer-01",
+          amount: 2.5,
+          reason: "특별 기여",
+        },
+      },
+      createSeedSnapshot(),
+      12,
+    )
+
+    expect(request).toEqual({
+      operation: "save_score_adjustment",
+      baseRevision: 12,
+      adjustment: {
+        adjustmentId: null,
+        cycleId: "cycle-2026-h1",
+        engineerId: "engineer-01",
+        amount: 2.5,
+        reason: "특별 기여",
+      },
+    })
+    expect(request).not.toHaveProperty("snapshot")
+  })
 })

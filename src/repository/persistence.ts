@@ -5,9 +5,11 @@ import {
   migratePreviousSnapshot,
   migrateVersionThreeSnapshot,
   migrateVersionFourSnapshot,
+  migrateVersionFiveSnapshot,
   previousEvaluationSnapshotSchema,
   versionThreeEvaluationSnapshotSchema,
   versionFourEvaluationSnapshotSchema,
+  versionFiveEvaluationSnapshotSchema,
   type EvaluationSnapshot,
 } from "@/domain"
 
@@ -19,6 +21,7 @@ import {
   OLDEST_LOCAL_STORAGE_KEY,
   PREVIOUS_LOCAL_STORAGE_KEY,
   VERSION_FOUR_LOCAL_STORAGE_KEY,
+  VERSION_FIVE_LOCAL_STORAGE_KEY,
 } from "./storage-keys"
 import { RepositoryError, type StorageLike } from "./types"
 
@@ -35,6 +38,10 @@ export function loadStoredSnapshot(storage: StorageLike): EvaluationSnapshot {
   const currentRaw = storage.getItem(LOCAL_STORAGE_KEY)
   const current = currentRaw === null ? null : parseSnapshot(currentRaw)
   if (current !== null) return current
+
+  const versionFiveRaw = storage.getItem(VERSION_FIVE_LOCAL_STORAGE_KEY)
+  const versionFive = versionFiveRaw === null ? null : parseSnapshot(versionFiveRaw)
+  if (versionFive !== null) return versionFive
 
   const versionFourRaw = storage.getItem(VERSION_FOUR_LOCAL_STORAGE_KEY)
   const versionFour = versionFourRaw === null ? null : parseSnapshot(versionFourRaw)
@@ -57,6 +64,9 @@ function parseSnapshot(raw: string): EvaluationSnapshot | null {
   const json = parseStoredJson(raw)
   const current = evaluationSnapshotSchema.safeParse(json)
   if (current.success) return current.data
+
+  const versionFive = versionFiveEvaluationSnapshotSchema.safeParse(json)
+  if (versionFive.success) return migrateVersionFiveSnapshot(versionFive.data)
 
   const versionFour = versionFourEvaluationSnapshotSchema.safeParse(json)
   if (versionFour.success) return migrateVersionFourSnapshot(versionFour.data)

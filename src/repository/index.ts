@@ -4,6 +4,7 @@ export {
   LOCAL_STORAGE_KEY,
   PREVIOUS_LOCAL_STORAGE_KEY,
   VERSION_FOUR_LOCAL_STORAGE_KEY,
+  VERSION_FIVE_LOCAL_STORAGE_KEY,
 } from "./local-storage"
 export {
   RepositoryError,
@@ -19,6 +20,7 @@ export {
   type DeleteScheduleEventInput,
   type DeleteEvaluationTaskInput,
   type DeleteSourceRecordInput,
+  type DeleteScoreAdjustmentInput,
   type EvaluationRepository,
   type NewEngineerInput,
   type NewEvaluatorInput,
@@ -29,6 +31,7 @@ export {
   type SaveDraftInput,
   type SaveCertificationRecordInput,
   type SaveLanguageScoreRecordInput,
+  type SaveScoreAdjustmentInput,
   type SaveEvaluationTaskInput,
   type SaveDirectScoreRuleInput,
   type SheetActionInput,

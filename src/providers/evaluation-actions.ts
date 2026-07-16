@@ -9,6 +9,7 @@ import type {
   RepositoryActor,
   SaveCertificationRecordInput,
   SaveLanguageScoreRecordInput,
+  SaveScoreAdjustmentInput,
   SaveDirectScoreRuleInput,
   SaveEvaluationTaskInput,
   SetEvaluationCycleLockInput,
@@ -36,6 +37,10 @@ export type EvaluationActions = Readonly<{
     score: number | null,
     passResult: boolean | null,
   ) => boolean
+  saveScoreAdjustment: (
+    input: Omit<SaveScoreAdjustmentInput, "cycleId" | "actor">,
+  ) => boolean
+  deleteScoreAdjustment: (adjustmentId: string) => boolean
   saveLanguageScoreRecord: (
     input: Omit<SaveLanguageScoreRecordInput, "cycleId" | "actor">,
   ) => boolean
@@ -124,6 +129,25 @@ export function createEvaluationActions({
         }),
         undefined,
         { type: "operator", action: "direct_score_updated", targetId: `${engineerId}:${taskId}` },
+      ),
+    saveScoreAdjustment: (input) =>
+      mutate(
+        (repository) => repository.saveScoreAdjustment({
+          ...input,
+          cycleId: activeCycleId,
+          actor,
+        }),
+        "개인 총점 가·감점을 저장했습니다.",
+        {
+          type: "score_adjustment_save",
+          adjustment: { ...input, cycleId: activeCycleId },
+        },
+      ),
+    deleteScoreAdjustment: (adjustmentId) =>
+      mutate(
+        (repository) => repository.deleteScoreAdjustment({ adjustmentId, actor }),
+        "개인 총점 가·감점을 삭제했습니다.",
+        { type: "score_adjustment_delete", adjustmentId },
       ),
     saveLanguageScoreRecord: (input) =>
       mutate(

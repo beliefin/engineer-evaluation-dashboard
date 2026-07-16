@@ -18,11 +18,14 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 
 import { TeamSelect } from "./team-select"
+import { DepartmentSelect } from "./department-select"
 import type {
   EngineerRegistration,
   EvaluatorRegistration,
+  RosterDepartment,
   RosterTeam,
 } from "./types"
+import { defaultRosterDepartment } from "./types"
 
 interface SingleRegistrationDialogProps {
   readonly kind: "engineer" | "evaluator"
@@ -51,6 +54,7 @@ export function SingleRegistrationDialog({
   const [employeeCode, setEmployeeCode] = useState("")
   const [displayName, setDisplayName] = useState("")
   const [team, setTeam] = useState<RosterTeam>("생산 1팀")
+  const [department, setDepartment] = useState<RosterDepartment>("전자약품담당")
   const [position, setPosition] = useState("엔지니어")
   const [errors, setErrors] = useState<FormErrors>({})
   const [submitError, setSubmitError] = useState("")
@@ -59,6 +63,7 @@ export function SingleRegistrationDialog({
     setEmployeeCode("")
     setDisplayName("")
     setTeam("생산 1팀")
+    setDepartment("전자약품담당")
     setPosition("엔지니어")
     setErrors({})
     setSubmitError("")
@@ -90,8 +95,8 @@ export function SingleRegistrationDialog({
     if (Object.keys(nextErrors).length > 0) return
 
     const succeeded = kind === "engineer"
-      ? onAddEngineers([{ employeeCode: code, displayName: name, team, position: jobPosition }])
-      : onAddEvaluators([{ employeeCode: code, displayName: name, team }])
+      ? onAddEngineers([{ employeeCode: code, displayName: name, division: "1부문", team, department, position: jobPosition }])
+      : onAddEvaluators([{ employeeCode: code, displayName: name, division: "1부문", team, department }])
     if (succeeded) handleOpenChange(false)
     else setSubmitError("등록하지 못했습니다. 사번 중복 여부를 확인하세요.")
   }
@@ -124,8 +129,28 @@ export function SingleRegistrationDialog({
             value={displayName}
           />
           <div className="space-y-2">
+            <Label htmlFor={`${id}-division`}>부문</Label>
+            <Input id={`${id}-division`} readOnly value="1부문" />
+          </div>
+          <div className="space-y-2">
             <Label htmlFor={`${id}-team`}>팀</Label>
-            <TeamSelect id={`${id}-team`} onValueChange={setTeam} value={team} />
+            <TeamSelect
+              id={`${id}-team`}
+              onValueChange={(nextTeam) => {
+                setTeam(nextTeam)
+                setDepartment(defaultRosterDepartment(nextTeam))
+              }}
+              value={team}
+            />
+          </div>
+          <div className="space-y-2">
+            <Label htmlFor={`${id}-department`}>담당</Label>
+            <DepartmentSelect
+              id={`${id}-department`}
+              onValueChange={setDepartment}
+              team={team}
+              value={department}
+            />
           </div>
           {kind === "engineer" ? (
             <LabeledInput

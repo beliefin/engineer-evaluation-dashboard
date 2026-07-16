@@ -1,9 +1,14 @@
 import {
+  DEPARTMENTS_BY_TEAM,
   DIRECT_SCORE_RULE_FIELDS,
   DIRECT_SCORE_RULE_KINDS,
   DIRECT_SCORE_RULE_OPERATORS,
   DIRECT_SCORE_RULE_TYPES,
+  LANGUAGE_BONUS_CONDITIONS,
+  LANGUAGE_GROUPS,
   evaluationMethodSchema,
+  departmentSchema,
+  divisionSchema,
   roleSchema,
   scoreEntrySchema,
   teamSchema,
@@ -40,6 +45,23 @@ export const updateDirectScoreInputSchema = z.object({
   actor: actorSchema,
 })
 
+export const saveScoreAdjustmentInputSchema = z.object({
+  adjustmentId: idSchema.nullable(),
+  cycleId: idSchema,
+  engineerId: idSchema,
+  amount: z.number().finite().min(-100).max(100).multipleOf(0.1).refine(
+    (amount) => amount !== 0,
+    "가·감점은 0점이 아닌 값이어야 합니다.",
+  ),
+  reason: z.string().trim().min(1).max(300),
+  actor: actorSchema,
+})
+
+export const deleteScoreAdjustmentInputSchema = z.object({
+  adjustmentId: idSchema,
+  actor: actorSchema,
+})
+
 const nullableSourceTextSchema = (max: number) =>
   z.string().trim().min(1).max(max).nullable()
 
@@ -48,7 +70,11 @@ export const saveLanguageScoreRecordInputSchema = z.object({
   cycleId: idSchema,
   engineerId: idSchema,
   examName: z.string().trim().min(1).max(100),
+  languageName: nullableSourceTextSchema(100).optional().default(null),
   result: z.string().trim().min(1).max(100),
+  languageGroup: z.enum(LANGUAGE_GROUPS).optional().default("english"),
+  previousResult: nullableSourceTextSchema(100).optional().default(null),
+  newlyAcquired: z.boolean().optional().default(false),
   acquiredOn: z.iso.date().nullable(),
   note: nullableSourceTextSchema(300),
   actor: actorSchema,
@@ -102,7 +128,7 @@ export const updateEvaluationCycleInputSchema = z.object({
   endsAt: z.iso.date(),
   actor: actorSchema,
 }).refine((value) => value.startsAt <= value.endsAt, {
-  message: "?됯? 醫낅즺?쇱? ?쒖옉?쇰낫??鍮좊? ???놁뒿?덈뒗.",
+  message: "평가 시즌 종료일은 시작일보다 빠를 수 없습니다.",
   path: ["endsAt"],
 })
 
@@ -123,8 +149,15 @@ export const saveDirectScoreRuleInputSchema = z.object({
   value: z.string().trim().min(1).max(100),
   ruleType: z.enum(DIRECT_SCORE_RULE_TYPES),
   score: z.number().finite().min(0).max(100).multipleOf(0.1),
+  rawScore: z.number().finite().min(0).max(110).multipleOf(0.1).nullable().optional(),
   bonus: z.number().finite().min(0).max(100).multipleOf(0.1),
   enabled: z.boolean(),
+  category: z.string().trim().min(1).max(100).nullable().optional(),
+  difficulty: z.string().trim().min(1).max(100).nullable().optional(),
+  workRelevance: z.string().trim().min(1).max(100).nullable().optional(),
+  languageGroup: z.enum(LANGUAGE_GROUPS).nullable().optional(),
+  examName: z.string().trim().min(1).max(100).nullable().optional(),
+  bonusCondition: z.enum(LANGUAGE_BONUS_CONDITIONS).nullable().optional(),
   actor: actorSchema,
 })
 
@@ -143,6 +176,11 @@ export const saveEvaluationTaskInputSchema = z.object({
   items: z.array(z.object({
     id: idSchema.nullable(),
     label: z.string().trim().min(1).max(200),
+    section: z.string().trim().min(1).max(50).nullable().default(null),
+    criteria: z.array(z.object({
+      score: z.number().int().min(0).max(10),
+      description: z.string().trim().min(1).max(500),
+    })).max(11).default([]),
   })).max(20),
   evaluatorWeights: z.array(z.object({
     evaluatorId: idSchema,
@@ -183,12 +221,30 @@ export const updateEngineerTaskWeightsInputSchema = z.object({
 })
 
 const employeeCodeSchema = z.string().trim().min(1).max(50)
+function validateOrganization(
+  value: { team: keyof typeof DEPARTMENTS_BY_TEAM; department: string },
+  context: z.RefinementCtx,
+): void {
+  const valid = value.team === "생산 1팀"
+    ? DEPARTMENTS_BY_TEAM["생산 1팀"].some((department) => department === value.department)
+    : DEPARTMENTS_BY_TEAM["생산 2팀"].some((department) => department === value.department)
+  if (!valid) {
+    context.addIssue({
+      code: "custom",
+      message: "선택한 팀에 속한 담당을 선택해 주세요.",
+      path: ["department"],
+    })
+  }
+}
+
 const engineerFieldsSchema = z.object({
   employeeCode: employeeCodeSchema,
   displayName: z.string().trim().min(1).max(100),
+  division: divisionSchema,
   team: teamSchema,
+  department: departmentSchema,
   position: z.string().trim().min(1).max(100),
-})
+}).superRefine(validateOrganization)
 
 export const addEngineersInputSchema = z.object({
   cycleId: idSchema,
@@ -215,8 +271,10 @@ export const addEvaluatorsInputSchema = z.object({
       z.object({
         employeeCode: employeeCodeSchema,
         displayName: z.string().trim().min(1).max(100),
+        division: divisionSchema,
         team: teamSchema,
-      }),
+        department: departmentSchema,
+      }).superRefine(validateOrganization),
     )
     .min(1),
   actor: actorSchema,
@@ -225,8 +283,10 @@ export const addEvaluatorsInputSchema = z.object({
 const evaluatorFieldsSchema = z.object({
   employeeCode: employeeCodeSchema,
   displayName: z.string().trim().min(1).max(100),
+  division: divisionSchema,
   team: teamSchema,
-})
+  department: departmentSchema,
+}).superRefine(validateOrganization)
 
 export const updateEvaluatorInputSchema = evaluatorFieldsSchema.extend({
   cycleId: idSchema,

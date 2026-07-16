@@ -13,6 +13,7 @@ import type {
   UpdateAccountInput,
 } from "./types"
 import { AuthError } from "./types"
+import { accountEmailForUsername } from "./account-email"
 
 const profileSchema = z.object({
   auth_user_id: z.string().uuid(), username: z.string(), display_name: z.string(),
@@ -64,7 +65,7 @@ class SupabaseAuthRepository implements AuthRepository {
   ) {}
 
   private accountEmail(username: string): string {
-    return `${username}@${this.accountDomain}`
+    return accountEmailForUsername(username, this.accountDomain)
   }
 
   async restoreSession(): Promise<AuthAccount | null> {

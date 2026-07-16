@@ -1,12 +1,14 @@
 import type {
   AuditEvent,
+  Department,
   EvaluationSnapshot,
   EvaluationTask,
   TaskEvaluatorWeight,
   Team,
 } from "./types"
 import type { VersionFourEvaluationSnapshot } from "./schema"
-import { TEAMS } from "./types"
+import type { VersionFiveEvaluationSnapshot } from "./schema"
+import { DEPARTMENTS_BY_TEAM, TEAMS } from "./types"
 import type {
   LegacyEvaluationSnapshot,
   PreviousEvaluationSnapshot,
@@ -24,6 +26,17 @@ function teamForLegacyValue(value: string, index: number): Team {
   if (value === TEAMS[0] || value === TEAMS[1]) return value
   return LEGACY_TEAM_MAP[value] ?? (index % 2 === 0 ? TEAMS[0] : TEAMS[1])
 }
+
+function defaultDepartment(team: Team): Department {
+  return DEPARTMENTS_BY_TEAM[team][0]
+}
+
+function organizationForTeam(team: Team) {
+  return { division: "1부문" as const, department: defaultDepartment(team) }
+}
+
+const emptyEngineerMetadata = { organizationUnit: null, jobTitle: null } as const
+const emptyEvaluatorMetadata = { organizationUnit: null, rank: null, jobTitle: null } as const
 
 function taskId(cycleId: string, legacyKey: string): string {
   return `task-${cycleId}-${legacyKey}`
@@ -69,7 +82,11 @@ function tasksForCycle(
       method: "evaluator_score",
       weight: 35,
       order: 1,
-      items: growthRubric?.items ?? [],
+      items: growthRubric?.items.map((item) => ({
+        ...item,
+        section: null,
+        criteria: [],
+      })) ?? [],
       evaluatorWeights: evaluatorWeights(snapshot, cycle.id, "growth_plan"),
     },
     {
@@ -80,7 +97,11 @@ function tasksForCycle(
       method: "evaluator_score",
       weight: 35,
       order: 2,
-      items: coreRubric?.items ?? [],
+      items: coreRubric?.items.map((item) => ({
+        ...item,
+        section: null,
+        criteria: [],
+      })) ?? [],
       evaluatorWeights: evaluatorWeights(snapshot, cycle.id, "core_track"),
     },
     ...[
@@ -133,7 +154,7 @@ export function migrateVersionThreeSnapshot(
 ): EvaluationSnapshot {
   const tasks = previous.cycles.flatMap((cycle) => tasksForCycle(previous, cycle))
   return {
-    schemaVersion: 5,
+    schemaVersion: 6,
     cycles: previous.cycles.map((cycle) => ({
       id: cycle.id,
       name: cycle.name,
@@ -148,10 +169,14 @@ export function migrateVersionThreeSnapshot(
     engineers: previous.engineers.map((engineer, index) => ({
       ...engineer,
       team: teamForLegacyValue(engineer.team, index),
+      ...organizationForTeam(teamForLegacyValue(engineer.team, index)),
+      ...emptyEngineerMetadata,
     })),
     evaluators: previous.evaluators.map((evaluator, index) => ({
       ...evaluator,
       team: teamForLegacyValue(evaluator.team, index),
+      ...organizationForTeam(teamForLegacyValue(evaluator.team, index)),
+      ...emptyEvaluatorMetadata,
     })),
     assignments: previous.assignments.map((assignment) => ({
       id: assignment.id,
@@ -173,6 +198,7 @@ export function migrateVersionThreeSnapshot(
       passResult: null,
       updatedAt: score.updatedAt,
     })),
+    scoreAdjustments: [],
     languageScoreRecords: previous.languageScoreRecords,
     certificationRecords: previous.certificationRecords,
     scheduleEvents: previous.scheduleEvents,
@@ -188,9 +214,40 @@ export function migrateVersionFourSnapshot(
 ): EvaluationSnapshot {
   return {
     ...previous,
-    schemaVersion: 5,
+    schemaVersion: 6,
     engineerTaskWeights: [],
     directScoreRules: [],
+    scoreAdjustments: [],
+    engineers: previous.engineers.map((engineer) => ({
+      ...engineer,
+      ...organizationForTeam(engineer.team),
+      ...emptyEngineerMetadata,
+    })),
+    evaluators: previous.evaluators.map((evaluator) => ({
+      ...evaluator,
+      ...organizationForTeam(evaluator.team),
+      ...emptyEvaluatorMetadata,
+    })),
+  }
+}
+
+export function migrateVersionFiveSnapshot(
+  previous: VersionFiveEvaluationSnapshot,
+): EvaluationSnapshot {
+  return {
+    ...previous,
+    schemaVersion: 6,
+    scoreAdjustments: [],
+    engineers: previous.engineers.map((engineer) => ({
+      ...engineer,
+      ...organizationForTeam(engineer.team),
+      ...emptyEngineerMetadata,
+    })),
+    evaluators: previous.evaluators.map((evaluator) => ({
+      ...evaluator,
+      ...organizationForTeam(evaluator.team),
+      ...emptyEvaluatorMetadata,
+    })),
   }
 }
 

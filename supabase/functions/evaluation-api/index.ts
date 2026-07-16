@@ -5,7 +5,12 @@ import { ZodError } from "zod"
 import { corsHeaders, jsonResponse } from "../_shared/cors.ts"
 import { ApiError } from "./api-error.ts"
 import { profileSchema, snapshotSchema, type Profile, type Snapshot } from "./model.ts"
-import { mutateSheet, mutateSource } from "./mutations.ts"
+import {
+  mergeOperatorSnapshot,
+  mutateScoreAdjustment,
+  mutateSheet,
+  mutateSource,
+} from "./mutations.ts"
 import { projectSnapshot } from "./projection.ts"
 import { evaluationRequestSchema } from "./request-schema.ts"
 import { findMissingLinkedRosterIds } from "./roster-integrity.ts"
@@ -51,7 +56,7 @@ function applyMutation(
     if (profile.role !== "operator") throw new ApiError(403, "FORBIDDEN", "운영자 권한이 필요합니다.")
     if (request.action === "demo_reset") throw new ApiError(403, "FORBIDDEN", "운영 데이터 초기화는 허용되지 않습니다.")
     return {
-      snapshot: snapshotSchema.parse(request.snapshot),
+      snapshot: snapshotSchema.parse(mergeOperatorSnapshot(snapshot, request.snapshot)),
       operation: request.action,
       targetId: request.targetId,
       revision: request.baseRevision,
@@ -62,6 +67,16 @@ function applyMutation(
       snapshot: mutateSheet(snapshot, profile, request),
       operation: request.operation,
       targetId: request.sheetId,
+      revision: request.baseRevision,
+    }
+  }
+  if (request.operation === "save_score_adjustment" || request.operation === "delete_score_adjustment") {
+    return {
+      snapshot: mutateScoreAdjustment(snapshot, profile, request),
+      operation: request.operation,
+      targetId: request.operation === "save_score_adjustment"
+        ? request.adjustment.adjustmentId
+        : request.adjustmentId,
       revision: request.baseRevision,
     }
   }

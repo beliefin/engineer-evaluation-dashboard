@@ -42,7 +42,7 @@ export function ScoreDistributionChart({
     <DashboardPanel title={title} description={description}>
       <figure aria-labelledby={titleId}>
         <figcaption id={titleId} className="sr-only">
-          가중 총점 0점에서 100점까지의 구간별 완료 인원 분포
+          가·감점을 반영한 최종 총점 0점에서 100점까지의 구간별 완료 인원 분포
         </figcaption>
         {hasData ? (
           <ChartContainer
@@ -103,7 +103,7 @@ export function ScoreDistributionChart({
           <Table className="mt-3">
             <TableHeader>
               <TableRow>
-                <TableHead>가중 총점 구간</TableHead>
+                <TableHead>최종 총점 구간</TableHead>
                 <TableHead className="text-right">완료 인원</TableHead>
               </TableRow>
             </TableHeader>

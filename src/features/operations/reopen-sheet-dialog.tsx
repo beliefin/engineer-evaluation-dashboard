@@ -55,21 +55,24 @@ export function ReopenSheetDialog({
     <Dialog onOpenChange={handleOpenChange} open={open}>
       <DialogTrigger asChild>
         <Button disabled={disabled} size="sm" variant="outline">
-          재오픈
+          잠금 해제
         </Button>
       </DialogTrigger>
       <DialogContent>
         <form onSubmit={handleSubmit}>
           <DialogHeader>
-            <DialogTitle>제출 평가 재오픈</DialogTitle>
+            <DialogTitle>제출 평가 잠금 해제</DialogTitle>
             <DialogDescription>
-              {sheet.engineerName}의 {sheet.categoryLabel} 평가 잠금을 해제합니다.
-              이 작업과 사유는 감사 기록에 남습니다.
+              <span className="block">
+                {sheet.engineerName} · {sheet.taskLabel ?? sheet.categoryLabel} · {sheet.evaluatorName}
+              </span>
+              <span className="mt-1 block">제출 시각 {sheet.submittedAtLabel}</span>
+              <span className="mt-1 block">이 평가의 잠금을 해제하며, 사유는 감사 기록에 남습니다.</span>
             </DialogDescription>
           </DialogHeader>
           <div className="my-5">
             <label className="text-sm font-medium" htmlFor={reasonId}>
-              재오픈 사유
+              잠금 해제 사유
             </label>
             <Textarea
               aria-describedby={helpId}

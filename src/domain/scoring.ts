@@ -5,6 +5,7 @@ import type {
   DirectScoreRule,
   EngineerTaskWeight,
   EngineerResult,
+  EngineerScoreAdjustment,
   EvaluationTask,
   EvaluatorAssignment,
   LanguageScoreRecord,
@@ -51,6 +52,7 @@ function operatorTaskResult(
   directScoreRules: ReadonlyArray<DirectScoreRule>,
   languageRecords: ReadonlyArray<LanguageScoreRecord>,
   certificationRecords: ReadonlyArray<CertificationRecord>,
+  cycleStartsAt?: string,
 ): TaskResult {
   const stored = directScores.find((entry) => entry.taskId === task.id)
   const rules = directScoreRules.filter((rule) => rule.taskId === task.id)
@@ -59,6 +61,7 @@ function operatorTaskResult(
     : highestConvertedDirectScore(
       rules[0]?.kind === "language" ? languageRecords : certificationRecords,
       rules,
+      cycleStartsAt,
     )
   const score = task.method === "operator_score"
     ? (rules.length > 0 ? calculated : stored?.score ?? null)
@@ -89,8 +92,18 @@ export function calculateTaskResult(
   directScoreRules: ReadonlyArray<DirectScoreRule> = [],
   languageRecords: ReadonlyArray<LanguageScoreRecord> = [],
   certificationRecords: ReadonlyArray<CertificationRecord> = [],
+  cycleStartsAt?: string,
 ): TaskResult {
-  if (!isEvaluatorTask(task)) return operatorTaskResult(task, directScores, directScoreRules, languageRecords, certificationRecords)
+  if (!isEvaluatorTask(task)) {
+    return operatorTaskResult(
+      task,
+      directScores,
+      directScoreRules,
+      languageRecords,
+      certificationRecords,
+      cycleStartsAt,
+    )
+  }
 
   const scopedAssignments = assignments.filter((entry) => entry.taskId === task.id)
   const totalWeight = task.evaluatorWeights.reduce((total, entry) => total + entry.weight, 0)
@@ -135,6 +148,7 @@ export function calculateTaskResult(
 
 type EngineerResultInput = Readonly<{
   cycleId: string
+  cycleStartsAt?: string
   engineerId: string
   tasks: ReadonlyArray<EvaluationTask>
   assignments: ReadonlyArray<EvaluatorAssignment>
@@ -144,6 +158,7 @@ type EngineerResultInput = Readonly<{
   directScoreRules?: ReadonlyArray<DirectScoreRule>
   languageRecords?: ReadonlyArray<LanguageScoreRecord>
   certificationRecords?: ReadonlyArray<CertificationRecord>
+  scoreAdjustments?: ReadonlyArray<EngineerScoreAdjustment>
 }>
 
 export function resolveEngineerTaskWeight(
@@ -175,6 +190,7 @@ export function calculateEngineerResult(input: EngineerResultInput): EngineerRes
       input.directScoreRules,
       input.languageRecords,
       input.certificationRecords,
+      input.cycleStartsAt,
     ),
   )
   const contributions = Object.fromEntries(
@@ -189,9 +205,17 @@ export function calculateEngineerResult(input: EngineerResultInput): EngineerRes
     tasks.length > 0 &&
     Math.abs(weightTotal - 100) < 0.000_001 &&
     values.every((value) => value !== null)
-  const finalScore = complete
+  const baseScore = complete
     ? values.reduce<number>((total, value) => total + (value ?? 0), 0)
     : null
+  const adjustmentTotal = (input.scoreAdjustments ?? [])
+    .filter((adjustment) =>
+      adjustment.cycleId === input.cycleId && adjustment.engineerId === input.engineerId,
+    )
+    .reduce((total, adjustment) => total + adjustment.amount, 0)
+  const finalScore = baseScore === null
+    ? null
+    : Math.min(100, Math.max(0, baseScore + adjustmentTotal))
 
   return {
     cycleId: input.cycleId,
@@ -199,6 +223,8 @@ export function calculateEngineerResult(input: EngineerResultInput): EngineerRes
     status: complete ? "complete" : "incomplete",
     taskResults,
     contributions,
+    baseScore,
+    adjustmentTotal,
     finalScore,
     roundedFinalScore: finalScore === null ? null : roundToTwo(finalScore),
   }

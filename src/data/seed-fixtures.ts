@@ -1,9 +1,14 @@
 import {
   TEAMS,
+  DEPARTMENTS_BY_TEAM,
   type EvaluationTask,
   type Evaluator,
   type TaskEvaluatorWeight,
 } from "@/domain"
+
+import { GROWTH_PLAN_RUBRIC } from "./growth-plan-rubric"
+import { OTS_SCENARIO_RUBRIC } from "./ots-scenario-rubric"
+import { DX_TOOL_RUBRIC } from "./dx-tool-rubric"
 
 export { TEAMS } from "@/domain"
 
@@ -13,11 +18,11 @@ export const FIXED_TIMESTAMP = "2026-01-02T00:00:00.000Z"
 export const POSITIONS = ["엔지니어", "선임 엔지니어", "책임 엔지니어"] as const
 
 export const EVALUATORS = [
-  { id: "evaluator-01", employeeCode: "EVAL-001", displayName: "샘플 평가자 1", team: TEAMS[0] },
-  { id: "evaluator-02", employeeCode: "EVAL-002", displayName: "샘플 평가자 2", team: TEAMS[1] },
-  { id: "evaluator-03", employeeCode: "EVAL-003", displayName: "샘플 평가자 3", team: TEAMS[0] },
-  { id: "evaluator-04", employeeCode: "EVAL-004", displayName: "샘플 평가자 4", team: TEAMS[1] },
-  { id: "evaluator-05", employeeCode: "EVAL-005", displayName: "샘플 평가자 5", team: TEAMS[0] },
+  { id: "evaluator-01", employeeCode: "EVAL-001", displayName: "샘플 평가자 1", division: "1부문", team: TEAMS[0], department: DEPARTMENTS_BY_TEAM["생산 1팀"][0], organizationUnit: null, rank: null, jobTitle: null },
+  { id: "evaluator-02", employeeCode: "EVAL-002", displayName: "샘플 평가자 2", division: "1부문", team: TEAMS[1], department: DEPARTMENTS_BY_TEAM["생산 2팀"][0], organizationUnit: null, rank: null, jobTitle: null },
+  { id: "evaluator-03", employeeCode: "EVAL-003", displayName: "샘플 평가자 3", division: "1부문", team: TEAMS[0], department: DEPARTMENTS_BY_TEAM["생산 1팀"][1], organizationUnit: null, rank: null, jobTitle: null },
+  { id: "evaluator-04", employeeCode: "EVAL-004", displayName: "샘플 평가자 4", division: "1부문", team: TEAMS[1], department: DEPARTMENTS_BY_TEAM["생산 2팀"][1], organizationUnit: null, rank: null, jobTitle: null },
+  { id: "evaluator-05", employeeCode: "EVAL-005", displayName: "샘플 평가자 5", division: "1부문", team: TEAMS[0], department: DEPARTMENTS_BY_TEAM["생산 1팀"][2], organizationUnit: null, rank: null, jobTitle: null },
 ] as const satisfies ReadonlyArray<Evaluator>
 
 const EVALUATOR_WEIGHTS = [30, 25, 20, 15, 10] as const
@@ -35,7 +40,19 @@ function scoreTask(
   description: string,
   weight: number,
   order: number,
+  rubric: ReadonlyArray<Readonly<{
+    section: string | null
+    label: string
+    criteria: ReadonlyArray<Readonly<{ score: number; description: string }>>
+  }>> = [],
 ): EvaluationTask {
+  const items = rubric.length > 0
+    ? rubric
+    : Array.from({ length: 10 }, (_, index) => ({
+      section: null,
+      label: `평가 항목 ${index + 1}`,
+      criteria: [],
+    }))
   return {
     id,
     cycleId: CYCLE_ID,
@@ -44,10 +61,12 @@ function scoreTask(
     method: "evaluator_score",
     weight,
     order,
-    items: Array.from({ length: 10 }, (_, index) => ({
+    items: items.map((item, index) => ({
       id: `${id}-item-${String(index + 1).padStart(2, "0")}`,
-      label: `평가 항목 ${index + 1}`,
+      label: item.label,
       order: index + 1,
+      section: item.section,
+      criteria: item.criteria,
     })),
     evaluatorWeights: evaluatorWeights(),
   }
@@ -80,6 +99,7 @@ export const TASKS = [
     "엔지니어의 성장 주제, 탐구 과정과 실행\u00a0계획을 평가합니다.",
     35,
     1,
+    GROWTH_PLAN_RUBRIC,
   ),
   scoreTask(
     "task-ots-scenario",
@@ -87,6 +107,7 @@ export const TASKS = [
     "현장 시나리오의 완성도와 적용 가능성을 평가합니다.",
     35,
     2,
+    OTS_SCENARIO_RUBRIC,
   ),
   scoreTask(
     "task-dx-tool",
@@ -94,6 +115,7 @@ export const TASKS = [
     "DX 도구 활용 과정과 업무 개선 효과를 평가합니다.",
     35,
     3,
+    DX_TOOL_RUBRIC,
   ),
   operatorTask("task-language", "어학", "환산식 확정 전 운영자가 점수를 입력합니다.", 10, 4),
   operatorTask("task-certification", "자격증", "환산식 확정 전 운영자가 점수를 입력합니다.", 10, 5),

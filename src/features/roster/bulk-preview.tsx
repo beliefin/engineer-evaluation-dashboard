@@ -22,7 +22,9 @@ export function BulkPreview({ kind, rows }: BulkPreviewProps) {
           <TableRow>
             <TableHead>사번</TableHead>
             <TableHead>이름</TableHead>
+            <TableHead>부문</TableHead>
             <TableHead>팀</TableHead>
+            <TableHead>담당</TableHead>
             {kind === "engineer" ? <TableHead>직급</TableHead> : null}
           </TableRow>
         </TableHeader>
@@ -31,7 +33,9 @@ export function BulkPreview({ kind, rows }: BulkPreviewProps) {
             <TableRow key={row.employeeCode}>
               <TableCell className="font-medium">{row.employeeCode}</TableCell>
               <TableCell>{row.displayName}</TableCell>
+              <TableCell>{row.division}</TableCell>
               <TableCell>{row.team}</TableCell>
+              <TableCell>{row.department}</TableCell>
               {kind === "engineer" ? (
                 <TableCell>{"position" in row ? row.position : ""}</TableCell>
               ) : null}

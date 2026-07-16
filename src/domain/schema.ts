@@ -2,11 +2,15 @@ import { z } from "zod"
 
 import {
   CYCLE_STATUSES,
+  DEPARTMENTS_BY_TEAM,
   DIRECT_SCORE_RULE_FIELDS,
   DIRECT_SCORE_RULE_KINDS,
   DIRECT_SCORE_RULE_OPERATORS,
   DIRECT_SCORE_RULE_TYPES,
+  LANGUAGE_BONUS_CONDITIONS,
+  LANGUAGE_GROUPS,
   EVALUATION_METHODS,
+  DIVISIONS,
   ROLES,
   TEAMS,
 } from "./types"
@@ -17,6 +21,11 @@ const scoreValueSchema = z.number().int().min(0).max(10).nullable()
 
 export const roleSchema = z.enum(ROLES)
 export const teamSchema = z.enum(TEAMS)
+export const divisionSchema = z.enum(DIVISIONS)
+export const departmentSchema = z.enum([
+  ...DEPARTMENTS_BY_TEAM["생산 1팀"],
+  ...DEPARTMENTS_BY_TEAM["생산 2팀"],
+])
 export const evaluationMethodSchema = z.enum(EVALUATION_METHODS)
 
 export const evaluationCycleSchema = z.object({
@@ -28,7 +37,7 @@ export const evaluationCycleSchema = z.object({
   endsAt: timestampSchema,
 })
 
-export const engineerSchema = z.object({
+const versionFiveEngineerSchema = z.object({
   id: idSchema,
   employeeCode: z.string().trim().min(1),
   displayName: z.string().trim().min(1),
@@ -36,17 +45,65 @@ export const engineerSchema = z.object({
   position: z.string().trim().min(1),
 })
 
-export const evaluatorSchema = z.object({
+const versionFiveEvaluatorSchema = z.object({
   id: idSchema,
   employeeCode: z.string().trim().min(1),
   displayName: z.string().trim().min(1),
   team: teamSchema,
 })
 
+function organizationFields<T extends { team: keyof typeof DEPARTMENTS_BY_TEAM; department: string }>(
+  value: T,
+  context: z.RefinementCtx,
+): void {
+  const matchesTeam = value.team === "생산 1팀"
+    ? DEPARTMENTS_BY_TEAM["생산 1팀"].some((department) => department === value.department)
+    : DEPARTMENTS_BY_TEAM["생산 2팀"].some((department) => department === value.department)
+
+  if (!matchesTeam) {
+    context.addIssue({
+      code: "custom",
+      message: "선택한 팀에 속한 담당을 선택해 주세요.",
+      path: ["department"],
+    })
+  }
+}
+
+export const engineerSchema = versionFiveEngineerSchema.extend({
+  division: divisionSchema,
+  department: departmentSchema,
+  organizationUnit: z.string().trim().min(1).max(100).nullable().default(null),
+  jobTitle: z.string().trim().min(1).max(100).nullable().default(null),
+}).superRefine(organizationFields)
+
+export const evaluatorSchema = versionFiveEvaluatorSchema.extend({
+  division: divisionSchema,
+  department: departmentSchema,
+  organizationUnit: z.string().trim().min(1).max(100).nullable().default(null),
+  rank: z.string().trim().min(1).max(100).nullable().default(null),
+  jobTitle: z.string().trim().min(1).max(100).nullable().default(null),
+}).superRefine(organizationFields)
+
+export const rubricCriterionSchema = z.object({
+  score: z.number().int().min(0).max(10),
+  description: z.string().trim().min(1).max(500),
+})
+
 export const rubricItemSchema = z.object({
   id: idSchema,
   label: z.string().trim().min(1).max(200),
   order: z.number().int().min(1).max(20),
+  section: z.string().trim().min(1).max(50).nullable().default(null),
+  criteria: z.array(rubricCriterionSchema).max(11).default([]),
+}).superRefine((item, context) => {
+  const scores = item.criteria.map((criterion) => criterion.score)
+  if (new Set(scores).size !== scores.length) {
+    context.addIssue({
+      code: "custom",
+      message: "한 평가 항목에 같은 점수 기준을 두 번 등록할 수 없습니다.",
+      path: ["criteria"],
+    })
+  }
 })
 
 export const taskEvaluatorWeightSchema = z.object({
@@ -119,9 +176,16 @@ export const directScoreRuleSchema = z.object({
   value: z.string().trim().min(1).max(100),
   ruleType: z.enum(DIRECT_SCORE_RULE_TYPES),
   score: z.number().min(0).max(100).multipleOf(0.1),
+  rawScore: z.number().min(0).max(110).multipleOf(0.1).nullable().optional(),
   bonus: z.number().min(0).max(100).multipleOf(0.1),
   enabled: z.boolean(),
   order: z.number().int().min(1),
+  category: z.string().trim().min(1).max(100).nullable().optional(),
+  difficulty: z.string().trim().min(1).max(100).nullable().optional(),
+  workRelevance: z.string().trim().min(1).max(100).nullable().optional(),
+  languageGroup: z.enum(LANGUAGE_GROUPS).nullable().optional(),
+  examName: z.string().trim().min(1).max(100).nullable().optional(),
+  bonusCondition: z.enum(LANGUAGE_BONUS_CONDITIONS).nullable().optional(),
 })
 
 export const assignmentSchema = z.object({
@@ -162,7 +226,11 @@ export const languageScoreRecordSchema = z.object({
   cycleId: idSchema,
   engineerId: idSchema,
   examName: z.string().trim().min(1).max(100),
+  languageName: z.string().trim().min(1).max(100).nullable().optional(),
   result: z.string().trim().min(1).max(100),
+  languageGroup: z.enum(LANGUAGE_GROUPS).optional(),
+  previousResult: z.string().trim().min(1).max(100).nullable().optional(),
+  newlyAcquired: z.boolean().optional(),
   acquiredOn: z.iso.date().nullable(),
   note: z.string().trim().min(1).max(300).nullable(),
   updatedAt: timestampSchema,
@@ -191,6 +259,19 @@ export const evaluationScheduleEventSchema = z.object({
   updatedAt: timestampSchema,
 })
 
+export const engineerScoreAdjustmentSchema = z.object({
+  id: idSchema,
+  cycleId: idSchema,
+  engineerId: idSchema,
+  amount: z.number().finite().min(-100).max(100).multipleOf(0.1).refine(
+    (amount) => amount !== 0,
+    "가·감점은 0점이 아닌 값이어야 합니다.",
+  ),
+  reason: z.string().trim().min(1).max(300),
+  createdAt: timestampSchema,
+  updatedAt: timestampSchema,
+})
+
 export const auditEventSchema = z.object({
   id: idSchema,
   cycleId: idSchema,
@@ -198,6 +279,8 @@ export const auditEventSchema = z.object({
     "sheet_submitted",
     "sheet_reopened",
     "direct_score_updated",
+    "score_adjustment_saved",
+    "score_adjustment_deleted",
     "language_record_saved",
     "language_record_deleted",
     "certification_record_saved",
@@ -232,8 +315,8 @@ export const auditEventSchema = z.object({
 const versionFourSnapshotFields = {
   cycles: z.array(evaluationCycleSchema).min(1),
   tasks: z.array(evaluationTaskSchema),
-  engineers: z.array(engineerSchema),
-  evaluators: z.array(evaluatorSchema),
+  engineers: z.array(versionFiveEngineerSchema),
+  evaluators: z.array(versionFiveEvaluatorSchema),
   assignments: z.array(assignmentSchema),
   scoreSheets: z.array(scoreSheetSchema),
   directScores: z.array(directScoreSchema),
@@ -251,9 +334,20 @@ export type VersionFourEvaluationSnapshot = z.infer<
   typeof versionFourEvaluationSnapshotSchema
 >
 
-export const evaluationSnapshotSchema = z.object({
+export const versionFiveEvaluationSnapshotSchema = z.object({
   schemaVersion: z.literal(5),
   ...versionFourSnapshotFields,
   engineerTaskWeights: z.array(engineerTaskWeightSchema),
   directScoreRules: z.array(directScoreRuleSchema).default([]),
+})
+export type VersionFiveEvaluationSnapshot = z.infer<typeof versionFiveEvaluationSnapshotSchema>
+
+export const evaluationSnapshotSchema = z.object({
+  schemaVersion: z.literal(6),
+  ...versionFourSnapshotFields,
+  engineers: z.array(engineerSchema),
+  evaluators: z.array(evaluatorSchema),
+  engineerTaskWeights: z.array(engineerTaskWeightSchema),
+  directScoreRules: z.array(directScoreRuleSchema).default([]),
+  scoreAdjustments: z.array(engineerScoreAdjustmentSchema).default([]),
 })

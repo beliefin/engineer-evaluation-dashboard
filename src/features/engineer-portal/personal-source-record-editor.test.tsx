@@ -7,7 +7,7 @@ import { PersonalSourceRecordEditor } from "./personal-source-record-editor"
 afterEach(cleanup)
 
 describe("PersonalSourceRecordEditor", () => {
-  it("saves a language record for the linked engineer and explains deferred conversion", async () => {
+  it("saves a language record for the linked engineer and explains automatic conversion", async () => {
     // Given
     const onSaveLanguageRecord = vi.fn(() => true)
     render(
@@ -17,6 +17,7 @@ describe("PersonalSourceRecordEditor", () => {
         engineerId="engineer-01"
         engineerName="샘플 엔지니어 01"
         languageRecords={[]}
+        languageOptions={[{ languageGroup: "english", examName: "OPIc", numericResult: false, resultOptions: ["AL", "IH", "IM3", "IM2", "IM1"] }]}
         onDeleteCertificationRecord={vi.fn(() => true)}
         onDeleteLanguageRecord={vi.fn(() => true)}
         onSaveCertificationRecord={vi.fn(() => true)}
@@ -27,17 +28,21 @@ describe("PersonalSourceRecordEditor", () => {
 
     // When
     await user.click(screen.getByRole("button", { name: "어학 성적 추가" }))
-    await user.type(screen.getByLabelText("시험명"), "OPIc")
-    await user.type(screen.getByLabelText("점수 또는 등급"), "IH")
+    await user.selectOptions(screen.getByLabelText("시험명"), "OPIc")
+    await user.selectOptions(screen.getByLabelText("점수 또는 등급"), "IH")
     await user.click(screen.getByRole("button", { name: "저장" }))
 
     // Then
-    expect(screen.getByText("환산식 미적용")).toBeInTheDocument()
+    expect(screen.getByText("자동 환산 적용")).toBeInTheDocument()
     expect(onSaveLanguageRecord).toHaveBeenCalledWith({
       recordId: null,
       engineerId: "engineer-01",
       examName: "OPIc",
+      languageName: null,
+      languageGroup: "english",
       result: "IH",
+      previousResult: null,
+      newlyAcquired: false,
       acquiredOn: null,
       note: null,
     })

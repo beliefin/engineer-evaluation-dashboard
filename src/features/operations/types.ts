@@ -10,7 +10,7 @@ import type {
 } from "@/domain"
 
 export type OperationsCycleStatus = "setup" | "active" | "closed"
-export type OperationsTab = "roster" | "season" | "tasks" | "weights" | "scores" | "reset"
+export type OperationsTab = "roster" | "season" | "tasks" | "weights" | "scores" | "scoreTables" | "adjustments" | "unlocks" | "reset"
 
 export type OperationsTrack = "unselected" | "ots" | "dx"
 export type EvaluationCategoryKey = "growth_plan" | "core_track"
@@ -31,7 +31,12 @@ export interface EvaluatorWeightViewModel {
   readonly normalizedRatio: number
 }
 
-export type TaskItemDraft = Readonly<{ id: string | null; label: string }>
+export type TaskItemDraft = Readonly<{
+  id: string | null
+  label: string
+  section: string | null
+  criteria: ReadonlyArray<Readonly<{ score: number; description: string }>>
+}>
 export type TaskEvaluatorDraft = Readonly<{ evaluatorId: string; weight: number }>
 export type EvaluationTaskDraft = Readonly<{
   taskId: string | null
@@ -91,19 +96,60 @@ export interface EngineerDirectScoreViewModel {
   readonly teamName: string
   readonly directTasks: readonly DirectTaskScoreViewModel[]
   readonly languageRecords: readonly LanguageScoreRecordViewModel[]
+  readonly languageScore?: LanguageScoreSummaryViewModel
   readonly certificationRecords: readonly CertificationRecordViewModel[]
+  readonly certificationScore?: CertificationScoreSummaryViewModel
 }
+
+export type CertificationScoreSummaryViewModel = Readonly<{
+  score: number | null
+  baseScore: number
+  bonusScore: number
+  partialScore: number
+}>
+
+export type CertificationOptionViewModel = Readonly<{
+  name: string
+  category: string | null
+  difficulty: string | null
+  workRelevance: string | null
+  baseScore: number
+  newAcquisitionBonus: number
+  enabled: boolean
+}>
 
 export interface LanguageScoreRecordViewModel {
   readonly id: string
   readonly examName: string
+  readonly languageName?: string | null
+  readonly languageGroup?: "english" | "second_language"
   readonly result: string
+  readonly previousResult?: string | null
+  readonly newlyAcquired?: boolean
   readonly acquiredOn: string | null
   readonly note: string | null
   readonly reviewStatus: SourceRecordReviewStatus
   readonly sourceLabel: string
   readonly updatedAtLabel: string
+  readonly convertedScore?: number | null
+  readonly selectedAsBest?: boolean
+  readonly gradeUpgradeApplied?: boolean
+  readonly secondLanguageNewBonusApplied?: boolean
 }
+
+export type LanguageScoreSummaryViewModel = Readonly<{
+  score: number | null
+  baseScore: number
+  gradeUpgradeBonus: number
+  secondLanguageNewBonus: number
+}>
+
+export type LanguageOptionViewModel = Readonly<{
+  languageGroup: "english" | "second_language"
+  examName: string
+  numericResult: boolean
+  resultOptions: readonly string[]
+}>
 
 export interface CertificationRecordViewModel {
   readonly id: string
@@ -114,13 +160,22 @@ export interface CertificationRecordViewModel {
   readonly reviewStatus: SourceRecordReviewStatus
   readonly sourceLabel: string
   readonly updatedAtLabel: string
+  readonly baseScore?: number | null
+  readonly newAcquisitionBonus?: number
+  readonly includedInTopThree?: boolean
+  readonly bonusApplied?: boolean
+  readonly partialScoreApplied?: boolean
 }
 
 export type LanguageScoreRecordDraft = Readonly<{
   recordId: string | null
   engineerId: string
   examName: string
+  languageName: string | null
+  languageGroup: "english" | "second_language"
   result: string
+  previousResult: string | null
+  newlyAcquired: boolean
   acquiredOn: string | null
   note: string | null
 }>
@@ -144,11 +199,43 @@ export type DirectScoreRuleDraft = Readonly<{
   value: string
   ruleType: DirectScoreRule["ruleType"]
   score: number
+  rawScore?: number | null
   bonus: number
   enabled: boolean
+  category?: string | null
+  difficulty?: string | null
+  workRelevance?: string | null
+  languageGroup?: "english" | "second_language" | null
+  examName?: string | null
+  bonusCondition?: "grade_upgrade" | "second_language_new" | null
 }>
 
 export type DirectScoreRuleViewModel = DirectScoreRule
+
+export type ScoreAdjustmentDraft = Readonly<{
+  adjustmentId: string | null
+  engineerId: string
+  amount: number
+  reason: string
+}>
+
+export type ScoreAdjustmentEntryViewModel = Readonly<{
+  id: string
+  amount: number
+  reason: string
+  updatedAtLabel: string
+}>
+
+export type EngineerScoreAdjustmentViewModel = Readonly<{
+  engineerId: string
+  engineerName: string
+  employeeLabel: string
+  teamName: string
+  baseScore: number | null
+  adjustmentTotal: number
+  finalScore: number | null
+  adjustments: ReadonlyArray<ScoreAdjustmentEntryViewModel>
+}>
 
 export type EvaluationCycleDraft = Readonly<{
   name: string
@@ -187,8 +274,11 @@ export interface OperationsViewModel {
   readonly weightTotal: number
   readonly engineerTaskWeights: readonly EngineerTaskWeightViewModel[]
   readonly directScores: readonly EngineerDirectScoreViewModel[]
+  readonly scoreAdjustments: readonly EngineerScoreAdjustmentViewModel[]
   readonly directScoreRules?: readonly DirectScoreRuleViewModel[]
   readonly operatorTasks?: readonly Readonly<{ taskId: string; taskName: string }>[]
+  readonly certificationOptions?: readonly CertificationOptionViewModel[]
+  readonly languageOptions?: readonly LanguageOptionViewModel[]
   readonly rosterEngineers: readonly EngineerRosterItem[]
   readonly rosterEvaluators: readonly EvaluatorRosterItem[]
   readonly submittedSheets: readonly SubmittedSheetViewModel[]
@@ -214,6 +304,8 @@ export interface OperationsCallbacks {
     score: number | null,
     passResult: boolean | null,
   ) => void
+  readonly onSaveScoreAdjustment: (adjustment: ScoreAdjustmentDraft) => boolean
+  readonly onDeleteScoreAdjustment: (adjustmentId: string) => boolean
   readonly onSaveLanguageRecord: (record: LanguageScoreRecordDraft) => boolean
   readonly onDeleteLanguageRecord: (recordId: string) => boolean
   readonly onSaveCertificationRecord: (record: CertificationRecordDraft) => boolean
@@ -225,6 +317,7 @@ export interface OperationsCallbacks {
   readonly onAddEvaluators: (evaluators: readonly EvaluatorRegistration[]) => boolean
   readonly onUpdateEvaluator: (evaluatorId: string, evaluator: EvaluatorRegistration) => boolean
   readonly onDeleteEvaluator: (evaluatorId: string) => boolean
+  readonly onReopenSheet: (sheetId: string, reason: string) => boolean
   readonly onResetDemoData: () => void
 }
 

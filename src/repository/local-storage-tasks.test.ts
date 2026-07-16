@@ -105,12 +105,23 @@ describe("LocalStorageEvaluationRepository task configuration", () => {
       description: "개선 효과를 평가합니다.",
       method: "evaluator_score",
       weight: 5,
-      items: [{ id: null, label: "문제 정의" }, { id: null, label: "개선 효과" }],
+      items: [
+        {
+          id: null,
+          label: "문제 정의",
+          section: "본론",
+          criteria: [{ score: 7, description: "문제를 구체적으로 정의함." }],
+        },
+        { id: null, label: "개선 효과" },
+      ],
       evaluatorWeights: [{ evaluatorId: firstEvaluator.id, weight: 1 }],
       actor: OPERATOR,
     })
     const task = created.tasks.at(-1)
     if (task === undefined) throw new RangeError("task was not created")
+    expect(task.items[0]?.criteria).toEqual([
+      { score: 7, description: "문제를 구체적으로 정의함." },
+    ])
 
     const updated = repository.saveEvaluationTask({
       taskId: task.id,

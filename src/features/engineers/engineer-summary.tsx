@@ -77,14 +77,30 @@ export function EngineerSummary({ engineer, result, contextLabel = "엔지니어
         <div className="border-t bg-muted/30 p-5 sm:p-6 lg:border-t-0 lg:border-l">
           <p className="text-xs font-medium text-muted-foreground">최종 점수</p>
           {result.status === "complete" ? (
-            <p className="numeric mt-2 flex items-baseline gap-1">
-              <span className="text-[2rem] leading-none font-bold tracking-[-0.025em]">
-                {result.finalScore.toFixed(2)}
-              </span>
-              <span className="text-sm font-medium text-muted-foreground">
-                / 100
-              </span>
-            </p>
+            <>
+              <p className="numeric mt-2 flex items-baseline gap-1">
+                <span className="text-[2rem] leading-none font-bold tracking-[-0.025em]">
+                  {result.finalScore.toFixed(2)}
+                </span>
+                <span className="text-sm font-medium text-muted-foreground">
+                  / 100
+                </span>
+              </p>
+              {result.adjustmentTotal === 0 ? null : (
+                <dl className="mt-4 grid grid-cols-2 gap-3 border-t pt-3 text-xs">
+                  <div>
+                    <dt className="text-muted-foreground">기본 가중 총점</dt>
+                    <dd className="numeric mt-1 font-semibold">{result.baseScore?.toFixed(2) ?? "-"}</dd>
+                  </div>
+                  <div>
+                    <dt className="text-muted-foreground">가·감점 합계</dt>
+                    <dd className={`numeric mt-1 font-semibold ${result.adjustmentTotal > 0 ? "text-emerald-700" : "text-destructive"}`}>
+                      {result.adjustmentTotal > 0 ? "+" : ""}{result.adjustmentTotal.toFixed(2)}
+                    </dd>
+                  </div>
+                </dl>
+              )}
+            </>
           ) : (
             <div className="mt-2 flex items-center gap-2 text-destructive">
               <CircleAlert className="size-5" aria-hidden="true" />
@@ -94,6 +110,21 @@ export function EngineerSummary({ engineer, result, contextLabel = "엔지니어
           <p className="mt-3 text-xs leading-5 text-muted-foreground">
             모든 필수 평가와 직접점수가 완료되면 최종 점수를 확정합니다.
           </p>
+          {result.adjustments.length === 0 ? null : (
+            <details className="mt-3 border-t pt-3 text-xs">
+              <summary className="cursor-pointer font-semibold">가·감점 내역 {result.adjustments.length}건</summary>
+              <ul className="mt-2 space-y-2 text-muted-foreground">
+                {result.adjustments.map((adjustment) => (
+                  <li className="leading-5" key={adjustment.id}>
+                    <span className={`numeric mr-1 font-semibold ${adjustment.amount > 0 ? "text-emerald-700" : "text-destructive"}`}>
+                      {adjustment.amount > 0 ? "+" : ""}{adjustment.amount.toFixed(2)}
+                    </span>
+                    {adjustment.reason}
+                  </li>
+                ))}
+              </ul>
+            </details>
+          )}
         </div>
       </div>
 

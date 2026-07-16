@@ -48,7 +48,12 @@ export function updateEvaluatorAction(
             id: evaluator.id,
             employeeCode: parsed.employeeCode,
             displayName: parsed.displayName,
+            division: parsed.division,
             team: parsed.team,
+            department: parsed.department,
+            organizationUnit: evaluator.organizationUnit,
+            rank: evaluator.rank,
+            jobTitle: evaluator.jobTitle,
           }
         : evaluator),
   }

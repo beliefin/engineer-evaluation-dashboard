@@ -67,7 +67,7 @@ export function createRankingColumns(): ColumnDef<CompletedRankingRow>[] {
     {
       accessorKey: "totalScore",
       header: ({ column }) => (
-        <SortHeader column={column} label="가중 총점" align="right" />
+        <SortHeader column={column} label="최종 총점" align="right" />
       ),
       cell: ({ row }) => (
         <span className="numeric block text-right font-bold text-primary">

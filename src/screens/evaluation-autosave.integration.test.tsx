@@ -67,7 +67,7 @@ describe("EvaluationFormScreen autosave integration", () => {
     // Given
     const user = userEvent.setup()
     renderEvaluationForm()
-    const input = await screen.findByRole("spinbutton", { name: "평가 항목 7 점수" })
+    const input = await screen.findByRole("spinbutton", { name: "결과물의 사용 편의성 점수" })
 
     // When
     await user.type(input, "9")
@@ -85,7 +85,7 @@ describe("EvaluationFormScreen autosave integration", () => {
     // Given
     const user = userEvent.setup()
     const firstRender = renderEvaluationForm()
-    const input = await screen.findByRole("spinbutton", { name: "평가 항목 7 점수" })
+    const input = await screen.findByRole("spinbutton", { name: "결과물의 사용 편의성 점수" })
     await user.type(input, "8")
     expect(await screen.findByText("저장 완료")).toBeInTheDocument()
     firstRender.unmount()
@@ -94,6 +94,6 @@ describe("EvaluationFormScreen autosave integration", () => {
     renderEvaluationForm()
 
     // Then
-    expect(await screen.findByRole("spinbutton", { name: "평가 항목 7 점수" })).toHaveValue(8)
+    expect(await screen.findByRole("spinbutton", { name: "결과물의 사용 편의성 점수" })).toHaveValue(8)
   })
 })

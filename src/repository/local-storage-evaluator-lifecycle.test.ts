@@ -29,7 +29,9 @@ describe("LocalStorageEvaluationRepository evaluator lifecycle", () => {
       evaluatorId: evaluator.id,
       employeeCode: "V-EDIT-001",
       displayName: "수정 평가자",
+      division: "1부문",
       team: "생산 2팀",
+      department: "염화메탄담당",
       actor: OPERATOR,
     })
 
@@ -37,7 +39,12 @@ describe("LocalStorageEvaluationRepository evaluator lifecycle", () => {
       id: evaluator.id,
       employeeCode: "V-EDIT-001",
       displayName: "수정 평가자",
+      division: "1부문",
       team: "생산 2팀",
+      department: "염화메탄담당",
+      organizationUnit: evaluator.organizationUnit,
+      rank: evaluator.rank,
+      jobTitle: evaluator.jobTitle,
     })
     expect(updated.assignments.filter((assignment) => assignment.evaluatorId === evaluator.id))
       .toHaveLength(assignmentIds.length)
@@ -60,7 +67,9 @@ describe("LocalStorageEvaluationRepository evaluator lifecycle", () => {
       evaluatorId: evaluator.id,
       employeeCode: duplicate.employeeCode,
       displayName: evaluator.displayName,
+      division: evaluator.division,
       team: evaluator.team,
+      department: evaluator.department,
       actor: OPERATOR,
     })).toThrowError(expect.objectContaining({ code: "DUPLICATE_EMPLOYEE_CODE" }))
   })

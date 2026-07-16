@@ -9,7 +9,11 @@ type LanguageRecordInput = Readonly<{
   cycleId: string
   engineerId: string
   examName: string
+  languageName?: string | null
   result: string
+  languageGroup?: "english" | "second_language"
+  previousResult?: string | null
+  newlyAcquired?: boolean
   acquiredOn: string | null
   note: string | null
 }>
@@ -22,6 +26,13 @@ type CertificationRecordInput = Readonly<{
   acquiredOn: string | null
   issuer: string | null
 }>
+type ScoreAdjustmentInput = Readonly<{
+  adjustmentId: string | null
+  cycleId: string
+  engineerId: string
+  amount: number
+  reason: string
+}>
 
 export type RemoteEvaluationCommand =
   | Readonly<{ type: "operator"; action: string; targetId: string | null }>
@@ -30,6 +41,8 @@ export type RemoteEvaluationCommand =
   | Readonly<{ type: "language_delete"; recordId: string }>
   | Readonly<{ type: "certification_save"; record: CertificationRecordInput }>
   | Readonly<{ type: "certification_delete"; recordId: string }>
+  | Readonly<{ type: "score_adjustment_save"; adjustment: ScoreAdjustmentInput }>
+  | Readonly<{ type: "score_adjustment_delete"; adjustmentId: string }>
 
 const responseSchema = z.object({
   snapshot: evaluationSnapshotSchema,
@@ -64,6 +77,10 @@ export function createRemoteRequest(
       return { operation: "save_certification_record", baseRevision, record: command.record }
     case "certification_delete":
       return { operation: "delete_certification_record", baseRevision, recordId: command.recordId }
+    case "score_adjustment_save":
+      return { operation: "save_score_adjustment", baseRevision, adjustment: command.adjustment }
+    case "score_adjustment_delete":
+      return { operation: "delete_score_adjustment", baseRevision, adjustmentId: command.adjustmentId }
     default:
       return assertNever(command)
   }

@@ -139,7 +139,7 @@
 - **Responsive actions**: 데스크톱 표와 모바일 카드 모두 동일한 수정·삭제 행동을 제공하며, Dialog는 390px 화면 안에서 가로 넘침 없이 동작해야 한다.
 
 - **Structure**: 엔지니어·평가자 탭, 현재 명단, 개별 등록 폼, 목록 붙여넣기 Dialog.
-- **Teams**: 모든 팀 선택은 `생산 1팀`, `생산 2팀`만 제공한다.
+- **Organization**: 모든 명단은 `1부문 → 팀 → 담당`으로 분류한다. `생산 1팀`은 `전자약품담당`, `메틸아민담당`, `케미칼운영담당`, `생산 2팀`은 `염화메탄담당`, `ECH1담당`, `ECH2담당`만 선택할 수 있다.
 - **States**: empty, populated, valid preview, row error, duplicate code, saving, saved.
 - **Accessibility**: 일괄 등록 오류는 행 번호와 원인을 텍스트로 제공하고 오류가 있으면 확정 행동을 비활성화한다.
 - **Responsive**: 데스크톱 표는 모바일에서 사번·이름·팀 중심 목록으로 전환한다.
@@ -202,8 +202,8 @@
 
 ### Score Input Row
 
-- **Structure**: item index, neutral item label, number input, validation message.
-- **States**: default, focus, invalid, saved, locked, disabled.
+- **Structure**: item index, 구분·평가항목 disclosure, 점수별 세부 평가기준, number input, validation message.
+- **States**: default, criteria collapsed/expanded, focus, invalid, saved, locked, disabled.
 - **Accessibility**: label과 설명을 input에 연결하고 오류 시 `aria-invalid`를 제공한다.
 - **Mobile**: 한 행을 label 위, input 아래의 단일 열로 전환한다.
 
@@ -211,7 +211,7 @@
 
 - **Structure**: current season summary, create action, season name, period, status, configuration-copy option, weight-total status, and a flat task list. Each task opens one editor for name, evaluator guidance, overall weight, evaluation method, rubric items, and evaluator weights.
 - **Evaluation methods**: evaluator score, evaluator P/F, operator score, and operator P/F. Score tasks normalize any count of 0–10 rubric items to 0–100. P/F tasks expose explicit pass and fail choices without numeric inputs.
-- **Task detail**: rubric items are ordered editable rows with add and delete actions. Evaluator tasks show the registered evaluator list with participation checkboxes and positive raw weights; operator tasks hide evaluator configuration.
+- **Task detail**: rubric items are ordered editable rows with add and delete actions. 각 항목은 선택적 구분과 0~10점별 평가기준 문구를 추가·수정·삭제하며 같은 점수 기준을 중복 저장하지 않는다. Evaluator tasks show the registered evaluator list with participation checkboxes and positive raw weights; operator tasks hide evaluator configuration.
 - **Defaults**: create seasons in setup status, copy the current season configuration by default, and start every engineer response, source record, and schedule empty. A copied season receives independent task IDs and draft sheets.
 - **Weight rule**: season task weights are defaults. Operators may override every task weight per engineer; 0% means the task is not applicable to that engineer, and only weights above 0% create evaluation obligations or contribute to the final score. Ranking stays unconfirmed until that engineer's applicable task total is exactly 100%.
 - **Engineer-specific configuration**: OTS and DX are ordinary season tasks rather than one season-wide track. The operator selects an engineer, reviews all season tasks in one flat list, edits 0–100% weights in 0.1 increments, and saves the complete 100% allocation as one transaction.
@@ -221,13 +221,14 @@
 
 ### Direct Score Source Editor
 
-- **Structure**: engineer selection, automatic-conversion deferred notice, language record list, certification list, and add/edit Dialog.
+- **Structure**: engineer selection, automatic-conversion summary, language record list, certification list, and add/edit Dialog.
 - **Language fields**: exam name, score or grade, acquired date, and note. Preserve score or grade as source text because formats differ by exam.
-- **Certification fields**: certificate name, grade or class, acquired date, and issuer. Grade and issuer may be left blank.
+- **Certification fields**: certificate name is selected from the active season score table; grade or class, acquired date, and issuer remain supporting source fields. Grade and issuer may be left blank.
 - **States**: populated, empty, validation error, saving, saved, delete confirmation, review pending, review complete, and disabled.
 - **Review workflow**: an engineer-authored record starts in `검토 대기`. The operator can mark it `검토 완료` without changing the raw value; any later engineer edit returns it to `검토 대기`. Operator-authored and seed records are shown separately so the queue count remains actionable.
 - **Traceability**: every record shows its latest update time and input source. The operator panel exposes a text summary of pending reviews and a record-level review action; the engineer portal exposes the same read-only status without operator controls.
-- **Separation**: source records and 0–100 converted scores use separate panels, with a persistent text notice that no automatic conversion is applied.
+- **Conversion**: certification score shows the top-three base sum, one highest current-year acquisition bonus even when outside the top three, and one current-year written-exam partial score. Language records show a converted value only when an operator-configured rule matches.
+- **Score-table settings**: `자격·어학 평가표` is a separate operation tab. Certification rows expose name, category, difficulty, work relevance, base score, new-acquisition bonus, enabled state, edit, and delete. Language rules remain operator-editable without seeded score bands until a source table is supplied.
 - **Accessibility**: every input has a visible label; delete actions include the engineer and record names in their accessible labels.
 - **Responsive**: desktop compares language and certification in two columns; mobile uses one column and full-width Dialog fields.
 
@@ -235,9 +236,10 @@
 
 - **Structure**: 본인 식별 정보와 평가 시즌, 최종점수·과제별 원점수·반영점수, 어학 성적 목록, 자격증 목록을 한 페이지의 단일 스크롤 흐름에 배치한다.
 - **Ownership**: 로그인 계정에 연결된 엔지니어 ID만 사용한다. URL이나 폼 값으로 다른 엔지니어 ID를 전달해도 저장소가 변경을 거부하며 전체 순위, 타인의 점수, 평가자 상세는 노출하지 않는다.
-- **Source record input**: 어학은 시험명·점수 또는 등급·취득일·메모, 자격증은 명칭·등급·취득일·발급기관을 본인이 추가·수정·삭제한다. 원천 실적 입력은 운영자 환산 점수를 자동으로 바꾸지 않는다.
+- **Source record input**: 어학은 영어/제2외국어 구분·시험명·현재 결과·전년도 동일 언어 결과·신규취득 여부·취득일을, 자격증은 평가표 선택값·등급·취득일·발급기관을 본인이 추가·수정·삭제한다. 저장 직후 현재 평가 시즌의 환산표로 점수를 다시 계산한다.
+- **Language conversion**: 영어와 제2외국어 중 높은 기본점수를 선택하고, 전년 대비 등급 상향 가점은 1회, 제2외국어 IM1 이상 신규취득 가점은 1회 적용한다. 원점수와 가점 합이 100을 넘으면 과제 환산점수는 100으로 제한한다.
 - **States**: loading, linked, no linked engineer, incomplete result, complete result, empty records, editing, validation error, saving, saved, delete confirmation, forbidden.
-- **Clarity**: 환산식 미적용과 운영자 검토 대기를 지속 표시하고, 최종점수 미확정 원인을 과제별 완료 상태로 확인할 수 있게 한다.
+- **Clarity**: 자격증 기본합·신규취득 가산·필기 부분점수와 어학 환산표 미설정 또는 미일치 상태, 운영자 검토 대기를 텍스트로 표시한다.
 - **Review feedback**: 본인이 입력한 어학·자격증 기록은 `운영자 검토 대기` 또는 `검토 완료`와 마지막 수정 시각을 함께 표시한다. 검토 완료 후 수정하면 다시 검토 대기로 전환된다.
 - **Accessibility**: 모든 입력에 보이는 label과 오류 연결을 제공하고, 수정·삭제 행동의 접근 가능한 이름에 본인 이름과 기록명을 포함한다.
 - **Responsive**: 768px 이상은 어학과 자격증을 두 열로 비교하고, 모바일은 점수 요약 뒤 원천 실적을 한 열로 재배치하며 Dialog 입력도 단일 열로 전환한다.
@@ -279,10 +281,11 @@
 - **Accessibility**: 제목 필수, focus trap, Escape와 명시적 닫기 제공.
 - **Depth**: overlay만 shadow 사용을 허용한다.
 
-### Deferred Controls
+### Submitted Evaluation Unlock
 
-- 제출 평가지 재오픈 저장소 기능은 보존하지만 현재 운영 UI에서는 노출하지 않는다.
-- 제출 후 평가지에는 “현재 버전에서는 수정할 수 없음”을 명시하고 비활성 입력 상태를 유지한다.
+- 제출 후 평가지는 잠긴 상태를 유지하며 평가자 입력은 비활성화한다.
+- 운영자는 `평가 잠금 해제` 화면에서 제출된 평가지를 확인하고 사유를 입력해 잠금을 해제할 수 있다.
+- 잠금 해제는 기존 점수를 보존한 채 초안 상태로 되돌리고 감사 이벤트를 남긴다.
 
 ## 6. Motion & Interaction
 

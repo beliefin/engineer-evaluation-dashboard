@@ -5,8 +5,9 @@ import { parseEngineerRoster, parseEvaluatorRoster } from "./parser"
 describe("parseEngineerRoster", () => {
   it("skips a header and applies the selected team and default position", () => {
     const result = parseEngineerRoster(
-      "사번\t이름\t팀\t직급\nE-001\t김하늘\nE-002,박이든,생산 2팀,선임",
+      "사번\t이름\t팀\t담당\t직급\nE-001\t김하늘\nE-002,박이든,생산 2팀,ECH1담당,선임",
       "생산 1팀",
+      "전자약품담당",
     )
 
     expect(result.errors).toEqual([])
@@ -14,13 +15,17 @@ describe("parseEngineerRoster", () => {
       {
         employeeCode: "E-001",
         displayName: "김하늘",
+        division: "1부문",
         team: "생산 1팀",
+        department: "전자약품담당",
         position: "엔지니어",
       },
       {
         employeeCode: "E-002",
         displayName: "박이든",
+        division: "1부문",
         team: "생산 2팀",
+        department: "ECH1담당",
         position: "선임",
       },
     ])
@@ -30,6 +35,7 @@ describe("parseEngineerRoster", () => {
     const result = parseEngineerRoster(
       "E-001,,생산 3팀\n,홍길동,생산 1팀",
       "생산 2팀",
+      "염화메탄담당",
     )
 
     expect(result.rows).toEqual([])
@@ -44,6 +50,7 @@ describe("parseEngineerRoster", () => {
     const result = parseEngineerRoster(
       "E-001,김하늘\ne-001,박이든",
       "생산 1팀",
+      "전자약품담당",
     )
 
     expect(result.rows).toEqual([])
@@ -56,14 +63,28 @@ describe("parseEngineerRoster", () => {
 describe("parseEvaluatorRoster", () => {
   it("parses comma and tab rows and defaults an omitted team", () => {
     const result = parseEvaluatorRoster(
-      "사번,이름,팀\nV-001,이서준\nV-002\t최유진\t생산 2팀",
+      "사번,이름,팀,담당\nV-001,이서준\nV-002\t최유진\t생산 2팀\tECH2담당",
       "생산 1팀",
+      "메틸아민담당",
     )
 
     expect(result.errors).toEqual([])
     expect(result.rows).toEqual([
-      { employeeCode: "V-001", displayName: "이서준", team: "생산 1팀" },
-      { employeeCode: "V-002", displayName: "최유진", team: "생산 2팀" },
+      { employeeCode: "V-001", displayName: "이서준", division: "1부문", team: "생산 1팀", department: "메틸아민담당" },
+      { employeeCode: "V-002", displayName: "최유진", division: "1부문", team: "생산 2팀", department: "ECH2담당" },
+    ])
+  })
+
+  it("rejects a department that does not belong to the selected team", () => {
+    const result = parseEvaluatorRoster(
+      "V-003,정민수,생산 1팀,ECH1담당",
+      "생산 1팀",
+      "전자약품담당",
+    )
+
+    expect(result.rows).toEqual([])
+    expect(result.errors).toEqual([
+      { line: 1, message: "생산 1팀 담당은 전자약품담당, 메틸아민담당, 케미칼운영담당 중 하나여야 합니다." },
     ])
   })
 })

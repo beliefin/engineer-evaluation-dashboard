@@ -95,7 +95,7 @@ export function EvaluationScoreForm({
               <AlertDescription className="text-success/90">
                 {viewModel.submittedAtLabel === null
                   ? "현재 버전에서는 제출 후 수정할 수 없습니다."
-                  : `${viewModel.submittedAtLabel} 제출 · 현재 버전에서는 제출 후 수정할 수 없습니다.`}
+                  : `${viewModel.submittedAtLabel} 제출 · 수정이 필요하면 운영자에게 잠금 해제를 요청하세요.`}
               </AlertDescription>
             </Alert>
           </div>

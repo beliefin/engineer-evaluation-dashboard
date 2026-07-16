@@ -18,6 +18,7 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 
 import type {
+  CertificationOptionViewModel,
   CertificationRecordDraft,
   CertificationRecordViewModel,
 } from "./types"
@@ -27,6 +28,8 @@ interface CertificationRecordDialogProps {
   readonly engineerName: string
   readonly initial: CertificationRecordViewModel | null
   readonly disabled: boolean
+  readonly options?: readonly CertificationOptionViewModel[] | undefined
+  readonly cycleStartsAt?: string | undefined
   readonly onSave: (record: CertificationRecordDraft) => boolean
 }
 
@@ -35,6 +38,8 @@ export function CertificationRecordDialog({
   engineerName,
   initial,
   disabled,
+  options = [],
+  cycleStartsAt,
   onSave,
 }: CertificationRecordDialogProps) {
   const [open, setOpen] = useState(false)
@@ -75,6 +80,11 @@ export function CertificationRecordDialog({
   }
 
   const editing = initial !== null
+  const availableOptions = options.filter(
+    (option) => option.enabled || option.name === initial?.certificateName,
+  )
+  const selectedOption = options.find((option) => option.name === certificateName)
+  const evaluationYear = cycleStartsAt?.slice(0, 4)
   return (
     <Dialog onOpenChange={handleOpenChange} open={open}>
       <DialogTrigger asChild>
@@ -93,21 +103,37 @@ export function CertificationRecordDialog({
           <DialogHeader>
             <DialogTitle>{editing ? "자격증 수정" : "자격증 추가"}</DialogTitle>
             <DialogDescription>
-              {engineerName}의 자격 정보를 저장합니다. 환산식은 추후 별도로 적용합니다.
+              {engineerName}의 자격 정보를 저장하면 현재 시즌 평가표로 자동 환산됩니다.
             </DialogDescription>
           </DialogHeader>
           <div className="grid gap-4 py-5 sm:grid-cols-2">
             <div className="space-y-2 sm:col-span-2">
               <Label htmlFor="certificate-name">자격증명</Label>
-              <Input
+              <select
                 autoFocus
+                className="h-10 w-full rounded-md border border-input bg-background px-3 text-sm"
                 id="certificate-name"
-                maxLength={100}
                 onChange={(event) => setCertificateName(event.currentTarget.value)}
-                placeholder="예: 산업안전기사"
                 required
                 value={certificateName}
-              />
+              >
+                <option value="">평가표에서 자격증 선택</option>
+                {availableOptions.map((option) => (
+                  <option key={option.name} value={option.name}>
+                    {option.name} · 기본 {option.baseScore}점
+                  </option>
+                ))}
+              </select>
+              {availableOptions.length === 0 ? (
+                <p className="text-xs text-destructive">운영자가 자격증 평가표를 먼저 설정해야 합니다.</p>
+              ) : null}
+              {selectedOption === undefined ? null : (
+                <p className="text-xs leading-5 text-muted-foreground">
+                  {selectedOption.category ?? "분야 미설정"} · 난이도 {selectedOption.difficulty ?? "미설정"} ·
+                  업무연관성 {selectedOption.workRelevance ?? "미설정"} · 기본 {selectedOption.baseScore}점 ·
+                  신규취득 +{selectedOption.newAcquisitionBonus}점
+                </p>
+              )}
             </div>
             <div className="space-y-2">
               <Label htmlFor="certificate-grade">등급 또는 구분</Label>
@@ -127,6 +153,11 @@ export function CertificationRecordDialog({
                 type="date"
                 value={acquiredOn}
               />
+              <p className="text-xs leading-5 text-muted-foreground">
+                {evaluationYear === undefined
+                  ? "평가 시즌 연도와 같으면 신규취득 가산점이 적용됩니다."
+                  : `${evaluationYear}년 취득 자격 중 가장 높은 가산점 1건만 적용됩니다.`}
+              </p>
             </div>
             <div className="space-y-2 sm:col-span-2">
               <Label htmlFor="certificate-issuer">발급기관</Label>

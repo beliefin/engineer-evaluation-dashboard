@@ -22,13 +22,13 @@ export function saveDirectScoreRuleAction(
   requireCycleUnlocked(context.snapshot, parsed.cycleId)
   const task = requireTask(context.snapshot, parsed.taskId)
   if (task.cycleId !== parsed.cycleId || task.method !== "operator_score") {
-    throw new RepositoryError("INVALID_INPUT", "?섏궛 ?쒖꽦??怨쇱젣留??좏깮?????덉뒿?덈떎.")
+    throw new RepositoryError("INVALID_INPUT", "환산 점수형 과제만 선택할 수 있습니다.")
   }
   const existing = parsed.ruleId === null
     ? undefined
     : context.snapshot.directScoreRules.find((rule) => rule.id === parsed.ruleId)
   if (parsed.ruleId !== null && existing === undefined) {
-    throw new RepositoryError("NOT_FOUND", "?섏궛 援칙???李얠쓣 ???놁뒿?덈떎.")
+    throw new RepositoryError("NOT_FOUND", "환산 규칙을 찾을 수 없습니다.")
   }
   if (existing !== undefined && existing.cycleId !== parsed.cycleId) {
     throw new RepositoryError("INVALID_INPUT", "다른 평가 시즌의 규칙은 수정할 수 없습니다.")
@@ -56,9 +56,16 @@ export function saveDirectScoreRuleAction(
     value: parsed.value,
     ruleType: parsed.ruleType,
     score: parsed.score,
+    rawScore: parsed.rawScore ?? null,
     bonus: parsed.bonus,
     enabled: parsed.enabled,
     order: existing?.order ?? Math.max(0, ...context.snapshot.directScoreRules.filter((entry) => entry.cycleId === parsed.cycleId).map((entry) => entry.order)) + 1,
+    category: parsed.category?.trim() ?? null,
+    difficulty: parsed.difficulty?.trim() ?? null,
+    workRelevance: parsed.workRelevance?.trim() ?? null,
+    languageGroup: parsed.languageGroup ?? null,
+    examName: parsed.examName?.trim() ?? null,
+    bonusCondition: parsed.bonusCondition ?? null,
   }
   const next: EvaluationSnapshot = {
     ...context.snapshot,
@@ -81,7 +88,7 @@ export function deleteDirectScoreRuleAction(
   const parsed = parseRepositoryInput(deleteDirectScoreRuleInputSchema, input)
   requireOperator(parsed.actor)
   const rule = context.snapshot.directScoreRules.find((entry) => entry.id === parsed.ruleId)
-  if (rule === undefined) throw new RepositoryError("NOT_FOUND", "?섏궛 援칙???李얠쓣 ???놁뒿?덈떎.")
+  if (rule === undefined) throw new RepositoryError("NOT_FOUND", "환산 규칙을 찾을 수 없습니다.")
   return appendAuditEvent(context, {
     ...context.snapshot,
     directScoreRules: context.snapshot.directScoreRules.filter((entry) => entry.id !== rule.id),

@@ -34,7 +34,7 @@ export function RankingMobileList({ rows }: RankingMobileListProps) {
               <p className="numeric text-xl font-bold text-primary">
                 {row.totalScore.toFixed(2)}
               </p>
-              <p className="text-xs text-muted-foreground">가중 총점</p>
+              <p className="text-xs text-muted-foreground">최종 총점</p>
             </div>
           </div>
 

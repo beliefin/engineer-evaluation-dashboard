@@ -15,6 +15,8 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 
 import { TeamSelect } from "./team-select"
+import { DepartmentSelect } from "./department-select"
+import { defaultRosterDepartment } from "./types"
 import type { EngineerRegistration, EngineerRosterItem } from "./types"
 
 type EngineerEditorDialogProps = Readonly<{
@@ -40,6 +42,7 @@ export function EngineerEditorDialog({
   const [employeeCode, setEmployeeCode] = useState(engineer.employeeCode)
   const [displayName, setDisplayName] = useState(engineer.displayName)
   const [team, setTeam] = useState(engineer.team)
+  const [department, setDepartment] = useState(engineer.department)
   const [position, setPosition] = useState(engineer.position)
   const [fieldErrors, setFieldErrors] = useState<FieldErrors>({})
   const [submitError, setSubmitError] = useState("")
@@ -49,7 +52,9 @@ export function EngineerEditorDialog({
     const next = {
       employeeCode: employeeCode.trim(),
       displayName: displayName.trim(),
+      division: "1부문" as const,
       team,
+      department,
       position: position.trim(),
     }
     const duplicate = existingEmployeeCodes.some((code) =>
@@ -99,8 +104,23 @@ export function EngineerEditorDialog({
             value={displayName}
           />
           <div className="space-y-2">
+            <Label htmlFor={`${id}-division`}>부문</Label>
+            <Input id={`${id}-division`} readOnly value={engineer.division} />
+          </div>
+          <div className="space-y-2">
             <Label htmlFor={`${id}-team`}>팀</Label>
-            <TeamSelect id={`${id}-team`} onValueChange={setTeam} value={team} />
+            <TeamSelect
+              id={`${id}-team`}
+              onValueChange={(nextTeam) => {
+                setTeam(nextTeam)
+                setDepartment(defaultRosterDepartment(nextTeam))
+              }}
+              value={team}
+            />
+          </div>
+          <div className="space-y-2">
+            <Label htmlFor={`${id}-department`}>담당</Label>
+            <DepartmentSelect id={`${id}-department`} onValueChange={setDepartment} team={team} value={department} />
           </div>
           <EditorInput
             error={fieldErrors.position}

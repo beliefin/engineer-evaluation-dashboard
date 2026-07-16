@@ -50,7 +50,7 @@ export function SourceRecordDeleteDialog({
         <DialogHeader>
           <DialogTitle>원천 기록 삭제</DialogTitle>
           <DialogDescription>
-            {recordLabel} 기록을 삭제합니다. 입력한 환산 점수는 변경되지 않습니다.
+            {recordLabel} 기록을 삭제합니다. 연결된 환산 점수는 남은 기록을 기준으로 다시 계산됩니다.
           </DialogDescription>
         </DialogHeader>
         <DialogFooter>

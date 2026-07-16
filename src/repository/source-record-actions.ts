@@ -60,7 +60,11 @@ export function saveLanguageScoreRecordAction(
     cycleId: parsed.cycleId,
     engineerId: parsed.engineerId,
     examName: parsed.examName.trim(),
+    languageName: nullableText(parsed.languageName),
     result: parsed.result.trim(),
+    languageGroup: parsed.languageGroup,
+    previousResult: nullableText(parsed.previousResult),
+    newlyAcquired: parsed.newlyAcquired,
     acquiredOn: parsed.acquiredOn,
     note: nullableText(parsed.note),
     updatedAt: context.now,
@@ -125,11 +129,40 @@ export function saveCertificationRecordAction(
     throw new RepositoryError("INVALID_INPUT", "자격증 기록의 대상이 일치하지 않습니다.")
   }
 
+  const certificateName = parsed.certificateName.trim()
+  const configuredNames = new Set(
+    context.snapshot.directScoreRules
+      .filter((rule) =>
+        rule.cycleId === parsed.cycleId &&
+        rule.kind === "certification" &&
+        rule.field === "certificateName" &&
+        rule.operator === "equals" &&
+        rule.ruleType === "base" &&
+        rule.enabled
+      )
+      .map((rule) => rule.value),
+  )
+  if (!configuredNames.has(certificateName)) {
+    throw new RepositoryError(
+      "INVALID_INPUT",
+      "현재 평가 시즌의 자격증 평가표에 등록된 자격증만 입력할 수 있습니다.",
+    )
+  }
+  const duplicate = context.snapshot.certificationRecords.some((record) =>
+    record.id !== existing?.id &&
+    record.cycleId === parsed.cycleId &&
+    record.engineerId === parsed.engineerId &&
+    record.certificateName === certificateName
+  )
+  if (duplicate) {
+    throw new RepositoryError("INVALID_INPUT", "같은 자격증은 한 번만 등록할 수 있습니다.")
+  }
+
   const record: CertificationRecord = {
     id: existing?.id ?? createEntityId(context, "certification-record"),
     cycleId: parsed.cycleId,
     engineerId: parsed.engineerId,
-    certificateName: parsed.certificateName.trim(),
+    certificateName,
     grade: nullableText(parsed.grade),
     acquiredOn: parsed.acquiredOn,
     issuer: nullableText(parsed.issuer),

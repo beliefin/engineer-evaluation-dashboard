@@ -132,6 +132,8 @@ export function selectEvaluationScoreForm(
       id: item.id,
       index: item.order,
       label: item.label,
+      section: item.section,
+      criteria: item.criteria,
       value:
         sheet?.scores.find((entry) => entry.itemId === item.id)?.score ?? null,
     }))

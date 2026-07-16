@@ -30,6 +30,8 @@ const scoreTask = (
     id: `${id}-item-${index + 1}`,
     label: `평가 항목 ${index + 1}`,
     order: index + 1,
+    section: null,
+    criteria: [],
   })),
   evaluatorWeights: [
     { evaluatorId: "evaluator-a", weight: 3 },
@@ -248,6 +250,108 @@ describe("calculateEngineerResult", () => {
     expect(result.finalScore).toBeNull()
     expect(rankCompletedResults([result])).toEqual([])
   })
+
+  it("adds signed operator adjustments after the weighted base score", () => {
+    const operator: EvaluationTask = {
+      ...scoreTask("language", 100, 0),
+      method: "operator_score",
+      items: [],
+      evaluatorWeights: [],
+    }
+
+    const result = calculateEngineerResult({
+      cycleId: "cycle-1",
+      engineerId: "engineer-1",
+      tasks: [operator],
+      assignments: [],
+      sheets: [],
+      directScores: [operatorResult(operator.id, 80)],
+      scoreAdjustments: [
+        {
+          id: "adjustment-1",
+          cycleId: "cycle-1",
+          engineerId: "engineer-1",
+          amount: 5,
+          reason: "우수 발표 가점",
+          createdAt: "2026-07-16T00:00:00.000Z",
+          updatedAt: "2026-07-16T00:00:00.000Z",
+        },
+        {
+          id: "adjustment-2",
+          cycleId: "cycle-1",
+          engineerId: "engineer-1",
+          amount: -2.5,
+          reason: "제출 지연 감점",
+          createdAt: "2026-07-16T00:00:00.000Z",
+          updatedAt: "2026-07-16T00:00:00.000Z",
+        },
+      ],
+    })
+
+    expect(result.baseScore).toBe(80)
+    expect(result.adjustmentTotal).toBe(2.5)
+    expect(result.finalScore).toBe(82.5)
+  })
+
+  it("clamps an adjusted total to the zero-to-one-hundred range", () => {
+    const operator: EvaluationTask = {
+      ...scoreTask("language", 100, 0),
+      method: "operator_score",
+      items: [],
+      evaluatorWeights: [],
+    }
+    const calculate = (score: number, amount: number) => calculateEngineerResult({
+      cycleId: "cycle-1",
+      engineerId: "engineer-1",
+      tasks: [operator],
+      assignments: [],
+      sheets: [],
+      directScores: [operatorResult(operator.id, score)],
+      scoreAdjustments: [{
+        id: `adjustment-${amount}`,
+        cycleId: "cycle-1",
+        engineerId: "engineer-1",
+        amount,
+        reason: "범위 제한 검증",
+        createdAt: "2026-07-16T00:00:00.000Z",
+        updatedAt: "2026-07-16T00:00:00.000Z",
+      }],
+    })
+
+    expect(calculate(98, 5).finalScore).toBe(100)
+    expect(calculate(3, -5).finalScore).toBe(0)
+  })
+
+  it("keeps an incomplete engineer unranked even when an adjustment exists", () => {
+    const operator: EvaluationTask = {
+      ...scoreTask("language", 100, 0),
+      method: "operator_score",
+      items: [],
+      evaluatorWeights: [],
+    }
+    const result = calculateEngineerResult({
+      cycleId: "cycle-1",
+      engineerId: "engineer-1",
+      tasks: [operator],
+      assignments: [],
+      sheets: [],
+      directScores: [operatorResult(operator.id, null)],
+      scoreAdjustments: [{
+        id: "adjustment-1",
+        cycleId: "cycle-1",
+        engineerId: "engineer-1",
+        amount: 10,
+        reason: "미완료자 검증",
+        createdAt: "2026-07-16T00:00:00.000Z",
+        updatedAt: "2026-07-16T00:00:00.000Z",
+      }],
+    })
+
+    expect(result.baseScore).toBeNull()
+    expect(result.adjustmentTotal).toBe(10)
+    expect(result.finalScore).toBeNull()
+    expect(rankCompletedResults([result])).toEqual([])
+  })
 })
 
 describe("rankCompletedResults", () => {
@@ -258,6 +362,8 @@ describe("rankCompletedResults", () => {
       status: "complete",
       taskResults: [],
       contributions: {},
+      baseScore: score,
+      adjustmentTotal: 0,
       finalScore: score,
       roundedFinalScore: Math.round((score + Number.EPSILON) * 100) / 100,
     })

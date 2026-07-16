@@ -1,8 +1,9 @@
 import { expect, type Page } from "@playwright/test"
 
-export const STORAGE_KEY = "engineer-evaluation-dashboard:v5"
+export const STORAGE_KEY = "engineer-evaluation-dashboard:v6"
 export const AUTH_STORAGE_KEY = "engineer-evaluation-dashboard:auth:v1"
 export const AUTH_SESSION_KEY = "engineer-evaluation-dashboard:auth-session:v1"
+const VERSION_FIVE_STORAGE_KEY = "engineer-evaluation-dashboard:v5"
 const VERSION_FOUR_STORAGE_KEY = "engineer-evaluation-dashboard:v4"
 const PREVIOUS_STORAGE_KEY = "engineer-evaluation-dashboard:v3"
 const LEGACY_STORAGE_KEY = "engineer-evaluation-dashboard:v2"
@@ -11,12 +12,13 @@ const RESET_MARKER_KEY = "engineer-evaluation-dashboard:e2e-reset"
 
 export async function clearDemoStorage(page: Page): Promise<void> {
   await page.addInitScript(
-    ({ authSessionKey, authStorageKey, legacyStorageKey, markerKey, oldestStorageKey, previousStorageKey, storageKey, versionFourStorageKey }) => {
+    ({ authSessionKey, authStorageKey, legacyStorageKey, markerKey, oldestStorageKey, previousStorageKey, storageKey, versionFiveStorageKey, versionFourStorageKey }) => {
       if (window.sessionStorage.getItem(markerKey) === "done") return
       window.localStorage.removeItem(storageKey)
       window.localStorage.removeItem(legacyStorageKey)
       window.localStorage.removeItem(oldestStorageKey)
       window.localStorage.removeItem(previousStorageKey)
+      window.localStorage.removeItem(versionFiveStorageKey)
       window.localStorage.removeItem(versionFourStorageKey)
       window.localStorage.removeItem(authStorageKey)
       window.localStorage.removeItem(authSessionKey)
@@ -30,6 +32,7 @@ export async function clearDemoStorage(page: Page): Promise<void> {
       oldestStorageKey: OLDEST_STORAGE_KEY,
       previousStorageKey: PREVIOUS_STORAGE_KEY,
       storageKey: STORAGE_KEY,
+      versionFiveStorageKey: VERSION_FIVE_STORAGE_KEY,
       versionFourStorageKey: VERSION_FOUR_STORAGE_KEY,
     },
   )

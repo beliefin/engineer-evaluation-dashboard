@@ -5,6 +5,7 @@ import { useState, type ReactNode } from "react"
 
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
 import { SourceRecordReview } from "@/components/shared"
+import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import {
   Select,
@@ -20,13 +21,18 @@ import { OperationPanel } from "./operation-panel"
 import { SourceRecordDeleteDialog } from "./source-record-delete-dialog"
 import type {
   CertificationRecordDraft,
+  CertificationOptionViewModel,
   EngineerDirectScoreViewModel,
   LanguageScoreRecordDraft,
+  LanguageOptionViewModel,
 } from "./types"
 
 interface DirectScoreSourceEditorProps {
   readonly rows: readonly EngineerDirectScoreViewModel[]
   readonly disabled: boolean
+  readonly certificationOptions?: readonly CertificationOptionViewModel[] | undefined
+  readonly languageOptions?: readonly LanguageOptionViewModel[] | undefined
+  readonly cycleStartsAt?: string | undefined
   readonly onSaveLanguageRecord: (record: LanguageScoreRecordDraft) => boolean
   readonly onDeleteLanguageRecord: (recordId: string) => boolean
   readonly onSaveCertificationRecord: (record: CertificationRecordDraft) => boolean
@@ -37,6 +43,9 @@ interface DirectScoreSourceEditorProps {
 export function DirectScoreSourceEditor({
   rows,
   disabled,
+  certificationOptions = [],
+  languageOptions = [],
+  cycleStartsAt,
   onSaveLanguageRecord,
   onDeleteLanguageRecord,
   onSaveCertificationRecord,
@@ -57,10 +66,15 @@ export function DirectScoreSourceEditor({
     >
       <Alert className="mb-5 border-primary/20 bg-accent/70">
         <Info aria-hidden="true" className="text-primary" />
-        <AlertTitle>자동 환산 대기</AlertTitle>
+        <AlertTitle>자동 환산 적용</AlertTitle>
         <AlertDescription>
-          <span className="block">원천 실적만 보관합니다.</span>
-          <span className="block">자동 환산은 적용하지 않습니다.</span>
+          <span className="block">자격증은 상위 3개 기본점수와 당해연도 신규취득 가산점 1건을 자동 계산합니다.</span>
+          <span className="block">
+            현재 자격증 환산 {selected?.certificationScore?.score ?? "미입력"}점
+            {selected?.certificationScore === undefined ? "" : ` (기본 ${selected.certificationScore.baseScore} + 신규 ${selected.certificationScore.bonusScore} + 필기 ${selected.certificationScore.partialScore})`}
+          </span>
+          <span className="block">어학은 영어·제2외국어 중 높은 점수를 기준으로 상향·신규 가점을 자동 계산합니다.</span>
+          <span className="block">현재 어학 환산 {selected?.languageScore?.score ?? "미입력"}점{selected?.languageScore === undefined ? "" : ` (기본 ${selected.languageScore.baseScore} + 상향 ${selected.languageScore.gradeUpgradeBonus} + 제2외국어 신규 ${selected.languageScore.secondLanguageNewBonus})`}</span>
           <span className="mt-1 block font-medium text-foreground">검토 대기 {pendingReviewCount}건</span>
         </AlertDescription>
       </Alert>
@@ -97,6 +111,7 @@ export function DirectScoreSourceEditor({
                   engineerId={selected.engineerId}
                   engineerName={selected.engineerName}
                   initial={null}
+                  options={languageOptions}
                   onSave={onSaveLanguageRecord}
                 />
               )}
@@ -109,8 +124,14 @@ export function DirectScoreSourceEditor({
                 <article className="border-t border-border-subtle py-3 first:border-t-0" key={record.id}>
                   <div className="flex items-start justify-between gap-3">
                     <div className="min-w-0">
-                      <h4 className="font-medium">{record.examName}</h4>
+                      <h4 className="font-medium">{record.languageGroup === "second_language" ? `${record.languageName ?? "제2외국어"} ${record.examName}` : `영어 ${record.examName}`}</h4>
                       <p className="numeric mt-1 text-lg font-semibold text-primary">{record.result}</p>
+                      <p className="mt-1 text-xs text-muted-foreground">
+                        환산 {record.convertedScore === null || record.convertedScore === undefined
+                          ? "기준 미설정 또는 미일치"
+                          : `${record.convertedScore}점`}
+                      </p>
+                      <div className="mt-2 flex flex-wrap gap-1">{record.selectedAsBest ? <Badge variant="secondary">최고점 반영</Badge> : null}{record.gradeUpgradeApplied ? <Badge variant="outline">등급 상향 +10</Badge> : null}{record.secondLanguageNewBonusApplied ? <Badge variant="outline">제2외국어 신규 +10</Badge> : null}</div>
                     </div>
                     <div className="flex items-center gap-1">
                       <LanguageRecordDialog
@@ -118,6 +139,7 @@ export function DirectScoreSourceEditor({
                         engineerId={selected.engineerId}
                         engineerName={selected.engineerName}
                         initial={record}
+                        options={languageOptions}
                         onSave={onSaveLanguageRecord}
                       />
                       <SourceRecordDeleteDialog
@@ -129,7 +151,7 @@ export function DirectScoreSourceEditor({
                     </div>
                   </div>
                   <p className="mt-2 text-xs text-muted-foreground">
-                    취득일 {record.acquiredOn ?? "미입력"}{record.note === null ? "" : ` · ${record.note}`}
+                    취득일 {record.acquiredOn ?? "미입력"}{record.previousResult == null ? "" : ` · 전년도 ${record.previousResult}`}{record.note === null ? "" : ` · ${record.note}`}
                   </p>
                   <SourceRecordReview status={record.reviewStatus} sourceLabel={record.sourceLabel} updatedAtLabel={record.updatedAtLabel} />
                   {record.reviewStatus === "pending" ? (
@@ -156,6 +178,8 @@ export function DirectScoreSourceEditor({
                   engineerId={selected.engineerId}
                   engineerName={selected.engineerName}
                   initial={null}
+                  options={certificationOptions}
+                  cycleStartsAt={cycleStartsAt}
                   onSave={onSaveCertificationRecord}
                 />
               )}
@@ -170,8 +194,13 @@ export function DirectScoreSourceEditor({
                     <div className="min-w-0">
                       <h4 className="font-medium">{record.certificateName}</h4>
                       <p className="mt-1 text-sm text-muted-foreground">
-                        {record.grade ?? "등급 미입력"}
+                        기본 {record.baseScore ?? "미설정"}점 · 신규 +{record.newAcquisitionBonus ?? 0}점
                       </p>
+                      <div className="mt-2 flex flex-wrap gap-1">
+                        {record.includedInTopThree ? <Badge variant="secondary">상위 3개 반영</Badge> : null}
+                        {record.bonusApplied ? <Badge variant="outline">신규취득 가산 적용</Badge> : null}
+                        {record.partialScoreApplied ? <Badge variant="outline">필기 합격 2점 적용</Badge> : null}
+                      </div>
                     </div>
                     <div className="flex items-center gap-1">
                       <CertificationRecordDialog
@@ -179,6 +208,8 @@ export function DirectScoreSourceEditor({
                         engineerId={selected.engineerId}
                         engineerName={selected.engineerName}
                         initial={record}
+                        options={certificationOptions}
+                        cycleStartsAt={cycleStartsAt}
                         onSave={onSaveCertificationRecord}
                       />
                       <SourceRecordDeleteDialog

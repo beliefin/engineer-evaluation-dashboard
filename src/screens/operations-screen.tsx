@@ -28,6 +28,8 @@ export function OperationsScreen() {
     deleteEvaluationTask,
     updateEngineerTaskWeights,
     updateDirectScore,
+    saveScoreAdjustment,
+    deleteScoreAdjustment,
     saveLanguageScoreRecord,
     deleteLanguageScoreRecord,
     saveCertificationRecord,
@@ -39,6 +41,7 @@ export function OperationsScreen() {
     addEvaluators,
     updateEvaluator,
     deleteEvaluator,
+    reopenSheet,
     resetDemoData,
     saveDirectScoreRule,
     deleteDirectScoreRule,
@@ -90,9 +93,12 @@ export function OperationsScreen() {
       onAddEvaluators={addEvaluators}
       onDeleteEvaluator={deleteEvaluator}
       onDeleteEngineer={deleteEngineer}
+      onReopenSheet={reopenSheet}
       onUpdateEngineer={updateEngineer}
       onUpdateEvaluator={updateEvaluator}
       onDirectScoreChange={changeDirectScore}
+      onSaveScoreAdjustment={saveScoreAdjustment}
+      onDeleteScoreAdjustment={deleteScoreAdjustment}
       onSaveLanguageRecord={saveLanguageScoreRecord}
       onDeleteLanguageRecord={deleteLanguageScoreRecord}
       onSaveCertificationRecord={saveCertificationRecord}
@@ -121,6 +127,9 @@ function parseOperationsTab(value: string | null): OperationsTab {
     value === "tasks" ||
     value === "weights" ||
     value === "scores" ||
+    value === "scoreTables" ||
+    value === "adjustments" ||
+    value === "unlocks" ||
     value === "reset"
   ) {
     return value

@@ -13,6 +13,16 @@ const service = createClient(supabaseUrl, serviceRoleKey, {
 })
 const accountDomain = new URL(supabaseUrl).hostname
 
+function accountEmailForUsername(username: string): string {
+  if (/^[a-z0-9._-]+$/.test(username)) return `${username}@${accountDomain}`
+
+  const encoded = Array.from(
+    new TextEncoder().encode(username),
+    (byte) => byte.toString(16).padStart(2, "0"),
+  ).join("-")
+  return `u-${encoded}@${accountDomain}`
+}
+
 class HttpError extends Error {
   constructor(readonly status: number, readonly code: string, message: string) {
     super(message)
@@ -72,7 +82,7 @@ async function requireRemainingOperator(target: Profile, nextRole: Profile["role
 async function createAccount(request: Extract<AccountRequest, { operation: "create" }>): Promise<void> {
   try { validateRoleLink(request) } catch { throw new HttpError(400, "INVALID_INPUT", "역할과 연결 대상이 일치하지 않습니다.") }
   const created = await service.auth.admin.createUser({
-    email: `${request.username}@${accountDomain}`,
+    email: accountEmailForUsername(request.username),
     password: request.password,
     email_confirm: true,
     app_metadata: { role: request.role },

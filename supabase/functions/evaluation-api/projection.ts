@@ -58,6 +58,7 @@ function aggregateProjection(snapshot: Snapshot, engineerIds: ReadonlySet<string
     assignments: [],
     scoreSheets: [],
     directScores: [...preserved, ...aggregated],
+    scoreAdjustments: snapshot.scoreAdjustments.filter((entry) => engineerIds.has(entry.engineerId)),
     auditEvents: [],
   }
 }
@@ -80,6 +81,7 @@ function evaluatorProjection(snapshot: Snapshot, evaluatorId: string): Snapshot 
     assignments,
     scoreSheets: snapshot.scoreSheets.filter((entry) => assignmentIds.has(entry.assignmentId)),
     directScores: [],
+    scoreAdjustments: [],
     languageScoreRecords: [],
     certificationRecords: [],
     scheduleEvents: [],
@@ -104,6 +106,7 @@ export function projectSnapshot(snapshot: Snapshot, profile: Profile): Snapshot 
         entry.engineerId === profile.engineer_id),
       engineers: projected.engineers.filter((entry) => entry.id === profile.engineer_id),
       directScores: projected.directScores.filter((entry) => entry.engineerId === profile.engineer_id),
+      scoreAdjustments: projected.scoreAdjustments.filter((entry) => entry.engineerId === profile.engineer_id),
       languageScoreRecords: projected.languageScoreRecords.filter((entry) =>
         entry.engineerId === profile.engineer_id),
       certificationRecords: projected.certificationRecords.filter((entry) =>

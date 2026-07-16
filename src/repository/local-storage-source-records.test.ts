@@ -89,6 +89,49 @@ describe("LocalStorageEvaluationRepository source records", () => {
     expect(deleted.auditEvents.at(-1)?.type).toBe("certification_record_deleted")
   })
 
+  it("rejects certifications outside the configured score table", () => {
+    const repository = createRepository()
+    const action = () => repository.saveCertificationRecord({
+      recordId: null,
+      cycleId: CYCLE_ID,
+      engineerId: engineerIdWithoutSeedRecords(),
+      certificateName: "평가표에 없는 자격증",
+      grade: null,
+      acquiredOn: null,
+      issuer: null,
+      actor: OPERATOR,
+    })
+
+    expect(action).toThrowError(expect.objectContaining({ code: "INVALID_INPUT" }))
+  })
+
+  it("rejects a duplicate certification for the same engineer and season", () => {
+    const repository = createRepository()
+    const engineerId = engineerIdWithoutSeedRecords()
+    repository.saveCertificationRecord({
+      recordId: null,
+      cycleId: CYCLE_ID,
+      engineerId,
+      certificateName: "산업안전기사",
+      grade: null,
+      acquiredOn: null,
+      issuer: null,
+      actor: OPERATOR,
+    })
+    const action = () => repository.saveCertificationRecord({
+      recordId: null,
+      cycleId: CYCLE_ID,
+      engineerId,
+      certificateName: "산업안전기사",
+      grade: null,
+      acquiredOn: null,
+      issuer: null,
+      actor: OPERATOR,
+    })
+
+    expect(action).toThrowError(expect.objectContaining({ code: "INVALID_INPUT" }))
+  })
+
   it("keeps source record mutations operator-only", () => {
     const repository = createRepository()
     const action = () => repository.saveLanguageScoreRecord({

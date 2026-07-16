@@ -1,9 +1,9 @@
 import { z } from "zod"
 
 export const roleSchema = z.enum(["operator", "evaluator", "approver", "engineer"])
-const username = z.string().trim().toLowerCase().regex(/^[a-z0-9._-]{4,40}$/)
+const username = z.string().trim().toLowerCase().regex(/^[가-힣a-z0-9._-]{2,40}$/)
 const displayName = z.string().trim().min(1).max(50)
-const password = z.string().min(10).max(100)
+const password = z.string().min(8).max(64)
 const accountFields = {
   displayName,
   role: roleSchema,

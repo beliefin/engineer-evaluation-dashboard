@@ -163,6 +163,8 @@ export function saveEvaluationTaskAction(
       id: item.id ?? createEntityId(context, "item"),
       label: item.label,
       order: index + 1,
+      section: item.section,
+      criteria: item.criteria,
     })),
     evaluatorWeights: parsed.evaluatorWeights,
   }

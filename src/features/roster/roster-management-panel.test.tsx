@@ -15,7 +15,9 @@ const ENGINEERS: readonly EngineerRosterItem[] = [
     id: "engineer-01",
     employeeCode: "E-001",
     displayName: "김하늘",
+    division: "1부문",
     team: "생산 1팀",
+    department: "전자약품담당",
     position: "엔지니어",
   },
 ]
@@ -25,7 +27,9 @@ const EVALUATORS: readonly EvaluatorRosterItem[] = [
     id: "evaluator-01",
     employeeCode: "V-001",
     displayName: "이서준",
+    division: "1부문",
     team: "생산 2팀",
+    department: "염화메탄담당",
   },
 ]
 
@@ -56,7 +60,9 @@ describe("RosterManagementPanel", () => {
       {
         employeeCode: "E-002",
         displayName: "박이든",
+        division: "1부문",
         team: "생산 1팀",
+        department: "전자약품담당",
         position: "엔지니어",
       },
     ])
@@ -83,15 +89,15 @@ describe("RosterManagementPanel", () => {
     await user.click(screen.getByRole("button", { name: "평가자 일괄 등록" }))
     await user.type(
       screen.getByRole("textbox", { name: "평가자 목록" }),
-      "사번,이름,팀{enter}V-002,최유진{enter}V-003,정민수,생산 2팀",
+      "사번,이름,팀,담당{enter}V-002,최유진{enter}V-003,정민수,생산 2팀,ECH2담당",
     )
 
     expect(screen.getByText("등록 예정 2명")).toBeInTheDocument()
     await user.click(screen.getByRole("button", { name: "2명 일괄 등록" }))
 
     expect(onAddEvaluators).toHaveBeenCalledWith([
-      { employeeCode: "V-002", displayName: "최유진", team: "생산 1팀" },
-      { employeeCode: "V-003", displayName: "정민수", team: "생산 2팀" },
+      { employeeCode: "V-002", displayName: "최유진", division: "1부문", team: "생산 1팀", department: "전자약품담당" },
+      { employeeCode: "V-003", displayName: "정민수", division: "1부문", team: "생산 2팀", department: "ECH2담당" },
     ])
   })
 

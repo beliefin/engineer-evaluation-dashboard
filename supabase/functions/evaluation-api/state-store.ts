@@ -2,10 +2,10 @@ import type { SupabaseClient } from "@supabase/supabase-js"
 import { z } from "zod"
 
 import { ApiError } from "./api-error.ts"
-import { snapshotSchema, type Profile, type Snapshot } from "./model.ts"
+import { storedSnapshotSchema, type Profile, type Snapshot } from "./model.ts"
 
 const stateRowSchema = z.object({
-  snapshot: snapshotSchema,
+  snapshot: storedSnapshotSchema,
   revision: z.coerce.number().int().nonnegative(),
 })
 

@@ -20,6 +20,8 @@ export interface ScoreItemViewModel {
   readonly id: string
   readonly index: number
   readonly label: string
+  readonly section: string | null
+  readonly criteria: readonly Readonly<{ score: number; description: string }>[]
   readonly value: number | null
 }
 

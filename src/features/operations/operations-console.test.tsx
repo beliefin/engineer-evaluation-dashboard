@@ -15,16 +15,19 @@ const VIEW_MODEL = {
   weightTotal: 0,
   engineerTaskWeights: [],
   directScores: [],
+  scoreAdjustments: [],
   rosterEngineers: [],
   rosterEvaluators: [],
   submittedSheets: [],
 } as const
 
 describe("OperationsConsole", () => {
-  it("keeps the deferred reopen workflow out of the operator UI", () => {
+  it("shows submitted evaluation unlock controls to the operator", () => {
     render(
       <OperationsConsole
         onDirectScoreChange={vi.fn()}
+        onSaveScoreAdjustment={vi.fn(() => true)}
+        onDeleteScoreAdjustment={vi.fn(() => true)}
         onSaveLanguageRecord={vi.fn(() => true)}
         onDeleteLanguageRecord={vi.fn(() => true)}
         onSaveCertificationRecord={vi.fn(() => true)}
@@ -43,12 +46,14 @@ describe("OperationsConsole", () => {
         onSaveTask={vi.fn(() => true)}
         onDeleteTask={vi.fn(() => true)}
         onEngineerTaskWeightsChange={vi.fn(() => true)}
+        onReopenSheet={vi.fn(() => true)}
+        activeTab="unlocks"
         viewModel={VIEW_MODEL}
       />,
     )
 
-    expect(screen.queryByRole("tab", { name: "재오픈" })).not.toBeInTheDocument()
-    expect(screen.queryByText("제출 평가지 재오픈")).not.toBeInTheDocument()
-    expect(screen.getByRole("tab", { name: "명단 등록" })).toBeInTheDocument()
+    expect(screen.getByRole("tab", { name: "평가 잠금 해제" })).toBeInTheDocument()
+    expect(screen.getByRole("tab", { name: "자격·어학 평가표" })).toBeInTheDocument()
+    expect(screen.getByText("제출 평가 잠금 해제")).toBeInTheDocument()
   })
 })

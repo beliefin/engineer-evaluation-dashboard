@@ -91,8 +91,8 @@ export function DashboardScreen() {
       <div className="grid gap-6 xl:grid-cols-2">
         <ScoreDistributionChart
           data={model.distribution}
-          description="완료자의 시즌별 과제 가중 총점만 0~100 구간에 집계합니다."
-          title="가중 총점 분포"
+          description="완료자의 과제 가중 점수에 개인별 가·감점을 반영한 최종 총점을 0~100 구간에 집계합니다."
+          title="최종 총점 분포"
         />
         <CategoryAverageChart
           data={model.categoryAverages}

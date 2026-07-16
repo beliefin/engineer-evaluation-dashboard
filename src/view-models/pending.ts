@@ -129,6 +129,7 @@ export function selectPendingEvaluations(
       )
       const result = calculateEngineerResult({
         cycleId,
+        cycleStartsAt: cycle.startsAt,
         engineerId: engineer.id,
         tasks,
         assignments,
@@ -138,6 +139,7 @@ export function selectPendingEvaluations(
         directScoreRules: snapshot.directScoreRules,
         languageRecords: snapshot.languageScoreRecords,
         certificationRecords: snapshot.certificationRecords,
+        scoreAdjustments: snapshot.scoreAdjustments,
       })
       if (result.status === "complete") return []
 
@@ -157,10 +159,8 @@ export function selectPendingEvaluations(
       const applicableOperatorTasks = operatorTasks.filter((task) => applicableTaskIds.has(task.id))
       const hasApplicableEvaluatorTasks = evaluatorTasks.some((task) => applicableTaskIds.has(task.id))
       const enteredDirectScoreCount = applicableOperatorTasks.filter((task) => {
-        const direct = directScores.find((score) => score.taskId === task.id)
-        return task.method === "operator_score"
-          ? direct?.score !== null && direct?.score !== undefined
-          : direct?.passResult !== null && direct?.passResult !== undefined
+        const taskResult = result.taskResults.find((entry) => entry.taskId === task.id)
+        return taskResult?.score !== null && taskResult?.score !== undefined
       }).length
 
       return [{

@@ -3,9 +3,10 @@ import type {
   BulkRosterError,
   EngineerRegistration,
   EvaluatorRegistration,
+  RosterDepartment,
   RosterTeam,
 } from "./types"
-import { ROSTER_TEAMS } from "./types"
+import { defaultRosterDepartment, isRosterDepartmentForTeam, ROSTER_TEAMS, rosterDepartmentsForTeam } from "./types"
 
 interface SourceRow {
   readonly line: number
@@ -36,7 +37,9 @@ interface CommonRowResult {
   readonly value: {
     readonly employeeCode: string
     readonly displayName: string
+    readonly division: "1부문"
     readonly team: RosterTeam
+    readonly department: RosterDepartment
   } | null
   readonly errors: readonly BulkRosterError[]
 }
@@ -44,6 +47,7 @@ interface CommonRowResult {
 function parseCommonRow(
   row: SourceRow,
   defaultTeam: RosterTeam,
+  defaultDepartment: RosterDepartment,
   seenCodes: Map<string, string>,
 ): CommonRowResult {
   const employeeCode = row.cells[0] ?? ""
@@ -51,6 +55,11 @@ function parseCommonRow(
   const teamValue = row.cells[2] === "" || row.cells[2] === undefined
     ? defaultTeam
     : row.cells[2]
+  const departmentValue = row.cells[3] === "" || row.cells[3] === undefined
+    ? isRosterTeam(teamValue) && teamValue !== defaultTeam
+      ? defaultRosterDepartment(teamValue)
+      : defaultDepartment
+    : row.cells[3]
   const errors: BulkRosterError[] = []
 
   if (employeeCode === "") errors.push({ line: row.line, message: "사번을 입력하세요." })
@@ -59,6 +68,12 @@ function parseCommonRow(
     errors.push({
       line: row.line,
       message: "팀은 생산 1팀 또는 생산 2팀이어야 합니다.",
+    })
+  }
+  if (isRosterTeam(teamValue) && !isRosterDepartmentForTeam(teamValue, departmentValue)) {
+    errors.push({
+      line: row.line,
+      message: `${teamValue} 담당은 ${rosterDepartmentsForTeam(teamValue).join(", ")} 중 하나여야 합니다.`,
     })
   }
 
@@ -73,10 +88,23 @@ function parseCommonRow(
     seenCodes.set(codeKey, employeeCode)
   }
 
-  if (errors.length > 0 || !isRosterTeam(teamValue)) {
+  if (
+    errors.length > 0 ||
+    !isRosterTeam(teamValue) ||
+    !isRosterDepartmentForTeam(teamValue, departmentValue)
+  ) {
     return { value: null, errors }
   }
-  return { value: { employeeCode, displayName, team: teamValue }, errors }
+  return {
+    value: {
+      employeeCode,
+      displayName,
+      division: "1부문",
+      team: teamValue,
+      department: departmentValue,
+    },
+    errors,
+  }
 }
 
 function dataRows(text: string): readonly SourceRow[] {
@@ -88,23 +116,26 @@ function dataRows(text: string): readonly SourceRow[] {
 export function parseEngineerRoster(
   text: string,
   defaultTeam: RosterTeam,
+  defaultDepartment: RosterDepartment,
 ): BulkParseResult<EngineerRegistration> {
   const rows: EngineerRegistration[] = []
   const errors: BulkRosterError[] = []
   const seenCodes = new Map<string, string>()
 
   for (const source of dataRows(text)) {
-    const parsed = parseCommonRow(source, defaultTeam, seenCodes)
+    const parsed = parseCommonRow(source, defaultTeam, defaultDepartment, seenCodes)
     errors.push(...parsed.errors)
     if (parsed.value === null) continue
 
     rows.push({
       employeeCode: parsed.value.employeeCode,
       displayName: parsed.value.displayName,
+      division: parsed.value.division,
       team: parsed.value.team,
-      position: source.cells[3] === "" || source.cells[3] === undefined
+      department: parsed.value.department,
+      position: source.cells[4] === "" || source.cells[4] === undefined
         ? "엔지니어"
-        : source.cells[3],
+        : source.cells[4],
     })
   }
 
@@ -114,20 +145,22 @@ export function parseEngineerRoster(
 export function parseEvaluatorRoster(
   text: string,
   defaultTeam: RosterTeam,
+  defaultDepartment: RosterDepartment,
 ): BulkParseResult<EvaluatorRegistration> {
-  return parseRows(text, defaultTeam)
+  return parseRows(text, defaultTeam, defaultDepartment)
 }
 
 function parseRows(
   text: string,
   defaultTeam: RosterTeam,
+  defaultDepartment: RosterDepartment,
 ): BulkParseResult<EvaluatorRegistration> {
   const rows: EvaluatorRegistration[] = []
   const errors: BulkRosterError[] = []
   const seenCodes = new Map<string, string>()
 
   for (const source of dataRows(text)) {
-    const parsed = parseCommonRow(source, defaultTeam, seenCodes)
+    const parsed = parseCommonRow(source, defaultTeam, defaultDepartment, seenCodes)
     errors.push(...parsed.errors)
     if (parsed.value !== null) rows.push(parsed.value)
   }

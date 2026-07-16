@@ -1,4 +1,7 @@
 import {
+  calculateCertificationScore,
+  calculateLanguageScore,
+  convertDirectScoreRecord,
   highestConvertedDirectScore,
   resolveEngineerTaskWeight,
   type EvaluationSnapshot,
@@ -10,6 +13,7 @@ import type {
 
 import { formatTimestamp } from "./labels"
 import { selectSourceRecordReview } from "./source-record-review"
+import { selectEngineerResultSummaries } from "./results"
 
 function selectSubmittedSheets(
   snapshot: EvaluationSnapshot,
@@ -57,6 +61,52 @@ export function selectOperationsViewModel(
   const operatorTasks = tasks.filter(
     (task) => task.method === "operator_score" || task.method === "operator_pass_fail",
   )
+  const cycleRules = snapshot.directScoreRules.filter((rule) => rule.cycleId === cycleId)
+  const certificationRules = cycleRules.filter((rule) => rule.kind === "certification")
+  const languageRules = cycleRules.filter((rule) => rule.kind === "language")
+  const resultByEngineer = new Map(
+    selectEngineerResultSummaries(snapshot, cycleId).map((summary) => [
+      summary.engineer.id,
+      summary.result,
+    ]),
+  )
+  const languageOptionMap = new Map<string, {
+    languageGroup: "english" | "second_language"
+    examName: string
+    numericResult: boolean
+    resultOptions: string[]
+  }>()
+  languageRules
+    .filter((rule) => rule.enabled && rule.ruleType === "base" && rule.languageGroup != null && rule.examName != null)
+    .toSorted((left, right) => left.order - right.order)
+    .forEach((rule) => {
+      const key = `${rule.languageGroup}:${rule.examName}`
+      const current = languageOptionMap.get(key) ?? {
+        languageGroup: rule.languageGroup!,
+        examName: rule.examName!,
+        numericResult: false,
+        resultOptions: [],
+      }
+      current.numericResult ||= rule.operator === "gte"
+      if (rule.operator === "equals" && !current.resultOptions.includes(rule.value)) current.resultOptions.push(rule.value)
+      languageOptionMap.set(key, current)
+    })
+  const certificationOptions = certificationRules
+    .filter((rule) =>
+      rule.field === "certificateName" &&
+      rule.operator === "equals" &&
+      rule.ruleType === "base"
+    )
+    .toSorted((left, right) => left.order - right.order)
+    .map((rule) => ({
+      name: rule.value,
+      category: rule.category ?? null,
+      difficulty: rule.difficulty ?? null,
+      workRelevance: rule.workRelevance ?? null,
+      baseScore: rule.score,
+      newAcquisitionBonus: rule.bonus,
+      enabled: rule.enabled,
+    }))
 
   return {
     cycleId: cycle.id,
@@ -80,7 +130,12 @@ export function selectOperationsViewModel(
         method: task.method,
         weight: task.weight,
         order: task.order,
-        items: task.items.map((item) => ({ id: item.id, label: item.label })),
+        items: task.items.map((item) => ({
+          id: item.id,
+          label: item.label,
+          section: item.section,
+          criteria: item.criteria,
+        })),
         evaluatorWeights: task.evaluatorWeights,
         submittedCount,
         locked: submittedCount > 0,
@@ -115,7 +170,24 @@ export function selectOperationsViewModel(
         ),
       })),
     })),
-    directScores: snapshot.engineers.map((engineer) => ({
+    directScores: snapshot.engineers.map((engineer) => {
+      const languageRecords = snapshot.languageScoreRecords.filter(
+        (record) => record.cycleId === cycleId && record.engineerId === engineer.id,
+      )
+      const certificationRecords = snapshot.certificationRecords.filter(
+        (record) => record.cycleId === cycleId && record.engineerId === engineer.id,
+      )
+      const certificationScore = calculateCertificationScore(
+        certificationRecords,
+        certificationRules,
+        cycle.startsAt,
+      )
+      const certificationEntries = new Map(
+        certificationScore.entries.map((entry) => [entry.recordId, entry]),
+      )
+      const languageScore = calculateLanguageScore(languageRecords, languageRules, cycle.startsAt)
+      const languageEntries = new Map(languageScore.entries.map((entry) => [entry.recordId, entry]))
+      return {
       engineerId: engineer.id,
       engineerName: engineer.displayName,
       employeeLabel: engineer.employeeCode,
@@ -133,17 +205,12 @@ export function selectOperationsViewModel(
         const taskRules = snapshot.directScoreRules.filter(
           (rule) => rule.cycleId === cycleId && rule.taskId === task.id,
         )
-        const languageRecords = snapshot.languageScoreRecords.filter(
-          (record) => record.cycleId === cycleId && record.engineerId === engineer.id,
-        )
-        const certificationRecords = snapshot.certificationRecords.filter(
-          (record) => record.cycleId === cycleId && record.engineerId === engineer.id,
-        )
         const calculatedScore = taskRules.length === 0
           ? null
           : highestConvertedDirectScore(
             taskRules[0]?.kind === "language" ? languageRecords : certificationRecords,
             taskRules,
+            cycle.startsAt,
           )
         return [{
           taskId: task.id,
@@ -155,37 +222,77 @@ export function selectOperationsViewModel(
           formulaDriven: taskRules.length > 0,
         }]
       }),
-      languageRecords: snapshot.languageScoreRecords
-        .filter(
-          (record) =>
-            record.cycleId === cycleId && record.engineerId === engineer.id,
-        )
-        .map((record) => ({
+      languageRecords: languageRecords.map((record) => ({
+          ...languageEntries.get(record.id),
           id: record.id,
           examName: record.examName,
+          languageName: record.languageName ?? null,
+          languageGroup: record.languageGroup ?? "english",
           result: record.result,
+          previousResult: record.previousResult ?? null,
+          newlyAcquired: record.newlyAcquired ?? false,
           acquiredOn: record.acquiredOn,
           note: record.note,
+          convertedScore: languageEntries.get(record.id)?.baseScore ?? convertDirectScoreRecord(record, languageRules),
           ...selectSourceRecordReview(snapshot, record.id, record.updatedAt),
         })),
-      certificationRecords: snapshot.certificationRecords
-        .filter(
-          (record) =>
-            record.cycleId === cycleId && record.engineerId === engineer.id,
-        )
-        .map((record) => ({
+      certificationRecords: certificationRecords.map((record) => {
+        const scoreEntry = certificationEntries.get(record.id)
+        return {
           id: record.id,
           certificateName: record.certificateName,
           grade: record.grade,
           acquiredOn: record.acquiredOn,
           issuer: record.issuer,
+          baseScore: scoreEntry?.baseScore ?? null,
+          newAcquisitionBonus: scoreEntry?.newAcquisitionBonus ?? 0,
+          includedInTopThree: scoreEntry?.includedInTopThree ?? false,
+          bonusApplied: scoreEntry?.bonusApplied ?? false,
+          partialScoreApplied: scoreEntry?.partialScoreApplied ?? false,
           ...selectSourceRecordReview(snapshot, record.id, record.updatedAt),
+        }
+      }),
+      certificationScore: {
+        score: certificationScore.score,
+        baseScore: certificationScore.baseScore,
+        bonusScore: certificationScore.bonusScore,
+        partialScore: certificationScore.partialScore,
+      },
+      languageScore: {
+        score: languageScore.score,
+        baseScore: languageScore.baseScore,
+        gradeUpgradeBonus: languageScore.gradeUpgradeBonus,
+        secondLanguageNewBonus: languageScore.secondLanguageNewBonus,
+      },
+    }
+    }),
+    scoreAdjustments: snapshot.engineers.map((engineer) => {
+      const result = resultByEngineer.get(engineer.id)
+      const adjustments = snapshot.scoreAdjustments
+        .filter((entry) => entry.cycleId === cycleId && entry.engineerId === engineer.id)
+        .toSorted((left, right) => right.updatedAt.localeCompare(left.updatedAt))
+      return {
+        engineerId: engineer.id,
+        engineerName: engineer.displayName,
+        employeeLabel: engineer.employeeCode,
+        teamName: engineer.team,
+        baseScore: result?.baseScore ?? null,
+        adjustmentTotal: result?.adjustmentTotal ?? 0,
+        finalScore: result?.finalScore ?? null,
+        adjustments: adjustments.map((entry) => ({
+          id: entry.id,
+          amount: entry.amount,
+          reason: entry.reason,
+          updatedAtLabel: formatTimestamp(entry.updatedAt) ?? "시각 없음",
         })),
-    })),
+      }
+    }),
     rosterEngineers: snapshot.engineers,
     rosterEvaluators: snapshot.evaluators,
-    directScoreRules: snapshot.directScoreRules.filter((rule) => rule.cycleId === cycleId),
+    directScoreRules: cycleRules,
     operatorTasks: operatorTasks.map((task) => ({ taskId: task.id, taskName: task.name })),
+    certificationOptions,
+    languageOptions: [...languageOptionMap.values()],
     submittedSheets: selectSubmittedSheets(snapshot, cycleId),
   }
 }

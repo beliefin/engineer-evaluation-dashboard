@@ -65,6 +65,16 @@ test("/operations 원천 실적 화면에 치명적 접근성 오류가 없다",
   await expectNoCriticalViolations(page)
 })
 
+test("/operations 평가 잠금 해제 화면에 치명적 접근성 오류가 없다", async ({ page }) => {
+  await page.goto("/operations?tab=unlocks")
+  await waitForApp(page)
+  await page.getByRole("heading", { name: "제출 평가 잠금 해제" }).waitFor()
+  await expectNoCriticalViolations(page)
+  await page.getByRole("button", { name: "잠금 해제" }).first().click()
+  await page.getByRole("dialog", { name: "제출 평가 잠금 해제" }).waitFor()
+  await expectNoCriticalViolations(page)
+})
+
 test("/login 기본·오류 상태에 치명적 접근성 오류가 없다", async ({ page }) => {
   await page.goto("/login")
   await page.getByRole("heading", { name: "역량평가 시스템 로그인" }).waitFor()

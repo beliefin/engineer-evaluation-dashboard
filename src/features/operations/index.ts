@@ -17,6 +17,8 @@ export type {
   OperationsConsoleProps,
   OperationsTab,
   OperationsViewModel,
+  ScoreAdjustmentDraft,
+  EngineerScoreAdjustmentViewModel,
   LanguageScoreRecordDraft,
   LanguageScoreRecordViewModel,
   SubmittedSheetViewModel,

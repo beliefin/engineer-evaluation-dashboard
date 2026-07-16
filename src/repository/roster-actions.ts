@@ -60,7 +60,12 @@ export function addEngineersAction(
   const directScores: DirectScore[] = []
 
   for (const candidate of parsed.engineers) {
-    const engineer: Engineer = { id: createEntityId(context, "engineer"), ...candidate }
+    const engineer: Engineer = {
+      id: createEntityId(context, "engineer"),
+      ...candidate,
+      organizationUnit: null,
+      jobTitle: null,
+    }
     engineers.push(engineer)
     for (const task of tasks) {
       if (task.method === "evaluator_score" || task.method === "evaluator_pass_fail") {
@@ -131,7 +136,13 @@ export function addEvaluatorsAction(
   )
   const evaluators: Evaluator[] = []
   for (const candidate of parsed.evaluators) {
-    const evaluator: Evaluator = { id: createEntityId(context, "evaluator"), ...candidate }
+    const evaluator: Evaluator = {
+      id: createEntityId(context, "evaluator"),
+      ...candidate,
+      organizationUnit: null,
+      rank: null,
+      jobTitle: null,
+    }
     evaluators.push(evaluator)
   }
 

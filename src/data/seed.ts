@@ -19,6 +19,9 @@ import {
   TASKS,
   TEAMS,
 } from "./seed-fixtures"
+import { CERTIFICATION_SCORE_TABLE } from "./certification-score-table"
+import { LANGUAGE_BONUS_TABLE, LANGUAGE_SCORE_TABLE } from "./language-score-table"
+import { DEPARTMENTS_BY_TEAM } from "@/domain"
 import { createSampleAchievementRecords } from "./seed-achievements"
 
 type SampleState = "complete" | "in_progress" | "unconfirmed" | "unassigned"
@@ -41,8 +44,12 @@ function createEngineers(): ReadonlyArray<Engineer> {
     id: `engineer-${String(index + 1).padStart(2, "0")}`,
     employeeCode: `SAMPLE-${String(index + 1).padStart(3, "0")}`,
     displayName: `샘플 엔지니어 ${String(index + 1).padStart(2, "0")}`,
+    division: "1부문",
     team: itemAt(TEAMS, index),
+    department: itemAt(DEPARTMENTS_BY_TEAM[itemAt(TEAMS, index)], Math.floor(index / 2)),
+    organizationUnit: null,
     position: itemAt(POSITIONS, index),
+    jobTitle: null,
   }))
 }
 
@@ -205,7 +212,7 @@ export function createSeedSnapshot(): EvaluationSnapshot {
   const bundle = createAssignmentBundle(engineers)
   const achievements = createSampleAchievementRecords(engineers)
   return evaluationSnapshotSchema.parse({
-    schemaVersion: 5,
+    schemaVersion: 6,
     cycles: [{
       id: CYCLE_ID,
       name: "2026 상반기",
@@ -216,12 +223,67 @@ export function createSeedSnapshot(): EvaluationSnapshot {
     }],
     tasks: TASKS,
     engineerTaskWeights: createEngineerTaskWeights(engineers),
-    directScoreRules: [],
+    directScoreRules: [
+      ...CERTIFICATION_SCORE_TABLE.map((entry, index) => ({
+      id: `certification-rule-${String(index + 1).padStart(2, "0")}`,
+      cycleId: CYCLE_ID,
+      taskId: "task-certification",
+      kind: "certification",
+      label: entry[0],
+      field: "certificateName",
+      operator: "equals",
+      value: entry[0],
+      ruleType: "base",
+      score: entry[4],
+      bonus: entry[5],
+      enabled: true,
+      order: index + 1,
+      category: entry[1],
+      difficulty: entry[2],
+      workRelevance: entry[3],
+      })),
+      ...LANGUAGE_SCORE_TABLE.map((entry, index) => ({
+        id: `language-rule-${String(index + 1).padStart(2, "0")}`,
+        cycleId: CYCLE_ID,
+        taskId: "task-language",
+        kind: "language" as const,
+        label: `${entry.languageGroup === "english" ? "영어" : "제2외국어"} ${entry.examName} ${entry.result}`,
+        field: "result" as const,
+        operator: entry.operator,
+        value: entry.result,
+        ruleType: "base" as const,
+        score: Math.min(100, entry.score),
+        rawScore: entry.score > 100 ? entry.score : null,
+        bonus: 0,
+        enabled: true,
+        order: CERTIFICATION_SCORE_TABLE.length + index + 1,
+        category: entry.languageGroup === "english" ? "영어" : "제2외국어",
+        languageGroup: entry.languageGroup,
+        examName: entry.examName,
+      })),
+      ...LANGUAGE_BONUS_TABLE.map((entry, index) => ({
+        id: `language-bonus-rule-${String(index + 1).padStart(2, "0")}`,
+        cycleId: CYCLE_ID,
+        taskId: "task-language",
+        kind: "language" as const,
+        label: entry.label,
+        field: "result" as const,
+        operator: "contains" as const,
+        value: "*",
+        ruleType: "bonus" as const,
+        score: 0,
+        bonus: entry.bonus,
+        enabled: true,
+        order: CERTIFICATION_SCORE_TABLE.length + LANGUAGE_SCORE_TABLE.length + index + 1,
+        bonusCondition: entry.condition,
+      })),
+    ],
     engineers,
     evaluators: EVALUATORS,
     assignments: bundle.assignments,
     scoreSheets: bundle.scoreSheets,
     directScores: createDirectScores(engineers),
+    scoreAdjustments: [],
     languageScoreRecords: achievements.languageScoreRecords,
     certificationRecords: achievements.certificationRecords,
     scheduleEvents: createScheduleEvents(engineers),

@@ -48,8 +48,12 @@ export function updateEngineerAction(
             id: engineer.id,
             employeeCode: parsed.employeeCode,
             displayName: parsed.displayName,
+            division: parsed.division,
             team: parsed.team,
+            department: parsed.department,
+            organizationUnit: engineer.organizationUnit,
             position: parsed.position,
+            jobTitle: engineer.jobTitle,
           }
         : engineer),
   }
@@ -88,6 +92,9 @@ export function deleteEngineerAction(
   for (const record of context.snapshot.certificationRecords) {
     if (record.engineerId === parsed.engineerId) affectedCycleIds.add(record.cycleId)
   }
+  for (const adjustment of context.snapshot.scoreAdjustments) {
+    if (adjustment.engineerId === parsed.engineerId) affectedCycleIds.add(adjustment.cycleId)
+  }
   for (const cycleId of affectedCycleIds) requireCycleUnlocked(context.snapshot, cycleId)
 
   const assignmentIds = new Set(
@@ -109,6 +116,9 @@ export function deleteEngineerAction(
     ),
     directScores: context.snapshot.directScores.filter(
       (score) => score.engineerId !== parsed.engineerId,
+    ),
+    scoreAdjustments: context.snapshot.scoreAdjustments.filter(
+      (adjustment) => adjustment.engineerId !== parsed.engineerId,
     ),
     languageScoreRecords: context.snapshot.languageScoreRecords.filter(
       (record) => record.engineerId !== parsed.engineerId,

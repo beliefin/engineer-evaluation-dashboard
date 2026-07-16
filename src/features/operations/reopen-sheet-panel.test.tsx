@@ -22,7 +22,7 @@ const SUBMITTED_SHEET: SubmittedSheetViewModel = {
 afterEach(cleanup)
 
 function getFirstReopenButton(): HTMLElement {
-  const button = screen.getAllByRole("button", { name: "재오픈" }).at(0)
+  const button = screen.getAllByRole("button", { name: "잠금 해제" }).at(0)
 
   if (button === undefined) {
     throw new Error("Reopen button was not rendered")
@@ -32,6 +32,32 @@ function getFirstReopenButton(): HTMLElement {
 }
 
 describe("ReopenSheetPanel", () => {
+  it("엔지니어·과제·평가자로 잠금 목록을 검색한다", async () => {
+    const user = userEvent.setup()
+    render(
+      <ReopenSheetPanel
+        disabled={false}
+        onReopen={vi.fn()}
+        sheets={[
+          SUBMITTED_SHEET,
+          {
+            ...SUBMITTED_SHEET,
+            sheetId: "score-sheet-002",
+            engineerName: "이바다",
+            evaluatorName: "최평가",
+            categoryLabel: "DX 툴 활용",
+          },
+        ]}
+      />
+    )
+
+    await user.type(screen.getByRole("searchbox", { name: "잠금 평가 검색" }), "최평가")
+
+    expect(screen.queryByText("김하늘")).not.toBeInTheDocument()
+    expect(screen.getAllByText("이바다").length).toBeGreaterThan(0)
+    expect(screen.getByText("전체 2건 · 1건 표시")).toBeInTheDocument()
+  })
+
   it("공백뿐인 사유로는 제출 평가 잠금을 해제할 수 없다", async () => {
     // Given
     const user = userEvent.setup()
@@ -46,9 +72,9 @@ describe("ReopenSheetPanel", () => {
 
     // When
     await user.click(getFirstReopenButton())
-    const dialog = screen.getByRole("dialog", { name: "제출 평가 재오픈" })
+    const dialog = screen.getByRole("dialog", { name: "제출 평가 잠금 해제" })
     const reasonInput = within(dialog).getByRole("textbox", {
-      name: "재오픈 사유",
+      name: "잠금 해제 사유",
     })
     await user.type(reasonInput, "   ")
 
@@ -72,9 +98,9 @@ describe("ReopenSheetPanel", () => {
 
     // When
     await user.click(getFirstReopenButton())
-    const dialog = screen.getByRole("dialog", { name: "제출 평가 재오픈" })
+    const dialog = screen.getByRole("dialog", { name: "제출 평가 잠금 해제" })
     await user.type(
-      within(dialog).getByRole("textbox", { name: "재오픈 사유" }),
+      within(dialog).getByRole("textbox", { name: "잠금 해제 사유" }),
       "  평가 항목 3 수정 필요  "
     )
     await user.click(within(dialog).getByRole("button", { name: "잠금 해제" }))
@@ -87,7 +113,7 @@ describe("ReopenSheetPanel", () => {
     )
     await waitFor(() => {
       expect(
-        screen.queryByRole("dialog", { name: "제출 평가 재오픈" })
+        screen.queryByRole("dialog", { name: "제출 평가 잠금 해제" })
       ).not.toBeInTheDocument()
     })
   })

@@ -17,19 +17,32 @@ export interface EngineerIdentityViewModel {
   readonly seasonLabel: string
 }
 
-export type EngineerFinalResultViewModel =
-  | {
+export type EngineerScoreAdjustmentDetailViewModel = Readonly<{
+  id: string
+  amount: number
+  reason: string
+  updatedAtLabel: string
+}>
+
+type EngineerFinalResultBaseViewModel = Readonly<{
+  baseScore: number | null
+  adjustmentTotal: number
+  adjustments: ReadonlyArray<EngineerScoreAdjustmentDetailViewModel>
+  completedCategoryCount: number
+  totalCategoryCount: number
+}>
+
+export type EngineerFinalResultViewModel = EngineerFinalResultBaseViewModel &
+  (
+    | {
       readonly status: "complete"
       readonly finalScore: number
-      readonly completedCategoryCount: number
-      readonly totalCategoryCount: number
     }
-  | {
+    | {
       readonly status: "in_progress" | "unconfirmed"
       readonly finalScore: null
-      readonly completedCategoryCount: number
-      readonly totalCategoryCount: number
     }
+  )
 
 interface CategoryScoreBaseViewModel {
   readonly key: EngineerCategoryKey

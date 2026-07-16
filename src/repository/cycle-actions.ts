@@ -199,6 +199,7 @@ export function deleteEvaluationCycleAction(
     assignments: context.snapshot.assignments.filter((entry) => entry.cycleId !== cycle.id),
     scoreSheets: context.snapshot.scoreSheets.filter((entry) => !assignmentIds.has(entry.assignmentId)),
     directScores: context.snapshot.directScores.filter((entry) => entry.cycleId !== cycle.id),
+    scoreAdjustments: context.snapshot.scoreAdjustments.filter((entry) => entry.cycleId !== cycle.id),
     languageScoreRecords: context.snapshot.languageScoreRecords.filter((entry) => entry.cycleId !== cycle.id),
     certificationRecords: context.snapshot.certificationRecords.filter((entry) => entry.cycleId !== cycle.id),
     scheduleEvents: context.snapshot.scheduleEvents.filter((entry) => entry.cycleId !== cycle.id),

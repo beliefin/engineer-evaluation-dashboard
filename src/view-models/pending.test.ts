@@ -32,7 +32,7 @@ describe("selectPendingEvaluations", () => {
       status: "in_progress",
       submittedSheetCount: 9,
       totalSheetCount: 10,
-      enteredDirectScoreCount: 1,
+      enteredDirectScoreCount: 2,
       totalDirectScoreCount: 3,
       missingEvaluatorNames: ["샘플 평가자 1"],
       firstPendingAssignmentId:
@@ -50,7 +50,7 @@ describe("selectPendingEvaluations", () => {
       status: "unassigned",
       submittedSheetCount: 0,
       totalSheetCount: 0,
-      enteredDirectScoreCount: 0,
+      enteredDirectScoreCount: 2,
       firstPendingAssignmentId: null,
     })
   })

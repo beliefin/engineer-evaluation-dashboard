@@ -15,6 +15,8 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 
 import { TeamSelect } from "./team-select"
+import { DepartmentSelect } from "./department-select"
+import { defaultRosterDepartment } from "./types"
 import type { EvaluatorRegistration, EvaluatorRosterItem } from "./types"
 
 type EvaluatorEditorDialogProps = Readonly<{
@@ -39,6 +41,7 @@ export function EvaluatorEditorDialog({
   const [employeeCode, setEmployeeCode] = useState(evaluator.employeeCode)
   const [displayName, setDisplayName] = useState(evaluator.displayName)
   const [team, setTeam] = useState(evaluator.team)
+  const [department, setDepartment] = useState(evaluator.department)
   const [fieldErrors, setFieldErrors] = useState<FieldErrors>({})
   const [submitError, setSubmitError] = useState("")
 
@@ -47,7 +50,9 @@ export function EvaluatorEditorDialog({
     const next = {
       employeeCode: employeeCode.trim(),
       displayName: displayName.trim(),
+      division: "1부문" as const,
       team,
+      department,
     }
     const duplicate = existingEmployeeCodes.some((code) =>
       code.toLocaleUpperCase("en-US") === next.employeeCode.toLocaleUpperCase("en-US"))
@@ -95,8 +100,23 @@ export function EvaluatorEditorDialog({
             value={displayName}
           />
           <div className="space-y-2">
+            <Label htmlFor={`${id}-division`}>부문</Label>
+            <Input id={`${id}-division`} readOnly value={evaluator.division} />
+          </div>
+          <div className="space-y-2">
             <Label htmlFor={`${id}-team`}>팀</Label>
-            <TeamSelect id={`${id}-team`} onValueChange={setTeam} value={team} />
+            <TeamSelect
+              id={`${id}-team`}
+              onValueChange={(nextTeam) => {
+                setTeam(nextTeam)
+                setDepartment(defaultRosterDepartment(nextTeam))
+              }}
+              value={team}
+            />
+          </div>
+          <div className="space-y-2">
+            <Label htmlFor={`${id}-department`}>담당</Label>
+            <DepartmentSelect id={`${id}-department`} onValueChange={setDepartment} team={team} value={department} />
           </div>
           {submitError === "" ? null : (
             <p className="text-sm text-destructive" role="alert">{submitError}</p>

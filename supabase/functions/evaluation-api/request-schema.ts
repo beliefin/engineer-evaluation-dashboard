@@ -1,6 +1,11 @@
 import { z } from "zod"
 
-import { certificationRecordSchema, languageRecordSchema, snapshotSchema } from "./model.ts"
+import {
+  certificationRecordSchema,
+  languageRecordSchema,
+  scoreAdjustmentSchema,
+  snapshotSchema,
+} from "./model.ts"
 
 const baseRevision = z.number().int().nonnegative()
 const scoreEntry = z.object({
@@ -32,5 +37,15 @@ export const evaluationRequestSchema = z.discriminatedUnion("operation", [
     record: certificationRecordSchema.omit({ id: true, updatedAt: true }).extend({ recordId: z.string().nullable() }),
   }),
   z.object({ operation: z.literal("delete_certification_record"), baseRevision, recordId: z.string().min(1) }),
+  z.object({
+    operation: z.literal("save_score_adjustment"), baseRevision,
+    adjustment: scoreAdjustmentSchema.omit({ id: true, createdAt: true, updatedAt: true }).extend({
+      adjustmentId: z.string().trim().min(1).nullable(),
+    }),
+  }),
+  z.object({
+    operation: z.literal("delete_score_adjustment"), baseRevision,
+    adjustmentId: z.string().trim().min(1),
+  }),
 ])
 export type EvaluationRequest = z.infer<typeof evaluationRequestSchema>

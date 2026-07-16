@@ -226,7 +226,7 @@ export function AccountEditorDialog({
                 {fieldErrors.password ? (
                   <p className="text-xs text-destructive" id="account-password-error">{fieldErrors.password}</p>
                 ) : (
-                  <p className="text-xs text-muted-foreground" id="account-password-help">8자 이상, 영문·숫자·특수문자를 포함합니다.</p>
+                  <p className="text-xs text-muted-foreground" id="account-password-help">8자 이상으로 입력합니다.</p>
                 )}
               </div>
             ) : null}

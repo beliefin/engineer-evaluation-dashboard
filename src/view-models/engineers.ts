@@ -12,6 +12,7 @@ import type {
 } from "@/features/engineers"
 
 import { selectEngineerResultSummaries } from "./results"
+import { formatTimestamp } from "./labels"
 
 function evaluatorStatus(
   snapshot: EvaluationSnapshot,
@@ -117,18 +118,32 @@ export function selectEngineerDetail(
   const completedCategoryCount = categories.filter(
     (category) => category.status === "complete",
   ).length
+  const adjustments = snapshot.scoreAdjustments
+    .filter((entry) => entry.cycleId === cycleId && entry.engineerId === engineerId)
+    .toSorted((left, right) => right.updatedAt.localeCompare(left.updatedAt))
+    .map((entry) => ({
+      id: entry.id,
+      amount: entry.amount,
+      reason: entry.reason,
+      updatedAtLabel: formatTimestamp(entry.updatedAt) ?? "시각 없음",
+    }))
+  const resultBase = {
+    baseScore: summary.result.baseScore,
+    adjustmentTotal: summary.result.adjustmentTotal,
+    adjustments,
+    completedCategoryCount,
+    totalCategoryCount: categories.length,
+  }
   const result: EngineerFinalResultViewModel = summary.result.roundedFinalScore === null
     ? {
+        ...resultBase,
         status: summary.status === "unconfirmed" ? "unconfirmed" : "in_progress",
         finalScore: null,
-        completedCategoryCount,
-        totalCategoryCount: categories.length,
       }
     : {
+        ...resultBase,
         status: "complete",
         finalScore: summary.result.roundedFinalScore,
-        completedCategoryCount,
-        totalCategoryCount: categories.length,
       }
 
   return {

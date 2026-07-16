@@ -1,5 +1,7 @@
 import type {
+  Department,
   DirectScoreRule,
+  Division,
   EvaluationMethod,
   EvaluationSnapshot,
   EvaluationSeasonStatus,
@@ -59,12 +61,30 @@ export type UpdateDirectScoreInput = Readonly<{
   actor: RepositoryActor
 }>
 
+export type SaveScoreAdjustmentInput = Readonly<{
+  adjustmentId: string | null
+  cycleId: string
+  engineerId: string
+  amount: number
+  reason: string
+  actor: RepositoryActor
+}>
+
+export type DeleteScoreAdjustmentInput = Readonly<{
+  adjustmentId: string
+  actor: RepositoryActor
+}>
+
 export type SaveLanguageScoreRecordInput = Readonly<{
   recordId: string | null
   cycleId: string
   engineerId: string
   examName: string
+  languageName?: string | null
   result: string
+  languageGroup?: "english" | "second_language"
+  previousResult?: string | null
+  newlyAcquired?: boolean
   acquiredOn: string | null
   note: string | null
   actor: RepositoryActor
@@ -133,8 +153,15 @@ export type SaveDirectScoreRuleInput = Readonly<{
   value: string
   ruleType: DirectScoreRule["ruleType"]
   score: number
+  rawScore?: number | null
   bonus: number
   enabled: boolean
+  category?: string | null
+  difficulty?: string | null
+  workRelevance?: string | null
+  languageGroup?: DirectScoreRule["languageGroup"]
+  examName?: string | null
+  bonusCondition?: DirectScoreRule["bonusCondition"]
   actor: RepositoryActor
 }>
 
@@ -151,6 +178,8 @@ export type CreateEvaluationCycleInput = NewEvaluationCycleInput & Readonly<{
 export type EvaluationTaskItemInput = Readonly<{
   id: string | null
   label: string
+  section?: string | null
+  criteria?: ReadonlyArray<Readonly<{ score: number; description: string }>>
 }>
 
 export type EvaluationTaskEvaluatorInput = Readonly<{
@@ -186,7 +215,9 @@ export type UpdateEngineerTaskWeightsInput = Readonly<{
 export type NewEngineerInput = Readonly<{
   employeeCode: string
   displayName: string
+  division: Division
   team: Team
+  department: Department
   position: string
 }>
 
@@ -211,7 +242,9 @@ export type DeleteEngineerInput = Readonly<{
 export type NewEvaluatorInput = Readonly<{
   employeeCode: string
   displayName: string
+  division: Division
   team: Team
+  department: Department
 }>
 
 export type AddEvaluatorsInput = Readonly<{
@@ -263,6 +296,8 @@ export interface EvaluationRepository {
   submitSheet(input: SheetActionInput): EvaluationSnapshot
   reopenSheet(input: ReopenSheetInput): EvaluationSnapshot
   updateDirectScore(input: UpdateDirectScoreInput): EvaluationSnapshot
+  saveScoreAdjustment(input: SaveScoreAdjustmentInput): EvaluationSnapshot
+  deleteScoreAdjustment(input: DeleteScoreAdjustmentInput): EvaluationSnapshot
   saveLanguageScoreRecord(input: SaveLanguageScoreRecordInput): EvaluationSnapshot
   deleteLanguageScoreRecord(input: DeleteSourceRecordInput): EvaluationSnapshot
   saveCertificationRecord(input: SaveCertificationRecordInput): EvaluationSnapshot

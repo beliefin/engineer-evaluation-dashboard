@@ -21,15 +21,55 @@ const cycle = z.object({
   id, name: z.string().trim().min(1), status: z.enum(["setup", "active", "closed"]),
   locked: z.boolean().default(false), startsAt: timestamp, endsAt: timestamp,
 })
-const engineer = z.object({
+const versionFiveEngineer = z.object({
   id, employeeCode: z.string().trim().min(1), displayName: z.string().trim().min(1),
   team: z.enum(["생산 1팀", "생산 2팀"]), position: z.string().trim().min(1),
 })
-const evaluator = z.object({
+const versionFiveEvaluator = z.object({
   id, employeeCode: z.string().trim().min(1), displayName: z.string().trim().min(1),
   team: z.enum(["생산 1팀", "생산 2팀"]),
 })
-const rubricItem = z.object({ id, label: z.string().trim().min(1).max(200), order: z.number().int() })
+const department = z.enum([
+  "전자약품담당", "메틸아민담당", "케미칼운영담당",
+  "염화메탄담당", "ECH1담당", "ECH2담당",
+])
+function validateOrganization(
+  value: { team: "생산 1팀" | "생산 2팀"; department: z.infer<typeof department> },
+  context: z.RefinementCtx,
+): void {
+  const validDepartments = value.team === "생산 1팀"
+    ? ["전자약품담당", "메틸아민담당", "케미칼운영담당"]
+    : ["염화메탄담당", "ECH1담당", "ECH2담당"]
+  if (!validDepartments.some((entry) => entry === value.department)) {
+    context.addIssue({ code: "custom", path: ["department"], message: "TEAM_DEPARTMENT_MISMATCH" })
+  }
+}
+const engineer = versionFiveEngineer
+  .extend({
+    division: z.literal("1부문"), department,
+    organizationUnit: nullableText(100).default(null),
+    jobTitle: nullableText(100).default(null),
+  })
+  .superRefine(validateOrganization)
+const evaluator = versionFiveEvaluator
+  .extend({
+    division: z.literal("1부문"), department,
+    organizationUnit: nullableText(100).default(null),
+    rank: nullableText(100).default(null),
+    jobTitle: nullableText(100).default(null),
+  })
+  .superRefine(validateOrganization)
+const rubricCriterion = z.object({
+  score: z.number().int().min(0).max(10),
+  description: z.string().trim().min(1).max(500),
+})
+const rubricItem = z.object({
+  id,
+  label: z.string().trim().min(1).max(200),
+  order: z.number().int(),
+  section: z.string().trim().min(1).max(50).nullable().default(null),
+  criteria: z.array(rubricCriterion).max(11).default([]),
+})
 const evaluatorWeight = z.object({ evaluatorId: id, weight: z.number().positive().finite() })
 export const taskSchema = z.object({
   id, cycleId: id, name: z.string().trim().min(1).max(100), description: z.string().max(1_000),
@@ -49,8 +89,15 @@ const directScoreRule = z.object({
   operator: z.enum(["equals", "contains", "gte"]),
   value: z.string().trim().min(1).max(100),
   ruleType: z.enum(["base", "bonus"]),
-  score: z.number().min(0).max(100), bonus: z.number().min(0).max(100),
+  score: z.number().min(0).max(100), rawScore: z.number().min(0).max(110).nullable().optional(),
+  bonus: z.number().min(0).max(100),
   enabled: z.boolean(), order: z.number().int().min(1),
+  category: z.string().trim().min(1).max(100).nullable().optional(),
+  difficulty: z.string().trim().min(1).max(100).nullable().optional(),
+  workRelevance: z.string().trim().min(1).max(100).nullable().optional(),
+  languageGroup: z.enum(["english", "second_language"]).nullable().optional(),
+  examName: z.string().trim().min(1).max(100).nullable().optional(),
+  bonusCondition: z.enum(["grade_upgrade", "second_language_new"]).nullable().optional(),
 })
 export const assignmentSchema = z.object({
   id, cycleId: id, engineerId: id, evaluatorId: id, taskId: id,
@@ -67,9 +114,21 @@ export const directScoreSchema = z.object({
   passResult: z.boolean().nullable(), updatedAt: timestamp,
 })
 export type DirectScore = z.infer<typeof directScoreSchema>
+export const scoreAdjustmentSchema = z.object({
+  id,
+  cycleId: id,
+  engineerId: id,
+  amount: z.number().finite().min(-100).max(100).multipleOf(0.1).refine((amount) => amount !== 0),
+  reason: z.string().trim().min(1).max(300),
+  createdAt: timestamp,
+  updatedAt: timestamp,
+})
 export const languageRecordSchema = z.object({
   id, cycleId: id, engineerId: id, examName: z.string().trim().min(1).max(100),
+  languageName: nullableText(100).optional(),
   result: z.string().trim().min(1).max(100), acquiredOn: z.iso.date().nullable(),
+  languageGroup: z.enum(["english", "second_language"]).optional(),
+  previousResult: nullableText(100).optional(), newlyAcquired: z.boolean().optional(),
   note: nullableText(300), updatedAt: timestamp,
 })
 export type LanguageRecord = z.infer<typeof languageRecordSchema>
@@ -89,13 +148,40 @@ const auditEvent = z.object({
   targetId: id, reason: z.string().trim().min(1).nullable(), createdAt: timestamp,
 })
 
-export const snapshotSchema = z.object({
-  schemaVersion: z.literal(5), cycles: z.array(cycle).min(1), tasks: z.array(taskSchema),
+const snapshotFields = {
+  cycles: z.array(cycle).min(1), tasks: z.array(taskSchema),
   engineerTaskWeights: z.array(engineerTaskWeight), directScoreRules: z.array(directScoreRule).default([]), engineers: z.array(engineer),
   evaluators: z.array(evaluator), assignments: z.array(assignmentSchema),
   scoreSheets: z.array(scoreSheetSchema), directScores: z.array(directScoreSchema),
+  scoreAdjustments: z.array(scoreAdjustmentSchema).default([]),
   languageScoreRecords: z.array(languageRecordSchema),
   certificationRecords: z.array(certificationRecordSchema), scheduleEvents: z.array(scheduleEvent),
   auditEvents: z.array(auditEvent),
-})
+}
+export const snapshotSchema = z.object({ schemaVersion: z.literal(6), ...snapshotFields })
 export type Snapshot = z.infer<typeof snapshotSchema>
+
+const versionFiveSnapshotSchema = z.object({
+  schemaVersion: z.literal(5),
+  ...snapshotFields,
+  engineers: z.array(versionFiveEngineer),
+  evaluators: z.array(versionFiveEvaluator),
+})
+
+function defaultDepartment(team: "생산 1팀" | "생산 2팀") {
+  return team === "생산 1팀" ? "전자약품담당" as const : "염화메탄담당" as const
+}
+
+export const storedSnapshotSchema = z.union([snapshotSchema, versionFiveSnapshotSchema]).transform((snapshot): Snapshot => {
+  if (snapshot.schemaVersion === 6) return snapshot
+  return snapshotSchema.parse({
+    ...snapshot,
+    schemaVersion: 6,
+    engineers: snapshot.engineers.map((entry) => ({
+      ...entry, division: "1부문", department: defaultDepartment(entry.team),
+    })),
+    evaluators: snapshot.evaluators.map((entry) => ({
+      ...entry, division: "1부문", department: defaultDepartment(entry.team),
+    })),
+  })
+})

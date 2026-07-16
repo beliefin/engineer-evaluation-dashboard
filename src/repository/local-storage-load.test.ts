@@ -14,6 +14,7 @@ import {
   OLDEST_LOCAL_STORAGE_KEY,
   PREVIOUS_LOCAL_STORAGE_KEY,
   VERSION_FOUR_LOCAL_STORAGE_KEY,
+  VERSION_FIVE_LOCAL_STORAGE_KEY,
 } from "./local-storage"
 import { createTestIdFactory, FIXED_NOW, MemoryStorage } from "./test-utils"
 
@@ -111,7 +112,7 @@ function createVersionOneSnapshot() {
 }
 
 describe("LocalStorageEvaluationRepository loading", () => {
-  it("Given empty storage When loaded Then it returns the deterministic v5 seed", () => {
+  it("Given empty storage When loaded Then it returns the deterministic v6 seed", () => {
     const storage = new MemoryStorage()
 
     expect(createRepository(storage).loadSnapshot()).toEqual(createSeedSnapshot())
@@ -130,7 +131,7 @@ describe("LocalStorageEvaluationRepository loading", () => {
 
     const snapshot = createRepository(storage).loadSnapshot()
 
-    expect(snapshot.schemaVersion).toBe(5)
+    expect(snapshot.schemaVersion).toBe(6)
     expect(snapshot.engineerTaskWeights).toEqual([])
     expect(snapshot.tasks).toEqual(seed.tasks)
   })
@@ -141,6 +142,33 @@ describe("LocalStorageEvaluationRepository loading", () => {
 
     expect(snapshot).toEqual(seed)
     expect(snapshot).not.toBe(seed)
+  })
+
+  it("Given a v5 snapshot When loaded Then it assigns the fixed division and a team department", () => {
+    const seed = createSeedSnapshot()
+    const versionFive = {
+      ...seed,
+      schemaVersion: 5,
+      engineers: seed.engineers.map(({ division, department, ...engineer }) => {
+        void division
+        void department
+        return engineer
+      }),
+      evaluators: seed.evaluators.map(({ division, department, ...evaluator }) => {
+        void division
+        void department
+        return evaluator
+      }),
+    }
+    const storage = new MemoryStorage()
+    storage.setItem(VERSION_FIVE_LOCAL_STORAGE_KEY, JSON.stringify(versionFive))
+
+    const snapshot = createRepository(storage).loadSnapshot()
+
+    expect(snapshot.schemaVersion).toBe(6)
+    expect(snapshot.engineers.every((engineer) => engineer.division === "1부문")).toBe(true)
+    expect(snapshot.engineers.find((engineer) => engineer.team === "생산 1팀")?.department).toBe("전자약품담당")
+    expect(snapshot.engineers.find((engineer) => engineer.team === "생산 2팀")?.department).toBe("염화메탄담당")
   })
 
   it("Given malformed or unsupported data When loaded Then it recovers with the seed", () => {
@@ -159,7 +187,7 @@ describe("LocalStorageEvaluationRepository loading", () => {
 
     const snapshot = createRepository(storage).loadSnapshot()
 
-    expect(snapshot.schemaVersion).toBe(5)
+    expect(snapshot.schemaVersion).toBe(6)
     expect(snapshot.tasks.map((task) => task.name)).toEqual([
       "성장탐구계획서",
       "DX 툴 활용",
@@ -181,9 +209,9 @@ describe("LocalStorageEvaluationRepository loading", () => {
     const versionTwo = createRepository(versionTwoStorage).loadSnapshot()
     const versionOne = createRepository(versionOneStorage).loadSnapshot()
 
-    expect(versionTwo.schemaVersion).toBe(5)
+    expect(versionTwo.schemaVersion).toBe(6)
     expect(versionTwo.languageScoreRecords).toEqual([])
-    expect(versionOne.schemaVersion).toBe(5)
+    expect(versionOne.schemaVersion).toBe(6)
     expect(versionOne.evaluators.every((evaluator) => evaluator.employeeCode.length > 0)).toBe(true)
     expect(versionOne.engineers.every((engineer) => engineer.team.startsWith("생산 "))).toBe(true)
   })

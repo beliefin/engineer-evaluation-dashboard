@@ -3,7 +3,13 @@ import type { EvaluationRequest } from "./request-schema.ts"
 import type { Profile, ScoreSheet, Snapshot, Task } from "./model.ts"
 
 type SheetRequest = Extract<EvaluationRequest, { operation: "save_draft" | "submit_sheet" }>
-type SourceRequest = Exclude<EvaluationRequest, { operation: "load" | "operator_commit" | "save_draft" | "submit_sheet" }>
+type SourceRequest = Extract<EvaluationRequest, {
+  operation: "save_language_record" | "delete_language_record" |
+    "save_certification_record" | "delete_certification_record"
+}>
+type ScoreAdjustmentRequest = Extract<EvaluationRequest, {
+  operation: "save_score_adjustment" | "delete_score_adjustment"
+}>
 
 function audit(snapshot: Snapshot, profile: Profile, type: string, cycleId: string, targetId: string): Snapshot["auditEvents"][number] {
   return {
@@ -19,6 +25,74 @@ function requireUnlockedCycle(snapshot: Snapshot, cycleId: string): void {
   }
   if (cycle.locked) {
     throw new ApiError(409, "TASK_LOCKED", "locked evaluation cycles cannot accept score changes")
+  }
+}
+
+export function mergeOperatorSnapshot(current: Snapshot, requested: Snapshot): Snapshot {
+  return { ...requested, scoreAdjustments: current.scoreAdjustments }
+}
+
+export function mutateScoreAdjustment(
+  snapshot: Snapshot,
+  profile: Profile,
+  request: ScoreAdjustmentRequest,
+): Snapshot {
+  if (profile.role !== "operator") {
+    throw new ApiError(403, "FORBIDDEN", "운영자 권한이 필요합니다.")
+  }
+  if (request.operation === "delete_score_adjustment") {
+    const existing = snapshot.scoreAdjustments.find((entry) => entry.id === request.adjustmentId)
+    if (existing === undefined) {
+      throw new ApiError(404, "NOT_FOUND", "삭제할 가·감점 내역을 찾을 수 없습니다.")
+    }
+    requireUnlockedCycle(snapshot, existing.cycleId)
+    return {
+      ...snapshot,
+      scoreAdjustments: snapshot.scoreAdjustments.filter((entry) => entry.id !== existing.id),
+      auditEvents: [...snapshot.auditEvents, {
+        id: crypto.randomUUID(), cycleId: existing.cycleId, type: "score_adjustment_deleted",
+        actorId: profile.auth_user_id, actorRole: profile.role, targetId: existing.id,
+        reason: existing.reason, createdAt: new Date().toISOString(),
+      }],
+    }
+  }
+
+  requireUnlockedCycle(snapshot, request.adjustment.cycleId)
+  if (!snapshot.engineers.some((entry) => entry.id === request.adjustment.engineerId)) {
+    throw new ApiError(404, "NOT_FOUND", "평가 대상을 찾을 수 없습니다.")
+  }
+  const existing = request.adjustment.adjustmentId === null
+    ? undefined
+    : snapshot.scoreAdjustments.find((entry) => entry.id === request.adjustment.adjustmentId)
+  if (request.adjustment.adjustmentId !== null && existing === undefined) {
+    throw new ApiError(404, "NOT_FOUND", "수정할 가·감점 내역을 찾을 수 없습니다.")
+  }
+  if (existing !== undefined && (
+    existing.cycleId !== request.adjustment.cycleId ||
+    existing.engineerId !== request.adjustment.engineerId
+  )) {
+    throw new ApiError(400, "INVALID_INPUT", "가·감점 대상과 평가 시즌이 일치하지 않습니다.")
+  }
+  const now = new Date().toISOString()
+  const adjustment = {
+    id: existing?.id ?? crypto.randomUUID(),
+    cycleId: request.adjustment.cycleId,
+    engineerId: request.adjustment.engineerId,
+    amount: request.adjustment.amount,
+    reason: request.adjustment.reason,
+    createdAt: existing?.createdAt ?? now,
+    updatedAt: now,
+  }
+  return {
+    ...snapshot,
+    scoreAdjustments: existing === undefined
+      ? [...snapshot.scoreAdjustments, adjustment]
+      : snapshot.scoreAdjustments.map((entry) => entry.id === existing.id ? adjustment : entry),
+    auditEvents: [...snapshot.auditEvents, {
+      id: crypto.randomUUID(), cycleId: adjustment.cycleId, type: "score_adjustment_saved",
+      actorId: profile.auth_user_id, actorRole: profile.role, targetId: adjustment.id,
+      reason: adjustment.reason, createdAt: now,
+    }],
   }
 }
 
@@ -95,7 +169,11 @@ export function mutateSource(snapshot: Snapshot, profile: Profile, request: Sour
       cycleId: request.record.cycleId,
       engineerId: request.record.engineerId,
       examName: request.record.examName,
+      languageName: request.record.languageName,
       result: request.record.result,
+      languageGroup: request.record.languageGroup,
+      previousResult: request.record.previousResult,
+      newlyAcquired: request.record.newlyAcquired,
       acquiredOn: request.record.acquiredOn,
       note: request.record.note,
       updatedAt: now,
@@ -113,6 +191,30 @@ export function mutateSource(snapshot: Snapshot, profile: Profile, request: Sour
     const existing = request.record.recordId === null ? undefined : snapshot.certificationRecords.find((entry) => entry.id === request.record.recordId)
     if (request.record.recordId !== null && (existing === undefined || existing.engineerId !== profile.engineer_id)) {
       throw new ApiError(404, "NOT_FOUND", "자격증 기록을 찾을 수 없습니다.")
+    }
+    const configuredNames = new Set(
+      snapshot.directScoreRules
+        .filter((rule) =>
+          rule.cycleId === request.record.cycleId &&
+          rule.kind === "certification" &&
+          rule.field === "certificateName" &&
+          rule.operator === "equals" &&
+          rule.ruleType === "base" &&
+          rule.enabled
+        )
+        .map((rule) => rule.value),
+    )
+    if (!configuredNames.has(request.record.certificateName)) {
+      throw new ApiError(400, "INVALID_INPUT", "현재 평가 시즌의 자격증 평가표에 등록된 자격증만 입력할 수 있습니다.")
+    }
+    const duplicate = snapshot.certificationRecords.some((entry) =>
+      entry.id !== existing?.id &&
+      entry.cycleId === request.record.cycleId &&
+      entry.engineerId === request.record.engineerId &&
+      entry.certificateName === request.record.certificateName
+    )
+    if (duplicate) {
+      throw new ApiError(400, "INVALID_INPUT", "같은 자격증은 한 번만 등록할 수 있습니다.")
     }
     const id = existing?.id ?? crypto.randomUUID()
     const persisted = {

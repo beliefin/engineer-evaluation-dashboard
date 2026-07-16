@@ -6,17 +6,14 @@ const idSchema = z.string().trim().min(1)
 export const usernameSchema = z
   .string()
   .trim()
-  .min(4, "아이디는 4자 이상 입력해 주세요.")
+  .min(2, "아이디는 2자 이상 입력해 주세요.")
   .max(40, "아이디는 40자 이하로 입력해 주세요.")
-  .regex(/^[a-z0-9._-]+$/, "아이디는 영문 소문자, 숫자, 점, 밑줄, 하이픈만 사용할 수 있습니다.")
+  .regex(/^[가-힣a-z0-9._-]+$/, "아이디는 한글, 영문 소문자, 숫자, 점, 밑줄, 하이픈만 사용할 수 있습니다.")
 
 export const passwordSchema = z
   .string()
   .min(8, "비밀번호는 8자 이상 입력해 주세요.")
   .max(64, "비밀번호는 64자 이하로 입력해 주세요.")
-  .regex(/[A-Za-z]/, "비밀번호에 영문자를 포함해 주세요.")
-  .regex(/[0-9]/, "비밀번호에 숫자를 포함해 주세요.")
-  .regex(/[^A-Za-z0-9]/, "비밀번호에 특수문자를 포함해 주세요.")
 
 export const loginInputSchema = z.object({
   username: usernameSchema.transform((value) => value.toLowerCase()),

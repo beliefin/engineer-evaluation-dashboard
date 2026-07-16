@@ -61,7 +61,7 @@ describe("completed ranking sorting", () => {
 
     await user.click(
       within(table).getByRole("button", {
-        name: /^가중 총점, 현재 정렬 안 됨/,
+        name: /^최종 총점, 현재 정렬 안 됨/,
       })
     )
 
@@ -115,7 +115,7 @@ describe("completed ranking sorting", () => {
     )
     const table = within(view.container).getByRole("table")
     // When
-    await user.click(within(table).getByRole("button", { name: /^가중 총점/ }))
+    await user.click(within(table).getByRole("button", { name: /^최종 총점/ }))
 
     // Then
     expect(onSortingChange).toHaveBeenCalledWith({

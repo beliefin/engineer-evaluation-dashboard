@@ -17,16 +17,20 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog"
 import { Label } from "@/components/ui/label"
+import { Input } from "@/components/ui/input"
 import { Textarea } from "@/components/ui/textarea"
 
 import { BulkPreview } from "./bulk-preview"
 import { parseEngineerRoster, parseEvaluatorRoster } from "./parser"
 import { TeamSelect } from "./team-select"
+import { DepartmentSelect } from "./department-select"
 import type {
   EngineerRegistration,
   EvaluatorRegistration,
+  RosterDepartment,
   RosterTeam,
 } from "./types"
+import { defaultRosterDepartment } from "./types"
 
 interface BulkRegistrationDialogProps {
   readonly kind: "engineer" | "evaluator"
@@ -46,12 +50,13 @@ export function BulkRegistrationDialog({
   const [open, setOpen] = useState(false)
   const [text, setText] = useState("")
   const [defaultTeam, setDefaultTeam] = useState<RosterTeam>("생산 1팀")
+  const [defaultDepartment, setDefaultDepartment] = useState<RosterDepartment>("전자약품담당")
   const [submitError, setSubmitError] = useState("")
   const result = useMemo(
     () => kind === "engineer"
-      ? parseEngineerRoster(text, defaultTeam)
-      : parseEvaluatorRoster(text, defaultTeam),
-    [defaultTeam, kind, text],
+      ? parseEngineerRoster(text, defaultTeam, defaultDepartment)
+      : parseEvaluatorRoster(text, defaultTeam, defaultDepartment),
+    [defaultDepartment, defaultTeam, kind, text],
   )
   const isValid = result.rows.length > 0 && result.errors.length === 0
 
@@ -60,6 +65,7 @@ export function BulkRegistrationDialog({
     if (!nextOpen) {
       setText("")
       setDefaultTeam("생산 1팀")
+      setDefaultDepartment("전자약품담당")
       setSubmitError("")
     }
   }
@@ -68,15 +74,15 @@ export function BulkRegistrationDialog({
     event.preventDefault()
     if (!isValid) return
     const succeeded = kind === "engineer"
-      ? onAddEngineers(parseEngineerRoster(text, defaultTeam).rows)
-      : onAddEvaluators(parseEvaluatorRoster(text, defaultTeam).rows)
+      ? onAddEngineers(parseEngineerRoster(text, defaultTeam, defaultDepartment).rows)
+      : onAddEvaluators(parseEvaluatorRoster(text, defaultTeam, defaultDepartment).rows)
     if (succeeded) handleOpenChange(false)
     else setSubmitError("일괄 등록하지 못했습니다. 기존 사번과 중복되는 항목이 있는지 확인하세요.")
   }
 
   const formatDescription = kind === "engineer"
-    ? "사번, 이름, 팀(선택), 직급(선택) 순서로 붙여넣으세요. 탭과 쉼표를 사용할 수 있습니다."
-    : "사번, 이름, 팀(선택) 순서로 붙여넣으세요. 탭과 쉼표를 사용할 수 있습니다."
+    ? "사번, 이름, 팀(선택), 담당(선택), 직급(선택) 순서로 붙여넣으세요."
+    : "사번, 이름, 팀(선택), 담당(선택) 순서로 붙여넣으세요."
 
   return (
     <Dialog onOpenChange={handleOpenChange} open={open}>
@@ -92,13 +98,31 @@ export function BulkRegistrationDialog({
           <DialogDescription>붙여넣은 목록 전체가 유효할 때만 한 번에 등록됩니다.</DialogDescription>
         </DialogHeader>
         <form className="space-y-4" onSubmit={handleSubmit}>
-          <div className="space-y-2">
-            <Label htmlFor={`${id}-default-team`}>팀이 비어 있을 때 적용할 팀</Label>
+          <div className="grid gap-4 sm:grid-cols-3">
+            <div className="space-y-2">
+              <Label htmlFor={`${id}-default-division`}>기본 부문</Label>
+              <Input id={`${id}-default-division`} readOnly value="1부문" />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor={`${id}-default-team`}>기본 팀</Label>
             <TeamSelect
               id={`${id}-default-team`}
-              onValueChange={setDefaultTeam}
+              onValueChange={(team) => {
+                setDefaultTeam(team)
+                setDefaultDepartment(defaultRosterDepartment(team))
+              }}
               value={defaultTeam}
             />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor={`${id}-default-department`}>기본 담당</Label>
+              <DepartmentSelect
+                id={`${id}-default-department`}
+                onValueChange={setDefaultDepartment}
+                team={defaultTeam}
+                value={defaultDepartment}
+              />
+            </div>
           </div>
           <div className="space-y-2">
             <Label htmlFor={`${id}-bulk-list`}>{label} 목록</Label>
@@ -112,8 +136,8 @@ export function BulkRegistrationDialog({
                 setSubmitError("")
               }}
               placeholder={kind === "engineer"
-                ? "E-001, 김하늘, 생산 1팀, 엔지니어"
-                : "V-001, 이서준, 생산 1팀"}
+                ? "E-001, 김하늘, 생산 1팀, 전자약품담당, 엔지니어"
+                : "V-001, 이서준, 생산 1팀, 전자약품담당"}
               value={text}
             />
             <p className="text-xs text-muted-foreground" id={`${id}-format`}>{formatDescription}</p>

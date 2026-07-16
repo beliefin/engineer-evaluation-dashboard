@@ -122,7 +122,7 @@ export function selectAnalysisViewModel(
     teamComparison: selectTeamComparison(snapshot, cycleId, normalized),
     evaluatorDeviations,
     teamComparisonCategoryLabel:
-      category === null ? "최종 가중 총점" : categoryLabel(snapshot, category),
+      category === null ? "가·감점 반영 최종 총점" : categoryLabel(snapshot, category),
     evaluatorDeviationDomainMax: Math.max(
       20,
       Math.ceil(

@@ -34,7 +34,9 @@ describe("LocalStorageEvaluationRepository roster registration", () => {
         {
           employeeCode: "NEW-001",
           displayName: "신규 엔지니어",
+          division: "1부문",
           team: "생산 1팀",
+          department: "전자약품담당",
           position: "엔지니어",
         },
       ],
@@ -91,13 +93,17 @@ describe("LocalStorageEvaluationRepository roster registration", () => {
           {
             employeeCode: "BATCH-001",
             displayName: "첫 번째",
+            division: "1부문",
             team: "생산 1팀",
+            department: "전자약품담당",
             position: "엔지니어",
           },
           {
             employeeCode: "batch-001",
             displayName: "두 번째",
+            division: "1부문",
             team: "생산 2팀",
+            department: "염화메탄담당",
             position: "엔지니어",
           },
         ],
@@ -123,7 +129,9 @@ describe("LocalStorageEvaluationRepository roster registration", () => {
           {
             employeeCode: "NEW-APPROVER",
             displayName: "승인자 등록 시도",
+            division: "1부문",
             team: "생산 1팀",
+            department: "전자약품담당",
             position: "엔지니어",
           },
         ],
@@ -148,7 +156,9 @@ describe("LocalStorageEvaluationRepository roster registration", () => {
           {
             employeeCode,
             displayName: "중복 엔지니어",
+            division: "1부문",
             team: "생산 1팀",
+            department: "전자약품담당",
             position: "엔지니어",
           },
         ],
@@ -174,7 +184,9 @@ describe("LocalStorageEvaluationRepository roster registration", () => {
         {
           employeeCode: "EVAL-NEW-01",
           displayName: "신규 평가자",
+          division: "1부문",
           team: "생산 2팀",
+          department: "염화메탄담당",
         },
       ],
       actor: OPERATOR,
@@ -204,8 +216,20 @@ describe("LocalStorageEvaluationRepository roster registration", () => {
       repository.addEvaluators({
         cycleId: "cycle-2026-h1",
         evaluators: [
-          { employeeCode: "VALID-NEW", displayName: "정상", team: "생산 1팀" },
-          { employeeCode, displayName: "중복", team: "생산 2팀" },
+          {
+            employeeCode: "VALID-NEW",
+            displayName: "정상",
+            division: "1부문",
+            team: "생산 1팀",
+            department: "전자약품담당",
+          },
+          {
+            employeeCode,
+            displayName: "중복",
+            division: "1부문",
+            team: "생산 2팀",
+            department: "염화메탄담당",
+          },
         ],
         actor: OPERATOR,
       })
@@ -227,7 +251,9 @@ describe("LocalStorageEvaluationRepository roster registration", () => {
         {
           employeeCode: "RESTORE-001",
           displayName: "복원 대상",
+          division: "1부문",
           team: "생산 2팀",
+          department: "염화메탄담당",
           position: "선임 엔지니어",
         },
       ],

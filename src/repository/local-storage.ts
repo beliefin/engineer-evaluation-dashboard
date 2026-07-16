@@ -29,6 +29,7 @@ import {
   verifySourceRecordAction,
 } from "./source-record-actions"
 import { reopenSheetAction, saveDraftAction, submitSheetAction } from "./sheet-actions"
+import { deleteScoreAdjustmentAction, saveScoreAdjustmentAction } from "./score-adjustment-actions"
 import {
   deleteEvaluationTaskAction,
   saveEvaluationTaskAction,
@@ -40,6 +41,7 @@ export {
   OLDEST_LOCAL_STORAGE_KEY,
   PREVIOUS_LOCAL_STORAGE_KEY,
   VERSION_FOUR_LOCAL_STORAGE_KEY,
+  VERSION_FIVE_LOCAL_STORAGE_KEY,
 } from "./storage-keys"
 import type {
   AddEngineersInput,
@@ -50,6 +52,7 @@ import type {
   DeleteEngineerInput,
   DeleteEvaluatorInput,
   DeleteScheduleEventInput,
+  DeleteScoreAdjustmentInput,
   DeleteEvaluationTaskInput,
   DeleteEvaluationCycleInput,
   DeleteDirectScoreRuleInput,
@@ -59,6 +62,7 @@ import type {
   SaveDraftInput,
   SaveCertificationRecordInput,
   SaveLanguageScoreRecordInput,
+  SaveScoreAdjustmentInput,
   SaveEvaluationTaskInput,
   SaveDirectScoreRuleInput,
   SetEvaluationCycleLockInput,
@@ -99,6 +103,14 @@ class LocalStorageEvaluationRepository implements EvaluationRepository {
 
   updateDirectScore(input: UpdateDirectScoreInput): EvaluationSnapshot {
     return this.persist(updateDirectScoreAction(this.context(), input))
+  }
+
+  saveScoreAdjustment(input: SaveScoreAdjustmentInput): EvaluationSnapshot {
+    return this.persist(saveScoreAdjustmentAction(this.context(), input))
+  }
+
+  deleteScoreAdjustment(input: DeleteScoreAdjustmentInput): EvaluationSnapshot {
+    return this.persist(deleteScoreAdjustmentAction(this.context(), input))
   }
 
   saveLanguageScoreRecord(input: SaveLanguageScoreRecordInput): EvaluationSnapshot {

@@ -21,10 +21,15 @@ export function EngineerPortal({
       <EngineerDetail model={model.detail} role="engineer" />
       <PersonalSourceRecordEditor
         certificationRecords={model.certificationRecords}
+        certificationOptions={model.certificationOptions ?? []}
+        certificationScore={model.certificationScore}
+        cycleStartsAt={model.cycleStartsAt}
         disabled={disabled}
         engineerId={model.detail.engineer.id}
         engineerName={model.detail.engineer.displayName}
         languageRecords={model.languageRecords}
+        languageOptions={model.languageOptions ?? []}
+        languageScore={model.languageScore}
         onDeleteCertificationRecord={onDeleteCertificationRecord}
         onDeleteLanguageRecord={onDeleteLanguageRecord}
         onSaveCertificationRecord={onSaveCertificationRecord}

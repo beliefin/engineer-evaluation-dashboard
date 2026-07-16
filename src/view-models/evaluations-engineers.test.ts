@@ -113,4 +113,30 @@ describe("engineer detail role boundary", () => {
     expect(zeroProposal?.rawScore).toBe(0)
     expect(completed?.result.status).toBe("complete")
   })
+
+  it("shows the weighted base score and operator adjustment breakdown", () => {
+    const snapshot = createSeedSnapshot()
+    const before = selectEngineerDetail(snapshot, CYCLE_ID, "engineer-01", "operator")
+    if (before?.result.status !== "complete") throw new RangeError("complete fixture missing")
+    const adjusted = selectEngineerDetail({
+      ...snapshot,
+      scoreAdjustments: [{
+        id: "adjustment-1",
+        cycleId: CYCLE_ID,
+        engineerId: "engineer-01",
+        amount: 3,
+        reason: "우수 발표 가점",
+        createdAt: "2026-07-16T00:00:00.000Z",
+        updatedAt: "2026-07-16T00:00:00.000Z",
+      }],
+    }, CYCLE_ID, "engineer-01", "operator")
+    if (adjusted?.result.status !== "complete") throw new RangeError("adjusted fixture missing")
+
+    expect(adjusted.result.baseScore).toBe(before.result.finalScore)
+    expect(adjusted.result.adjustmentTotal).toBe(3)
+    expect(adjusted.result.finalScore).toBe(Math.min(100, before.result.finalScore + 3))
+    expect(adjusted.result.adjustments).toEqual([
+      expect.objectContaining({ amount: 3, reason: "우수 발표 가점" }),
+    ])
+  })
 })
