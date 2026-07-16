@@ -34,7 +34,9 @@ function makeViewModel(
     autosaveStatus: "saved",
     lastSavedAtLabel: "오후 2:31",
     submittedAtLabel: locked ? "2026. 7. 14. 오후 2:40" : null,
+    submitted: locked,
     locked,
+    unlockRequestPending: false,
   }
 }
 
@@ -129,6 +131,7 @@ describe("EvaluationScoreForm", () => {
         onPassResultChange={onPassResultChange}
         onSave={vi.fn()}
         onSubmit={onSubmit}
+        onRequestUnlock={vi.fn()}
       />,
     )
 
@@ -150,6 +153,7 @@ describe("EvaluationScoreForm", () => {
         onPassResultChange={vi.fn()}
         onSave={vi.fn()}
         onSubmit={onSubmit}
+        onRequestUnlock={vi.fn()}
       />
     )
 
@@ -171,6 +175,7 @@ describe("EvaluationScoreForm", () => {
         onPassResultChange={vi.fn()}
         onSave={vi.fn()}
         onSubmit={onSubmit}
+        onRequestUnlock={vi.fn()}
       />
     )
 
@@ -187,6 +192,7 @@ describe("EvaluationScoreForm", () => {
         onPassResultChange={vi.fn()}
         onSave={vi.fn()}
         onSubmit={vi.fn()}
+        onRequestUnlock={vi.fn()}
       />
     )
 
@@ -201,6 +207,32 @@ describe("EvaluationScoreForm", () => {
     expect(screen.getByRole("button", { name: "제출 및 잠금" })).toBeDisabled()
   })
 
+  it("평가자가 제출 후 수정 사유를 적어 잠금 해제를 요청한다", async () => {
+    const user = userEvent.setup()
+    const onRequestUnlock = vi.fn()
+    render(
+      <EvaluationScoreForm
+        viewModel={makeViewModel([10, 9, 8, 7, 6, 5, 4, 3, 2, 1], true)}
+        onScoreChange={vi.fn()}
+        onPassResultChange={vi.fn()}
+        onSave={vi.fn()}
+        onSubmit={vi.fn()}
+        onRequestUnlock={onRequestUnlock}
+      />,
+    )
+
+    await user.click(screen.getByRole("button", { name: "잠금 해제 요청" }))
+    const dialog = screen.getByRole("dialog", { name: "평가 잠금 해제 요청" })
+    await user.type(
+      screen.getByRole("textbox", { name: "수정 요청 사유" }),
+      "평가 항목 3 점수 오입력",
+    )
+    await user.click(screen.getByRole("button", { name: "요청 보내기" }))
+
+    expect(onRequestUnlock).toHaveBeenCalledWith("평가 항목 3 점수 오입력")
+    expect(dialog).not.toBeInTheDocument()
+  })
+
   it("운영자 대리 입력임을 평가자 이름과 함께 명확히 알린다", () => {
     render(
       <EvaluationScoreForm
@@ -212,12 +244,13 @@ describe("EvaluationScoreForm", () => {
         onPassResultChange={vi.fn()}
         onSave={vi.fn()}
         onSubmit={vi.fn()}
+        onRequestUnlock={vi.fn()}
       />,
     )
 
     expect(screen.getByText("운영자 대리 입력 · 박평가")).toBeInTheDocument()
     expect(
-      screen.getByText(/평가자 가중치와 다른 평가자 점수는 표시하지 않습니다/),
+      screen.getByText(/운영자 입력은 저장 후에도 잠기지 않아 계속 수정할 수 있습니다/),
     ).toBeInTheDocument()
   })
 })

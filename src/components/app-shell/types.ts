@@ -23,6 +23,7 @@ export interface AppShellEvaluatorOption {
 export interface AppShellProps {
   readonly children: ReactNode
   readonly role: AppShellRole
+  readonly availableRoles: readonly AppShellRole[]
   readonly cycles: readonly AppShellCycleOption[]
   readonly evaluatorOptions: readonly AppShellEvaluatorOption[]
   readonly activeCycleId: string
@@ -31,6 +32,7 @@ export interface AppShellProps {
   readonly onCycleChange: (cycleId: string) => void
   readonly onEvaluatorChange: (evaluatorId: string) => void
   readonly onLogout: () => void
+  readonly onRoleChange: (role: AppShellRole) => void
   readonly actorLabel?: string | undefined
 }
 
@@ -43,7 +45,7 @@ export const APP_SHELL_ROLE_LABELS: Readonly<Record<AppShellRole, string>> = {
 
 export const APP_SHELL_HOME_PATHS: Readonly<Record<AppShellRole, string>> = {
   operator: "/dashboard",
-  evaluator: "/evaluations",
+  evaluator: "/today",
   approver: "/dashboard",
   engineer: "/my",
 }

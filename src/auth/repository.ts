@@ -32,6 +32,7 @@ function publicAccount(account: AuthAccountRecord): AuthAccount {
     username: account.username,
     displayName: account.displayName,
     role: account.role,
+    roles: account.roles,
     evaluatorId: account.evaluatorId,
     engineerId: account.engineerId,
     active: account.active,
@@ -111,10 +112,10 @@ class LocalStorageAuthRepository implements AuthRepository {
     const snapshot = await this.loadSnapshot()
     const actor = this.requireOperator(snapshot)
     const target = this.findAccount(snapshot, input.accountId)
-    if (target.id === actor.id && (!input.active || input.role !== "operator")) {
+    if (target.id === actor.id && (!input.active || !input.roles.includes("operator"))) {
       throw new AuthError("SELF_LOCKOUT", "현재 로그인한 운영자 계정은 잠글 수 없습니다.")
     }
-    this.requireRemainingOperator(snapshot, target, input.role, input.active)
+    this.requireRemainingOperator(snapshot, target, input.roles, input.active)
     const accounts = snapshot.accounts.map((entry) => entry.id === target.id
       ? { ...entry, ...input, updatedAt: this.config.now() }
       : entry)
@@ -146,7 +147,7 @@ class LocalStorageAuthRepository implements AuthRepository {
     if (target.id === actor.id) {
       throw new AuthError("SELF_LOCKOUT", "현재 로그인한 운영자 계정은 삭제할 수 없습니다.")
     }
-    this.requireRemainingOperator(snapshot, target, "approver", false)
+    this.requireRemainingOperator(snapshot, target, ["approver"], false)
     return this.persist({
       ...snapshot,
       accounts: snapshot.accounts.filter((entry) => entry.id !== target.id),
@@ -174,7 +175,7 @@ class LocalStorageAuthRepository implements AuthRepository {
   private requireOperator(snapshot: AuthSnapshot): AuthAccountRecord {
     const session = this.readSession()
     const actor = snapshot.accounts.find((entry) => entry.id === session?.accountId)
-    if (actor === undefined || !actor.active || actor.role !== "operator") {
+    if (actor === undefined || !actor.active || !actor.roles.includes("operator")) {
       throw new AuthError("FORBIDDEN", "운영자 권한이 필요합니다.")
     }
     return actor
@@ -189,12 +190,13 @@ class LocalStorageAuthRepository implements AuthRepository {
   private requireRemainingOperator(
     snapshot: AuthSnapshot,
     target: AuthAccountRecord,
-    nextRole: AuthAccountRecord["role"],
+    nextRoles: ReadonlyArray<AuthAccountRecord["role"]>,
     nextActive: boolean,
   ): void {
-    const removesOperator = target.role === "operator" && target.active &&
-      (nextRole !== "operator" || !nextActive)
-    const activeOperators = snapshot.accounts.filter((entry) => entry.role === "operator" && entry.active)
+    const removesOperator = target.roles.includes("operator") && target.active &&
+      (!nextRoles.includes("operator") || !nextActive)
+    const activeOperators = snapshot.accounts.filter((entry) =>
+      entry.roles.includes("operator") && entry.active)
     if (removesOperator && activeOperators.length === 1) {
       throw new AuthError("LAST_OPERATOR", "마지막 활성 운영자 계정은 제거할 수 없습니다.")
     }

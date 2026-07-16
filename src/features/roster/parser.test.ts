@@ -75,16 +75,16 @@ describe("parseEvaluatorRoster", () => {
     ])
   })
 
-  it("rejects a department that does not belong to the selected team", () => {
+  it("accepts a custom department typed for the selected team", () => {
     const result = parseEvaluatorRoster(
-      "V-003,정민수,생산 1팀,ECH1담당",
+      "V-003,정민수,생산 1팀,신공정지원담당",
       "생산 1팀",
       "전자약품담당",
     )
 
-    expect(result.rows).toEqual([])
-    expect(result.errors).toEqual([
-      { line: 1, message: "생산 1팀 담당은 전자약품담당, 메틸아민담당, 케미칼운영담당 중 하나여야 합니다." },
+    expect(result.errors).toEqual([])
+    expect(result.rows).toEqual([
+      expect.objectContaining({ team: "생산 1팀", department: "신공정지원담당" }),
     ])
   })
 })

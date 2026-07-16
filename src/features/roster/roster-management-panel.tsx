@@ -4,11 +4,12 @@ import { Badge } from "@/components/ui/badge"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 
 import { RosterSection } from "./roster-section"
-import type { RosterManagementPanelProps } from "./types"
+import { rosterDepartmentsForTeam, type RosterManagementPanelProps } from "./types"
 
 export function RosterManagementPanel({
   engineers,
   evaluators,
+  departmentCatalog = [],
   disabled = false,
   onAddEngineers,
   onUpdateEngineer,
@@ -19,6 +20,18 @@ export function RosterManagementPanel({
   linkedEngineerIds = [],
   linkedEvaluatorIds = [],
 }: RosterManagementPanelProps) {
+  const rosterRows = [...engineers, ...evaluators]
+  const departmentOptions = {
+    "생산 1팀": rosterDepartmentsForTeam("생산 1팀", [
+      ...departmentCatalog.filter((entry) => entry.team === "생산 1팀").map((entry) => entry.name),
+      ...rosterRows.filter((row) => row.team === "생산 1팀").map((row) => row.department),
+    ]),
+    "생산 2팀": rosterDepartmentsForTeam("생산 2팀", [
+      ...departmentCatalog.filter((entry) => entry.team === "생산 2팀").map((entry) => entry.name),
+      ...rosterRows.filter((row) => row.team === "생산 2팀").map((row) => row.department),
+    ]),
+  } as const
+
   return (
     <section
       aria-labelledby="roster-management-title"
@@ -45,6 +58,7 @@ export function RosterManagementPanel({
           </TabsList>
           <TabsContent value="engineer">
             <RosterSection
+              departmentOptions={departmentOptions}
               disabled={disabled}
               kind="engineer"
               onAddEngineers={onAddEngineers}
@@ -60,6 +74,7 @@ export function RosterManagementPanel({
           </TabsContent>
           <TabsContent value="evaluator">
             <RosterSection
+              departmentOptions={departmentOptions}
               disabled={disabled}
               kind="evaluator"
               onAddEngineers={onAddEngineers}

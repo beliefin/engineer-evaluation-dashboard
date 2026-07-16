@@ -13,17 +13,14 @@ function sheetValue(task: Task, sheet: ScoreSheet): number | null {
 }
 
 function aggregateEvaluatorScore(snapshot: Snapshot, task: Task, engineerId: string): number | null {
-  const totalWeight = task.evaluatorWeights.reduce((total, entry) => total + entry.weight, 0)
-  if (task.evaluatorWeights.length === 0 || totalWeight <= 0) return null
-  const values = task.evaluatorWeights.map((definition) => {
-    const assignment = snapshot.assignments.find((entry) =>
-      entry.taskId === task.id && entry.engineerId === engineerId &&
-      entry.evaluatorId === definition.evaluatorId)
-    const sheet = assignment === undefined
-      ? undefined
-      : snapshot.scoreSheets.find((entry) => entry.assignmentId === assignment.id)
+  const assignments = snapshot.assignments.filter((entry) =>
+    entry.taskId === task.id && entry.engineerId === engineerId)
+  const totalWeight = assignments.reduce((total, entry) => total + entry.weight, 0)
+  if (assignments.length === 0 || totalWeight <= 0) return null
+  const values = assignments.map((assignment) => {
+    const sheet = snapshot.scoreSheets.find((entry) => entry.assignmentId === assignment.id)
     const score = sheet === undefined ? null : sheetValue(task, sheet)
-    return { score, weight: definition.weight }
+    return { score, weight: assignment.weight }
   })
   if (values.some((entry) => entry.score === null)) return null
   return values.reduce((total, entry) => total + (entry.score ?? 0) * entry.weight / totalWeight, 0)
@@ -33,8 +30,8 @@ function aggregateProjection(snapshot: Snapshot, engineerIds: ReadonlySet<string
   const evaluatorTasks = snapshot.tasks.filter((task) =>
     task.method === "evaluator_score" || task.method === "evaluator_pass_fail")
   const tasks = snapshot.tasks.map((task) => evaluatorTasks.some((entry) => entry.id === task.id)
-    ? { ...task, method: "operator_score" as const, items: [], evaluatorWeights: [] }
-    : { ...task, evaluatorWeights: [] })
+    ? { ...task, method: "operator_score" as const, items: [] }
+    : task)
   const preserved = snapshot.directScores.filter((score) => engineerIds.has(score.engineerId))
   const aggregated: DirectScore[] = []
   const now = new Date().toISOString()
@@ -57,6 +54,7 @@ function aggregateProjection(snapshot: Snapshot, engineerIds: ReadonlySet<string
     evaluators: [],
     assignments: [],
     scoreSheets: [],
+    unlockRequests: [],
     directScores: [...preserved, ...aggregated],
     scoreAdjustments: snapshot.scoreAdjustments.filter((entry) => engineerIds.has(entry.engineerId)),
     auditEvents: [],
@@ -68,23 +66,26 @@ function evaluatorProjection(snapshot: Snapshot, evaluatorId: string): Snapshot 
   const assignmentIds = new Set(assignments.map((entry) => entry.id))
   const engineerIds = new Set(assignments.map((entry) => entry.engineerId))
   const taskIds = new Set(assignments.map((entry) => entry.taskId))
+  const scheduleKeys = new Set(assignments.map((entry) => `${entry.cycleId}:${entry.engineerId}:${entry.taskId}`))
   return {
     ...snapshot,
-    tasks: snapshot.tasks.filter((task) => taskIds.has(task.id)).map((task) => ({
-      ...task,
-      evaluatorWeights: [],
-    })),
+    tasks: snapshot.tasks.filter((task) => taskIds.has(task.id)),
     engineerTaskWeights: snapshot.engineerTaskWeights.filter((entry) =>
       engineerIds.has(entry.engineerId) && taskIds.has(entry.taskId)),
     engineers: snapshot.engineers.filter((entry) => engineerIds.has(entry.id)),
     evaluators: snapshot.evaluators.filter((entry) => entry.id === evaluatorId),
     assignments,
     scoreSheets: snapshot.scoreSheets.filter((entry) => assignmentIds.has(entry.assignmentId)),
+    unlockRequests: snapshot.unlockRequests.filter((entry) =>
+      entry.evaluatorId === evaluatorId && assignmentIds.has(
+        snapshot.scoreSheets.find((sheet) => sheet.id === entry.sheetId)?.assignmentId ?? "",
+      )),
     directScores: [],
     scoreAdjustments: [],
     languageScoreRecords: [],
     certificationRecords: [],
-    scheduleEvents: [],
+    scheduleEvents: snapshot.scheduleEvents.filter((entry) =>
+      entry.taskId !== null && scheduleKeys.has(`${entry.cycleId}:${entry.engineerId}:${entry.taskId}`)),
     auditEvents: [],
   }
 }

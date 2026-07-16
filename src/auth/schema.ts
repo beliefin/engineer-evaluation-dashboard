@@ -3,6 +3,15 @@ import { z } from "zod"
 import { roleSchema } from "@/domain"
 
 const idSchema = z.string().trim().min(1)
+export const accountRolesSchema = z.array(roleSchema).min(1).max(2).superRefine((roles, context) => {
+  const dualRole = roles.length === 2 && roles[0] === "evaluator" && roles[1] === "engineer"
+  if (roles.length > 1 && !dualRole) {
+    context.addIssue({
+      code: "custom",
+      message: "복합 역할은 평가자와 엔지니어 조합만 사용할 수 있습니다.",
+    })
+  }
+})
 export const usernameSchema = z
   .string()
   .trim()
@@ -23,32 +32,42 @@ export const loginInputSchema = z.object({
 const accountFieldsSchema = z.object({
   displayName: z.string().trim().min(2, "표시 이름은 2자 이상 입력해 주세요.").max(50),
   role: roleSchema,
+  roles: accountRolesSchema,
   evaluatorId: idSchema.nullable(),
   engineerId: idSchema.nullable(),
   active: z.boolean(),
 }).superRefine((account, context) => {
-  if (account.role === "evaluator" && account.evaluatorId === null) {
+  if (account.role !== account.roles[0]) {
+    context.addIssue({
+      code: "custom",
+      message: "기본 역할과 권한 구성이 일치하지 않습니다.",
+      path: ["roles"],
+    })
+  }
+  const evaluatorRole = account.roles.includes("evaluator")
+  const engineerRole = account.roles.includes("engineer")
+  if (evaluatorRole && account.evaluatorId === null) {
     context.addIssue({
       code: "custom",
       message: "평가자 역할은 등록된 평가자와 연결해야 합니다.",
       path: ["evaluatorId"],
     })
   }
-  if (account.role !== "evaluator" && account.evaluatorId !== null) {
+  if (!evaluatorRole && account.evaluatorId !== null) {
     context.addIssue({
       code: "custom",
       message: "평가자 역할만 평가자 연결을 사용할 수 있습니다.",
       path: ["evaluatorId"],
     })
   }
-  if (account.role === "engineer" && account.engineerId === null) {
+  if (engineerRole && account.engineerId === null) {
     context.addIssue({
       code: "custom",
       message: "엔지니어 역할은 등록된 엔지니어와 연결해야 합니다.",
       path: ["engineerId"],
     })
   }
-  if (account.role !== "engineer" && account.engineerId !== null) {
+  if (!engineerRole && account.engineerId !== null) {
     context.addIssue({
       code: "custom",
       message: "엔지니어 역할만 엔지니어 연결을 사용할 수 있습니다.",
@@ -62,6 +81,7 @@ export const createAccountInputSchema = z.object({
   password: passwordSchema,
   displayName: z.string(),
   role: roleSchema,
+  roles: accountRolesSchema,
   evaluatorId: idSchema.nullable(),
   engineerId: idSchema.nullable(),
   active: z.boolean(),
@@ -78,6 +98,7 @@ export const authAccountRecordSchema = z.object({
   username: usernameSchema,
   displayName: z.string().trim().min(1),
   role: roleSchema,
+  roles: accountRolesSchema.optional(),
   evaluatorId: idSchema.nullable(),
   engineerId: idSchema.nullable().default(null),
   active: z.boolean(),
@@ -85,7 +106,10 @@ export const authAccountRecordSchema = z.object({
   updatedAt: z.string().trim().min(1),
   passwordSalt: idSchema,
   passwordHash: idSchema,
-})
+}).transform((account) => ({
+  ...account,
+  roles: account.roles ?? [account.role],
+}))
 
 export const authSnapshotSchema = z.object({
   schemaVersion: z.literal(1),

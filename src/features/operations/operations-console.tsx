@@ -9,6 +9,7 @@ import { DirectScoreEditor } from "./direct-score-editor"
 import { DirectScoreSourceEditor } from "./direct-score-source-editor"
 import { DirectScoreRulePanel } from "./direct-score-rule-panel"
 import { EvaluationTaskPanel } from "./evaluation-task-panel"
+import { EvaluatorAssignmentPanel } from "./evaluator-assignment-panel"
 import { EngineerTaskWeightPanel } from "./engineer-task-weight-panel"
 import { ResetDemoPanel } from "./reset-demo-panel"
 import { ReopenSheetPanel } from "./reopen-sheet-panel"
@@ -25,6 +26,7 @@ export function OperationsConsole({
   onDeleteCycle,
   onSaveTask,
   onDeleteTask,
+  onUpdateEvaluatorAssignments,
   onEngineerTaskWeightsChange,
   onDirectScoreChange,
   onSaveScoreAdjustment,
@@ -75,6 +77,7 @@ export function OperationsConsole({
             value === "roster" ||
             value === "season" ||
             value === "tasks" ||
+            value === "assignments" ||
             value === "weights" ||
             value === "scores" ||
             value === "scoreTables" ||
@@ -87,11 +90,12 @@ export function OperationsConsole({
         }}
         value={activeTab}
       >
-        <div className="-mx-1 px-1 sm:mx-0 sm:overflow-x-auto sm:px-0">
+        <div className="-mx-1 px-1 sm:mx-0 sm:overflow-x-auto sm:px-0 sm:[scrollbar-width:none] sm:[&::-webkit-scrollbar]:hidden">
           <TabsList className="grid w-full grid-cols-3 gap-x-1 gap-y-3 group-data-horizontal/tabs:!h-auto sm:inline-flex sm:w-fit sm:min-w-max sm:justify-start sm:gap-1 sm:group-data-horizontal/tabs:!h-10" variant="line">
             <TabsTrigger value="roster">명단 등록</TabsTrigger>
             <TabsTrigger value="season">평가 시즌</TabsTrigger>
             <TabsTrigger value="tasks">과제 구성</TabsTrigger>
+            <TabsTrigger value="assignments">평가자 배정</TabsTrigger>
             <TabsTrigger value="weights">개인별 가중치</TabsTrigger>
             <TabsTrigger value="scores">자격, 어학 입력</TabsTrigger>
             <TabsTrigger value="scoreTables">자격·어학 평가표</TabsTrigger>
@@ -102,6 +106,7 @@ export function OperationsConsole({
         </div>
         <TabsContent value="roster">
           <RosterManagementPanel
+            departmentCatalog={viewModel.departmentCatalog ?? []}
             disabled={disabled || viewModel.cycleLocked}
             engineers={viewModel.rosterEngineers}
             evaluators={viewModel.rosterEvaluators}
@@ -134,11 +139,18 @@ export function OperationsConsole({
         <TabsContent value="tasks">
           <EvaluationTaskPanel
             disabled={disabled || viewModel.cycleLocked}
-            evaluators={viewModel.evaluatorOptions}
             onDelete={onDeleteTask}
             onSave={onSaveTask}
             tasks={viewModel.tasks}
             weightTotal={viewModel.weightTotal}
+          />
+        </TabsContent>
+        <TabsContent value="assignments">
+          <EvaluatorAssignmentPanel
+            disabled={disabled || viewModel.cycleLocked}
+            evaluators={viewModel.evaluatorOptions}
+            groups={viewModel.evaluatorAssignments}
+            onSave={onUpdateEvaluatorAssignments}
           />
         </TabsContent>
         <TabsContent value="weights">

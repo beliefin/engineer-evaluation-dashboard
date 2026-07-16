@@ -25,7 +25,7 @@ test("평가자 계정은 본인 평가만 보고 운영자 계정 관리에 접
   await page.goto("/login")
   await loginAs(page, "평가자")
 
-  await expect(page).toHaveURL(/\/evaluations$/)
+  await expect(page).toHaveURL(/\/today$/)
   await expect(page.getByRole("link", { name: /계정 관리/ })).toHaveCount(0)
   await page.goto("/accounts")
   await expect(page.getByRole("heading", { name: "접근 권한이 없습니다" })).toBeVisible()

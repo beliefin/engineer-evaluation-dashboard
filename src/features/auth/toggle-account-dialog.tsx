@@ -41,6 +41,7 @@ export function ToggleAccountDialog({
       accountId: account.id,
       displayName: account.displayName,
       role: account.role,
+      roles: account.roles,
       evaluatorId: account.evaluatorId,
       engineerId: account.engineerId,
       active: nextActive,

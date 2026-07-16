@@ -14,6 +14,7 @@ const VIEW_MODEL = {
   evaluatorOptions: [],
   weightTotal: 0,
   engineerTaskWeights: [],
+  evaluatorAssignments: [],
   directScores: [],
   scoreAdjustments: [],
   rosterEngineers: [],
@@ -46,6 +47,7 @@ describe("OperationsConsole", () => {
         onSaveTask={vi.fn(() => true)}
         onDeleteTask={vi.fn(() => true)}
         onEngineerTaskWeightsChange={vi.fn(() => true)}
+        onUpdateEvaluatorAssignments={vi.fn(() => true)}
         onReopenSheet={vi.fn(() => true)}
         activeTab="unlocks"
         viewModel={VIEW_MODEL}
@@ -54,6 +56,6 @@ describe("OperationsConsole", () => {
 
     expect(screen.getByRole("tab", { name: "평가 잠금 해제" })).toBeInTheDocument()
     expect(screen.getByRole("tab", { name: "자격·어학 평가표" })).toBeInTheDocument()
-    expect(screen.getByText("제출 평가 잠금 해제")).toBeInTheDocument()
+    expect(screen.getByText("평가 잠금 해제 요청")).toBeInTheDocument()
   })
 })

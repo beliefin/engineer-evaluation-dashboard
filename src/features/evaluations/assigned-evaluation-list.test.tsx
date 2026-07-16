@@ -34,6 +34,8 @@ afterAll(() => {
 const assignments: readonly AssignedEvaluationViewModel[] = [
   {
     id: "assignment-01",
+    engineerId: "engineer-01",
+    taskId: "task-growth",
     engineerName: "김하늘",
     teamName: "생산 1팀",
     evaluatorId: "evaluator-01",
@@ -47,6 +49,8 @@ const assignments: readonly AssignedEvaluationViewModel[] = [
   },
   {
     id: "assignment-02",
+    engineerId: "engineer-02",
+    taskId: "task-dx",
     engineerName: "박이든",
     teamName: "생산 2팀",
     evaluatorId: "evaluator-02",

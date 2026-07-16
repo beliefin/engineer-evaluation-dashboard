@@ -18,7 +18,12 @@ function createRepository(storage: MemoryStorage) {
 }
 
 function draftSheetId(): string {
-  const sheet = createSeedSnapshot().scoreSheets.find((candidate) => candidate.status === "draft")
+  const snapshot = createSeedSnapshot()
+  const evaluatorAssignmentIds = new Set(snapshot.assignments
+    .filter((assignment) => assignment.evaluatorId === EVALUATOR.id)
+    .map((assignment) => assignment.id))
+  const sheet = snapshot.scoreSheets.find((candidate) =>
+    candidate.status === "draft" && evaluatorAssignmentIds.has(candidate.assignmentId))
   return sheet?.id ?? "missing-draft-sheet"
 }
 
@@ -97,18 +102,21 @@ describe("LocalStorageEvaluationRepository score sheets", () => {
     expect(storage.storedValue()).toBeNull()
   })
 
-  it("keeps submitted sheets locked until an operator reopens them", () => {
+  it("keeps submitted sheets locked for their evaluator until an operator reopens them", () => {
     // Given
     const storage = new MemoryStorage(JSON.stringify(createSeedSnapshot()))
     const repository = createRepository(storage)
-    const sheet = repository.loadSnapshot().scoreSheets.find(
-      (candidate) => candidate.status === "submitted",
-    )
+    const snapshot = repository.loadSnapshot()
+    const evaluatorAssignmentIds = new Set(snapshot.assignments
+      .filter((assignment) => assignment.evaluatorId === EVALUATOR.id)
+      .map((assignment) => assignment.id))
+    const sheet = snapshot.scoreSheets.find((candidate) =>
+      candidate.status === "submitted" && evaluatorAssignmentIds.has(candidate.assignmentId))
     const sheetId = sheet?.id ?? "missing-submitted-sheet"
 
     // When
     const action = () =>
-      repository.saveDraft({ sheetId, scores: sheet?.scores ?? [], actor: OPERATOR })
+      repository.saveDraft({ sheetId, scores: sheet?.scores ?? [], actor: EVALUATOR })
 
     // Then
     expect(action).toThrowError(expect.objectContaining({ code: "SHEET_LOCKED" }))
@@ -217,6 +225,60 @@ describe("LocalStorageEvaluationRepository score sheets", () => {
     expect(updated.auditEvents.at(-1)).toEqual(
       expect.objectContaining({ actorId: OPERATOR.id, actorRole: "operator" }),
     )
+  })
+
+  it("allows an operator to revise a submitted sheet without reopening it", () => {
+    const repository = createRepository(new MemoryStorage())
+    const snapshot = repository.loadSnapshot()
+    const sheet = snapshot.scoreSheets.find((candidate) => candidate.status === "submitted")
+    if (sheet === undefined) throw new RangeError("submitted sheet missing")
+    const scores = sheet.scores.map((entry, index) => ({
+      ...entry,
+      score: index === 0 ? 10 : entry.score,
+    }))
+
+    const updated = repository.saveDraft({ sheetId: sheet.id, scores, actor: OPERATOR })
+
+    expect(updated.scoreSheets.find((candidate) => candidate.id === sheet.id)).toMatchObject({
+      status: "submitted",
+      scores,
+    })
+  })
+
+  it("records an evaluator unlock request and resolves it when the operator reopens the sheet", () => {
+    const repository = createRepository(new MemoryStorage())
+    const snapshot = repository.loadSnapshot()
+    const sheet = snapshot.scoreSheets.find((candidate) => candidate.status === "submitted")
+    const assignment = snapshot.assignments.find((entry) => entry.id === sheet?.assignmentId)
+    if (sheet === undefined || assignment === undefined) throw new RangeError("submitted assignment missing")
+    const evaluator = { id: assignment.evaluatorId, role: "evaluator" } as const
+
+    const requested = repository.requestSheetUnlock({
+      sheetId: sheet.id,
+      reason: "평가 항목 3 점수 수정",
+      actor: evaluator,
+    })
+    expect(requested.unlockRequests).toContainEqual(expect.objectContaining({
+      sheetId: sheet.id,
+      evaluatorId: assignment.evaluatorId,
+      reason: "평가 항목 3 점수 수정",
+      status: "pending",
+    }))
+    expect(requested.auditEvents.at(-1)).toEqual(expect.objectContaining({
+      type: "sheet_unlock_requested",
+      targetId: sheet.id,
+    }))
+
+    const reopened = repository.reopenSheet({
+      sheetId: sheet.id,
+      reason: "평가자 수정 요청 승인",
+      actor: OPERATOR,
+    })
+    expect(reopened.scoreSheets.find((candidate) => candidate.id === sheet.id)?.status).toBe("draft")
+    expect(reopened.unlockRequests.find((request) => request.sheetId === sheet.id)).toMatchObject({
+      status: "resolved",
+      resolvedAt: FIXED_NOW,
+    })
   })
 
   it("rejects an evaluator submitting another evaluator's complete sheet", () => {

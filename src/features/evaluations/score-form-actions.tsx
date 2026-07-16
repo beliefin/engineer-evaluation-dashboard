@@ -12,6 +12,7 @@ interface ScoreFormActionsProps {
   readonly canSubmit: boolean
   readonly requirementsId: string
   readonly onSave: () => void
+  readonly operatorMode?: boolean
 }
 
 export function ScoreFormActions({
@@ -21,6 +22,7 @@ export function ScoreFormActions({
   canSubmit,
   requirementsId,
   onSave,
+  operatorMode = false,
 }: ScoreFormActionsProps) {
   const saving = autosaveStatus === "saving"
 
@@ -32,7 +34,8 @@ export function ScoreFormActions({
       <div className="flex min-h-5 items-center justify-between md:mr-2 md:justify-end">
         <AutosaveIndicator status={autosaveStatus} lastSavedAtLabel={lastSavedAtLabel} />
       </div>
-      <div className="grid grid-cols-2 gap-2 md:flex">
+      <div className={`grid gap-2 md:flex ${operatorMode ? "grid-cols-1" : "grid-cols-2"}`}>
+        {operatorMode ? null : (
         <Button
           type="button"
           variant="outline"
@@ -43,14 +46,17 @@ export function ScoreFormActions({
           <SaveIcon data-icon="inline-start" aria-hidden="true" />
           임시저장
         </Button>
+        )}
         <Button
           type="submit"
           size="lg"
           disabled={locked || saving || !canSubmit}
           aria-describedby={requirementsId}
         >
-          <LockKeyholeIcon data-icon="inline-start" aria-hidden="true" />
-          제출 및 잠금
+          {operatorMode
+            ? <SaveIcon data-icon="inline-start" aria-hidden="true" />
+            : <LockKeyholeIcon data-icon="inline-start" aria-hidden="true" />}
+          {operatorMode ? "평가 저장" : "제출 및 잠금"}
         </Button>
       </div>
     </div>

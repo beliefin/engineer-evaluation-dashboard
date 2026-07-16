@@ -57,13 +57,14 @@ describe("analysis and operations view models", () => {
     expect(model?.tasks.find((task) => task.taskId === "task-growth-plan")?.locked).toBe(true)
   })
 
-  it("keeps evaluator weights scoped to each task configuration", () => {
+  it("projects evaluator weights from each engineer-specific task assignment", () => {
     const snapshot = createSeedSnapshot()
-    const growth = snapshot.tasks.find((task) => task.id === "task-growth-plan")
-    const dx = snapshot.tasks.find((task) => task.id === "task-dx-tool")
+    const model = selectOperationsViewModel(snapshot, CYCLE_ID)
+    const group = model?.evaluatorAssignments.find((entry) =>
+      entry.taskId === "task-growth-plan" && entry.assignments.length > 0)
 
-    expect(growth?.evaluatorWeights).toHaveLength(5)
-    expect(dx?.evaluatorWeights).toHaveLength(5)
-    expect(growth?.evaluatorWeights.reduce((total, entry) => total + entry.weight, 0)).toBe(100)
+    expect(group).toBeDefined()
+    expect(group?.assignments.every((entry) => entry.weight > 0)).toBe(true)
+    expect(group?.assignments.reduce((total, entry) => total + entry.normalizedRatio, 0)).toBeCloseTo(1)
   })
 })

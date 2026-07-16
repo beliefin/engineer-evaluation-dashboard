@@ -33,10 +33,6 @@ const scoreTask = (
     section: null,
     criteria: [],
   })),
-  evaluatorWeights: [
-    { evaluatorId: "evaluator-a", weight: 3 },
-    { evaluatorId: "evaluator-b", weight: 1 },
-  ],
 })
 
 const assignment = (taskId: string, evaluatorId: string): EvaluatorAssignment => ({
@@ -45,6 +41,7 @@ const assignment = (taskId: string, evaluatorId: string): EvaluatorAssignment =>
   engineerId: "engineer-1",
   evaluatorId,
   taskId,
+  weight: evaluatorId === "evaluator-a" ? 3 : 1,
 })
 
 const sheet = (
@@ -150,7 +147,6 @@ describe("calculateEngineerResult", () => {
       ...scoreTask(id, weight, 0),
       method: "operator_score",
       items: [],
-      evaluatorWeights: [],
     })
     const growth = operatorTask("growth", 35)
     const ots = operatorTask("ots", 35)
@@ -205,7 +201,6 @@ describe("calculateEngineerResult", () => {
       ...scoreTask("language", 40, 0),
       method: "operator_score",
       items: [],
-      evaluatorWeights: [],
     }
     const assignments = [
       assignment(evaluated.id, "evaluator-a"),
@@ -235,7 +230,6 @@ describe("calculateEngineerResult", () => {
       ...scoreTask("language", 90, 0),
       method: "operator_pass_fail",
       items: [],
-      evaluatorWeights: [],
     }
     const result = calculateEngineerResult({
       cycleId: "cycle-1",
@@ -256,7 +250,6 @@ describe("calculateEngineerResult", () => {
       ...scoreTask("language", 100, 0),
       method: "operator_score",
       items: [],
-      evaluatorWeights: [],
     }
 
     const result = calculateEngineerResult({
@@ -298,7 +291,6 @@ describe("calculateEngineerResult", () => {
       ...scoreTask("language", 100, 0),
       method: "operator_score",
       items: [],
-      evaluatorWeights: [],
     }
     const calculate = (score: number, amount: number) => calculateEngineerResult({
       cycleId: "cycle-1",
@@ -327,7 +319,6 @@ describe("calculateEngineerResult", () => {
       ...scoreTask("language", 100, 0),
       method: "operator_score",
       items: [],
-      evaluatorWeights: [],
     }
     const result = calculateEngineerResult({
       cycleId: "cycle-1",

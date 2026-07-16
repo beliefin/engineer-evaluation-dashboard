@@ -11,6 +11,7 @@ import { ScoreFormActions } from "./score-form-actions"
 import { ScoreInputRow } from "./score-input-row"
 import { ScoreSummary } from "./score-summary"
 import type { EvaluationScoreFormProps } from "./types"
+import { UnlockRequestDialog } from "./unlock-request-dialog"
 
 function isValidScore(value: number | null): value is number {
   return value !== null && Number.isInteger(value) && value >= 0 && value <= 10
@@ -22,6 +23,7 @@ export function EvaluationScoreForm({
   onPassResultChange,
   onSave,
   onSubmit,
+  onRequestUnlock,
 }: EvaluationScoreFormProps) {
   const validScores = viewModel.items.filter((item) => isValidScore(item.value))
   const answeredCount = validScores.length
@@ -52,7 +54,7 @@ export function EvaluationScoreForm({
             <div className="flex flex-wrap items-center gap-2">
               <p className="text-xs font-semibold text-primary">{viewModel.cycleLabel}</p>
               <EvaluationStatusBadge
-                status={viewModel.locked ? "submitted" : answeredCount === 0 ? "pending" : "in_progress"}
+                status={viewModel.submitted ? "submitted" : answeredCount === 0 ? "pending" : "in_progress"}
               />
             </div>
             <h1
@@ -72,6 +74,7 @@ export function EvaluationScoreForm({
             canSubmit={canSubmit}
             requirementsId={requirementsId}
             onSave={onSave}
+            operatorMode={viewModel.proxyEntry}
           />
         </header>
 
@@ -81,7 +84,7 @@ export function EvaluationScoreForm({
               <UserRoundCogIcon aria-hidden="true" />
               <AlertTitle>운영자 대리 입력 · {viewModel.evaluatorName}</AlertTitle>
               <AlertDescription className="text-primary/90">
-                이 평가자의 평가지에 대신 점수를 입력합니다. 평가자 가중치와 다른 평가자 점수는 표시하지 않습니다.
+                이 평가자의 평가지에 대신 점수를 입력합니다. 운영자 입력은 저장 후에도 잠기지 않아 계속 수정할 수 있습니다.
               </AlertDescription>
             </Alert>
           </div>
@@ -97,6 +100,12 @@ export function EvaluationScoreForm({
                   ? "현재 버전에서는 제출 후 수정할 수 없습니다."
                   : `${viewModel.submittedAtLabel} 제출 · 수정이 필요하면 운영자에게 잠금 해제를 요청하세요.`}
               </AlertDescription>
+              <div className="mt-3">
+                <UnlockRequestDialog
+                  onRequest={onRequestUnlock}
+                  pending={viewModel.unlockRequestPending}
+                />
+              </div>
             </Alert>
           </div>
         ) : (
@@ -110,12 +119,12 @@ export function EvaluationScoreForm({
 
         {viewModel.method === "evaluator_score" ? (
           <>
-            <ScoreSummary total={total} answeredCount={answeredCount} remainingCount={remainingCount} requirementsId={requirementsId} totalItems={viewModel.items.length} />
+            <ScoreSummary total={total} answeredCount={answeredCount} remainingCount={remainingCount} requirementsId={requirementsId} totalItems={viewModel.items.length} operatorMode={viewModel.proxyEntry} />
             <div aria-label="평가 점수 입력 항목">{viewModel.items.map((item) => <ScoreInputRow key={item.id} assignmentId={viewModel.assignmentId} item={item} locked={viewModel.locked} onChange={(value) => onScoreChange(item.id, value)} />)}</div>
           </>
         ) : (
           <section className="border-b border-border-subtle bg-muted/25 px-4 py-8 md:px-5" aria-labelledby="pass-fail-title">
-            <div className="mx-auto max-w-xl text-center"><h2 className="text-lg font-semibold" id="pass-fail-title">평가 결과 선택</h2><p className="mt-1 text-sm text-muted-foreground" id={requirementsId}>Pass 또는 Fail 중 하나를 선택해야 제출할 수 있습니다.</p><div className="mt-6 grid grid-cols-2 gap-3"><Button aria-pressed={viewModel.passResult === true} className="h-16 text-base" disabled={viewModel.locked} onClick={() => onPassResultChange(true)} type="button" variant={viewModel.passResult === true ? "default" : "outline"}><CheckIcon aria-hidden="true" />Pass</Button><Button aria-pressed={viewModel.passResult === false} className="h-16 text-base" disabled={viewModel.locked} onClick={() => onPassResultChange(false)} type="button" variant={viewModel.passResult === false ? "destructive" : "outline"}><XIcon aria-hidden="true" />Fail</Button></div></div>
+            <div className="mx-auto max-w-xl text-center"><h2 className="text-lg font-semibold" id="pass-fail-title">평가 결과 선택</h2><p className="mt-1 text-sm text-muted-foreground" id={requirementsId}>{viewModel.proxyEntry ? "Pass 또는 Fail 중 하나를 선택하면 평가를 저장할 수 있으며, 저장 후에도 계속 수정할 수 있습니다." : "Pass 또는 Fail 중 하나를 선택해야 제출할 수 있습니다."}</p><div className="mt-6 grid grid-cols-2 gap-3"><Button aria-pressed={viewModel.passResult === true} className="h-16 text-base" disabled={viewModel.locked} onClick={() => onPassResultChange(true)} type="button" variant={viewModel.passResult === true ? "default" : "outline"}><CheckIcon aria-hidden="true" />Pass</Button><Button aria-pressed={viewModel.passResult === false} className="h-16 text-base" disabled={viewModel.locked} onClick={() => onPassResultChange(false)} type="button" variant={viewModel.passResult === false ? "destructive" : "outline"}><XIcon aria-hidden="true" />Fail</Button></div></div>
           </section>
         )}
       </section>

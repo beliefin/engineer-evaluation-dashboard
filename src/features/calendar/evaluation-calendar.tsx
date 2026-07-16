@@ -23,11 +23,13 @@ export function EvaluationCalendar({
   month,
   events,
   engineers,
-  readOnly,
+  tasks,
+  mode,
   onMonthChange,
   onCreate,
   onUpdate,
   onDelete,
+  onOpenEvaluation,
 }: EvaluationCalendarProps) {
   const [creating, setCreating] = useState(false)
   const [editingEvent, setEditingEvent] = useState<CalendarEventView | null>(null)
@@ -37,6 +39,17 @@ export function EvaluationCalendar({
   const agendaEvents = sortCalendarEvents(eventsInMonth(events, month))
   const monthLabel = formatYearMonth(month)
   const canNavigate = grid.length > 0
+  const canManage = mode === "manage"
+
+  function selectEvent(event: CalendarEventView) {
+    if (mode === "manage") {
+      setEditingEvent(event)
+      return
+    }
+    if (mode === "evaluate" && event.assignmentId !== null) {
+      onOpenEvaluation(event.assignmentId)
+    }
+  }
 
   function moveMonth(offset: number) {
     const nextMonth = shiftYearMonth(month, offset)
@@ -62,18 +75,19 @@ export function EvaluationCalendar({
             <h1 className="text-[26px] leading-tight font-bold tracking-[-0.02em]" id="evaluation-calendar-title">
               발표 일정
             </h1>
-            {readOnly ? <Badge variant="secondary">읽기 전용</Badge> : null}
+            {mode === "evaluate" ? <Badge variant="secondary">일정에서 평가 열기</Badge> : null}
+            {mode === "read" ? <Badge variant="secondary">읽기 전용</Badge> : null}
           </div>
           <p className="mt-2 text-sm text-muted-foreground">
             평가 발표일과 장소, 준비사항을 월별로 확인합니다.
           </p>
         </div>
-        {readOnly ? null : (
-          <Button disabled={engineers.length === 0 || !canNavigate} onClick={() => setCreating(true)} type="button">
+        {canManage ? (
+          <Button disabled={engineers.length === 0 || tasks.length === 0 || !canNavigate} onClick={() => setCreating(true)} type="button">
             <Plus aria-hidden="true" />
             일정 추가
           </Button>
-        )}
+        ) : null}
       </header>
 
       <div className="flex items-center justify-between rounded-lg border border-border bg-card p-3">
@@ -108,8 +122,8 @@ export function EvaluationCalendar({
           <MonthGrid
             days={grid}
             events={gridEvents}
-            onSelectEvent={setEditingEvent}
-            readOnly={readOnly}
+            mode={mode}
+            onSelectEvent={selectEvent}
           />
           <aside aria-labelledby="calendar-agenda-title" className="rounded-lg border border-border bg-card p-4 md:p-5">
             <div className="mb-4 flex items-baseline justify-between gap-3">
@@ -118,8 +132,8 @@ export function EvaluationCalendar({
             </div>
             <CalendarAgenda
               events={agendaEvents}
-              onSelectEvent={setEditingEvent}
-              readOnly={readOnly}
+              mode={mode}
+              onSelectEvent={selectEvent}
             />
           </aside>
         </div>
@@ -130,22 +144,24 @@ export function EvaluationCalendar({
         </div>
       )}
 
-      {creating ? (
+      {creating && canManage ? (
         <EventEditorDialog
           engineers={engineers}
           event={null}
           month={month}
+          tasks={tasks}
           onClose={() => setCreating(false)}
           onCreate={onCreate}
           onDeleteRequest={requestDelete}
           onUpdate={onUpdate}
         />
       ) : null}
-      {editingEvent === null ? null : (
+      {editingEvent === null || !canManage ? null : (
         <EventEditorDialog
           engineers={engineers}
           event={editingEvent}
           month={month}
+          tasks={tasks}
           onClose={() => setEditingEvent(null)}
           onCreate={onCreate}
           onDeleteRequest={requestDelete}

@@ -42,16 +42,16 @@ export function ReopenSheetPanel({
 
   return (
     <OperationPanel
-      aside={<Badge variant="outline">{sheets.length}건 잠금</Badge>}
-      description="제출된 평가는 수정 방지를 위해 잠깁니다. 수정이 필요하면 사유를 남기고 잠금을 해제하세요."
-      title="제출 평가 잠금 해제"
+      aside={<Badge variant="outline">요청 {sheets.length}건</Badge>}
+      description="평가자가 보낸 수정 사유를 확인한 뒤 잠금을 해제합니다. 운영자 입력 평가는 처음부터 잠기지 않습니다."
+      title="평가 잠금 해제 요청"
     >
       {sheets.length === 0 ? (
         <div className="flex flex-col items-center py-12 text-center">
           <LockKeyhole className="mb-3 size-7 text-muted-foreground" />
-          <p className="font-medium">잠금을 해제할 제출 평가가 없습니다.</p>
+          <p className="font-medium">대기 중인 잠금 해제 요청이 없습니다.</p>
           <p className="mt-1 text-sm text-muted-foreground">
-            평가자가 제출을 완료하면 여기에 표시됩니다.
+            평가자가 제출 후 수정 요청을 보내면 여기에 표시됩니다.
           </p>
         </div>
       ) : (
@@ -95,8 +95,9 @@ export function ReopenSheetPanel({
                     {sheet.taskLabel ?? sheet.categoryLabel} · {sheet.evaluatorName}
                   </p>
                   <p className="numeric mt-1 text-xs text-muted-foreground">
-                    {sheet.submittedAtLabel}
+                    {sheet.requestedAtLabel} 요청
                   </p>
+                  <p className="mt-2 text-xs text-foreground">{sheet.requestReason}</p>
                 </div>
                 <ReopenSheetDialog
                   disabled={disabled}
@@ -113,7 +114,8 @@ export function ReopenSheetPanel({
                   <TableHead>엔지니어</TableHead>
                   <TableHead>평가 분야</TableHead>
                   <TableHead>평가자</TableHead>
-                  <TableHead>제출 시각</TableHead>
+                  <TableHead>요청 사유</TableHead>
+                  <TableHead>요청 시각</TableHead>
                   <TableHead className="w-24 text-right">관리</TableHead>
                 </TableRow>
               </TableHeader>
@@ -126,7 +128,10 @@ export function ReopenSheetPanel({
                     <TableCell>{sheet.taskLabel ?? sheet.categoryLabel}</TableCell>
                     <TableCell>{sheet.evaluatorName}</TableCell>
                     <TableCell className="numeric text-muted-foreground">
-                      {sheet.submittedAtLabel}
+                      {sheet.requestReason}
+                    </TableCell>
+                    <TableCell className="numeric text-muted-foreground">
+                      {sheet.requestedAtLabel}
                     </TableCell>
                     <TableCell className="text-right">
                       <ReopenSheetDialog

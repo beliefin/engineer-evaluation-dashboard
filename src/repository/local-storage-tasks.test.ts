@@ -57,11 +57,8 @@ describe("LocalStorageEvaluationRepository task configuration", () => {
     })).toThrowError(expect.objectContaining({ code: "INVALID_INPUT" }))
   })
 
-  it("Given an evaluator P/F task When saved Then assignments and blank sheets are synchronized for every engineer", () => {
+  it("Given an evaluator P/F task When saved Then it creates no blanket evaluator obligations", () => {
     const repository = createRepository()
-    const snapshot = repository.loadSnapshot()
-    const evaluatorIds = snapshot.evaluators.slice(0, 2).map((evaluator) => evaluator.id)
-
     const updated = repository.saveEvaluationTask({
       taskId: null,
       cycleId: CYCLE_ID,
@@ -70,10 +67,6 @@ describe("LocalStorageEvaluationRepository task configuration", () => {
       method: "evaluator_pass_fail",
       weight: 5,
       items: [],
-      evaluatorWeights: evaluatorIds.map((evaluatorId, index) => ({
-        evaluatorId,
-        weight: index === 0 ? 2 : 1,
-      })),
       actor: OPERATOR,
     })
     const task = updated.tasks.at(-1)
@@ -83,20 +76,17 @@ describe("LocalStorageEvaluationRepository task configuration", () => {
     const sheets = updated.scoreSheets.filter((entry) => assignmentIds.has(entry.assignmentId))
 
     expect(task).toMatchObject({ name: "현장 안전 발표", method: "evaluator_pass_fail" })
-    expect(assignments).toHaveLength(updated.engineers.length * evaluatorIds.length)
-    expect(sheets).toHaveLength(assignments.length)
-    expect(sheets.every((sheet) =>
-      sheet.status === "draft" && sheet.scores.length === 0 && sheet.passResult === null
-    )).toBe(true)
+    expect(assignments).toHaveLength(0)
+    expect(sheets).toHaveLength(0)
   })
 
-  it("Given a new evaluator score task When evaluator and items change Then draft sheets follow the latest configuration", () => {
+  it("Given an explicitly assigned score task When rubric items change Then the assignment stays scoped and its draft follows", () => {
     const repository = createRepository()
     const snapshot = repository.loadSnapshot()
     const firstEvaluator = snapshot.evaluators[0]
-    const secondEvaluator = snapshot.evaluators[1]
-    if (firstEvaluator === undefined || secondEvaluator === undefined) {
-      throw new RangeError("evaluators missing")
+    const engineer = snapshot.engineers[0]
+    if (firstEvaluator === undefined || engineer === undefined) {
+      throw new RangeError("assignment fixture missing")
     }
     const created = repository.saveEvaluationTask({
       taskId: null,
@@ -114,7 +104,6 @@ describe("LocalStorageEvaluationRepository task configuration", () => {
         },
         { id: null, label: "개선 효과" },
       ],
-      evaluatorWeights: [{ evaluatorId: firstEvaluator.id, weight: 1 }],
       actor: OPERATOR,
     })
     const task = created.tasks.at(-1)
@@ -122,6 +111,13 @@ describe("LocalStorageEvaluationRepository task configuration", () => {
     expect(task.items[0]?.criteria).toEqual([
       { score: 7, description: "문제를 구체적으로 정의함." },
     ])
+    repository.updateEvaluatorAssignments({
+      cycleId: CYCLE_ID,
+      engineerId: engineer.id,
+      taskId: task.id,
+      evaluatorWeights: [{ evaluatorId: firstEvaluator.id, weight: 1 }],
+      actor: OPERATOR,
+    })
 
     const updated = repository.saveEvaluationTask({
       taskId: task.id,
@@ -135,14 +131,14 @@ describe("LocalStorageEvaluationRepository task configuration", () => {
         { id: null, label: "실행 가능성" },
         { id: null, label: "개선 효과" },
       ],
-      evaluatorWeights: [{ evaluatorId: secondEvaluator.id, weight: 1 }],
       actor: OPERATOR,
     })
     const assignments = updated.assignments.filter((entry) => entry.taskId === task.id)
     const assignmentIds = new Set(assignments.map((entry) => entry.id))
     const sheets = updated.scoreSheets.filter((entry) => assignmentIds.has(entry.assignmentId))
 
-    expect(new Set(assignments.map((entry) => entry.evaluatorId))).toEqual(new Set([secondEvaluator.id]))
+    expect(assignments).toHaveLength(1)
+    expect(assignments[0]).toMatchObject({ engineerId: engineer.id, evaluatorId: firstEvaluator.id })
     expect(sheets.every((sheet) => sheet.scores.length === 3)).toBe(true)
   })
 

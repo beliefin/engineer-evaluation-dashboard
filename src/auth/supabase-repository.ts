@@ -18,12 +18,14 @@ import { accountEmailForUsername } from "./account-email"
 const profileSchema = z.object({
   auth_user_id: z.string().uuid(), username: z.string(), display_name: z.string(),
   role: z.enum(["operator", "evaluator", "approver", "engineer"]),
+  roles: z.array(z.enum(["operator", "evaluator", "approver", "engineer"])).min(1),
   evaluator_id: z.string().nullable(), engineer_id: z.string().nullable(), active: z.boolean(),
   created_at: z.string(), updated_at: z.string(),
 })
 const accountSchema = z.object({
   id: z.string().uuid(), username: z.string(), displayName: z.string(),
   role: z.enum(["operator", "evaluator", "approver", "engineer"]),
+  roles: z.array(z.enum(["operator", "evaluator", "approver", "engineer"])).min(1),
   evaluatorId: z.string().nullable(), engineerId: z.string().nullable(), active: z.boolean(),
   createdAt: z.string(), updatedAt: z.string(),
 })
@@ -35,6 +37,7 @@ function publicAccount(profile: z.infer<typeof profileSchema>): AuthAccount {
     username: profile.username,
     displayName: profile.display_name,
     role: profile.role,
+    roles: profile.roles,
     evaluatorId: profile.evaluator_id,
     engineerId: profile.engineer_id,
     active: profile.active,

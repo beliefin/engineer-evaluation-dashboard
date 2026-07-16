@@ -28,6 +28,7 @@ import {
 
 interface MobileMenuProps {
   readonly role: AppShellRole
+  readonly availableRoles: readonly AppShellRole[]
   readonly cycles: readonly AppShellCycleOption[]
   readonly evaluatorOptions: readonly AppShellEvaluatorOption[]
   readonly activeCycleId: string
@@ -35,11 +36,13 @@ interface MobileMenuProps {
   readonly onCycleChange: (cycleId: string) => void
   readonly onEvaluatorChange: (evaluatorId: string) => void
   readonly onLogout: () => void
+  readonly onRoleChange: (role: AppShellRole) => void
   readonly actorLabel?: string | undefined
 }
 
 export function MobileMenu({
   role,
+  availableRoles,
   cycles,
   evaluatorOptions,
   activeCycleId,
@@ -47,6 +50,7 @@ export function MobileMenu({
   onCycleChange,
   onEvaluatorChange,
   onLogout,
+  onRoleChange,
   actorLabel,
 }: MobileMenuProps) {
   const [open, setOpen] = useState(false)
@@ -91,12 +95,17 @@ export function MobileMenu({
         <div className="border-b border-sidebar-border p-4">
           <ShellControls
             activeCycleId={activeCycleId}
+            availableRoles={availableRoles}
             activeEvaluatorId={activeEvaluatorId}
             cycles={cycles}
             evaluatorOptions={evaluatorOptions}
             idPrefix="mobile-shell"
             onCycleChange={onCycleChange}
             onEvaluatorChange={onEvaluatorChange}
+            onRoleChange={(nextRole) => {
+              setOpen(false)
+              onRoleChange(nextRole)
+            }}
             orientation="vertical"
             role={role}
           />

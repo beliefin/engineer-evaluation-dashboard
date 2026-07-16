@@ -91,8 +91,6 @@ describe("LocalStorageEvaluationRepository evaluator lifecycle", () => {
     })
 
     expect(updated.evaluators.some((entry) => entry.id === evaluator.id)).toBe(false)
-    expect(updated.tasks.some((task) =>
-      task.evaluatorWeights.some((entry) => entry.evaluatorId === evaluator.id))).toBe(false)
     expect(updated.assignments.some((entry) => entry.evaluatorId === evaluator.id)).toBe(false)
     expect(updated.scoreSheets.some((sheet) => assignmentIds.has(sheet.assignmentId))).toBe(false)
     expect(updated.auditEvents.at(-1)).toEqual(

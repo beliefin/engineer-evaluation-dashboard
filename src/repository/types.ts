@@ -51,6 +51,7 @@ export type SheetActionInput = Readonly<{
 }>
 
 export type ReopenSheetInput = SheetActionInput & Readonly<{ reason: string }>
+export type RequestSheetUnlockInput = SheetActionInput & Readonly<{ reason: string }>
 
 export type UpdateDirectScoreInput = Readonly<{
   cycleId: string
@@ -182,11 +183,6 @@ export type EvaluationTaskItemInput = Readonly<{
   criteria?: ReadonlyArray<Readonly<{ score: number; description: string }>>
 }>
 
-export type EvaluationTaskEvaluatorInput = Readonly<{
-  evaluatorId: string
-  weight: number
-}>
-
 export type SaveEvaluationTaskInput = Readonly<{
   taskId: string | null
   cycleId: string
@@ -195,7 +191,14 @@ export type SaveEvaluationTaskInput = Readonly<{
   method: EvaluationMethod
   weight: number
   items: ReadonlyArray<EvaluationTaskItemInput>
-  evaluatorWeights: ReadonlyArray<EvaluationTaskEvaluatorInput>
+  actor: RepositoryActor
+}>
+
+export type UpdateEvaluatorAssignmentsInput = Readonly<{
+  cycleId: string
+  engineerId: string
+  taskId: string
+  evaluatorWeights: ReadonlyArray<Readonly<{ evaluatorId: string; weight: number }>>
   actor: RepositoryActor
 }>
 
@@ -267,6 +270,7 @@ export type DeleteEvaluatorInput = Readonly<{
 
 type ScheduleEventFields = Readonly<{
   engineerId: string
+  taskId: string
   title: string
   date: string
   startTime: string | null
@@ -276,6 +280,13 @@ type ScheduleEventFields = Readonly<{
 export type CreateScheduleEventInput = ScheduleEventFields &
   Readonly<{
     cycleId: string
+    actor: RepositoryActor
+  }>
+
+export type CreateScheduleEventsInput = Omit<ScheduleEventFields, "engineerId"> &
+  Readonly<{
+    cycleId: string
+    engineerIds: ReadonlyArray<string>
     actor: RepositoryActor
   }>
 
@@ -294,6 +305,7 @@ export interface EvaluationRepository {
   loadSnapshot(): EvaluationSnapshot
   saveDraft(input: SaveDraftInput): EvaluationSnapshot
   submitSheet(input: SheetActionInput): EvaluationSnapshot
+  requestSheetUnlock(input: RequestSheetUnlockInput): EvaluationSnapshot
   reopenSheet(input: ReopenSheetInput): EvaluationSnapshot
   updateDirectScore(input: UpdateDirectScoreInput): EvaluationSnapshot
   saveScoreAdjustment(input: SaveScoreAdjustmentInput): EvaluationSnapshot
@@ -311,6 +323,7 @@ export interface EvaluationRepository {
   deleteDirectScoreRule(input: DeleteDirectScoreRuleInput): EvaluationSnapshot
   saveEvaluationTask(input: SaveEvaluationTaskInput): EvaluationSnapshot
   deleteEvaluationTask(input: DeleteEvaluationTaskInput): EvaluationSnapshot
+  updateEvaluatorAssignments(input: UpdateEvaluatorAssignmentsInput): EvaluationSnapshot
   updateEngineerTaskWeights(input: UpdateEngineerTaskWeightsInput): EvaluationSnapshot
   addEngineers(input: AddEngineersInput): EvaluationSnapshot
   updateEngineer(input: UpdateEngineerInput): EvaluationSnapshot
@@ -319,6 +332,7 @@ export interface EvaluationRepository {
   updateEvaluator(input: UpdateEvaluatorInput): EvaluationSnapshot
   deleteEvaluator(input: DeleteEvaluatorInput): EvaluationSnapshot
   createScheduleEvent(input: CreateScheduleEventInput): EvaluationSnapshot
+  createScheduleEvents(input: CreateScheduleEventsInput): EvaluationSnapshot
   updateScheduleEvent(input: UpdateScheduleEventInput): EvaluationSnapshot
   deleteScheduleEvent(input: DeleteScheduleEventInput): EvaluationSnapshot
   resetDemoData(): EvaluationSnapshot

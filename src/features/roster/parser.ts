@@ -6,7 +6,7 @@ import type {
   RosterDepartment,
   RosterTeam,
 } from "./types"
-import { defaultRosterDepartment, isRosterDepartmentForTeam, ROSTER_TEAMS, rosterDepartmentsForTeam } from "./types"
+import { defaultRosterDepartment, ROSTER_TEAMS } from "./types"
 
 interface SourceRow {
   readonly line: number
@@ -70,12 +70,8 @@ function parseCommonRow(
       message: "팀은 생산 1팀 또는 생산 2팀이어야 합니다.",
     })
   }
-  if (isRosterTeam(teamValue) && !isRosterDepartmentForTeam(teamValue, departmentValue)) {
-    errors.push({
-      line: row.line,
-      message: `${teamValue} 담당은 ${rosterDepartmentsForTeam(teamValue).join(", ")} 중 하나여야 합니다.`,
-    })
-  }
+  if (departmentValue === "") errors.push({ line: row.line, message: "담당을 입력하세요." })
+  if (departmentValue.length > 100) errors.push({ line: row.line, message: "담당은 100자 이내로 입력하세요." })
 
   const codeKey = employeeCode.toLocaleUpperCase("ko-KR")
   const firstCode = seenCodes.get(codeKey)
@@ -91,7 +87,8 @@ function parseCommonRow(
   if (
     errors.length > 0 ||
     !isRosterTeam(teamValue) ||
-    !isRosterDepartmentForTeam(teamValue, departmentValue)
+    departmentValue === "" ||
+    departmentValue.length > 100
   ) {
     return { value: null, errors }
   }

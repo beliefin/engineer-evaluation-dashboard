@@ -8,8 +8,8 @@ import { seedTestAuthSession, TestAuthProvider } from "@/test/auth-fixture"
 
 import { EvaluationFormScreen } from "./evaluation-form-screen"
 
-const ASSIGNMENT_ID = "engineer-13-task-dx-tool-evaluator-01"
-const OTHER_EVALUATOR_ASSIGNMENT_ID = "engineer-13-task-growth-plan-evaluator-02"
+const ASSIGNMENT_ID = "engineer-13-task-dx-tool-evaluator-03"
+const OTHER_EVALUATOR_ASSIGNMENT_ID = "engineer-13-task-growth-plan-evaluator-04"
 const SHEET_ID = `sheet-${ASSIGNMENT_ID}`
 const ITEM_ID = "task-dx-tool-item-07"
 
@@ -46,7 +46,7 @@ describe("EvaluationFormScreen autosave integration", () => {
     )
 
     expect(
-      await screen.findByText("운영자 대리 입력 · 샘플 평가자 2"),
+      await screen.findByText("운영자 대리 입력 · 샘플 평가자 4"),
     ).toBeInTheDocument()
   })
 

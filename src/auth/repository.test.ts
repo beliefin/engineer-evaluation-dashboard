@@ -82,6 +82,7 @@ describe("LocalStorageAuthRepository", () => {
       username: "reviewer01",
       displayName: "검토 승인자",
       role: "approver",
+      roles: ["approver"],
       evaluatorId: null,
       engineerId: null,
       password: "Review!2026",
@@ -92,11 +93,37 @@ describe("LocalStorageAuthRepository", () => {
     expect(accounts).toContainEqual(expect.objectContaining({
       username: "reviewer01",
       role: "approver",
+      roles: ["approver"],
     }))
     repository.logout()
     await expect(
       repository.login({ username: "reviewer01", password: "Review!2026" }),
     ).resolves.toMatchObject({ role: "approver" })
+  })
+
+  it("persists evaluator and engineer capabilities on one login account", async () => {
+    const { repository } = createRepository()
+    await repository.login({ username: "operator", password: "Demo!2026" })
+
+    await repository.createAccount({
+      username: "dual01",
+      displayName: "복합 역할 사용자",
+      role: "evaluator",
+      roles: ["evaluator", "engineer"],
+      evaluatorId: "evaluator-dual",
+      engineerId: "engineer-dual",
+      password: "31019467",
+      active: true,
+    })
+    repository.logout()
+
+    await expect(repository.login({ username: "dual01", password: "31019467" }))
+      .resolves.toMatchObject({
+        role: "evaluator",
+        roles: ["evaluator", "engineer"],
+        evaluatorId: "evaluator-dual",
+        engineerId: "engineer-dual",
+      })
   })
 
   it("authenticates a seeded engineer with a fixed roster linkage", async () => {
@@ -134,6 +161,7 @@ describe("LocalStorageAuthRepository", () => {
       username: "reviewer02",
       displayName: "평가 담당자",
       role: "approver",
+      roles: ["approver"],
       evaluatorId: null,
       engineerId: null,
       password: "Review!2026",
@@ -147,6 +175,7 @@ describe("LocalStorageAuthRepository", () => {
       accountId: account?.id ?? "",
       displayName: "평가 담당자",
       role: "evaluator",
+      roles: ["evaluator"],
       evaluatorId: "evaluator-02",
       engineerId: null,
       active: true,
@@ -173,6 +202,7 @@ describe("LocalStorageAuthRepository", () => {
       accountId: operator.id,
       displayName: operator.displayName,
       role: "operator",
+      roles: ["operator"],
       evaluatorId: null,
       engineerId: null,
       active: false,

@@ -109,8 +109,12 @@ function createAssignmentBundle(engineers: ReadonlyArray<Engineer>): AssignmentB
     if (state === "unassigned") return
 
     for (const task of evaluatorTasks) {
-      task.evaluatorWeights.forEach((definition, evaluatorIndex) => {
-        const assignmentId = `${engineer.id}-${task.id}-${definition.evaluatorId}`
+      if (task.id !== "task-growth-plan" && task.id !== selectedCoreTaskId(engineerIndex)) continue
+      const evaluatorCount = 2 + (engineerIndex % 3)
+      const assignedEvaluators = Array.from({ length: evaluatorCount }, (_, offset) =>
+        itemAt(EVALUATORS, engineerIndex + offset))
+      assignedEvaluators.forEach((evaluator, evaluatorIndex) => {
+        const assignmentId = `${engineer.id}-${task.id}-${evaluator.id}`
         const isSubmitted =
           state !== "in_progress" ||
           task.id !== selectedCoreTaskId(engineerIndex) ||
@@ -119,8 +123,9 @@ function createAssignmentBundle(engineers: ReadonlyArray<Engineer>): AssignmentB
           id: assignmentId,
           cycleId: CYCLE_ID,
           engineerId: engineer.id,
-          evaluatorId: definition.evaluatorId,
+          evaluatorId: evaluator.id,
           taskId: task.id,
+          weight: evaluatorCount - evaluatorIndex,
         })
         scoreSheets.push({
           id: `sheet-${assignmentId}`,
@@ -175,6 +180,7 @@ function createScheduleEvents(
       id: "schedule-sample-01",
       cycleId: CYCLE_ID,
       engineerId: itemAt(engineers, 0).id,
+      taskId: "task-growth-plan",
       title: "성장탐구계획서 발표",
       date: "2026-05-18",
       startTime: "09:30",
@@ -186,6 +192,7 @@ function createScheduleEvents(
       id: "schedule-sample-02",
       cycleId: CYCLE_ID,
       engineerId: itemAt(engineers, 5).id,
+      taskId: "task-dx-tool",
       title: "DX 툴 활용 발표",
       date: "2026-05-20",
       startTime: "14:00",
@@ -197,6 +204,7 @@ function createScheduleEvents(
       id: "schedule-sample-03",
       cycleId: CYCLE_ID,
       engineerId: itemAt(engineers, 12).id,
+      taskId: "task-growth-plan",
       title: "역량평가 발표",
       date: "2026-05-22",
       startTime: null,
@@ -212,7 +220,7 @@ export function createSeedSnapshot(): EvaluationSnapshot {
   const bundle = createAssignmentBundle(engineers)
   const achievements = createSampleAchievementRecords(engineers)
   return evaluationSnapshotSchema.parse({
-    schemaVersion: 6,
+    schemaVersion: 7,
     cycles: [{
       id: CYCLE_ID,
       name: "2026 상반기",
@@ -282,6 +290,7 @@ export function createSeedSnapshot(): EvaluationSnapshot {
     evaluators: EVALUATORS,
     assignments: bundle.assignments,
     scoreSheets: bundle.scoreSheets,
+    unlockRequests: [],
     directScores: createDirectScores(engineers),
     scoreAdjustments: [],
     languageScoreRecords: achievements.languageScoreRecords,

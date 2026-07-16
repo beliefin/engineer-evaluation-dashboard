@@ -6,6 +6,7 @@ import {
   updateEvaluatorInputSchema,
 } from "./input-schemas"
 import { appendAuditEvent, type MutationContext } from "./mutation-context"
+import { mergeDepartmentCatalog } from "./department-catalog"
 import {
   requireCycleUnlocked,
   requireEvaluator,
@@ -42,6 +43,10 @@ export function updateEvaluatorAction(
 
   const nextSnapshot: EvaluationSnapshot = {
     ...context.snapshot,
+    departmentCatalog: mergeDepartmentCatalog(context.snapshot, [{
+      team: parsed.team,
+      name: parsed.department,
+    }]),
     evaluators: context.snapshot.evaluators.map((evaluator) =>
       evaluator.id === parsed.evaluatorId
         ? {
@@ -74,11 +79,6 @@ export function deleteEvaluatorAction(
   requireEvaluator(context.snapshot, parsed.evaluatorId)
 
   const affectedCycleIds = new Set<string>([parsed.cycleId])
-  for (const task of context.snapshot.tasks) {
-    if (task.evaluatorWeights.some((entry) => entry.evaluatorId === parsed.evaluatorId)) {
-      affectedCycleIds.add(task.cycleId)
-    }
-  }
   for (const assignment of context.snapshot.assignments) {
     if (assignment.evaluatorId === parsed.evaluatorId) affectedCycleIds.add(assignment.cycleId)
   }
@@ -89,22 +89,24 @@ export function deleteEvaluatorAction(
       .filter((assignment) => assignment.evaluatorId === parsed.evaluatorId)
       .map((assignment) => assignment.id),
   )
+  const removedSheetIds = new Set(
+    context.snapshot.scoreSheets
+      .filter((sheet) => assignmentIds.has(sheet.assignmentId))
+      .map((sheet) => sheet.id),
+  )
   const nextSnapshot: EvaluationSnapshot = {
     ...context.snapshot,
     evaluators: context.snapshot.evaluators.filter(
       (evaluator) => evaluator.id !== parsed.evaluatorId,
     ),
-    tasks: context.snapshot.tasks.map((task) => ({
-      ...task,
-      evaluatorWeights: task.evaluatorWeights.filter(
-        (entry) => entry.evaluatorId !== parsed.evaluatorId,
-      ),
-    })),
     assignments: context.snapshot.assignments.filter(
       (assignment) => assignment.evaluatorId !== parsed.evaluatorId,
     ),
     scoreSheets: context.snapshot.scoreSheets.filter(
       (sheet) => !assignmentIds.has(sheet.assignmentId),
+    ),
+    unlockRequests: context.snapshot.unlockRequests.filter(
+      (request) => !removedSheetIds.has(request.sheetId),
     ),
   }
   return appendAuditEvent(context, nextSnapshot, {

@@ -33,8 +33,10 @@ const OPERATOR_ROUTES = [
 ] as const
 
 const EVALUATOR_ROUTES = [
+  { name: "today-evaluations", path: "/today" },
   { name: "evaluations", path: "/evaluations" },
-  { name: "evaluation-form", path: "/evaluations/detail?assignmentId=engineer-13-task-dx-tool-evaluator-01" },
+  { name: "evaluator-calendar", path: "/calendar" },
+  { name: "evaluation-form", path: "/evaluations/detail?assignmentId=engineer-16-task-ots-scenario-evaluator-01" },
 ] as const
 
 async function capture(page: Page, name: string, viewportName: string): Promise<void> {

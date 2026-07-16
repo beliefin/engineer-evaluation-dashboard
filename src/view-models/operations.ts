@@ -22,12 +22,14 @@ function selectSubmittedSheets(
   const cycle = snapshot.cycles.find((entry) => entry.id === cycleId)
   if (cycle === undefined) return []
 
-  return snapshot.scoreSheets
-    .filter((sheet) => sheet.status === "submitted")
-    .toSorted((left, right) =>
-      (right.submittedAt ?? "").localeCompare(left.submittedAt ?? ""),
-    )
-    .flatMap((sheet) => {
+  return snapshot.unlockRequests
+    .filter((request) => request.cycleId === cycleId && request.status === "pending")
+    .toSorted((left, right) => right.createdAt.localeCompare(left.createdAt))
+    .flatMap((request) => {
+      const sheet = snapshot.scoreSheets.find(
+        (entry) => entry.id === request.sheetId && entry.status === "submitted",
+      )
+      if (sheet === undefined) return []
       const assignment = snapshot.assignments.find(
         (entry) => entry.id === sheet.assignmentId && entry.cycleId === cycleId,
       )
@@ -45,6 +47,8 @@ function selectSubmittedSheets(
         evaluatorName: evaluator.displayName,
         taskLabel: snapshot.tasks.find((task) => task.id === assignment.taskId)?.name ?? "삭제된 과제",
         submittedAtLabel: formatTimestamp(sheet.submittedAt) ?? "제출 시각 없음",
+        requestReason: request.reason,
+        requestedAtLabel: formatTimestamp(request.createdAt) ?? "요청 시각 없음",
       }]
     })
 }
@@ -136,7 +140,6 @@ export function selectOperationsViewModel(
           section: item.section,
           criteria: item.criteria,
         })),
-        evaluatorWeights: task.evaluatorWeights,
         submittedCount,
         locked: submittedCount > 0,
       }
@@ -146,6 +149,47 @@ export function selectOperationsViewModel(
       name: evaluator.displayName,
       employeeCode: evaluator.employeeCode,
     })),
+    evaluatorAssignments: snapshot.engineers.flatMap((engineer) =>
+      tasks
+        .filter((task) =>
+          (task.method === "evaluator_score" || task.method === "evaluator_pass_fail") &&
+          resolveEngineerTaskWeight(task, engineer.id, snapshot.engineerTaskWeights) > 0)
+        .map((task) => {
+          const assignments = snapshot.assignments.filter((assignment) =>
+            assignment.cycleId === cycleId &&
+            assignment.engineerId === engineer.id &&
+            assignment.taskId === task.id)
+          const totalWeight = assignments.reduce((total, assignment) => total + assignment.weight, 0)
+          return {
+            engineerId: engineer.id,
+            engineerName: engineer.displayName,
+            employeeLabel: engineer.employeeCode,
+            teamName: engineer.team,
+            taskId: task.id,
+            taskName: task.name,
+            assignments: assignments.map((assignment) => {
+              const sheet = snapshot.scoreSheets.find((entry) => entry.assignmentId === assignment.id)
+              const status = sheet?.status === "submitted"
+                ? "submitted" as const
+                : sheet !== undefined && (
+                    sheet.passResult !== null || sheet.scores.some((entry) => entry.score !== null)
+                  )
+                  ? "in_progress" as const
+                  : "pending" as const
+              return {
+                assignmentId: assignment.id,
+                evaluatorId: assignment.evaluatorId,
+                evaluatorName: snapshot.evaluators.find(
+                  (evaluator) => evaluator.id === assignment.evaluatorId,
+                )?.displayName ?? "삭제된 평가자",
+                weight: assignment.weight,
+                normalizedRatio: totalWeight > 0 ? assignment.weight / totalWeight : 0,
+                status,
+              }
+            }),
+          }
+        }),
+    ),
     weightTotal: tasks.reduce((total, task) => total + task.weight, 0),
     engineerTaskWeights: snapshot.engineers.map((engineer) => ({
       engineerId: engineer.id,
@@ -289,6 +333,7 @@ export function selectOperationsViewModel(
     }),
     rosterEngineers: snapshot.engineers,
     rosterEvaluators: snapshot.evaluators,
+    departmentCatalog: snapshot.departmentCatalog ?? [],
     directScoreRules: cycleRules,
     operatorTasks: operatorTasks.map((task) => ({ taskId: task.id, taskName: task.name })),
     certificationOptions,

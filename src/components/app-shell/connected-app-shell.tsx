@@ -19,6 +19,7 @@ import {
 import { useAuth, useEvaluation } from "@/providers"
 
 import { AppShell } from "./app-shell"
+import { APP_SHELL_HOME_PATHS, type AppShellRole } from "./types"
 
 export function ConnectedAppShell({ children }: Readonly<{ children: ReactNode }>) {
   const router = useRouter()
@@ -27,6 +28,7 @@ export function ConnectedAppShell({ children }: Readonly<{ children: ReactNode }
     loadState: authLoadState,
     errorMessage: authErrorMessage,
     logout,
+    switchRole,
   } = useAuth()
   const {
     snapshot,
@@ -157,11 +159,17 @@ export function ConnectedAppShell({ children }: Readonly<{ children: ReactNode }
     router.replace("/login")
   }
 
+  function handleRoleChange(nextRole: AppShellRole) {
+    switchRole(nextRole)
+    router.replace(APP_SHELL_HOME_PATHS[nextRole])
+  }
+
   return (
     <AppShell
       activeCycleId={activeCycleId}
       activeEvaluatorId={activeEvaluatorId}
       actorLabel={session.displayName}
+      availableRoles={session.roles}
       cycles={snapshot.cycles.map((cycle) => ({ id: cycle.id, label: cycle.name }))}
       evaluatorOptions={snapshot.evaluators.map((evaluator) => ({
         id: evaluator.id,
@@ -170,6 +178,7 @@ export function ConnectedAppShell({ children }: Readonly<{ children: ReactNode }
       onCycleChange={setActiveCycleId}
       onEvaluatorChange={setActiveEvaluatorId}
       onLogout={handleLogout}
+      onRoleChange={handleRoleChange}
       role={role}
       saveState={saveState}
     >

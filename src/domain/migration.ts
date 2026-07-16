@@ -3,11 +3,11 @@ import type {
   Department,
   EvaluationSnapshot,
   EvaluationTask,
-  TaskEvaluatorWeight,
   Team,
 } from "./types"
 import type { VersionFourEvaluationSnapshot } from "./schema"
 import type { VersionFiveEvaluationSnapshot } from "./schema"
+import type { VersionSixEvaluationSnapshot } from "./schema"
 import { DEPARTMENTS_BY_TEAM, TEAMS } from "./types"
 import type {
   LegacyEvaluationSnapshot,
@@ -42,26 +42,6 @@ function taskId(cycleId: string, legacyKey: string): string {
   return `task-${cycleId}-${legacyKey}`
 }
 
-function evaluatorWeights(
-  snapshot: VersionThreeEvaluationSnapshot,
-  cycleId: string,
-  category: "growth_plan" | "core_track",
-): ReadonlyArray<TaskEvaluatorWeight> {
-  const assignments = snapshot.assignments.filter(
-    (entry) => entry.cycleId === cycleId && entry.category === category,
-  )
-  const evaluatorIds = Array.from(new Set(assignments.map((entry) => entry.evaluatorId)))
-  return evaluatorIds.map((evaluatorId) => {
-    const weights = assignments
-      .filter((entry) => entry.evaluatorId === evaluatorId)
-      .map((entry) => entry.weight)
-    return {
-      evaluatorId,
-      weight: weights.reduce((total, value) => total + value, 0) / weights.length,
-    }
-  })
-}
-
 function tasksForCycle(
   snapshot: VersionThreeEvaluationSnapshot,
   cycle: VersionThreeEvaluationSnapshot["cycles"][number],
@@ -87,7 +67,6 @@ function tasksForCycle(
         section: null,
         criteria: [],
       })) ?? [],
-      evaluatorWeights: evaluatorWeights(snapshot, cycle.id, "growth_plan"),
     },
     {
       id: taskId(cycle.id, "core_track"),
@@ -102,7 +81,6 @@ function tasksForCycle(
         section: null,
         criteria: [],
       })) ?? [],
-      evaluatorWeights: evaluatorWeights(snapshot, cycle.id, "core_track"),
     },
     ...[
       ["language", "어학"],
@@ -117,9 +95,43 @@ function tasksForCycle(
       weight: 10,
       order: index + 3,
       items: [],
-      evaluatorWeights: [],
     })),
   ]
+}
+
+type ConfiguredSnapshot = Pick<
+  VersionSixEvaluationSnapshot,
+  "tasks" | "assignments" | "scoreSheets"
+>
+
+function migrateConfiguredArtifacts(previous: ConfiguredSnapshot) {
+  const scoreSheetByAssignment = new Map(
+    previous.scoreSheets.map((sheet) => [sheet.assignmentId, sheet]),
+  )
+  const preservedAssignments = previous.assignments.filter((assignment) => {
+    const sheet = scoreSheetByAssignment.get(assignment.id)
+    return sheet?.status === "submitted" ||
+      sheet?.passResult !== null && sheet?.passResult !== undefined ||
+      sheet?.scores.some((score) => score.score !== null) === true
+  })
+  const preservedIds = new Set(preservedAssignments.map((assignment) => assignment.id))
+  return {
+    tasks: previous.tasks.map((legacyTask) => {
+      const { evaluatorWeights, ...task } = legacyTask
+      void evaluatorWeights
+      return task
+    }),
+    assignments: preservedAssignments.map((assignment) => {
+      const task = previous.tasks.find((candidate) => candidate.id === assignment.taskId)
+      return {
+        ...assignment,
+        weight: task?.evaluatorWeights.find(
+          (entry) => entry.evaluatorId === assignment.evaluatorId,
+        )?.weight ?? 1,
+      }
+    }),
+    scoreSheets: previous.scoreSheets.filter((sheet) => preservedIds.has(sheet.assignmentId)),
+  }
 }
 
 function migratedAuditType(type: string): AuditEvent["type"] | null {
@@ -154,7 +166,7 @@ export function migrateVersionThreeSnapshot(
 ): EvaluationSnapshot {
   const tasks = previous.cycles.flatMap((cycle) => tasksForCycle(previous, cycle))
   return {
-    schemaVersion: 6,
+    schemaVersion: 7,
     cycles: previous.cycles.map((cycle) => ({
       id: cycle.id,
       name: cycle.name,
@@ -184,6 +196,7 @@ export function migrateVersionThreeSnapshot(
       engineerId: assignment.engineerId,
       evaluatorId: assignment.evaluatorId,
       taskId: taskId(assignment.cycleId, assignment.category),
+      weight: assignment.weight,
     })),
     scoreSheets: previous.scoreSheets.map((sheet) => ({
       ...sheet,
@@ -199,9 +212,10 @@ export function migrateVersionThreeSnapshot(
       updatedAt: score.updatedAt,
     })),
     scoreAdjustments: [],
+    unlockRequests: [],
     languageScoreRecords: previous.languageScoreRecords,
     certificationRecords: previous.certificationRecords,
-    scheduleEvents: previous.scheduleEvents,
+    scheduleEvents: previous.scheduleEvents.map((event) => ({ ...event, taskId: null })),
     auditEvents: previous.auditEvents.flatMap((event) => {
       const type = migratedAuditType(event.type)
       return type === null ? [] : [{ ...event, type }]
@@ -212,12 +226,15 @@ export function migrateVersionThreeSnapshot(
 export function migrateVersionFourSnapshot(
   previous: VersionFourEvaluationSnapshot,
 ): EvaluationSnapshot {
+  const artifacts = migrateConfiguredArtifacts(previous)
   return {
     ...previous,
-    schemaVersion: 6,
+    ...artifacts,
+    schemaVersion: 7,
     engineerTaskWeights: [],
     directScoreRules: [],
     scoreAdjustments: [],
+    unlockRequests: [],
     engineers: previous.engineers.map((engineer) => ({
       ...engineer,
       ...organizationForTeam(engineer.team),
@@ -234,10 +251,13 @@ export function migrateVersionFourSnapshot(
 export function migrateVersionFiveSnapshot(
   previous: VersionFiveEvaluationSnapshot,
 ): EvaluationSnapshot {
+  const artifacts = migrateConfiguredArtifacts(previous)
   return {
     ...previous,
-    schemaVersion: 6,
+    ...artifacts,
+    schemaVersion: 7,
     scoreAdjustments: [],
+    unlockRequests: [],
     engineers: previous.engineers.map((engineer) => ({
       ...engineer,
       ...organizationForTeam(engineer.team),
@@ -248,6 +268,17 @@ export function migrateVersionFiveSnapshot(
       ...organizationForTeam(evaluator.team),
       ...emptyEvaluatorMetadata,
     })),
+  }
+}
+
+export function migrateVersionSixSnapshot(
+  previous: VersionSixEvaluationSnapshot,
+): EvaluationSnapshot {
+  return {
+    ...previous,
+    ...migrateConfiguredArtifacts(previous),
+    schemaVersion: 7,
+    unlockRequests: [],
   }
 }
 

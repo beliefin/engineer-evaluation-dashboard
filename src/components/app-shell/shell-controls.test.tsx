@@ -15,12 +15,14 @@ const BASE_PROPS = {
   idPrefix: "test-shell",
   onCycleChange: vi.fn(),
   onEvaluatorChange: vi.fn(),
+  onRoleChange: vi.fn(),
+  availableRoles: ["operator"] as const,
 } as const
 
 describe("ShellControls", () => {
   afterEach(cleanup)
 
-  it("lets an operator select a registered evaluator for proxy input", async () => {
+  it("lets an operator switch the proxy evaluator from the shell", async () => {
     const onEvaluatorChange = vi.fn()
     render(
       <ShellControls
@@ -30,7 +32,9 @@ describe("ShellControls", () => {
       />,
     )
 
-    await userEvent.selectOptions(screen.getByLabelText("대리 입력 평가자"), "evaluator-2")
+    const evaluatorSelect = screen.getByLabelText("대리 입력 평가자")
+    await userEvent.selectOptions(evaluatorSelect, "evaluator-2")
+
     expect(onEvaluatorChange).toHaveBeenCalledWith("evaluator-2")
   })
 
@@ -42,5 +46,17 @@ describe("ShellControls", () => {
   it("does not expose a demo role switcher", () => {
     render(<ShellControls {...BASE_PROPS} role="operator" />)
     expect(screen.queryByLabelText("데모 역할")).not.toBeInTheDocument()
+  })
+
+  it("lets a dual-role account switch between evaluator and engineer modes", () => {
+    render(
+      <ShellControls
+        {...BASE_PROPS}
+        availableRoles={["evaluator", "engineer"]}
+        role="evaluator"
+      />,
+    )
+
+    expect(screen.getByLabelText("사용 모드")).toHaveValue("evaluator")
   })
 })

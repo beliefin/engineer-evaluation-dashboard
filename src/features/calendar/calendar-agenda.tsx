@@ -1,21 +1,21 @@
 import { CalendarX2, Clock3, MapPin } from "lucide-react"
 
 import { formatCalendarDate, groupCalendarEventsByDate } from "./calendar-helpers"
-import type { CalendarEventView } from "./types"
+import type { CalendarEventView, CalendarInteractionMode } from "./types"
 
 type CalendarAgendaProps = Readonly<{
   events: readonly CalendarEventView[]
-  readOnly: boolean
+  mode: CalendarInteractionMode
   onSelectEvent: (event: CalendarEventView) => void
 }>
 
 function AgendaEvent({
   event,
-  readOnly,
+  mode,
   onSelectEvent,
 }: Readonly<{
   event: CalendarEventView
-  readOnly: boolean
+  mode: CalendarInteractionMode
   onSelectEvent: (event: CalendarEventView) => void
 }>) {
   const content = (
@@ -39,7 +39,8 @@ function AgendaEvent({
     </>
   )
 
-  if (readOnly) {
+  const actionable = mode === "manage" || mode === "evaluate" && event.assignmentId !== null
+  if (!actionable) {
     return <div className="border-l-2 border-l-primary bg-accent/55 p-3">{content}</div>
   }
   return (
@@ -54,7 +55,7 @@ function AgendaEvent({
   )
 }
 
-export function CalendarAgenda({ events, readOnly, onSelectEvent }: CalendarAgendaProps) {
+export function CalendarAgenda({ events, mode, onSelectEvent }: CalendarAgendaProps) {
   const groups = groupCalendarEventsByDate(events)
   if (groups.length === 0) {
     return (
@@ -84,7 +85,7 @@ export function CalendarAgenda({ events, readOnly, onSelectEvent }: CalendarAgen
                 event={event}
                 key={event.id}
                 onSelectEvent={onSelectEvent}
-                readOnly={readOnly}
+                mode={mode}
               />
             ))}
           </div>

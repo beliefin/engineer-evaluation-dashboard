@@ -23,12 +23,14 @@ import type {
   EngineerRosterItem,
   EvaluatorRegistration,
   EvaluatorRosterItem,
+  RosterDepartmentOptions,
 } from "./types"
 
 interface RosterListProps {
   readonly kind: "engineer" | "evaluator"
   readonly rows: readonly (EngineerRosterItem | EvaluatorRosterItem)[]
   readonly disabled: boolean
+  readonly departmentOptions: RosterDepartmentOptions
   readonly linkedEngineerIds: readonly string[]
   readonly linkedEvaluatorIds: readonly string[]
   readonly onUpdateEngineer: (engineerId: string, engineer: EngineerRegistration) => boolean
@@ -57,6 +59,7 @@ export function RosterList({
   kind,
   rows,
   disabled,
+  departmentOptions,
   linkedEngineerIds,
   linkedEvaluatorIds,
   onUpdateEngineer,
@@ -225,6 +228,7 @@ export function RosterList({
 
       {editingEngineer === null ? null : (
         <EngineerEditorDialog
+          departmentOptions={departmentOptions}
           engineer={editingEngineer}
           existingEmployeeCodes={rows
             .filter((row) => row.id !== editingEngineer.id)
@@ -244,6 +248,7 @@ export function RosterList({
       )}
       {editingEvaluator === null ? null : (
         <EvaluatorEditorDialog
+          departmentOptions={departmentOptions}
           evaluator={editingEvaluator}
           existingEmployeeCodes={rows
             .filter((row) => row.id !== editingEvaluator.id)

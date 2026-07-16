@@ -52,7 +52,7 @@ export function AccountEditorDialog({
 }: AccountEditorDialogProps) {
   const [username, setUsername] = useState(account?.username ?? "")
   const [displayName, setDisplayName] = useState(account?.displayName ?? "")
-  const [role, setRole] = useState<Role>(account?.role ?? "approver")
+  const [roles, setRoles] = useState<ReadonlyArray<Role>>(account?.roles ?? ["approver"])
   const [evaluatorId, setEvaluatorId] = useState(account?.evaluatorId ?? "")
   const [engineerId, setEngineerId] = useState(account?.engineerId ?? "")
   const [password, setPassword] = useState("")
@@ -70,10 +70,10 @@ export function AccountEditorDialog({
     if (displayName.trim().length < 2) {
       nextErrors.displayName = "표시 이름은 2자 이상 입력해 주세요."
     }
-    if (role === "evaluator" && evaluatorId.length === 0) {
+    if (roles.includes("evaluator") && evaluatorId.length === 0) {
       nextErrors.evaluator = "평가자 역할은 등록된 평가자와 연결해야 합니다."
     }
-    if (role === "engineer" && engineerId.length === 0) {
+    if (roles.includes("engineer") && engineerId.length === 0) {
       nextErrors.engineer = "엔지니어 역할은 등록된 엔지니어와 연결해야 합니다."
     }
     if (account === null) {
@@ -98,13 +98,15 @@ export function AccountEditorDialog({
       setErrorMessage("입력한 내용을 확인해 주세요.")
       return
     }
-    const linkedEvaluatorId = role === "evaluator" && evaluatorId.length > 0 ? evaluatorId : null
-    const linkedEngineerId = role === "engineer" && engineerId.length > 0 ? engineerId : null
+    const role = roles[0] ?? "approver"
+    const linkedEvaluatorId = roles.includes("evaluator") && evaluatorId.length > 0 ? evaluatorId : null
+    const linkedEngineerId = roles.includes("engineer") && engineerId.length > 0 ? engineerId : null
     const result = account === null
       ? await onCreate({
           username,
           displayName,
           role,
+          roles,
           evaluatorId: linkedEvaluatorId,
           engineerId: linkedEngineerId,
           password,
@@ -114,6 +116,7 @@ export function AccountEditorDialog({
           accountId: account.id,
           displayName,
           role,
+          roles,
           evaluatorId: linkedEvaluatorId,
           engineerId: linkedEngineerId,
           active,
@@ -137,7 +140,8 @@ export function AccountEditorDialog({
           <DialogHeader>
             <DialogTitle>{account === null ? "계정 추가" : "계정 편집"}</DialogTitle>
             <DialogDescription>
-              로그인 정보와 역할을 설정합니다. 평가자와 엔지니어 역할은 등록된 명단과 연결해야 합니다.
+              로그인 정보와 역할을 설정합니다.
+              <span className="block">평가자·엔지니어 역할은 등록 명단에 연결해야 합니다.</span>
             </DialogDescription>
           </DialogHeader>
           <div className="space-y-4 py-5">
@@ -196,14 +200,14 @@ export function AccountEditorDialog({
                 setEvaluatorId(value)
                 clearFieldError("evaluator")
               }}
-              onRoleChange={(value) => {
-                setRole(value)
-                setEvaluatorId("")
-                setEngineerId("")
+              onRolesChange={(value) => {
+                setRoles(value)
+                if (!value.includes("evaluator")) setEvaluatorId("")
+                if (!value.includes("engineer")) setEngineerId("")
                 clearFieldError("evaluator")
                 clearFieldError("engineer")
               }}
-              role={role}
+              roles={roles}
               roleDisabled={self || pending}
             />
             {account === null ? (

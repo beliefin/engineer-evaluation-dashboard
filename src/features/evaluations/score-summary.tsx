@@ -6,6 +6,7 @@ interface ScoreSummaryProps {
   readonly remainingCount: number
   readonly totalItems: number
   readonly requirementsId: string
+  readonly operatorMode?: boolean
 }
 
 export function ScoreSummary({
@@ -14,6 +15,7 @@ export function ScoreSummary({
   remainingCount,
   totalItems,
   requirementsId,
+  operatorMode = false,
 }: ScoreSummaryProps) {
   const progress = totalItems === 0 ? 0 : (answeredCount / totalItems) * 100
   const normalized = totalItems === 0 ? 0 : (total / (totalItems * 10)) * 100
@@ -33,7 +35,9 @@ export function ScoreSummary({
           aria-label={`평가 항목 ${answeredCount}개 입력, 총 ${totalItems}개`}
         />
         <p id={requirementsId} className="mt-2 text-pretty text-xs text-muted-foreground">
-          {totalItems}개 항목을 모두 입력해야 제출할 수 있습니다. 제출 후 수정은 불가능합니다.
+          {operatorMode
+            ? `${totalItems}개 항목을 모두 입력하면 평가를 저장할 수 있습니다. 저장 후에도 계속 수정할 수 있습니다.`
+            : `${totalItems}개 항목을 모두 입력해야 제출할 수 있습니다. 제출 후에는 운영자 승인 없이 수정할 수 없습니다.`}
         </p>
       </div>
 

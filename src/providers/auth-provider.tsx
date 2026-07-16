@@ -46,6 +46,7 @@ type AuthContextValue = Readonly<{
   errorMessage: string | null
   login: (input: LoginInput) => Promise<AuthLoginResult>
   logout: () => void
+  switchRole: (role: Role) => void
   createAccount: (input: CreateAccountInput) => Promise<AuthActionResult>
   updateAccount: (input: UpdateAccountInput) => Promise<AuthActionResult>
   resetPassword: (input: ResetPasswordInput) => Promise<AuthActionResult>
@@ -54,6 +55,35 @@ type AuthContextValue = Readonly<{
 
 const AuthContext = createContext<AuthContextValue | null>(null)
 type AccountMutation = (repository: AuthRepository) => Promise<ReadonlyArray<AuthAccount>>
+const ACTIVE_ROLE_KEY = "engineer-evaluation-dashboard:active-role"
+
+function accountWithStoredRole(account: AuthAccount): AuthAccount {
+  try {
+    const stored = window.sessionStorage.getItem(ACTIVE_ROLE_KEY)
+    if (stored !== null && account.roles.some((role) => role === stored)) {
+      return { ...account, role: stored as Role }
+    }
+  } catch {
+    return account
+  }
+  return account
+}
+
+function storeActiveRole(role: Role): void {
+  try {
+    window.sessionStorage.setItem(ACTIVE_ROLE_KEY, role)
+  } catch {
+    return
+  }
+}
+
+function clearActiveRole(): void {
+  try {
+    window.sessionStorage.removeItem(ACTIVE_ROLE_KEY)
+  } catch {
+    return
+  }
+}
 
 function failureResult(error: unknown): Readonly<{
   ok: false
@@ -86,11 +116,12 @@ export function AuthProvider({ children }: Readonly<{ children: ReactNode }>) {
     let active = true
     void repository.restoreSession().then(async (restored) => {
       if (!active) return
-      const visibleAccounts = restored?.role === "operator"
+      const activeAccount = restored === null ? null : accountWithStoredRole(restored)
+      const visibleAccounts = restored?.roles.includes("operator") === true
         ? await repository.listAccounts()
         : []
       if (!active) return
-      setSession(restored)
+      setSession(activeAccount)
       setAccounts(visibleAccounts)
       setLoadState("ready")
     }).catch((error: unknown) => {
@@ -111,7 +142,8 @@ export function AuthProvider({ children }: Readonly<{ children: ReactNode }>) {
     setErrorMessage(null)
     try {
       const account = await repository.login(input)
-      const visibleAccounts = account.role === "operator" ? await repository.listAccounts() : []
+      const visibleAccounts = account.roles.includes("operator") ? await repository.listAccounts() : []
+      storeActiveRole(account.role)
       setSession(account)
       setAccounts(visibleAccounts)
       return { ok: true, role: account.role }
@@ -129,6 +161,15 @@ export function AuthProvider({ children }: Readonly<{ children: ReactNode }>) {
     setSession(null)
     setAccounts([])
     setErrorMessage(null)
+    clearActiveRole()
+  }, [])
+
+  const switchRole = useCallback((role: Role) => {
+    setSession((current) => {
+      if (current === null || !current.roles.includes(role) || current.role === role) return current
+      storeActiveRole(role)
+      return { ...current, role }
+    })
   }, [])
 
   const runAccountMutation = useCallback(async (
@@ -186,6 +227,7 @@ export function AuthProvider({ children }: Readonly<{ children: ReactNode }>) {
     errorMessage,
     login,
     logout,
+    switchRole,
     createAccount,
     updateAccount,
     resetPassword,
@@ -198,6 +240,7 @@ export function AuthProvider({ children }: Readonly<{ children: ReactNode }>) {
     loadState,
     login,
     logout,
+    switchRole,
     pending,
     resetPassword,
     session,

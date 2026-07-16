@@ -5,6 +5,7 @@ import { usePathname, useRouter, useSearchParams } from "next/navigation"
 import {
   EvaluationCalendar,
   parseYearMonth,
+  type EvaluationCalendarCreateInput,
   type EvaluationCalendarInput,
 } from "@/features/calendar"
 import { useEvaluation } from "@/providers"
@@ -17,22 +18,41 @@ export function CalendarScreen() {
     snapshot,
     activeCycleId,
     role,
-    createScheduleEvent,
+    activeEvaluatorId,
+    createScheduleEvents,
     updateScheduleEvent,
     deleteScheduleEvent,
   } = useEvaluation()
   if (snapshot === null) return null
 
   const cycle = snapshot.cycles.find((entry) => entry.id === activeCycleId)
+  const tasks = snapshot.tasks.filter((task) =>
+    task.cycleId === activeCycleId &&
+    (task.method === "evaluator_score" || task.method === "evaluator_pass_fail"),
+  )
   const events = snapshot.scheduleEvents
     .filter((event) => event.cycleId === activeCycleId)
     .flatMap((event) => {
       const engineer = snapshot.engineers.find((entry) => entry.id === event.engineerId)
       if (engineer === undefined) return []
+      const task = event.taskId === null
+        ? undefined
+        : snapshot.tasks.find((entry) => entry.id === event.taskId)
+      const assignment = event.taskId === null
+        ? undefined
+        : snapshot.assignments.find((entry) =>
+          entry.cycleId === event.cycleId &&
+          entry.engineerId === event.engineerId &&
+          entry.taskId === event.taskId &&
+          entry.evaluatorId === activeEvaluatorId,
+        )
       return [{
         id: event.id,
         engineerId: engineer.id,
         engineerName: engineer.displayName,
+        taskId: event.taskId,
+        taskName: task?.name ?? null,
+        assignmentId: assignment?.id ?? null,
         title: event.title,
         date: event.date,
         startTime: event.startTime,
@@ -57,8 +77,8 @@ export function CalendarScreen() {
     })
   }
 
-  function createEvent(input: EvaluationCalendarInput): boolean {
-    return createScheduleEvent(input)
+  function createEvent(input: EvaluationCalendarCreateInput): boolean {
+    return createScheduleEvents(input)
   }
 
   function updateEvent(eventId: string, input: EvaluationCalendarInput): boolean {
@@ -71,14 +91,22 @@ export function CalendarScreen() {
         id: engineer.id,
         displayName: engineer.displayName,
         team: engineer.team,
+        taskIds: [...new Set(snapshot.assignments
+          .filter((assignment) =>
+            assignment.cycleId === activeCycleId && assignment.engineerId === engineer.id)
+          .map((assignment) => assignment.taskId))],
       }))}
       events={events}
+      tasks={tasks.map((task) => ({ id: task.id, name: task.name }))}
       month={month}
+      mode={role === "operator" ? "manage" : role === "evaluator" ? "evaluate" : "read"}
       onCreate={createEvent}
       onDelete={deleteScheduleEvent}
       onMonthChange={changeMonth}
       onUpdate={updateEvent}
-      readOnly={role === "approver"}
+      onOpenEvaluation={(assignmentId) => router.push(
+        `/evaluations/detail?assignmentId=${encodeURIComponent(assignmentId)}`,
+      )}
     />
   )
 }

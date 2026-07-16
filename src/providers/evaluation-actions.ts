@@ -2,6 +2,7 @@ import type { EvaluationSnapshot, ScoreEntry } from "@/domain"
 import type { RemoteEvaluationCommand } from "@/backend/evaluation-backend"
 import type {
   CreateScheduleEventInput,
+  CreateScheduleEventsInput,
   EvaluationRepository,
   NewEngineerInput,
   NewEvaluationCycleInput,
@@ -30,6 +31,7 @@ export type EvaluationActions = Readonly<{
     passResult: boolean | null,
   ) => boolean
   submitSheet: (sheetId: string) => boolean
+  requestSheetUnlock: (sheetId: string, reason: string) => boolean
   reopenSheet: (sheetId: string, reason: string) => boolean
   updateDirectScore: (
     engineerId: string,
@@ -62,6 +64,11 @@ export type EvaluationActions = Readonly<{
     input: Omit<SaveEvaluationTaskInput, "cycleId" | "actor">,
   ) => boolean
   deleteEvaluationTask: (taskId: string) => boolean
+  updateEvaluatorAssignments: (
+    engineerId: string,
+    taskId: string,
+    evaluatorWeights: ReadonlyArray<Readonly<{ evaluatorId: string; weight: number }>>,
+  ) => boolean
   updateEngineerTaskWeights: (
     engineerId: string,
     weights: ReadonlyArray<Readonly<{ taskId: string; weight: number }>>,
@@ -75,6 +82,9 @@ export type EvaluationActions = Readonly<{
   deleteEvaluator: (evaluatorId: string) => boolean
   createScheduleEvent: (
     input: Omit<CreateScheduleEventInput, "cycleId" | "actor">,
+  ) => boolean
+  createScheduleEvents: (
+    input: Omit<CreateScheduleEventsInput, "cycleId" | "actor">,
   ) => boolean
   updateScheduleEvent: (
     eventId: string,
@@ -104,17 +114,19 @@ export function createEvaluationActions({
       mutate(
         (repository) => repository.saveDraft({ sheetId, scores, passResult, actor }),
         undefined,
-        actor.role === "evaluator"
-          ? { type: "sheet", operation: "save_draft", sheetId }
-          : { type: "operator", action: "sheet_draft_saved", targetId: sheetId },
+        { type: "sheet", operation: "save_draft", sheetId },
       ),
     submitSheet: (sheetId) =>
       mutate(
         (repository) => repository.submitSheet({ sheetId, actor }),
-        "평가표를 제출하고 잠갔습니다.",
-        actor.role === "evaluator"
-          ? { type: "sheet", operation: "submit_sheet", sheetId }
-          : { type: "operator", action: "sheet_submitted", targetId: sheetId },
+        actor.role === "operator" ? "평가표를 저장했습니다." : "평가표를 제출하고 잠갔습니다.",
+        { type: "sheet", operation: "submit_sheet", sheetId },
+      ),
+    requestSheetUnlock: (sheetId, reason) =>
+      mutate(
+        (repository) => repository.requestSheetUnlock({ sheetId, reason, actor }),
+        "잠금 해제 요청을 보냈습니다.",
+        { type: "unlock_request", sheetId, reason },
       ),
     reopenSheet: (sheetId, reason) =>
       mutate(
@@ -277,6 +289,18 @@ export function createEvaluationActions({
         "과제를 삭제했습니다.",
         { type: "operator", action: "task_deleted", targetId: taskId },
       ),
+    updateEvaluatorAssignments: (engineerId, taskId, evaluatorWeights) =>
+      mutate(
+        (repository) => repository.updateEvaluatorAssignments({
+          cycleId: activeCycleId,
+          engineerId,
+          taskId,
+          evaluatorWeights,
+          actor,
+        }),
+        "엔지니어별 평가자 배정을 저장했습니다.",
+        { type: "operator", action: "evaluator_assignments_updated", targetId: `${engineerId}:${taskId}` },
+      ),
     updateEngineerTaskWeights: (engineerId, weights, useSeasonDefaults = false) =>
       mutate(
         (repository) => repository.updateEngineerTaskWeights({
@@ -359,19 +383,51 @@ export function createEvaluationActions({
           actor,
         }),
         "평가 일정을 등록했습니다.",
-        { type: "operator", action: "schedule_event_created", targetId: null },
+        {
+          type: "schedule_create",
+          cycleId: activeCycleId,
+          engineerIds: [input.engineerId],
+          fields: {
+            taskId: input.taskId, title: input.title, date: input.date,
+            startTime: input.startTime, note: input.note,
+          },
+        },
+      ),
+    createScheduleEvents: (input) =>
+      mutate(
+        (repository) => repository.createScheduleEvents({
+          ...input,
+          cycleId: activeCycleId,
+          actor,
+        }),
+        `${input.engineerIds.length}명의 평가 일정을 등록했습니다.`,
+        {
+          type: "schedule_create",
+          cycleId: activeCycleId,
+          engineerIds: input.engineerIds,
+          fields: {
+            taskId: input.taskId, title: input.title, date: input.date,
+            startTime: input.startTime, note: input.note,
+          },
+        },
       ),
     updateScheduleEvent: (eventId, input) =>
       mutate(
         (repository) => repository.updateScheduleEvent({ ...input, eventId, actor }),
         "평가 일정을 수정했습니다.",
-        { type: "operator", action: "schedule_event_updated", targetId: eventId },
+        {
+          type: "schedule_update", eventId, engineerId: input.engineerId,
+          fields: {
+            taskId: input.taskId, title: input.title, date: input.date,
+            startTime: input.startTime, note: input.note,
+          },
+        },
       ),
     deleteScheduleEvent: (eventId) =>
       mutate(
         (repository) => repository.deleteScheduleEvent({ eventId, actor }),
         "평가 일정을 삭제했습니다.",
-        { type: "operator", action: "schedule_event_deleted", targetId: eventId },
+        { type: "schedule_delete", eventId },
       ),
     resetDemoData: () =>
       mutate(

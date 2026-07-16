@@ -10,7 +10,7 @@ describe("createSeedSnapshot", () => {
     const snapshot = createSeedSnapshot()
 
     // Then
-    expect(snapshot.schemaVersion).toBe(6)
+    expect(snapshot.schemaVersion).toBe(7)
     expect(snapshot.cycles).toEqual([
       expect.objectContaining({ name: "2026 상반기", status: "active" }),
     ])
@@ -111,11 +111,11 @@ describe("createSeedSnapshot", () => {
     )
     for (const task of snapshot.tasks.filter((entry) => entry.method === "evaluator_score")) {
       expect(task.items).toHaveLength(10)
-      expect(task.evaluatorWeights).toHaveLength(5)
     }
+    expect(snapshot.assignments.every((assignment) => assignment.weight > 0)).toBe(true)
   })
 
-  it("creates assignments from each evaluator task configuration", () => {
+  it("creates only engineer-specific evaluator assignments for applicable tasks", () => {
     // Given
 
     // When
@@ -127,15 +127,20 @@ describe("createSeedSnapshot", () => {
     const assignments = snapshot.assignments.filter(
       (assignment) => assignment.engineerId === firstEngineer?.id,
     )
-    const evaluatorTasks = snapshot.tasks.filter(
-      (task) => task.method === "evaluator_score" || task.method === "evaluator_pass_fail",
+    expect(assignments.length).toBeGreaterThan(0)
+    expect(assignments.every((assignment) => {
+      const personalWeight = snapshot.engineerTaskWeights.find((entry) =>
+        entry.engineerId === firstEngineer?.id && entry.taskId === assignment.taskId)
+      return personalWeight === undefined || personalWeight.weight > 0
+    })).toBe(true)
+    const evaluatorSets = snapshot.engineers.map((engineer) =>
+      snapshot.assignments
+        .filter((assignment) => assignment.engineerId === engineer.id)
+        .map((assignment) => assignment.evaluatorId)
+        .sort()
+        .join(","),
     )
-    expect(assignments).toHaveLength(
-      evaluatorTasks.reduce((total, task) => total + task.evaluatorWeights.length, 0),
-    )
-    expect(new Set(assignments.map((assignment) => assignment.taskId))).toEqual(
-      new Set(evaluatorTasks.map((task) => task.id)),
-    )
+    expect(new Set(evaluatorSets).size).toBeGreaterThan(1)
   })
 
   it("contains complete, in-progress, unconfirmed, and unassigned examples", () => {

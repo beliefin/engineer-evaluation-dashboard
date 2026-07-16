@@ -6,15 +6,20 @@ import { EvaluationCalendar } from "./evaluation-calendar"
 import type { CalendarEventView, CalendarEngineer } from "./types"
 
 const ENGINEERS: readonly CalendarEngineer[] = [
-  { id: "engineer-1", displayName: "김새벽", team: "생산 1팀" },
-  { id: "engineer-2", displayName: "이바다", team: "생산 2팀" },
+  { id: "engineer-1", displayName: "김새벽", team: "생산 1팀", taskIds: ["task-1"] },
+  { id: "engineer-2", displayName: "이바다", team: "생산 2팀", taskIds: ["task-1"] },
 ]
+
+const TASKS = [{ id: "task-1", name: "성장탐구" }] as const
 
 const EVENTS: readonly CalendarEventView[] = [
   {
     id: "event-1",
     engineerId: "engineer-1",
     engineerName: "김새벽",
+    taskId: "task-1",
+    taskName: "성장탐구",
+    assignmentId: "assignment-1",
     title: "성장탐구 발표",
     date: "2026-07-14",
     startTime: "09:00",
@@ -24,19 +29,21 @@ const EVENTS: readonly CalendarEventView[] = [
 
 afterEach(cleanup)
 
-function renderCalendar(overrides: { readonly readOnly?: boolean } = {}) {
+function renderCalendar(overrides: { readonly mode?: "manage" | "evaluate" | "read" } = {}) {
   const callbacks = {
     onMonthChange: vi.fn(),
     onCreate: vi.fn(() => true),
     onUpdate: vi.fn(() => true),
     onDelete: vi.fn(() => true),
+    onOpenEvaluation: vi.fn(),
   }
   render(
     <EvaluationCalendar
       engineers={ENGINEERS}
       events={EVENTS}
       month="2026-07"
-      readOnly={overrides.readOnly ?? false}
+      mode={overrides.mode ?? "manage"}
+      tasks={TASKS}
       {...callbacks}
     />,
   )
@@ -63,7 +70,8 @@ describe("EvaluationCalendar", () => {
     expect(screen.getByRole("group", { name: "일정 입력 항목" })).toHaveClass("overflow-y-auto")
     expect(screen.getByRole("button", { name: "일정 저장" }).closest("[data-slot=dialog-footer]")).toHaveClass("shrink-0")
 
-    await userEvent.selectOptions(screen.getByLabelText("엔지니어"), "engineer-2")
+    await userEvent.click(screen.getByLabelText(/이바다/))
+    await userEvent.clear(screen.getByLabelText("일정 제목"))
     await userEvent.type(screen.getByLabelText("일정 제목"), "OTS 발표")
     fireEvent.change(screen.getByLabelText("발표일"), { target: { value: "2026-07-21" } })
     fireEvent.change(screen.getByLabelText("시작 시간"), { target: { value: "14:30" } })
@@ -71,7 +79,8 @@ describe("EvaluationCalendar", () => {
     await userEvent.click(screen.getByRole("button", { name: "일정 저장" }))
 
     expect(callbacks.onCreate).toHaveBeenCalledWith({
-      engineerId: "engineer-2",
+      engineerIds: ["engineer-2"],
+      taskId: "task-1",
       title: "OTS 발표",
       date: "2026-07-21",
       startTime: "14:30",
@@ -86,8 +95,7 @@ describe("EvaluationCalendar", () => {
     await userEvent.click(screen.getByRole("button", { name: "일정 저장" }))
 
     expect(callbacks.onCreate).not.toHaveBeenCalled()
-    expect(screen.getByRole("alert")).toHaveTextContent("일정 제목을 입력해 주세요")
-    expect(screen.getByLabelText("일정 제목")).toHaveAttribute("aria-invalid", "true")
+    expect(screen.getByRole("alert")).toHaveTextContent("엔지니어를 한 명 이상 선택해 주세요")
   })
 
   it("edits and deletes an existing schedule", async () => {
@@ -102,6 +110,7 @@ describe("EvaluationCalendar", () => {
 
     expect(callbacks.onUpdate).toHaveBeenCalledWith("event-1", {
       engineerId: "engineer-1",
+      taskId: "task-1",
       title: "성장탐구 최종 발표",
       date: "2026-07-14",
       startTime: "09:00",
@@ -131,7 +140,7 @@ describe("EvaluationCalendar", () => {
   })
 
   it("exposes a view-only calendar without mutation controls", () => {
-    renderCalendar({ readOnly: true })
+    renderCalendar({ mode: "read" })
 
     expect(screen.queryByRole("button", { name: "일정 추가" })).not.toBeInTheDocument()
     expect(screen.queryByRole("button", { name: /김새벽.*성장탐구 발표/ })).not.toBeInTheDocument()
@@ -142,11 +151,23 @@ describe("EvaluationCalendar", () => {
     expect(screen.getByText("읽기 전용")).toBeInTheDocument()
   })
 
+  it("opens the linked evaluation from an evaluator calendar without edit controls", async () => {
+    const callbacks = renderCalendar({ mode: "evaluate" })
+    const monthlyGrid = screen.getByRole("table", { name: "월간 발표 일정" })
+
+    await userEvent.click(within(monthlyGrid).getByRole("button", { name: /김새벽.*성장탐구 발표/ }))
+
+    expect(callbacks.onOpenEvaluation).toHaveBeenCalledWith("assignment-1")
+    expect(screen.queryByRole("dialog", { name: "발표 일정 수정" })).not.toBeInTheDocument()
+    expect(screen.queryByRole("button", { name: "일정 추가" })).not.toBeInTheDocument()
+  })
+
   it("keeps the dialog open and announces a callback failure", async () => {
     const callbacks = renderCalendar()
     callbacks.onCreate.mockReturnValue(false)
     await userEvent.click(screen.getByRole("button", { name: "일정 추가" }))
-    await userEvent.selectOptions(screen.getByLabelText("엔지니어"), "engineer-1")
+    await userEvent.click(within(screen.getByRole("dialog")).getByLabelText(/김새벽/))
+    await userEvent.clear(screen.getByLabelText("일정 제목"))
     await userEvent.type(screen.getByLabelText("일정 제목"), "DX 발표")
     await userEvent.click(screen.getByRole("button", { name: "일정 저장" }))
 

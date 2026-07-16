@@ -6,6 +6,7 @@ import {
   updateEngineerInputSchema,
 } from "./input-schemas"
 import { appendAuditEvent, type MutationContext } from "./mutation-context"
+import { mergeDepartmentCatalog } from "./department-catalog"
 import {
   requireCycleUnlocked,
   requireEngineer,
@@ -42,6 +43,10 @@ export function updateEngineerAction(
 
   const nextSnapshot: EvaluationSnapshot = {
     ...context.snapshot,
+    departmentCatalog: mergeDepartmentCatalog(context.snapshot, [{
+      team: parsed.team,
+      name: parsed.department,
+    }]),
     engineers: context.snapshot.engineers.map((engineer) =>
       engineer.id === parsed.engineerId
         ? {
@@ -102,6 +107,11 @@ export function deleteEngineerAction(
       .filter((assignment) => assignment.engineerId === parsed.engineerId)
       .map((assignment) => assignment.id),
   )
+  const removedSheetIds = new Set(
+    context.snapshot.scoreSheets
+      .filter((sheet) => assignmentIds.has(sheet.assignmentId))
+      .map((sheet) => sheet.id),
+  )
   const nextSnapshot: EvaluationSnapshot = {
     ...context.snapshot,
     engineers: context.snapshot.engineers.filter((engineer) => engineer.id !== parsed.engineerId),
@@ -113,6 +123,9 @@ export function deleteEngineerAction(
     ),
     scoreSheets: context.snapshot.scoreSheets.filter(
       (sheet) => !assignmentIds.has(sheet.assignmentId),
+    ),
+    unlockRequests: context.snapshot.unlockRequests.filter(
+      (request) => !removedSheetIds.has(request.sheetId),
     ),
     directScores: context.snapshot.directScores.filter(
       (score) => score.engineerId !== parsed.engineerId,

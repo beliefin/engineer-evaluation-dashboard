@@ -1,14 +1,14 @@
 import { Clock3 } from "lucide-react"
 
 import { formatCalendarDate } from "./calendar-helpers"
-import type { CalendarDay, CalendarEventView } from "./types"
+import type { CalendarDay, CalendarEventView, CalendarInteractionMode } from "./types"
 
 const WEEKDAYS = ["일", "월", "화", "수", "목", "금", "토"] as const
 
 type MonthGridProps = Readonly<{
   days: readonly CalendarDay[]
   events: readonly CalendarEventView[]
-  readOnly: boolean
+  mode: CalendarInteractionMode
   onSelectEvent: (event: CalendarEventView) => void
 }>
 
@@ -19,11 +19,11 @@ function eventLabel(event: CalendarEventView): string {
 
 function CalendarEventChip({
   event,
-  readOnly,
+  mode,
   onSelectEvent,
 }: Readonly<{
   event: CalendarEventView
-  readOnly: boolean
+  mode: CalendarInteractionMode
   onSelectEvent: (event: CalendarEventView) => void
 }>) {
   const content = (
@@ -36,7 +36,8 @@ function CalendarEventChip({
     </>
   )
 
-  if (readOnly) {
+  const actionable = mode === "manage" || mode === "evaluate" && event.assignmentId !== null
+  if (!actionable) {
     return <div className="rounded-md border-l-2 border-l-primary bg-accent px-2 py-1.5">{content}</div>
   }
   return (
@@ -51,7 +52,7 @@ function CalendarEventChip({
   )
 }
 
-export function MonthGrid({ days, events, readOnly, onSelectEvent }: MonthGridProps) {
+export function MonthGrid({ days, events, mode, onSelectEvent }: MonthGridProps) {
   const eventsByDate = new Map<string, CalendarEventView[]>()
   for (const event of events) {
     const dateEvents = eventsByDate.get(event.date)
@@ -93,7 +94,7 @@ export function MonthGrid({ days, events, readOnly, onSelectEvent }: MonthGridPr
                           event={event}
                           key={event.id}
                           onSelectEvent={onSelectEvent}
-                          readOnly={readOnly}
+                          mode={mode}
                         />
                       ))}
                       {dayEvents.length > 2 ? (

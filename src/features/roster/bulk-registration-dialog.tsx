@@ -28,6 +28,7 @@ import type {
   EngineerRegistration,
   EvaluatorRegistration,
   RosterDepartment,
+  RosterDepartmentOptions,
   RosterTeam,
 } from "./types"
 import { defaultRosterDepartment } from "./types"
@@ -35,6 +36,7 @@ import { defaultRosterDepartment } from "./types"
 interface BulkRegistrationDialogProps {
   readonly kind: "engineer" | "evaluator"
   readonly disabled: boolean
+  readonly departmentOptions: RosterDepartmentOptions
   readonly onAddEngineers: (rows: readonly EngineerRegistration[]) => boolean
   readonly onAddEvaluators: (rows: readonly EvaluatorRegistration[]) => boolean
 }
@@ -42,6 +44,7 @@ interface BulkRegistrationDialogProps {
 export function BulkRegistrationDialog({
   kind,
   disabled,
+  departmentOptions,
   onAddEngineers,
   onAddEvaluators,
 }: BulkRegistrationDialogProps) {
@@ -119,6 +122,7 @@ export function BulkRegistrationDialog({
               <DepartmentSelect
                 id={`${id}-default-department`}
                 onValueChange={setDefaultDepartment}
+                savedDepartments={departmentOptions[defaultTeam]}
                 team={defaultTeam}
                 value={defaultDepartment}
               />

@@ -3,6 +3,7 @@ import {
   DIVISIONS,
   TEAMS,
   type Department,
+  type DepartmentCatalogEntry,
   type Division,
   type Team,
 } from "@/domain"
@@ -14,20 +15,20 @@ export const ROSTER_DEPARTMENTS_BY_TEAM = DEPARTMENTS_BY_TEAM
 export type RosterDivision = Division
 export type RosterTeam = Team
 export type RosterDepartment = Department
+export type RosterDepartmentOptions = Readonly<Record<RosterTeam, readonly string[]>>
 
-export function rosterDepartmentsForTeam(team: RosterTeam): readonly RosterDepartment[] {
-  return ROSTER_DEPARTMENTS_BY_TEAM[team]
+export function rosterDepartmentsForTeam(
+  team: RosterTeam,
+  savedDepartments: readonly string[] = [],
+): readonly RosterDepartment[] {
+  return [...new Set([
+    ...ROSTER_DEPARTMENTS_BY_TEAM[team],
+    ...savedDepartments.map((department) => department.trim()).filter((department) => department !== ""),
+  ])]
 }
 
 export function defaultRosterDepartment(team: RosterTeam): RosterDepartment {
   return team === "생산 1팀" ? "전자약품담당" : "염화메탄담당"
-}
-
-export function isRosterDepartmentForTeam(
-  team: RosterTeam,
-  department: string,
-): department is RosterDepartment {
-  return rosterDepartmentsForTeam(team).some((candidate) => candidate === department)
 }
 
 export interface EngineerRegistration {
@@ -73,6 +74,7 @@ export interface BulkParseResult<Row> {
 export interface RosterManagementPanelProps {
   readonly engineers: readonly EngineerRosterItem[]
   readonly evaluators: readonly EvaluatorRosterItem[]
+  readonly departmentCatalog?: readonly DepartmentCatalogEntry[]
   readonly disabled?: boolean
   readonly onAddEngineers: (
     engineers: readonly EngineerRegistration[],

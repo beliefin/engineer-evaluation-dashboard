@@ -66,13 +66,18 @@ function linkedRosterLabel(
   evaluatorOptions: ReadonlyArray<AuthEvaluatorOption>,
   engineerOptions: ReadonlyArray<AuthEngineerOption>,
 ): string {
-  if (account.role === "evaluator") {
-    return evaluatorOptions.find((option) => option.id === account.evaluatorId)?.label ?? "연결 대상 없음"
+  const labels: string[] = []
+  if (account.roles.includes("evaluator")) {
+    labels.push(evaluatorOptions.find((option) => option.id === account.evaluatorId)?.label ?? "평가자 연결 없음")
   }
-  if (account.role === "engineer") {
-    return engineerOptions.find((option) => option.id === account.engineerId)?.label ?? "연결 대상 없음"
+  if (account.roles.includes("engineer")) {
+    labels.push(engineerOptions.find((option) => option.id === account.engineerId)?.label ?? "엔지니어 연결 없음")
   }
-  return "-"
+  return labels.length > 0 ? labels.join(" · ") : "-"
+}
+
+function accountRoleLabel(account: AuthAccount): string {
+  return account.roles.map((role) => APP_SHELL_ROLE_LABELS[role]).join(" · ")
 }
 
 export function AccountManagementPanel({
@@ -92,7 +97,7 @@ export function AccountManagementPanel({
   const [toggleTarget, setToggleTarget] = useState<AuthAccount | null>(null)
   const [deleteTarget, setDeleteTarget] = useState<AuthAccount | null>(null)
   const activeCount = accounts.filter((account) => account.active).length
-  const operatorCount = accounts.filter((account) => account.role === "operator").length
+  const operatorCount = accounts.filter((account) => account.roles.includes("operator")).length
 
   function actionsFor(account: AuthAccount) {
     const current = account.id === currentAccountId
@@ -133,7 +138,7 @@ export function AccountManagementPanel({
             {accounts.map((account) => (
               <li className="space-y-3 px-4 py-4" key={account.id}>
                 <div className="flex items-start justify-between gap-3"><div><p className="font-semibold">{account.displayName}</p><p className="mt-0.5 text-xs text-muted-foreground">{account.username}</p></div><Badge variant={account.active ? "secondary" : "destructive"}>{account.active ? "활성" : "비활성"}</Badge></div>
-                <p className="text-sm text-muted-foreground">{APP_SHELL_ROLE_LABELS[account.role]} · {linkedRosterLabel(account, evaluatorOptions, engineerOptions)}</p>
+                <p className="text-sm text-muted-foreground">{accountRoleLabel(account)} · {linkedRosterLabel(account, evaluatorOptions, engineerOptions)}</p>
                 {actionsFor(account)}
               </li>
             ))}
@@ -145,7 +150,7 @@ export function AccountManagementPanel({
               {accounts.map((account) => (
                 <TableRow key={account.id}>
                   <TableCell><span className="block font-semibold">{account.username}</span><span className="mt-0.5 block text-xs text-muted-foreground">{account.displayName}</span></TableCell>
-                  <TableCell>{APP_SHELL_ROLE_LABELS[account.role]}</TableCell>
+                  <TableCell>{accountRoleLabel(account)}</TableCell>
                   <TableCell>{linkedRosterLabel(account, evaluatorOptions, engineerOptions)}</TableCell>
                   <TableCell><Badge variant={account.active ? "secondary" : "destructive"}>{account.active ? "활성" : "비활성"}</Badge></TableCell>
                   <TableCell>{actionsFor(account)}</TableCell>

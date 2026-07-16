@@ -1,10 +1,10 @@
-import { roleSchema, type Role } from "@/domain"
+import type { Role } from "@/domain"
 import { Label } from "@/components/ui/label"
 
 import type { AuthEngineerOption, AuthEvaluatorOption } from "./types"
 
 type AccountRoleFieldsProps = Readonly<{
-  role: Role
+  roles: ReadonlyArray<Role>
   evaluatorId: string
   engineerId: string
   evaluatorError?: string | undefined
@@ -13,13 +13,13 @@ type AccountRoleFieldsProps = Readonly<{
   engineerOptions: ReadonlyArray<AuthEngineerOption>
   disabled: boolean
   roleDisabled: boolean
-  onRoleChange: (role: Role) => void
+  onRolesChange: (roles: ReadonlyArray<Role>) => void
   onEvaluatorChange: (evaluatorId: string) => void
   onEngineerChange: (engineerId: string) => void
 }>
 
 export function AccountRoleFields({
-  role,
+  roles,
   evaluatorId,
   engineerId,
   evaluatorError,
@@ -28,10 +28,24 @@ export function AccountRoleFields({
   engineerOptions,
   disabled,
   roleDisabled,
-  onRoleChange,
+  onRolesChange,
   onEvaluatorChange,
   onEngineerChange,
 }: AccountRoleFieldsProps) {
+  const rolePreset = roles.length === 2 ? "evaluator_engineer" : (roles[0] ?? "approver")
+  const hasEvaluatorRole = roles.includes("evaluator")
+  const hasEngineerRole = roles.includes("engineer")
+
+  function handleRolePreset(value: string) {
+    if (value === "evaluator_engineer") {
+      onRolesChange(["evaluator", "engineer"])
+      return
+    }
+    if (value === "operator" || value === "evaluator" || value === "approver" || value === "engineer") {
+      onRolesChange([value])
+    }
+  }
+
   return (
     <div className="grid gap-4 sm:grid-cols-2">
       <div className="space-y-2">
@@ -40,20 +54,18 @@ export function AccountRoleFields({
           className="h-9 w-full rounded-md border border-input bg-card px-2.5 text-sm"
           disabled={roleDisabled}
           id="account-role"
-          onChange={(event) => {
-            const parsedRole = roleSchema.safeParse(event.currentTarget.value)
-            if (parsedRole.success) onRoleChange(parsedRole.data)
-          }}
-          value={role}
+          onChange={(event) => handleRolePreset(event.currentTarget.value)}
+          value={rolePreset}
         >
           <option value="operator">운영자</option>
           <option value="evaluator">평가자</option>
+          <option value="evaluator_engineer">평가자 · 엔지니어</option>
           <option value="approver">승인자</option>
           <option value="engineer">엔지니어</option>
         </select>
       </div>
 
-      {role === "evaluator" ? (
+      {hasEvaluatorRole ? (
         <div className="space-y-2">
           <Label htmlFor="account-evaluator">연결 평가자</Label>
           <select
@@ -79,7 +91,7 @@ export function AccountRoleFields({
         </div>
       ) : null}
 
-      {role === "engineer" ? (
+      {hasEngineerRole ? (
         <div className="space-y-2">
           <Label htmlFor="account-engineer">연결 엔지니어</Label>
           <select

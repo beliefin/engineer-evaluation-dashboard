@@ -11,6 +11,7 @@ import {
 import { deleteDirectScoreRuleAction, saveDirectScoreRuleAction } from "./direct-score-rule-actions"
 import { deleteEngineerAction, updateEngineerAction } from "./engineer-roster-actions"
 import { deleteEvaluatorAction, updateEvaluatorAction } from "./evaluator-roster-actions"
+import { updateEvaluatorAssignmentsAction } from "./evaluator-assignment-actions"
 
 import { updateDirectScoreAction } from "./admin-actions"
 import { type MutationContext } from "./mutation-context"
@@ -18,6 +19,7 @@ import { loadStoredSnapshot, persistSnapshot } from "./persistence"
 import { addEngineersAction, addEvaluatorsAction } from "./roster-actions"
 import {
   createScheduleEventAction,
+  createScheduleEventsAction,
   deleteScheduleEventAction,
   updateScheduleEventAction,
 } from "./schedule-actions"
@@ -28,7 +30,7 @@ import {
   saveLanguageScoreRecordAction,
   verifySourceRecordAction,
 } from "./source-record-actions"
-import { reopenSheetAction, saveDraftAction, submitSheetAction } from "./sheet-actions"
+import { reopenSheetAction, requestSheetUnlockAction, saveDraftAction, submitSheetAction } from "./sheet-actions"
 import { deleteScoreAdjustmentAction, saveScoreAdjustmentAction } from "./score-adjustment-actions"
 import {
   deleteEvaluationTaskAction,
@@ -47,6 +49,7 @@ import type {
   AddEngineersInput,
   AddEvaluatorsInput,
   CreateScheduleEventInput,
+  CreateScheduleEventsInput,
   CreateEvaluationCycleInput,
   DeleteSourceRecordInput,
   DeleteEngineerInput,
@@ -58,6 +61,7 @@ import type {
   DeleteDirectScoreRuleInput,
   EvaluationRepository,
   ReopenSheetInput,
+  RequestSheetUnlockInput,
   RepositoryConfig,
   SaveDraftInput,
   SaveCertificationRecordInput,
@@ -71,6 +75,7 @@ import type {
   UpdateEngineerInput,
   UpdateEvaluatorInput,
   UpdateEvaluationCycleInput,
+  UpdateEvaluatorAssignmentsInput,
   UpdateEngineerTaskWeightsInput,
   UpdateScheduleEventInput,
   VerifySourceRecordInput,
@@ -95,6 +100,10 @@ class LocalStorageEvaluationRepository implements EvaluationRepository {
 
   submitSheet(input: SheetActionInput): EvaluationSnapshot {
     return this.persist(submitSheetAction(this.context(), input))
+  }
+
+  requestSheetUnlock(input: RequestSheetUnlockInput): EvaluationSnapshot {
+    return this.persist(requestSheetUnlockAction(this.context(), input))
   }
 
   reopenSheet(input: ReopenSheetInput): EvaluationSnapshot {
@@ -165,6 +174,10 @@ class LocalStorageEvaluationRepository implements EvaluationRepository {
     return this.persist(deleteEvaluationTaskAction(this.context(), input))
   }
 
+  updateEvaluatorAssignments(input: UpdateEvaluatorAssignmentsInput): EvaluationSnapshot {
+    return this.persist(updateEvaluatorAssignmentsAction(this.context(), input))
+  }
+
   updateEngineerTaskWeights(input: UpdateEngineerTaskWeightsInput): EvaluationSnapshot {
     return this.persist(updateEngineerTaskWeightsAction(this.context(), input))
   }
@@ -195,6 +208,10 @@ class LocalStorageEvaluationRepository implements EvaluationRepository {
 
   createScheduleEvent(input: CreateScheduleEventInput): EvaluationSnapshot {
     return this.persist(createScheduleEventAction(this.context(), input))
+  }
+
+  createScheduleEvents(input: CreateScheduleEventsInput): EvaluationSnapshot {
+    return this.persist(createScheduleEventsAction(this.context(), input))
   }
 
   updateScheduleEvent(input: UpdateScheduleEventInput): EvaluationSnapshot {

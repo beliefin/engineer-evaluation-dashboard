@@ -3,8 +3,6 @@ import type {
   Engineer,
   EvaluationSnapshot,
   Evaluator,
-  EvaluatorAssignment,
-  ScoreSheet,
 } from "@/domain"
 
 import {
@@ -18,6 +16,7 @@ import {
   type MutationContext,
 } from "./mutation-context"
 import { requireCycleUnlocked, requireOperator } from "./repository-helpers"
+import { mergeDepartmentCatalog } from "./department-catalog"
 import {
   RepositoryError,
   type AddEngineersInput,
@@ -55,8 +54,6 @@ export function addEngineersAction(
   )
   const tasks = context.snapshot.tasks.filter((task) => task.cycleId === parsed.cycleId)
   const engineers: Engineer[] = []
-  const assignments: EvaluatorAssignment[] = []
-  const scoreSheets: ScoreSheet[] = []
   const directScores: DirectScore[] = []
 
   for (const candidate of parsed.engineers) {
@@ -68,29 +65,7 @@ export function addEngineersAction(
     }
     engineers.push(engineer)
     for (const task of tasks) {
-      if (task.method === "evaluator_score" || task.method === "evaluator_pass_fail") {
-        for (const evaluator of task.evaluatorWeights) {
-          const assignment: EvaluatorAssignment = {
-            id: createEntityId(context, "assignment"),
-            cycleId: parsed.cycleId,
-            engineerId: engineer.id,
-            evaluatorId: evaluator.evaluatorId,
-            taskId: task.id,
-          }
-          assignments.push(assignment)
-          scoreSheets.push({
-            id: createEntityId(context, "sheet"),
-            assignmentId: assignment.id,
-            status: "draft",
-            scores: task.method === "evaluator_score"
-              ? task.items.map((item) => ({ itemId: item.id, score: null }))
-              : [],
-            passResult: null,
-            updatedAt: context.now,
-            submittedAt: null,
-          })
-        }
-      } else {
+      if (task.method === "operator_score" || task.method === "operator_pass_fail") {
         directScores.push({
           id: createEntityId(context, "direct"),
           cycleId: parsed.cycleId,
@@ -106,9 +81,11 @@ export function addEngineersAction(
 
   const withRoster: EvaluationSnapshot = {
     ...context.snapshot,
+    departmentCatalog: mergeDepartmentCatalog(
+      context.snapshot,
+      engineers.map((engineer) => ({ team: engineer.team, name: engineer.department })),
+    ),
     engineers: [...context.snapshot.engineers, ...engineers],
-    assignments: [...context.snapshot.assignments, ...assignments],
-    scoreSheets: [...context.snapshot.scoreSheets, ...scoreSheets],
     directScores: [...context.snapshot.directScores, ...directScores],
   }
   return engineers.reduce(
@@ -148,6 +125,10 @@ export function addEvaluatorsAction(
 
   const withRoster: EvaluationSnapshot = {
     ...context.snapshot,
+    departmentCatalog: mergeDepartmentCatalog(
+      context.snapshot,
+      evaluators.map((evaluator) => ({ team: evaluator.team, name: evaluator.department })),
+    ),
     evaluators: [...context.snapshot.evaluators, ...evaluators],
   }
   return evaluators.reduce(

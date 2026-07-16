@@ -29,8 +29,6 @@ import type { EvaluationMethod } from "@/domain"
 import type {
   EvaluationTaskDraft,
   EvaluationTaskViewModel,
-  EvaluatorOptionViewModel,
-  TaskEvaluatorDraft,
   TaskItemDraft,
 } from "./types"
 import { RubricItemEditor } from "./rubric-item-editor"
@@ -43,15 +41,10 @@ const METHOD_LABELS: Readonly<Record<EvaluationMethod, string>> = {
 }
 
 type Props = Readonly<{
-  evaluators: readonly EvaluatorOptionViewModel[]
   initial?: EvaluationTaskViewModel
   disabled: boolean
   onSave: (task: EvaluationTaskDraft) => boolean
 }>
-
-function isEvaluatorMethod(method: EvaluationMethod): boolean {
-  return method === "evaluator_score" || method === "evaluator_pass_fail"
-}
 
 function isEvaluationMethod(value: string): value is EvaluationMethod {
   return value === "evaluator_score"
@@ -60,7 +53,7 @@ function isEvaluationMethod(value: string): value is EvaluationMethod {
     || value === "operator_pass_fail"
 }
 
-export function EvaluationTaskDialog({ evaluators, initial, disabled, onSave }: Props) {
+export function EvaluationTaskDialog({ initial, disabled, onSave }: Props) {
   const [open, setOpen] = useState(false)
   const [name, setName] = useState(initial?.name ?? "")
   const [description, setDescription] = useState(initial?.description ?? "")
@@ -68,9 +61,6 @@ export function EvaluationTaskDialog({ evaluators, initial, disabled, onSave }: 
   const [weight, setWeight] = useState(String(initial?.weight ?? 10))
   const [items, setItems] = useState<ReadonlyArray<TaskItemDraft>>(
     initial?.items ?? [{ id: null, label: "평가 항목 1", section: null, criteria: [] }],
-  )
-  const [evaluatorWeights, setEvaluatorWeights] = useState<ReadonlyArray<TaskEvaluatorDraft>>(
-    initial?.evaluatorWeights ?? [],
   )
   const [error, setError] = useState<string | null>(null)
 
@@ -80,13 +70,6 @@ export function EvaluationTaskDialog({ evaluators, initial, disabled, onSave }: 
     else if (items.length === 0) {
       setItems([{ id: null, label: "평가 항목 1", section: null, criteria: [] }])
     }
-    if (!isEvaluatorMethod(next)) setEvaluatorWeights([])
-  }
-
-  function toggleEvaluator(evaluatorId: string, checked: boolean) {
-    setEvaluatorWeights((current) => checked
-      ? [...current, { evaluatorId, weight: 1 }]
-      : current.filter((entry) => entry.evaluatorId !== evaluatorId))
   }
 
   function handleSubmit(event: FormEvent<HTMLFormElement>) {
@@ -129,7 +112,6 @@ export function EvaluationTaskDialog({ evaluators, initial, disabled, onSave }: 
             .toSorted((left, right) => left.score - right.score),
         }))
         : [],
-      evaluatorWeights: isEvaluatorMethod(method) ? evaluatorWeights : [],
     })
     if (saved) setOpen(false)
   }
@@ -146,7 +128,7 @@ export function EvaluationTaskDialog({ evaluators, initial, disabled, onSave }: 
         <form className="flex max-h-[90dvh] flex-col" onSubmit={handleSubmit}>
           <DialogHeader className="shrink-0 px-4 pt-5 pr-12 sm:px-6 sm:pt-6">
             <DialogTitle>{initial === undefined ? "새 평가 과제" : "평가 과제 수정"}</DialogTitle>
-            <DialogDescription>평가방식, 반영 가중치, 문항과 평가자를 시즌별로 설정합니다.</DialogDescription>
+            <DialogDescription>평가방식, 반영 가중치와 세부 문항을 시즌별로 설정합니다. 평가자는 엔지니어별 배정 화면에서 지정합니다.</DialogDescription>
           </DialogHeader>
           <div className="grid min-h-0 flex-1 gap-5 overflow-y-auto px-4 py-5 sm:grid-cols-2 sm:px-6">
             <div className="space-y-2 sm:col-span-2">
@@ -187,12 +169,6 @@ export function EvaluationTaskDialog({ evaluators, initial, disabled, onSave }: 
                     ))}
                   />
                 ))}</div>
-              </section>
-            ) : null}
-            {isEvaluatorMethod(method) ? (
-              <section className="space-y-3 border-t pt-5 sm:col-span-2" aria-labelledby="task-evaluators-title">
-                <div><h3 className="font-semibold" id="task-evaluators-title">평가자와 가중치</h3><p className="mt-1 text-xs text-muted-foreground">선택한 평가자의 양수 가중치를 자동 정규화해 반영합니다.</p></div>
-                <div className="grid gap-2 sm:grid-cols-2">{evaluators.map((evaluator) => { const selected = evaluatorWeights.find((entry) => entry.evaluatorId === evaluator.id); return <label className="flex items-center gap-3 rounded-md border p-3" key={evaluator.id}><input aria-label={`${evaluator.name} 평가 참여`} checked={selected !== undefined} className="size-4 accent-primary" onChange={(event) => toggleEvaluator(evaluator.id, event.currentTarget.checked)} type="checkbox" /><span className="min-w-0 flex-1 text-sm"><span className="block truncate font-medium">{evaluator.name}</span><span className="text-xs text-muted-foreground">{evaluator.employeeCode}</span></span><Input aria-label={`${evaluator.name} 가중치`} className="w-20" disabled={selected === undefined} min="0.1" onChange={(event) => { const nextWeight = Number(event.currentTarget.value); setEvaluatorWeights((current) => current.map((entry) => entry.evaluatorId === evaluator.id ? { ...entry, weight: nextWeight } : entry)) }} step="0.1" type="number" value={selected?.weight ?? 1} /></label> })}</div>
               </section>
             ) : null}
             {error === null ? null : <p className="text-sm text-destructive sm:col-span-2" role="alert">{error}</p>}

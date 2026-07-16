@@ -7,6 +7,7 @@ import type { AppShellProps } from "./types"
 export function AppShell({
   children,
   role,
+  availableRoles,
   cycles,
   evaluatorOptions,
   activeCycleId,
@@ -15,6 +16,7 @@ export function AppShell({
   onCycleChange,
   onEvaluatorChange,
   onLogout,
+  onRoleChange,
   actorLabel,
 }: AppShellProps) {
   return (
@@ -31,11 +33,13 @@ export function AppShell({
           activeCycleId={activeCycleId}
           activeEvaluatorId={activeEvaluatorId}
           actorLabel={actorLabel}
+          availableRoles={availableRoles}
           cycles={cycles}
           evaluatorOptions={evaluatorOptions}
           onCycleChange={onCycleChange}
           onEvaluatorChange={onEvaluatorChange}
           onLogout={onLogout}
+          onRoleChange={onRoleChange}
           role={role}
           saveState={saveState}
         />

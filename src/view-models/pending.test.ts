@@ -30,18 +30,18 @@ describe("selectPendingEvaluations", () => {
     expect(selection.rows).toHaveLength(12)
     expect(selection.rows.find((row) => row.engineerId === "engineer-13")).toMatchObject({
       status: "in_progress",
-      submittedSheetCount: 9,
-      totalSheetCount: 10,
+      submittedSheetCount: 3,
+      totalSheetCount: 4,
       enteredDirectScoreCount: 2,
       totalDirectScoreCount: 3,
-      missingEvaluatorNames: ["샘플 평가자 1"],
+      missingEvaluatorNames: ["샘플 평가자 3"],
       firstPendingAssignmentId:
-        "engineer-13-task-dx-tool-evaluator-01",
+        "engineer-13-task-dx-tool-evaluator-03",
     })
     expect(selection.rows.find((row) => row.engineerId === "engineer-19")).toMatchObject({
       status: "direct_scores_pending",
-      submittedSheetCount: 10,
-      totalSheetCount: 10,
+      submittedSheetCount: 4,
+      totalSheetCount: 4,
       enteredDirectScoreCount: 2,
       missingEvaluatorNames: [],
       firstPendingAssignmentId: null,
@@ -82,16 +82,13 @@ describe("selectPendingEvaluations", () => {
     expect(selection.rows.find((row) => row.engineerId === "engineer-13")).toMatchObject({
       status: "not_started",
       submittedSheetCount: 0,
-      totalSheetCount: 10,
+      totalSheetCount: 4,
       missingEvaluatorNames: [
-        "샘플 평가자 1",
-        "샘플 평가자 2",
         "샘플 평가자 3",
         "샘플 평가자 4",
-        "샘플 평가자 5",
       ],
       firstPendingAssignmentId:
-        "engineer-13-task-growth-plan-evaluator-01",
+        "engineer-13-task-growth-plan-evaluator-03",
     })
     expect(selection.metrics.byStatus.not_started).toBe(1)
     expect(selection.metrics.byStatus.in_progress).toBe(5)

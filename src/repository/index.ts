@@ -11,6 +11,7 @@ export {
   type AddEngineersInput,
   type AddEvaluatorsInput,
   type CreateScheduleEventInput,
+  type CreateScheduleEventsInput,
   type CreateEvaluationCycleInput,
   type DeleteEvaluationCycleInput,
   type DeleteEngineerInput,

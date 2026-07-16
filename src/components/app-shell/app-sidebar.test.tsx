@@ -10,7 +10,7 @@ const HOME_ROUTES: readonly Readonly<{
 }>[] = [
   { role: "operator", href: "/dashboard" },
   { role: "approver", href: "/dashboard" },
-  { role: "evaluator", href: "/evaluations" },
+  { role: "evaluator", href: "/today" },
   { role: "engineer", href: "/my" },
 ]
 

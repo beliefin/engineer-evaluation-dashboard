@@ -17,11 +17,12 @@ import { Label } from "@/components/ui/label"
 import { TeamSelect } from "./team-select"
 import { DepartmentSelect } from "./department-select"
 import { defaultRosterDepartment } from "./types"
-import type { EngineerRegistration, EngineerRosterItem } from "./types"
+import type { EngineerRegistration, EngineerRosterItem, RosterDepartmentOptions } from "./types"
 
 type EngineerEditorDialogProps = Readonly<{
   engineer: EngineerRosterItem
   existingEmployeeCodes: readonly string[]
+  departmentOptions: RosterDepartmentOptions
   onClose: () => void
   onSave: (engineerId: string, engineer: EngineerRegistration) => boolean
 }>
@@ -29,12 +30,14 @@ type EngineerEditorDialogProps = Readonly<{
 type FieldErrors = Readonly<{
   employeeCode?: string
   displayName?: string
+  department?: string
   position?: string
 }>
 
 export function EngineerEditorDialog({
   engineer,
   existingEmployeeCodes,
+  departmentOptions,
   onClose,
   onSave,
 }: EngineerEditorDialogProps) {
@@ -54,7 +57,7 @@ export function EngineerEditorDialog({
       displayName: displayName.trim(),
       division: "1부문" as const,
       team,
-      department,
+      department: department.trim(),
       position: position.trim(),
     }
     const duplicate = existingEmployeeCodes.some((code) =>
@@ -63,6 +66,7 @@ export function EngineerEditorDialog({
       ...(next.employeeCode === "" ? { employeeCode: "사번을 입력해 주세요." } : {}),
       ...(duplicate ? { employeeCode: "이미 등록된 사번입니다." } : {}),
       ...(next.displayName === "" ? { displayName: "이름을 입력해 주세요." } : {}),
+      ...(next.department === "" ? { department: "담당을 입력해 주세요." } : {}),
       ...(next.position === "" ? { position: "직급을 입력해 주세요." } : {}),
     }
     setFieldErrors(nextErrors)
@@ -120,7 +124,18 @@ export function EngineerEditorDialog({
           </div>
           <div className="space-y-2">
             <Label htmlFor={`${id}-department`}>담당</Label>
-            <DepartmentSelect id={`${id}-department`} onValueChange={setDepartment} team={team} value={department} />
+            <DepartmentSelect
+              describedBy={fieldErrors.department === undefined ? undefined : `${id}-department-error`}
+              id={`${id}-department`}
+              invalid={fieldErrors.department !== undefined}
+              onValueChange={setDepartment}
+              savedDepartments={departmentOptions[team]}
+              team={team}
+              value={department}
+            />
+            {fieldErrors.department === undefined ? null : (
+              <p className="text-xs text-destructive" id={`${id}-department-error`}>{fieldErrors.department}</p>
+            )}
           </div>
           <EditorInput
             error={fieldErrors.position}

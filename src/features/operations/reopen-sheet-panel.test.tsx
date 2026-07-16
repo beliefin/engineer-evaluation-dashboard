@@ -17,6 +17,8 @@ const SUBMITTED_SHEET: SubmittedSheetViewModel = {
   evaluatorName: "박평가",
   categoryLabel: "성장탐구계획서",
   submittedAtLabel: "2026. 7. 14. 오후 2:40",
+  requestReason: "점수 오입력 수정 요청",
+  requestedAtLabel: "2026. 7. 15. 오전 9:10",
 }
 
 afterEach(cleanup)
@@ -72,10 +74,11 @@ describe("ReopenSheetPanel", () => {
 
     // When
     await user.click(getFirstReopenButton())
-    const dialog = screen.getByRole("dialog", { name: "제출 평가 잠금 해제" })
+    const dialog = screen.getByRole("dialog", { name: "잠금 해제 요청 승인" })
     const reasonInput = within(dialog).getByRole("textbox", {
       name: "잠금 해제 사유",
     })
+    await user.clear(reasonInput)
     await user.type(reasonInput, "   ")
 
     // Then
@@ -94,13 +97,15 @@ describe("ReopenSheetPanel", () => {
         sheets={[SUBMITTED_SHEET]}
       />
     )
-    expect(screen.getByText("1건 잠금")).toBeInTheDocument()
+    expect(screen.getByText("요청 1건")).toBeInTheDocument()
 
     // When
     await user.click(getFirstReopenButton())
-    const dialog = screen.getByRole("dialog", { name: "제출 평가 잠금 해제" })
+    const dialog = screen.getByRole("dialog", { name: "잠금 해제 요청 승인" })
+    const reasonInput = within(dialog).getByRole("textbox", { name: "잠금 해제 사유" })
+    await user.clear(reasonInput)
     await user.type(
-      within(dialog).getByRole("textbox", { name: "잠금 해제 사유" }),
+      reasonInput,
       "  평가 항목 3 수정 필요  "
     )
     await user.click(within(dialog).getByRole("button", { name: "잠금 해제" }))
@@ -113,7 +118,7 @@ describe("ReopenSheetPanel", () => {
     )
     await waitFor(() => {
       expect(
-        screen.queryByRole("dialog", { name: "제출 평가 잠금 해제" })
+        screen.queryByRole("dialog", { name: "잠금 해제 요청 승인" })
       ).not.toBeInTheDocument()
     })
   })

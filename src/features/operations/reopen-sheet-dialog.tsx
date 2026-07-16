@@ -36,7 +36,7 @@ export function ReopenSheetDialog({
   function handleOpenChange(nextOpen: boolean) {
     setOpen(nextOpen)
     if (nextOpen) {
-      setReason("")
+      setReason(`평가자 요청 승인: ${sheet.requestReason}`)
     }
   }
 
@@ -61,12 +61,13 @@ export function ReopenSheetDialog({
       <DialogContent>
         <form onSubmit={handleSubmit}>
           <DialogHeader>
-            <DialogTitle>제출 평가 잠금 해제</DialogTitle>
+            <DialogTitle>잠금 해제 요청 승인</DialogTitle>
             <DialogDescription>
               <span className="block">
                 {sheet.engineerName} · {sheet.taskLabel ?? sheet.categoryLabel} · {sheet.evaluatorName}
               </span>
               <span className="mt-1 block">제출 시각 {sheet.submittedAtLabel}</span>
+              <span className="mt-1 block">요청 사유: {sheet.requestReason}</span>
               <span className="mt-1 block">이 평가의 잠금을 해제하며, 사유는 감사 기록에 남습니다.</span>
             </DialogDescription>
           </DialogHeader>

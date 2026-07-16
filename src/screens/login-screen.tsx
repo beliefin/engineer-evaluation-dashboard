@@ -42,7 +42,7 @@ export function LoginScreen() {
               역량평가 시스템 로그인
             </h1>
             <p className="mt-2 mb-7 text-sm leading-6 text-muted-foreground">
-              발급받은 아이디와 비밀번호로 로그인하면 권한별 화면으로 이동합니다.
+              발급받은 아이디와 비밀번호로 로그인하면 권한별 화면으로 이동합니다. 복합 권한 계정은 로그인 후 사용 모드를 전환할 수 있습니다.
             </p>
             <LoginForm disabled={loadState !== "ready" || pending} onLogin={handleLogin} />
           </section>

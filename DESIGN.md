@@ -104,12 +104,12 @@
 ### App Shell
 
 - **Structure**: sidebar navigation, top bar, main landmark, mobile sheet.
-- **States**: expanded, collapsed, active route, mobile open/closed, operator proxy evaluator selected, authenticated identity, logging out.
+- **States**: expanded, collapsed, active route, mobile open/closed, authenticated identity, logging out.
 - **Accessibility**: 현재 경로는 `aria-current`, 모바일 메뉴는 제목이 있는 Sheet로 제공한다.
 - **Motion**: sidebar와 sheet는 180ms transform/opacity만 사용한다.
-- **Authentication**: 데모 역할 전환기를 노출하지 않는다. 로그인 계정의 역할을 메뉴·페이지 권한의 단일 기준으로 사용하고, 실제 계정명·역할·로그아웃 행동을 데스크톱과 모바일에서 항상 확인할 수 있게 한다.
-- **Evaluator identity**: 평가자 계정은 연결된 평가자 본인으로 고정한다. 운영자만 평가 입력 화면에서 대리 입력할 평가자를 선택할 수 있다.
-- **Engineer identity**: 엔지니어 계정은 등록된 엔지니어 한 명과 고정 연결한다. 개인 포털에서는 연결된 본인의 결과와 원천 실적만 조회·변경할 수 있다.
+- **Authentication**: 데모 역할 전환기를 노출하지 않는다. 로그인 계정에 부여된 역할 집합을 권한의 기준으로 사용하고, 평가자·엔지니어 복합 계정에만 `사용 모드` 전환기를 제공한다. 실제 계정명·현재 사용 모드·로그아웃 행동을 데스크톱과 모바일에서 항상 확인할 수 있게 한다.
+- **Evaluator identity**: 평가자 계정은 연결된 평가자 본인으로 고정한다. 운영자는 평가 입력 작업 공간 안에서 엔지니어, 과제, 평가자를 순서대로 선택한다.
+- **Engineer identity**: 엔지니어 권한은 등록된 엔지니어 한 명과 고정 연결한다. 평가자·엔지니어 복합 계정은 평가자 명단과 엔지니어 명단에 각각 하나씩 연결하며, 엔지니어 모드에서는 연결된 본인의 결과와 원천 실적만 조회·변경할 수 있다.
 
 ### Login Surface
 
@@ -122,7 +122,7 @@
 ### Account Management
 
 - **Structure**: 운영자 전용 페이지 헤더, 전체·활성·역할별 요약, 계정 표/모바일 목록, 계정 생성·편집·비밀번호 재설정·활성 전환·삭제 Dialog.
-- **Fields**: 아이디, 표시 이름, 역할, 역할별 연결 대상, 활성 상태. 평가자는 등록 평가자 한 명, 엔지니어는 등록 엔지니어 한 명과 반드시 연결하며 운영자·승인자는 연결값을 제거한다.
+- **Fields**: 아이디, 표시 이름, 역할 구성, 역할별 연결 대상, 활성 상태. 단일 역할 외에 `평가자 · 엔지니어` 조합을 지원하며 이 경우 두 명단 연결을 모두 필수로 한다. 운영자·승인자는 연결값을 제거한다.
 - **Permissions**: 운영자만 계정 목록과 모든 변경 행동을 사용할 수 있다. 평가자·승인자·엔지니어는 경로·메뉴·계정 데이터 모두 접근할 수 없다.
 - **Safety states**: 현재 로그인한 운영자는 자신의 역할 변경·비활성화·삭제를 할 수 없고, 마지막 활성 운영자도 제거할 수 없다. 아이디 중복, 비밀번호 규칙, 역할별 대상 미연결을 필드 오류로 제공한다.
 - **States**: loading, empty, populated, creating, editing, resetting password, enabling, disabling, deleting, saved, validation error, forbidden.
@@ -139,7 +139,7 @@
 - **Responsive actions**: 데스크톱 표와 모바일 카드 모두 동일한 수정·삭제 행동을 제공하며, Dialog는 390px 화면 안에서 가로 넘침 없이 동작해야 한다.
 
 - **Structure**: 엔지니어·평가자 탭, 현재 명단, 개별 등록 폼, 목록 붙여넣기 Dialog.
-- **Organization**: 모든 명단은 `1부문 → 팀 → 담당`으로 분류한다. `생산 1팀`은 `전자약품담당`, `메틸아민담당`, `케미칼운영담당`, `생산 2팀`은 `염화메탄담당`, `ECH1담당`, `ECH2담당`만 선택할 수 있다.
+- **Organization**: 모든 명단은 `1부문 → 팀 → 담당`으로 분류한다. 기존 6개 담당은 팀별 추천 기본값으로 제공하되 운영자가 새 담당명을 직접 입력할 수 있다. 입력된 담당은 팀별 목록에 저장해 이후 개별 등록·수정·일괄 등록에서 다시 선택할 수 있게 한다.
 - **States**: empty, populated, valid preview, row error, duplicate code, saving, saved.
 - **Accessibility**: 일괄 등록 오류는 행 번호와 원인을 텍스트로 제공하고 오류가 있으면 확정 행동을 비활성화한다.
 - **Responsive**: 데스크톱 표는 모바일에서 사번·이름·팀 중심 목록으로 전환한다.
@@ -153,11 +153,20 @@
 
 ### Evaluation Calendar
 
-- **Structure**: 월 이동, 요일 헤더, 날짜 셀의 직접 라벨 일정, 예정 일정 목록, 등록·수정 Dialog.
-- **States**: empty month, populated month, selected event, read-only approver, validation error.
+- **Structure**: 월 이동, 요일 헤더, 날짜 셀의 직접 라벨 일정, 예정 일정 목록, 등록·수정 Dialog. 새 일정은 평가 과제를 먼저 선택하고 그 과제에 실제 평가자가 배정된 엔지니어를 복수 선택해 일괄 생성한다.
+- **Link rule**: 모든 새 일정은 `평가 시즌 × 과제 × 엔지니어`에 연결한다. 평가자에게는 자신의 배정과 일치하는 일정만 전달하며, 일정 선택 시 해당 평가표를 바로 연다. 과제 연결이 없는 기존 일정은 운영자에게만 표시해 수정 시 연결을 보완한다.
+- **States**: empty month, populated month, multi-engineer selection, selected event, evaluator-linked action, read-only approver, validation error.
 - **Accessibility**: 날짜·시간 입력은 네이티브 컨트롤을 사용하고 이벤트 정보는 hover 없이 읽을 수 있어야 한다.
 - **Responsive**: 데스크톱 월간 그리드, 모바일 날짜별 agenda 목록으로 재구성한다.
-- **Permissions**: 운영자는 생성·수정·삭제, 승인자는 조회만 가능하다.
+- **Permissions**: 운영자는 생성·수정·삭제, 평가자는 자신의 일정 조회와 평가표 진입, 승인자는 조회만 가능하다.
+
+### Today's Evaluations
+
+- **Structure**: 평가자 전용 페이지 헤더, 네이티브 날짜 선택기, 선택 날짜의 평가 일정 목록, 평가표 직접 진입 행동.
+- **Date rule**: 최초 진입 시 브라우저 현지 날짜를 기본값으로 사용하며, 상단 날짜 선택으로 과거·미래 일정을 같은 화면에서 조회한다.
+- **States**: no scheduled evaluation, not started, in progress, submitted, selected date.
+- **Accessibility**: 날짜 입력은 보이는 레이블을 제공하고, 일정 카드에는 시간·엔지니어·과제·작성 진행을 텍스트로 표시한다.
+- **Responsive**: 모바일은 단일 열 전체 폭 행동, 넓은 화면은 두 열 목록을 사용한다.
 
 ### Page Header
 
@@ -207,15 +216,30 @@
 - **Accessibility**: label과 설명을 input에 연결하고 오류 시 `aria-invalid`를 제공한다.
 - **Mobile**: 한 행을 label 위, input 아래의 단일 열로 전환한다.
 
+### Engineer-specific Evaluator Assignment
+
+- **Structure**: 운영자가 엔지니어를 먼저 선택하고, 해당 엔지니어에게 0%보다 크게 적용되는 평가자 과제를 선택한 뒤 평가자와 양수 원시 가중치를 저장한다.
+- **Obligation rule**: 평가 의무와 미평가 상태는 저장된 `엔지니어 × 과제 × 평가자` 배정에서만 생성한다. 과제 생성, 평가자 명단 등록, 시즌 복사만으로 배정을 자동 생성하지 않는다.
+- **Protection**: 점수가 입력되었거나 제출된 배정은 이 화면에서 제거할 수 없으며, 미입력 초안만 안전하게 제거한다. 원시 가중치 변경은 같은 엔지니어·과제 그룹 안에서 즉시 정규화 비율로 안내한다.
+- **States**: no assignment, pending assignment, in-progress protected assignment, submitted protected assignment, saving, saved, and validation error.
+- **Responsive**: 엔지니어와 과제 선택은 모바일에서 한 열로 쌓고 평가자 행은 체크, 이름, 가중치, 실제 반영 비율을 읽는 순서로 유지한다.
+
+### Evaluation Entry Workspace
+
+- **Operator**: 전체 엔지니어 목록을 먼저 제시한다. 엔지니어 선택 후 실제 배정된 과제와 평가자를 순서대로 고르면 같은 화면에 평가표를 바로 표시한다. 운영자 입력은 제출 상태여도 잠그지 않고 계속 수정할 수 있다.
+- **Evaluator**: 로그인 계정에 실제 배정된 엔지니어와 과제만 표시한다. 제출 후에는 잠그고 수정이 필요하면 사유를 입력해 잠금 해제를 요청한다.
+- **Privacy**: 한 평가지에는 선택한 평가자 이름만 표시하고 다른 평가자의 점수와 가중치는 노출하지 않는다.
+- **States**: engineer selected, no assignment, task selected, evaluator selected, draft, submitted editable for operator, submitted locked for evaluator, unlock requested.
+
 ### Evaluation Season & Task Configurator
 
-- **Structure**: current season summary, create action, season name, period, status, configuration-copy option, weight-total status, and a flat task list. Each task opens one editor for name, evaluator guidance, overall weight, evaluation method, rubric items, and evaluator weights.
+- **Structure**: current season summary, create action, season name, period, status, configuration-copy option, weight-total status, and a flat task list. Each task opens one editor for name, evaluator guidance, overall weight, evaluation method, and rubric items.
 - **Evaluation methods**: evaluator score, evaluator P/F, operator score, and operator P/F. Score tasks normalize any count of 0–10 rubric items to 0–100. P/F tasks expose explicit pass and fail choices without numeric inputs.
-- **Task detail**: rubric items are ordered editable rows with add and delete actions. 각 항목은 선택적 구분과 0~10점별 평가기준 문구를 추가·수정·삭제하며 같은 점수 기준을 중복 저장하지 않는다. Evaluator tasks show the registered evaluator list with participation checkboxes and positive raw weights; operator tasks hide evaluator configuration.
-- **Defaults**: create seasons in setup status, copy the current season configuration by default, and start every engineer response, source record, and schedule empty. A copied season receives independent task IDs and draft sheets.
+- **Task detail**: rubric items are ordered editable rows with add and delete actions. 각 항목은 선택적 구분과 0~10점별 평가기준 문구를 추가·수정·삭제하며 같은 점수 기준을 중복 저장하지 않는다. 평가자 참여 여부와 가중치는 과제가 아니라 엔지니어별 평가자 배정에서 관리한다.
+- **Defaults**: create seasons in setup status, copy the current season task configuration by default, and start every evaluator assignment, engineer response, source record, and schedule empty. A copied season receives independent task IDs without automatically creating evaluator obligations.
 - **Weight rule**: season task weights are defaults. Operators may override every task weight per engineer; 0% means the task is not applicable to that engineer, and only weights above 0% create evaluation obligations or contribute to the final score. Ranking stays unconfirmed until that engineer's applicable task total is exactly 100%.
 - **Engineer-specific configuration**: OTS and DX are ordinary season tasks rather than one season-wide track. The operator selects an engineer, reviews all season tasks in one flat list, edits 0–100% weights in 0.1 increments, and saves the complete 100% allocation as one transaction.
-- **States**: empty season, valid configuration, default allocation, engineer override, excluded task, weight total warning, task add/edit, delete confirmation, no evaluator selected, saving, saved, and newly selected.
+- **States**: empty season, valid configuration, default allocation, engineer override, excluded task, weight total warning, task add/edit, delete confirmation, saving, saved, and newly selected.
 - **Accessibility**: visible labels for every field, native date inputs, task-method descriptions, keyboard-operable rubric row actions, and text status for weight totals and P/F choices.
 - **Responsive**: season form uses two columns on desktop and one column on mobile. Task summaries and engineer-specific weights stay flat; the task editor uses a scrollable Dialog with a fixed action footer on mobile, while the weight editor keeps its save action visible after the task list.
 
@@ -284,7 +308,8 @@
 ### Submitted Evaluation Unlock
 
 - 제출 후 평가지는 잠긴 상태를 유지하며 평가자 입력은 비활성화한다.
-- 운영자는 `평가 잠금 해제` 화면에서 제출된 평가지를 확인하고 사유를 입력해 잠금을 해제할 수 있다.
+- 운영자 대리 입력은 제출 상태에서도 잠그지 않고 계속 수정할 수 있다.
+- 평가자는 잠긴 평가지에서 수정 사유를 입력해 잠금 해제를 요청한다. 운영자는 `평가 잠금 해제 요청` 화면에서 요청 사유를 확인한 뒤 잠금을 해제한다.
 - 잠금 해제는 기존 점수를 보존한 채 초안 상태로 되돌리고 감사 이벤트를 남긴다.
 
 ## 6. Motion & Interaction

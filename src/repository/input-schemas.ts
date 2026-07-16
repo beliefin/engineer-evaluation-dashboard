@@ -1,5 +1,4 @@
 import {
-  DEPARTMENTS_BY_TEAM,
   DIRECT_SCORE_RULE_FIELDS,
   DIRECT_SCORE_RULE_KINDS,
   DIRECT_SCORE_RULE_OPERATORS,
@@ -34,6 +33,10 @@ export const sheetActionInputSchema = z.object({
 
 export const reopenSheetInputSchema = sheetActionInputSchema.extend({
   reason: z.string().trim(),
+})
+
+export const requestSheetUnlockInputSchema = sheetActionInputSchema.extend({
+  reason: z.string().trim().min(1).max(500),
 })
 
 export const updateDirectScoreInputSchema = z.object({
@@ -182,25 +185,33 @@ export const saveEvaluationTaskInputSchema = z.object({
       description: z.string().trim().min(1).max(500),
     })).max(11).default([]),
   })).max(20),
-  evaluatorWeights: z.array(z.object({
-    evaluatorId: idSchema,
-    weight: z.number().positive().finite(),
-  })).max(50),
   actor: actorSchema,
 }).superRefine((task, context) => {
-  const evaluatorMethod = task.method === "evaluator_score" || task.method === "evaluator_pass_fail"
   if (task.method === "evaluator_score" && task.items.length === 0) {
     context.addIssue({ code: "custom", message: "점수형 과제는 평가 항목이 필요합니다.", path: ["items"] })
   }
   if (task.method !== "evaluator_score" && task.items.length > 0) {
     context.addIssue({ code: "custom", message: "이 평가 방식에는 점수 항목을 둘 수 없습니다.", path: ["items"] })
   }
-  if (!evaluatorMethod && task.evaluatorWeights.length > 0) {
-    context.addIssue({ code: "custom", message: "운영자 방식에는 평가자를 배정할 수 없습니다.", path: ["evaluatorWeights"] })
-  }
-  const evaluatorIds = task.evaluatorWeights.map((entry) => entry.evaluatorId)
+})
+
+export const updateEvaluatorAssignmentsInputSchema = z.object({
+  cycleId: idSchema,
+  engineerId: idSchema,
+  taskId: idSchema,
+  evaluatorWeights: z.array(z.object({
+    evaluatorId: idSchema,
+    weight: z.number().positive().finite(),
+  })).max(50),
+  actor: actorSchema,
+}).superRefine((value, context) => {
+  const evaluatorIds = value.evaluatorWeights.map((entry) => entry.evaluatorId)
   if (new Set(evaluatorIds).size !== evaluatorIds.length) {
-    context.addIssue({ code: "custom", message: "평가자를 중복 배정할 수 없습니다.", path: ["evaluatorWeights"] })
+    context.addIssue({
+      code: "custom",
+      message: "같은 평가자를 두 번 배정할 수 없습니다.",
+      path: ["evaluatorWeights"],
+    })
   }
 })
 
@@ -221,22 +232,6 @@ export const updateEngineerTaskWeightsInputSchema = z.object({
 })
 
 const employeeCodeSchema = z.string().trim().min(1).max(50)
-function validateOrganization(
-  value: { team: keyof typeof DEPARTMENTS_BY_TEAM; department: string },
-  context: z.RefinementCtx,
-): void {
-  const valid = value.team === "생산 1팀"
-    ? DEPARTMENTS_BY_TEAM["생산 1팀"].some((department) => department === value.department)
-    : DEPARTMENTS_BY_TEAM["생산 2팀"].some((department) => department === value.department)
-  if (!valid) {
-    context.addIssue({
-      code: "custom",
-      message: "선택한 팀에 속한 담당을 선택해 주세요.",
-      path: ["department"],
-    })
-  }
-}
-
 const engineerFieldsSchema = z.object({
   employeeCode: employeeCodeSchema,
   displayName: z.string().trim().min(1).max(100),
@@ -244,7 +239,7 @@ const engineerFieldsSchema = z.object({
   team: teamSchema,
   department: departmentSchema,
   position: z.string().trim().min(1).max(100),
-}).superRefine(validateOrganization)
+})
 
 export const addEngineersInputSchema = z.object({
   cycleId: idSchema,
@@ -274,7 +269,7 @@ export const addEvaluatorsInputSchema = z.object({
         division: divisionSchema,
         team: teamSchema,
         department: departmentSchema,
-      }).superRefine(validateOrganization),
+      }),
     )
     .min(1),
   actor: actorSchema,
@@ -286,7 +281,7 @@ const evaluatorFieldsSchema = z.object({
   division: divisionSchema,
   team: teamSchema,
   department: departmentSchema,
-}).superRefine(validateOrganization)
+})
 
 export const updateEvaluatorInputSchema = evaluatorFieldsSchema.extend({
   cycleId: idSchema,
@@ -302,6 +297,7 @@ export const deleteEvaluatorInputSchema = z.object({
 
 const scheduleEventFieldsSchema = z.object({
   engineerId: idSchema,
+  taskId: idSchema,
   title: z.string().trim().min(1).max(100),
   date: z.iso.date(),
   startTime: z.string().regex(/^(?:[01]\d|2[0-3]):[0-5]\d$/).nullable(),
@@ -310,6 +306,15 @@ const scheduleEventFieldsSchema = z.object({
 
 export const createScheduleEventInputSchema = scheduleEventFieldsSchema.extend({
   cycleId: idSchema,
+  actor: actorSchema,
+})
+
+export const createScheduleEventsInputSchema = scheduleEventFieldsSchema.omit({ engineerId: true }).extend({
+  cycleId: idSchema,
+  engineerIds: z.array(idSchema).min(1).max(100).refine(
+    (engineerIds) => new Set(engineerIds).size === engineerIds.length,
+    "같은 엔지니어를 중복 선택할 수 없습니다.",
+  ),
   actor: actorSchema,
 })
 

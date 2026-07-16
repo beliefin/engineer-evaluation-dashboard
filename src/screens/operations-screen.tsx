@@ -26,6 +26,7 @@ export function OperationsScreen() {
     deleteEvaluationCycle,
     saveEvaluationTask,
     deleteEvaluationTask,
+    updateEvaluatorAssignments,
     updateEngineerTaskWeights,
     updateDirectScore,
     saveScoreAdjustment,
@@ -111,6 +112,7 @@ export function OperationsScreen() {
       onDeleteCycle={deleteEvaluationCycle}
       onSaveTask={saveEvaluationTask}
       onDeleteTask={deleteEvaluationTask}
+      onUpdateEvaluatorAssignments={updateEvaluatorAssignments}
       onEngineerTaskWeightsChange={updateEngineerTaskWeights}
       onSaveDirectScoreRule={saveDirectScoreRule}
       onDeleteDirectScoreRule={deleteDirectScoreRule}
@@ -125,6 +127,7 @@ function parseOperationsTab(value: string | null): OperationsTab {
   if (
     value === "season" ||
     value === "tasks" ||
+    value === "assignments" ||
     value === "weights" ||
     value === "scores" ||
     value === "scoreTables" ||

@@ -15,17 +15,40 @@ function createRepository(storage: MemoryStorage) {
 }
 
 describe("LocalStorageEvaluationRepository roster registration", () => {
-  it("adds engineers with the cycle roster, blank sheets, and null direct scores", () => {
+  it("persists a custom department catalog even after the original member is deleted", () => {
+    const storage = new MemoryStorage()
+    const repository = createRepository(storage)
+    const added = repository.addEngineers({
+      cycleId: "cycle-2026-h1",
+      engineers: [{
+        employeeCode: "CUSTOM-001",
+        displayName: "사용자 담당",
+        division: "1부문",
+        team: "생산 1팀",
+        department: "신공정지원담당",
+        position: "엔지니어",
+      }],
+      actor: OPERATOR,
+    })
+    const engineerId = added.engineers.find((entry) => entry.employeeCode === "CUSTOM-001")?.id
+    expect(engineerId).toBeDefined()
+
+    repository.deleteEngineer({
+      cycleId: "cycle-2026-h1",
+      engineerId: engineerId!,
+      actor: OPERATOR,
+    })
+
+    expect(createRepository(storage).loadSnapshot().departmentCatalog).toContainEqual({
+      team: "생산 1팀",
+      name: "신공정지원담당",
+    })
+  })
+
+  it("adds engineers without evaluator obligations and with null operator scores", () => {
     // Given
     const repository = createRepository(new MemoryStorage())
     const before = repository.loadSnapshot()
-    const expectedRoster = new Set(
-      before.tasks
-        .filter((task) => task.cycleId === "cycle-2026-h1")
-        .flatMap((task) => task.evaluatorWeights.map(
-          (entry) => `${task.id}:${entry.evaluatorId}`,
-        )),
-    )
 
     // When
     const updated = repository.addEngineers({
@@ -49,13 +72,7 @@ describe("LocalStorageEvaluationRepository roster registration", () => {
     const assignments = updated.assignments.filter(
       (assignment) => assignment.engineerId === engineer?.id,
     )
-    expect(
-      new Set(
-        assignments.map(
-          (assignment) => `${assignment.taskId}:${assignment.evaluatorId}`,
-        ),
-      ),
-    ).toEqual(expectedRoster)
+    expect(assignments).toHaveLength(0)
     expect(
       updated.scoreSheets.filter((sheet) =>
         assignments.some((assignment) => assignment.id === sheet.assignmentId),

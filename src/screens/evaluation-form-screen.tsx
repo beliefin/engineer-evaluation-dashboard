@@ -23,6 +23,7 @@ export function EvaluationFormScreen({ assignmentId }: Readonly<{ assignmentId: 
     saveState,
     saveDraft,
     submitSheet,
+    requestSheetUnlock,
   } = useEvaluation()
   const sourceModel = useMemo(
     () =>
@@ -75,7 +76,9 @@ export function EvaluationFormScreen({ assignmentId }: Readonly<{ assignmentId: 
 
   function handleSubmit() {
     const current = viewModel.items.map((item) => ({ itemId: item.id, score: item.value }))
-    if (commit(current, viewModel.passResult)) submitSheet(sheetId)
+    if (commit(current, viewModel.passResult) && (!viewModel.submitted || role !== "operator")) {
+      submitSheet(sheetId)
+    }
   }
 
   return (
@@ -87,6 +90,7 @@ export function EvaluationFormScreen({ assignmentId }: Readonly<{ assignmentId: 
       onPassResultChange={handlePassResultChange}
       onScoreChange={handleScoreChange}
       onSubmit={handleSubmit}
+      onRequestUnlock={(reason) => requestSheetUnlock(sheetId, reason)}
       viewModel={viewModel}
     />
   )

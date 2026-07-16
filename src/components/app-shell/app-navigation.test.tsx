@@ -22,9 +22,10 @@ describe("AppNavigation", () => {
   it("keeps the evaluator navigation limited to their own work", () => {
     render(<AppNavigation role="evaluator" />)
 
+    expect(screen.getByRole("link", { name: /오늘의 평가/ })).toBeInTheDocument()
     expect(screen.getByRole("link", { name: /평가하기/ })).toBeInTheDocument()
     expect(screen.queryByRole("link", { name: /미평가 현황/ })).not.toBeInTheDocument()
-    expect(screen.queryByRole("link", { name: /평가 일정/ })).not.toBeInTheDocument()
+    expect(screen.getByRole("link", { name: /평가 일정/ })).toBeInTheDocument()
   })
 
   it("gives approvers read-only result, pending, and calendar entries", () => {

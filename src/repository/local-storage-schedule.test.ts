@@ -15,15 +15,21 @@ function createRepository(storage: MemoryStorage) {
 }
 
 describe("LocalStorageEvaluationRepository schedule", () => {
-  it("creates a presentation event", () => {
+  it("creates linked presentation events for multiple engineers in one transaction", () => {
     // Given
     const repository = createRepository(new MemoryStorage())
-    const engineerId = repository.loadSnapshot().engineers[0]?.id ?? "missing-engineer"
+    const snapshot = repository.loadSnapshot()
+    const assignment = snapshot.assignments[0]
+    if (assignment === undefined) throw new RangeError("assignment fixture missing")
+    const sameTaskAssignment = snapshot.assignments.find((entry) =>
+      entry.taskId === assignment.taskId && entry.engineerId !== assignment.engineerId)
+    if (sameTaskAssignment === undefined) throw new RangeError("second assignment fixture missing")
 
     // When
-    const created = repository.createScheduleEvent({
-      cycleId: "cycle-2026-h1",
-      engineerId,
+    const created = repository.createScheduleEvents({
+      cycleId: assignment.cycleId,
+      engineerIds: [assignment.engineerId, sameTaskAssignment.engineerId],
+      taskId: assignment.taskId,
       title: "성장탐구 발표",
       date: "2026-05-18",
       startTime: "09:30",
@@ -32,16 +38,10 @@ describe("LocalStorageEvaluationRepository schedule", () => {
     })
 
     // Then
-    expect(created.scheduleEvents.at(-1)).toEqual(
-      expect.objectContaining({
-        engineerId,
-        title: "성장탐구 발표",
-        date: "2026-05-18",
-        startTime: "09:30",
-        note: "2층 회의실",
-        createdAt: FIXED_NOW,
-      }),
-    )
+    expect(created.scheduleEvents.slice(-2)).toEqual([
+      expect.objectContaining({ engineerId: assignment.engineerId, taskId: assignment.taskId }),
+      expect.objectContaining({ engineerId: sameTaskAssignment.engineerId, taskId: assignment.taskId }),
+    ])
   })
 
   it("updates a presentation event", () => {
@@ -51,6 +51,7 @@ describe("LocalStorageEvaluationRepository schedule", () => {
     const created = repository.createScheduleEvent({
       cycleId: "cycle-2026-h1",
       engineerId,
+      taskId: "task-growth-plan",
       title: "성장탐구 발표",
       date: "2026-05-18",
       startTime: "09:30",
@@ -63,6 +64,7 @@ describe("LocalStorageEvaluationRepository schedule", () => {
     const updated = repository.updateScheduleEvent({
       eventId,
       engineerId,
+      taskId: "task-growth-plan",
       title: "성장탐구 최종 발표",
       date: "2026-05-19",
       startTime: null,
@@ -89,6 +91,7 @@ describe("LocalStorageEvaluationRepository schedule", () => {
     const created = repository.createScheduleEvent({
       cycleId: "cycle-2026-h1",
       engineerId,
+      taskId: "task-growth-plan",
       title: "삭제할 일정",
       date: "2026-05-18",
       startTime: null,
@@ -114,6 +117,7 @@ describe("LocalStorageEvaluationRepository schedule", () => {
       repository.createScheduleEvent({
         cycleId: "cycle-2026-h1",
         engineerId,
+        taskId: "task-growth-plan",
         title: "권한 없는 일정",
         date: "2026-05-18",
         startTime: null,
@@ -136,6 +140,7 @@ describe("LocalStorageEvaluationRepository schedule", () => {
       repository.createScheduleEvent({
         cycleId: "cycle-2026-h1",
         engineerId,
+        taskId: "task-growth-plan",
         title: "잘못된 일정",
         date: "2026-02-30",
         startTime: "25:10",
@@ -156,6 +161,7 @@ describe("LocalStorageEvaluationRepository schedule", () => {
     repository.createScheduleEvent({
       cycleId: "cycle-2026-h1",
       engineerId,
+      taskId: "task-growth-plan",
       title: "저장 복원 일정",
       date: "2026-05-25",
       startTime: "10:00",

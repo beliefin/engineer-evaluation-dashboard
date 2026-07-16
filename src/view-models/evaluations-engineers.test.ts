@@ -15,7 +15,7 @@ describe("evaluator-facing selectors", () => {
     const snapshot = createSeedSnapshot()
     const assignments = selectAssignedEvaluations(snapshot, CYCLE_ID)
 
-    expect(assignments).toHaveLength(220)
+    expect(assignments).toHaveLength(snapshot.assignments.length)
     expect(assignments.every((entry) => entry.evaluatorName.length > 0)).toBe(true)
     expect(new Set(assignments.map((entry) => entry.evaluatorId)).size).toBe(
       snapshot.evaluators.length,
@@ -30,9 +30,16 @@ describe("evaluator-facing selectors", () => {
       "evaluator-04",
     )
 
-    expect(assignments).toHaveLength(44)
-    expect(assignments.filter((entry) => entry.status === "submitted")).toHaveLength(44)
-    expect(assignments.filter((entry) => entry.status === "in_progress")).toHaveLength(0)
+    const evaluatorAssignmentIds = new Set(snapshot.assignments
+      .filter((entry) => entry.evaluatorId === "evaluator-04")
+      .map((entry) => entry.id))
+    const submittedCount = snapshot.scoreSheets.filter((sheet) =>
+      evaluatorAssignmentIds.has(sheet.assignmentId) && sheet.status === "submitted").length
+    expect(assignments).toHaveLength(evaluatorAssignmentIds.size)
+    expect(assignments.filter((entry) => entry.status === "submitted")).toHaveLength(submittedCount)
+    expect(assignments.filter((entry) => entry.status === "in_progress")).toHaveLength(
+      evaluatorAssignmentIds.size - submittedCount,
+    )
     expect(new Set(assignments.map((entry) => entry.categoryLabel))).toEqual(
       new Set(["성장탐구계획서", "OTS 시나리오 제작", "DX 툴 활용"]),
     )
@@ -69,7 +76,9 @@ describe("engineer detail role boundary", () => {
       "approver",
     )
 
-    expect(operator?.evaluatorScores).toHaveLength(10)
+    expect(operator?.evaluatorScores).toHaveLength(
+      snapshot.assignments.filter((entry) => entry.engineerId === "engineer-01").length,
+    )
     expect(approver?.evaluatorScores).toEqual([])
     expect(operator?.evaluatorScores.every((entry) => entry.normalizedRatioPercent > 0)).toBe(true)
     expect(operator?.categories.find((category) => category.key === "task-dx-tool")?.reflectionRatioPercent).toBe(35)

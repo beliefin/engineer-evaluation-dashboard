@@ -43,9 +43,7 @@ function createEvaluatorScore(
   const score = taskResult?.evaluators.find(
     (entry) => entry.assignmentId === assignment.id,
   )
-  const configuredWeight = task.evaluatorWeights.find(
-    (entry) => entry.evaluatorId === assignment.evaluatorId,
-  )?.weight ?? 0
+  const configuredWeight = assignment.weight
   const status = evaluatorStatus(snapshot, assignment)
   const base = {
     id: assignment.id,

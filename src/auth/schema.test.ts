@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest"
 
-import { passwordSchema, usernameSchema } from "./schema"
+import { createAccountInputSchema, passwordSchema, usernameSchema } from "./schema"
 
 import { accountEmailForUsername } from "./account-email"
 
@@ -29,5 +29,24 @@ describe("accountEmailForUsername", () => {
   it("Given the existing operator username When mapped Then its legacy email remains unchanged", () => {
     expect(accountEmailForUsername("operator", "example.supabase.co"))
       .toBe("operator@example.supabase.co")
+  })
+})
+
+describe("createAccountInputSchema", () => {
+  it("accepts one account linked to both an evaluator and an engineer", () => {
+    const parsed = createAccountInputSchema.parse({
+      username: "dual-role",
+      password: "31019467",
+      displayName: "김영래",
+      role: "evaluator",
+      roles: ["evaluator", "engineer"],
+      evaluatorId: "evaluator-kim",
+      engineerId: "engineer-kim",
+      active: true,
+    })
+
+    expect(parsed.roles).toEqual(["evaluator", "engineer"])
+    expect(parsed.evaluatorId).toBe("evaluator-kim")
+    expect(parsed.engineerId).toBe("engineer-kim")
   })
 })

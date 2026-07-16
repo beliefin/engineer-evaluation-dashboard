@@ -3,6 +3,7 @@
 import { cn } from "@/lib/utils"
 
 import {
+  APP_SHELL_ROLE_LABELS,
   type AppShellCycleOption,
   type AppShellEvaluatorOption,
   type AppShellRole,
@@ -10,24 +11,28 @@ import {
 
 interface ShellControlsProps {
   readonly role: AppShellRole
+  readonly availableRoles: readonly AppShellRole[]
   readonly cycles: readonly AppShellCycleOption[]
   readonly activeCycleId: string
   readonly evaluatorOptions: readonly AppShellEvaluatorOption[]
   readonly activeEvaluatorId: string
   readonly onCycleChange: (cycleId: string) => void
   readonly onEvaluatorChange: (evaluatorId: string) => void
+  readonly onRoleChange: (role: AppShellRole) => void
   readonly orientation?: "horizontal" | "vertical"
   readonly idPrefix: string
 }
 
 export function ShellControls({
   role,
+  availableRoles,
   cycles,
   activeCycleId,
   evaluatorOptions,
   activeEvaluatorId,
   onCycleChange,
   onEvaluatorChange,
+  onRoleChange,
   orientation = "horizontal",
   idPrefix,
 }: ShellControlsProps) {
@@ -38,6 +43,36 @@ export function ShellControls({
         orientation === "vertical" ? "flex-col" : "items-center"
       )}
     >
+      {availableRoles.length > 1 ? (
+        <div
+          className={cn(
+            "flex gap-2",
+            orientation === "vertical" ? "flex-col" : "items-center"
+          )}
+        >
+          <label className="shrink-0 text-xs font-medium text-muted-foreground" htmlFor={`${idPrefix}-role`}>
+            사용 모드
+          </label>
+          <select
+            className={cn(
+              "h-9 rounded-md border border-input bg-card px-2.5 text-sm font-medium",
+              orientation === "vertical" ? "w-full" : "w-32"
+            )}
+            id={`${idPrefix}-role`}
+            onChange={(event) => {
+              const nextRole = availableRoles.find((entry) => entry === event.currentTarget.value)
+              if (nextRole !== undefined) onRoleChange(nextRole)
+            }}
+            value={role}
+          >
+            {availableRoles.map((availableRole) => (
+              <option key={availableRole} value={availableRole}>
+                {APP_SHELL_ROLE_LABELS[availableRole]}
+              </option>
+            ))}
+          </select>
+        </div>
+      ) : null}
       <div
         className={cn(
           "flex gap-2",
@@ -74,18 +109,19 @@ export function ShellControls({
             orientation === "vertical" ? "flex-col" : "items-center"
           )}
         >
-          <span
+          <label
             className="shrink-0 text-xs font-medium text-muted-foreground"
-            id={`${idPrefix}-evaluator-label`}
+            htmlFor={`${idPrefix}-evaluator`}
           >
             대리 입력 평가자
-          </span>
+          </label>
           <select
-            aria-labelledby={`${idPrefix}-evaluator-label`}
             className={cn(
               "h-9 rounded-md border border-input bg-card px-2.5 text-sm font-medium",
-              orientation === "vertical" ? "w-full" : "w-36"
+              orientation === "vertical" ? "w-full" : "w-40"
             )}
+            disabled={evaluatorOptions.length === 0}
+            id={`${idPrefix}-evaluator`}
             onChange={(event) => onEvaluatorChange(event.currentTarget.value)}
             value={activeEvaluatorId}
           >

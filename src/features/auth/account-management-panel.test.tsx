@@ -12,6 +12,7 @@ const ACCOUNTS: readonly AuthAccount[] = [
     username: "operator",
     displayName: "샘플 운영자",
     role: "operator",
+    roles: ["operator"],
     evaluatorId: null,
     engineerId: null,
     active: true,
@@ -23,6 +24,7 @@ const ACCOUNTS: readonly AuthAccount[] = [
     username: "evaluator01",
     displayName: "샘플 평가자 01",
     role: "evaluator",
+    roles: ["evaluator"],
     evaluatorId: "evaluator-01",
     engineerId: null,
     active: true,
@@ -79,9 +81,35 @@ describe("AccountManagementPanel", () => {
       username: "evaluator02",
       displayName: "평가 담당자 02",
       role: "evaluator",
+      roles: ["evaluator"],
       evaluatorId: "evaluator-02",
       engineerId: null,
       password: "Evaluate2026",
+      active: true,
+    })
+  })
+
+  it("creates one account linked to both evaluator and engineer rosters", async () => {
+    const onCreate = vi.fn().mockResolvedValue({ ok: true })
+    render(<AccountManagementPanel {...BASE_PROPS} onCreate={onCreate} />)
+    await userEvent.click(screen.getByRole("button", { name: "계정 추가" }))
+
+    await userEvent.type(screen.getByLabelText("아이디"), "dual02")
+    await userEvent.type(screen.getByLabelText("표시 이름"), "평가받는 평가자")
+    await userEvent.selectOptions(screen.getByLabelText("역할"), "evaluator_engineer")
+    await userEvent.selectOptions(screen.getByLabelText("연결 평가자"), "evaluator-02")
+    await userEvent.selectOptions(screen.getByLabelText("연결 엔지니어"), "engineer-02")
+    await userEvent.type(screen.getByLabelText("초기 비밀번호"), "31019467")
+    await userEvent.click(screen.getByRole("button", { name: "계정 저장" }))
+
+    expect(onCreate).toHaveBeenCalledWith({
+      username: "dual02",
+      displayName: "평가받는 평가자",
+      role: "evaluator",
+      roles: ["evaluator", "engineer"],
+      evaluatorId: "evaluator-02",
+      engineerId: "engineer-02",
+      password: "31019467",
       active: true,
     })
   })
@@ -106,6 +134,7 @@ describe("AccountManagementPanel", () => {
       accountId: "account-evaluator",
       displayName: "샘플 평가자 01",
       role: "evaluator",
+      roles: ["evaluator"],
       evaluatorId: "evaluator-01",
       engineerId: null,
       active: false,
@@ -131,6 +160,7 @@ describe("AccountManagementPanel", () => {
       username: "engineer02",
       displayName: "샘플 엔지니어 02",
       role: "engineer",
+      roles: ["engineer"],
       evaluatorId: null,
       engineerId: "engineer-02",
       password: "Engineer!2026",

@@ -22,7 +22,12 @@ export const DEPARTMENTS_BY_TEAM = {
   "생산 1팀": ["전자약품담당", "메틸아민담당", "케미칼운영담당"],
   "생산 2팀": ["염화메탄담당", "ECH1담당", "ECH2담당"],
 } as const satisfies Readonly<Record<Team, readonly string[]>>
-export type Department = (typeof DEPARTMENTS_BY_TEAM)[Team][number]
+export type Department = string
+
+export type DepartmentCatalogEntry = Readonly<{
+  team: Team
+  name: Department
+}>
 
 export type EvaluationCycle = Readonly<{
   id: string
@@ -70,11 +75,6 @@ export type RubricItem = Readonly<{
   criteria: ReadonlyArray<RubricCriterion>
 }>
 
-export type TaskEvaluatorWeight = Readonly<{
-  evaluatorId: string
-  weight: number
-}>
-
 export type EvaluationTask = Readonly<{
   id: string
   cycleId: string
@@ -84,7 +84,6 @@ export type EvaluationTask = Readonly<{
   weight: number
   order: number
   items: ReadonlyArray<RubricItem>
-  evaluatorWeights: ReadonlyArray<TaskEvaluatorWeight>
 }>
 
 export type EngineerTaskWeight = Readonly<{
@@ -146,6 +145,7 @@ export type EvaluatorAssignment = Readonly<{
   engineerId: string
   evaluatorId: string
   taskId: string
+  weight: number
 }>
 
 export type ScoreEntry = Readonly<{
@@ -161,6 +161,17 @@ export type ScoreSheet = Readonly<{
   passResult: boolean | null
   updatedAt: string
   submittedAt: string | null
+}>
+
+export type SheetUnlockRequest = Readonly<{
+  id: string
+  cycleId: string
+  sheetId: string
+  evaluatorId: string
+  reason: string
+  status: "pending" | "resolved"
+  createdAt: string
+  resolvedAt: string | null
 }>
 
 export type DirectScore = Readonly<{
@@ -213,6 +224,7 @@ export type EvaluationScheduleEvent = Readonly<{
   id: string
   cycleId: string
   engineerId: string
+  taskId: string | null
   title: string
   date: string
   startTime: string | null
@@ -227,6 +239,7 @@ export type AuditEvent = Readonly<{
   type:
     | "sheet_submitted"
     | "sheet_reopened"
+    | "sheet_unlock_requested"
     | "direct_score_updated"
     | "score_adjustment_saved"
     | "score_adjustment_deleted"
@@ -242,6 +255,7 @@ export type AuditEvent = Readonly<{
     | "cycle_deleted"
     | "task_saved"
     | "task_deleted"
+    | "evaluator_assignments_updated"
     | "engineer_task_weights_updated"
     | "engineer_added"
     | "engineer_updated"
@@ -261,15 +275,17 @@ export type AuditEvent = Readonly<{
 }>
 
 export type EvaluationSnapshot = Readonly<{
-  schemaVersion: 6
+  schemaVersion: 7
   cycles: ReadonlyArray<EvaluationCycle>
   tasks: ReadonlyArray<EvaluationTask>
   engineerTaskWeights: ReadonlyArray<EngineerTaskWeight>
   directScoreRules: ReadonlyArray<DirectScoreRule>
+  departmentCatalog?: ReadonlyArray<DepartmentCatalogEntry>
   engineers: ReadonlyArray<Engineer>
   evaluators: ReadonlyArray<Evaluator>
   assignments: ReadonlyArray<EvaluatorAssignment>
   scoreSheets: ReadonlyArray<ScoreSheet>
+  unlockRequests: ReadonlyArray<SheetUnlockRequest>
   directScores: ReadonlyArray<DirectScore>
   scoreAdjustments: ReadonlyArray<EngineerScoreAdjustment>
   languageScoreRecords: ReadonlyArray<LanguageScoreRecord>

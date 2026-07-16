@@ -4,6 +4,8 @@ export type AutosaveStatus = "idle" | "saving" | "saved" | "error"
 
 export interface AssignedEvaluationViewModel {
   readonly id: string
+  readonly engineerId: string
+  readonly taskId: string
   readonly engineerName: string
   readonly teamName: string
   readonly evaluatorId: string
@@ -35,6 +37,8 @@ export interface EvaluationScoreFormViewModel {
   readonly teamName: string
   readonly evaluatorName: string
   readonly proxyEntry: boolean
+  readonly submitted: boolean
+  readonly unlockRequestPending: boolean
   readonly items: readonly ScoreItemViewModel[]
   readonly passResult: boolean | null
   readonly autosaveStatus: AutosaveStatus
@@ -49,4 +53,5 @@ export interface EvaluationScoreFormProps {
   readonly onPassResultChange: (value: boolean | null) => void
   readonly onSave: () => void
   readonly onSubmit: () => void
+  readonly onRequestUnlock: (reason: string) => void
 }

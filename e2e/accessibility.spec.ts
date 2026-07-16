@@ -108,7 +108,9 @@ test("/my 엔지니어 포털과 원천 실적 Dialog에 치명적 접근성 오
 })
 
 for (const route of [
+  "/today",
   "/evaluations",
+  "/calendar",
   "/evaluations/detail?assignmentId=engineer-13-task-dx-tool-evaluator-01",
 ] as const) {
   test(`${route} 평가자 화면에 치명적 접근성 오류가 없다`, async ({ page }) => {

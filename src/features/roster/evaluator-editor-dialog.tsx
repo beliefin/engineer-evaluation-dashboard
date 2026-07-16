@@ -17,11 +17,12 @@ import { Label } from "@/components/ui/label"
 import { TeamSelect } from "./team-select"
 import { DepartmentSelect } from "./department-select"
 import { defaultRosterDepartment } from "./types"
-import type { EvaluatorRegistration, EvaluatorRosterItem } from "./types"
+import type { EvaluatorRegistration, EvaluatorRosterItem, RosterDepartmentOptions } from "./types"
 
 type EvaluatorEditorDialogProps = Readonly<{
   evaluator: EvaluatorRosterItem
   existingEmployeeCodes: readonly string[]
+  departmentOptions: RosterDepartmentOptions
   onClose: () => void
   onSave: (evaluatorId: string, evaluator: EvaluatorRegistration) => boolean
 }>
@@ -29,11 +30,13 @@ type EvaluatorEditorDialogProps = Readonly<{
 type FieldErrors = Readonly<{
   employeeCode?: string
   displayName?: string
+  department?: string
 }>
 
 export function EvaluatorEditorDialog({
   evaluator,
   existingEmployeeCodes,
+  departmentOptions,
   onClose,
   onSave,
 }: EvaluatorEditorDialogProps) {
@@ -52,7 +55,7 @@ export function EvaluatorEditorDialog({
       displayName: displayName.trim(),
       division: "1부문" as const,
       team,
-      department,
+      department: department.trim(),
     }
     const duplicate = existingEmployeeCodes.some((code) =>
       code.toLocaleUpperCase("en-US") === next.employeeCode.toLocaleUpperCase("en-US"))
@@ -60,6 +63,7 @@ export function EvaluatorEditorDialog({
       ...(next.employeeCode === "" ? { employeeCode: "사번을 입력해 주세요." } : {}),
       ...(duplicate ? { employeeCode: "이미 등록된 사번입니다." } : {}),
       ...(next.displayName === "" ? { displayName: "이름을 입력해 주세요." } : {}),
+      ...(next.department === "" ? { department: "담당을 입력해 주세요." } : {}),
     }
     setFieldErrors(nextErrors)
     setSubmitError("")
@@ -116,7 +120,18 @@ export function EvaluatorEditorDialog({
           </div>
           <div className="space-y-2">
             <Label htmlFor={`${id}-department`}>담당</Label>
-            <DepartmentSelect id={`${id}-department`} onValueChange={setDepartment} team={team} value={department} />
+            <DepartmentSelect
+              describedBy={fieldErrors.department === undefined ? undefined : `${id}-department-error`}
+              id={`${id}-department`}
+              invalid={fieldErrors.department !== undefined}
+              onValueChange={setDepartment}
+              savedDepartments={departmentOptions[team]}
+              team={team}
+              value={department}
+            />
+            {fieldErrors.department === undefined ? null : (
+              <p className="text-xs text-destructive" id={`${id}-department-error`}>{fieldErrors.department}</p>
+            )}
           </div>
           {submitError === "" ? null : (
             <p className="text-sm text-destructive" role="alert">{submitError}</p>

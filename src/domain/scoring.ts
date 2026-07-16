@@ -106,23 +106,18 @@ export function calculateTaskResult(
   }
 
   const scopedAssignments = assignments.filter((entry) => entry.taskId === task.id)
-  const totalWeight = task.evaluatorWeights.reduce((total, entry) => total + entry.weight, 0)
-  const evaluators = task.evaluatorWeights.map((definition) => {
-    const assignment = scopedAssignments.find(
-      (entry) => entry.evaluatorId === definition.evaluatorId,
-    )
-    const sheet = assignment === undefined
-      ? undefined
-      : sheets.find((entry) => entry.assignmentId === assignment.id)
+  const totalWeight = scopedAssignments.reduce((total, entry) => total + entry.weight, 0)
+  const evaluators = scopedAssignments.map((assignment) => {
+    const sheet = sheets.find((entry) => entry.assignmentId === assignment.id)
     const rawScore = sheet?.status === "submitted" ? scoreSheetValue(task, sheet) : null
     return {
-      assignmentId: assignment?.id ?? "",
-      evaluatorId: definition.evaluatorId,
-      weight: definition.weight,
-      normalizedWeight: totalWeight > 0 ? definition.weight / totalWeight : 0,
+      assignmentId: assignment.id,
+      evaluatorId: assignment.evaluatorId,
+      weight: assignment.weight,
+      normalizedWeight: totalWeight > 0 ? assignment.weight / totalWeight : 0,
       rawScore,
       passResult: task.method === "evaluator_pass_fail" ? (sheet?.passResult ?? null) : null,
-      submitted: assignment !== undefined && rawScore !== null,
+      submitted: rawScore !== null,
     }
   })
   const complete = evaluators.length > 0 && evaluators.every((entry) => entry.submitted)

@@ -61,9 +61,8 @@ function readSessionSelection(key: string): string | null {
 function writeSessionSelection(key: string, value: string): void {
   try {
     window.sessionStorage.setItem(key, value)
-  } catch (error: unknown) {
-    if (error instanceof DOMException) return
-    throw error
+  } catch {
+    return
   }
 }
 
@@ -119,7 +118,7 @@ export function EvaluationProvider({ children }: Readonly<{ children: ReactNode 
     setLoadState({ status: "loading" })
     if (remoteMode) {
       if (sessionId === null) return () => { active = false }
-      void loadRemoteEvaluation().then((state) => {
+      void loadRemoteEvaluation(role).then((state) => {
         if (active) installRemoteState(state)
       }).catch((error: unknown) => {
         if (active) failLoad(error)
@@ -135,7 +134,7 @@ export function EvaluationProvider({ children }: Readonly<{ children: ReactNode 
       }
     }
     return () => { active = false }
-  }, [commitSnapshot, failLoad, installRemoteState, remoteMode, sessionId])
+  }, [commitSnapshot, failLoad, installRemoteState, remoteMode, role, sessionId])
 
   useEffect(() => () => {
     if (clearTimerRef.current !== null) clearTimeout(clearTimerRef.current)
@@ -151,33 +150,33 @@ export function EvaluationProvider({ children }: Readonly<{ children: ReactNode 
 
   const setActiveEvaluatorId = useCallback((evaluatorId: string) => {
     if (role !== "operator") return
-    writeSessionSelection(EVALUATOR_KEY, evaluatorId)
     setProxyEvaluatorId(evaluatorId)
+    writeSessionSelection(EVALUATOR_KEY, evaluatorId)
   }, [role])
 
   const setActiveCycleId = useCallback((cycleId: string) => {
-    writeSessionSelection(CYCLE_KEY, cycleId)
     setActiveCycleIdState(cycleId)
+    writeSessionSelection(CYCLE_KEY, cycleId)
   }, [])
 
   const retryLoad = useCallback(() => {
     setLoadState({ status: "loading" })
     if (remoteMode) {
-      void loadRemoteEvaluation().then(installRemoteState).catch(failLoad)
+      void loadRemoteEvaluation(role).then(installRemoteState).catch(failLoad)
       return
     }
     try {
       const loaded = repositoryRef.current?.loadSnapshot()
       if (loaded !== undefined) commitSnapshot(loaded)
     } catch (error) { failLoad(error) }
-  }, [commitSnapshot, failLoad, installRemoteState, remoteMode])
+  }, [commitSnapshot, failLoad, installRemoteState, remoteMode, role])
 
   const queueRemoteWrite = useCallback((command: RemoteEvaluationCommand, next: EvaluationSnapshot, message?: string) => {
     pendingWritesRef.current += 1
     setSaveState("saving")
     writeQueueRef.current = writeQueueRef.current.catch(() => undefined).then(async () => {
       try {
-        const saved = await persistRemoteEvaluation(command, next, revisionRef.current)
+        const saved = await persistRemoteEvaluation(command, next, revisionRef.current, role)
         revisionRef.current = saved.revision
         pendingWritesRef.current -= 1
         if (pendingWritesRef.current === 0) {
@@ -193,13 +192,13 @@ export function EvaluationProvider({ children }: Readonly<{ children: ReactNode 
         setErrorMessage(text)
         toast.error(text)
         try {
-          installRemoteState(await loadRemoteEvaluation())
+          installRemoteState(await loadRemoteEvaluation(role))
         } catch {
           setErrorMessage(text)
         }
       }
     })
-  }, [commitSnapshot, installRemoteState])
+  }, [commitSnapshot, installRemoteState, role])
 
   const mutate = useCallback<MutateRepository>((mutation, successMessage, remoteCommand) => {
     const repository = repositoryRef.current

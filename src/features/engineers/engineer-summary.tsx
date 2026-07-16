@@ -108,7 +108,7 @@ export function EngineerSummary({ engineer, result, contextLabel = "엔지니어
             </div>
           )}
           <p className="mt-3 text-xs leading-5 text-muted-foreground">
-            모든 필수 평가와 직접점수가 완료되면 최종 점수를 확정합니다.
+            모든 필수 평가와 직접점수가 완료되면 <span className="whitespace-nowrap">최종 점수</span>를 확정합니다.
           </p>
           {result.adjustments.length === 0 ? null : (
             <details className="mt-3 border-t pt-3 text-xs">

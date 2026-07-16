@@ -5,7 +5,7 @@ import { CalendarScreen } from "@/screens/calendar-screen"
 
 export default function CalendarPage() {
   return (
-    <RoleGate allowed={["operator", "approver"]}>
+    <RoleGate allowed={["operator", "evaluator", "approver"]}>
       <Suspense fallback={<LoadingPageSkeleton />}>
         <CalendarScreen />
       </Suspense>

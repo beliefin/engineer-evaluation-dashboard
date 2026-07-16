@@ -26,6 +26,22 @@ function createRepository(storage: MemoryStorage) {
   })
 }
 
+function createLegacyConfiguredArtifacts() {
+  const seed = createSeedSnapshot()
+  return {
+    tasks: seed.tasks.map((task) => ({
+      ...task,
+      evaluatorWeights: task.method.startsWith("evaluator")
+        ? seed.evaluators.map((evaluator) => ({ evaluatorId: evaluator.id, weight: 1 }))
+        : [],
+    })),
+    assignments: seed.assignments.map(({ weight, ...assignment }) => {
+      void weight
+      return assignment
+    }),
+  }
+}
+
 function createVersionThreeSnapshot() {
   const seed = createSeedSnapshot()
   const growth = seed.tasks.find((task) => task.id === "task-growth-plan")
@@ -38,11 +54,7 @@ function createVersionThreeSnapshot() {
   const assignments = seed.assignments.flatMap((assignment) => {
     const category = taskCategory.get(assignment.taskId)
     if (category === undefined) return []
-    const task = category === "growth_plan" ? growth : core
-    const weight = task.evaluatorWeights.find(
-      (entry) => entry.evaluatorId === assignment.evaluatorId,
-    )?.weight
-    return weight === undefined ? [] : [{ ...assignment, category, weight }]
+    return [{ ...assignment, category, weight: assignment.weight }]
   })
   const assignmentIds = new Set(assignments.map((assignment) => assignment.id))
   const directTaskCategory = new Map<string, "language" | "certification" | "proposal">([
@@ -112,7 +124,7 @@ function createVersionOneSnapshot() {
 }
 
 describe("LocalStorageEvaluationRepository loading", () => {
-  it("Given empty storage When loaded Then it returns the deterministic v6 seed", () => {
+  it("Given empty storage When loaded Then it returns the deterministic v7 seed", () => {
     const storage = new MemoryStorage()
 
     expect(createRepository(storage).loadSnapshot()).toEqual(createSeedSnapshot())
@@ -121,17 +133,19 @@ describe("LocalStorageEvaluationRepository loading", () => {
 
   it("Given a v4 snapshot When loaded Then it adds empty engineer task overrides", () => {
     const seed = createSeedSnapshot()
+    const legacyArtifacts = createLegacyConfiguredArtifacts()
     const { engineerTaskWeights, ...versionFour } = seed
     void engineerTaskWeights
     const storage = new MemoryStorage()
     storage.setItem(VERSION_FOUR_LOCAL_STORAGE_KEY, JSON.stringify({
       ...versionFour,
+      ...legacyArtifacts,
       schemaVersion: 4,
     }))
 
     const snapshot = createRepository(storage).loadSnapshot()
 
-    expect(snapshot.schemaVersion).toBe(6)
+    expect(snapshot.schemaVersion).toBe(7)
     expect(snapshot.engineerTaskWeights).toEqual([])
     expect(snapshot.tasks).toEqual(seed.tasks)
   })
@@ -146,8 +160,10 @@ describe("LocalStorageEvaluationRepository loading", () => {
 
   it("Given a v5 snapshot When loaded Then it assigns the fixed division and a team department", () => {
     const seed = createSeedSnapshot()
+    const legacyArtifacts = createLegacyConfiguredArtifacts()
     const versionFive = {
       ...seed,
+      ...legacyArtifacts,
       schemaVersion: 5,
       engineers: seed.engineers.map(({ division, department, ...engineer }) => {
         void division
@@ -165,7 +181,7 @@ describe("LocalStorageEvaluationRepository loading", () => {
 
     const snapshot = createRepository(storage).loadSnapshot()
 
-    expect(snapshot.schemaVersion).toBe(6)
+    expect(snapshot.schemaVersion).toBe(7)
     expect(snapshot.engineers.every((engineer) => engineer.division === "1부문")).toBe(true)
     expect(snapshot.engineers.find((engineer) => engineer.team === "생산 1팀")?.department).toBe("전자약품담당")
     expect(snapshot.engineers.find((engineer) => engineer.team === "생산 2팀")?.department).toBe("염화메탄담당")
@@ -187,7 +203,7 @@ describe("LocalStorageEvaluationRepository loading", () => {
 
     const snapshot = createRepository(storage).loadSnapshot()
 
-    expect(snapshot.schemaVersion).toBe(6)
+    expect(snapshot.schemaVersion).toBe(7)
     expect(snapshot.tasks.map((task) => task.name)).toEqual([
       "성장탐구계획서",
       "DX 툴 활용",
@@ -209,9 +225,9 @@ describe("LocalStorageEvaluationRepository loading", () => {
     const versionTwo = createRepository(versionTwoStorage).loadSnapshot()
     const versionOne = createRepository(versionOneStorage).loadSnapshot()
 
-    expect(versionTwo.schemaVersion).toBe(6)
+    expect(versionTwo.schemaVersion).toBe(7)
     expect(versionTwo.languageScoreRecords).toEqual([])
-    expect(versionOne.schemaVersion).toBe(6)
+    expect(versionOne.schemaVersion).toBe(7)
     expect(versionOne.evaluators.every((evaluator) => evaluator.employeeCode.length > 0)).toBe(true)
     expect(versionOne.engineers.every((engineer) => engineer.team.startsWith("생산 "))).toBe(true)
   })

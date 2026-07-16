@@ -4,12 +4,14 @@ import { ZodError } from "zod"
 
 import { corsHeaders, jsonResponse } from "../_shared/cors.ts"
 import { ApiError } from "./api-error.ts"
-import { profileSchema, snapshotSchema, type Profile, type Snapshot } from "./model.ts"
+import { activateProfileRole, profileSchema, snapshotSchema, type Profile, type Snapshot } from "./model.ts"
 import {
   mergeOperatorSnapshot,
   mutateScoreAdjustment,
+  mutateSchedule,
   mutateSheet,
   mutateSource,
+  mutateUnlockRequest,
 } from "./mutations.ts"
 import { projectSnapshot } from "./projection.ts"
 import { evaluationRequestSchema } from "./request-schema.ts"
@@ -39,7 +41,7 @@ async function authenticate(request: Request): Promise<Profile> {
     throw new ApiError(401, "UNAUTHENTICATED", "로그인이 만료되었습니다.")
   }
   const response = await service.from("profiles").select(
-    "auth_user_id, username, display_name, role, evaluator_id, engineer_id, active",
+    "auth_user_id, username, display_name, role, roles, evaluator_id, engineer_id, active",
   ).eq("auth_user_id", data.user.id).single()
   if (response.error !== null) throw new ApiError(403, "PROFILE_REQUIRED", "사용자 권한을 확인할 수 없습니다.")
   const profile = profileSchema.parse(response.data)
@@ -65,6 +67,26 @@ function applyMutation(
   if (request.operation === "save_draft" || request.operation === "submit_sheet") {
     return {
       snapshot: mutateSheet(snapshot, profile, request),
+      operation: request.operation,
+      targetId: request.sheetId,
+      revision: request.baseRevision,
+    }
+  }
+  if (
+    request.operation === "create_schedule_events" ||
+    request.operation === "update_schedule_event" ||
+    request.operation === "delete_schedule_event"
+  ) {
+    return {
+      snapshot: mutateSchedule(snapshot, profile, request),
+      operation: request.operation,
+      targetId: "eventId" in request ? request.eventId : null,
+      revision: request.baseRevision,
+    }
+  }
+  if (request.operation === "request_sheet_unlock") {
+    return {
+      snapshot: mutateUnlockRequest(snapshot, profile, request),
       operation: request.operation,
       targetId: request.sheetId,
       revision: request.baseRevision,
@@ -114,18 +136,19 @@ Deno.serve(async (request: Request) => {
     const profile = await authenticate(request)
     const payload: unknown = await request.json()
     const parsed = evaluationRequestSchema.parse(payload)
+    const activeProfile = activateProfileRole(profile, parsed.activeRole ?? profile.role)
     const state = await loadState(service)
     if (parsed.operation === "load") {
-      return jsonResponse(request, { snapshot: projectSnapshot(state.snapshot, profile), revision: state.revision })
+      return jsonResponse(request, { snapshot: projectSnapshot(state.snapshot, activeProfile), revision: state.revision })
     }
-    const mutation = applyMutation(state.snapshot, profile, parsed)
+    const mutation = applyMutation(state.snapshot, activeProfile, parsed)
     if (parsed.operation === "operator_commit") {
       await requireLinkedRosterMembers(mutation.snapshot)
     }
     const revision = await commitState(
-      service, mutation.revision, mutation.snapshot, profile, mutation.operation, mutation.targetId,
+      service, mutation.revision, mutation.snapshot, activeProfile, mutation.operation, mutation.targetId,
     )
-    return jsonResponse(request, { snapshot: projectSnapshot(mutation.snapshot, profile), revision })
+    return jsonResponse(request, { snapshot: projectSnapshot(mutation.snapshot, activeProfile), revision })
   } catch (error) {
     if (error instanceof ApiError) {
       return jsonResponse(request, { error: { code: error.code, message: error.message } }, error.status)

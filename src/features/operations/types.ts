@@ -5,12 +5,13 @@ import type {
   EvaluatorRosterItem,
 } from "@/features/roster"
 import type {
+  DepartmentCatalogEntry,
   DirectScoreRule,
   EvaluationMethod,
 } from "@/domain"
 
 export type OperationsCycleStatus = "setup" | "active" | "closed"
-export type OperationsTab = "roster" | "season" | "tasks" | "weights" | "scores" | "scoreTables" | "adjustments" | "unlocks" | "reset"
+export type OperationsTab = "roster" | "season" | "tasks" | "assignments" | "weights" | "scores" | "scoreTables" | "adjustments" | "unlocks" | "reset"
 
 export type OperationsTrack = "unselected" | "ots" | "dx"
 export type EvaluationCategoryKey = "growth_plan" | "core_track"
@@ -37,7 +38,6 @@ export type TaskItemDraft = Readonly<{
   section: string | null
   criteria: ReadonlyArray<Readonly<{ score: number; description: string }>>
 }>
-export type TaskEvaluatorDraft = Readonly<{ evaluatorId: string; weight: number }>
 export type EvaluationTaskDraft = Readonly<{
   taskId: string | null
   name: string
@@ -45,7 +45,6 @@ export type EvaluationTaskDraft = Readonly<{
   method: EvaluationMethod
   weight: number
   items: ReadonlyArray<TaskItemDraft>
-  evaluatorWeights: ReadonlyArray<TaskEvaluatorDraft>
 }>
 
 export type EvaluationTaskViewModel = EvaluationTaskDraft & Readonly<{
@@ -77,6 +76,25 @@ export type EvaluatorOptionViewModel = Readonly<{
   id: string
   name: string
   employeeCode: string
+}>
+
+export type EvaluatorAssignmentEntryViewModel = Readonly<{
+  assignmentId: string
+  evaluatorId: string
+  evaluatorName: string
+  weight: number
+  normalizedRatio: number
+  status: "pending" | "in_progress" | "submitted"
+}>
+
+export type EvaluatorAssignmentGroupViewModel = Readonly<{
+  engineerId: string
+  engineerName: string
+  employeeLabel: string
+  teamName: string
+  taskId: string
+  taskName: string
+  assignments: ReadonlyArray<EvaluatorAssignmentEntryViewModel>
 }>
 
 export type DirectTaskScoreViewModel = Readonly<{
@@ -259,6 +277,8 @@ export interface SubmittedSheetViewModel {
   readonly taskLabel?: string
   readonly categoryLabel?: string
   readonly submittedAtLabel: string
+  readonly requestReason: string
+  readonly requestedAtLabel: string
 }
 
 export interface OperationsViewModel {
@@ -271,6 +291,7 @@ export interface OperationsViewModel {
   readonly cycleEndsAt: string
   readonly tasks: readonly EvaluationTaskViewModel[]
   readonly evaluatorOptions: readonly EvaluatorOptionViewModel[]
+  readonly evaluatorAssignments: readonly EvaluatorAssignmentGroupViewModel[]
   readonly weightTotal: number
   readonly engineerTaskWeights: readonly EngineerTaskWeightViewModel[]
   readonly directScores: readonly EngineerDirectScoreViewModel[]
@@ -279,6 +300,7 @@ export interface OperationsViewModel {
   readonly operatorTasks?: readonly Readonly<{ taskId: string; taskName: string }>[]
   readonly certificationOptions?: readonly CertificationOptionViewModel[]
   readonly languageOptions?: readonly LanguageOptionViewModel[]
+  readonly departmentCatalog?: readonly DepartmentCatalogEntry[]
   readonly rosterEngineers: readonly EngineerRosterItem[]
   readonly rosterEvaluators: readonly EvaluatorRosterItem[]
   readonly submittedSheets: readonly SubmittedSheetViewModel[]
@@ -291,6 +313,11 @@ export interface OperationsCallbacks {
   readonly onDeleteCycle?: (cycleId: string) => boolean
   readonly onSaveTask: (task: EvaluationTaskDraft) => boolean
   readonly onDeleteTask: (taskId: string) => boolean
+  readonly onUpdateEvaluatorAssignments: (
+    engineerId: string,
+    taskId: string,
+    evaluatorWeights: ReadonlyArray<Readonly<{ evaluatorId: string; weight: number }>>,
+  ) => boolean
   readonly onEngineerTaskWeightsChange: (
     engineerId: string,
     weights: ReadonlyArray<Readonly<{ taskId: string; weight: number }>>,

@@ -41,7 +41,7 @@ async function operator(request: Request): Promise<Profile> {
   const result = await service.from("profiles").select("*").eq("auth_user_id", auth.data.user.id).single()
   if (result.error !== null) throw new HttpError(403, "FORBIDDEN", "운영자 권한이 필요합니다.")
   const profile = profileSchema.parse(result.data)
-  if (!profile.active || profile.role !== "operator") throw new HttpError(403, "FORBIDDEN", "운영자 권한이 필요합니다.")
+  if (!profile.active || !profile.roles.includes("operator")) throw new HttpError(403, "FORBIDDEN", "운영자 권한이 필요합니다.")
   return profile
 }
 
@@ -51,6 +51,7 @@ function publicAccount(profile: Profile) {
     username: profile.username,
     displayName: profile.display_name,
     role: profile.role,
+    roles: profile.roles,
     evaluatorId: profile.evaluator_id,
     engineerId: profile.engineer_id,
     active: profile.active,
@@ -71,21 +72,22 @@ async function findProfile(accountId: string): Promise<Profile> {
   return profileSchema.parse(result.data)
 }
 
-async function requireRemainingOperator(target: Profile, nextRole: Profile["role"], nextActive: boolean): Promise<void> {
-  if (!(target.role === "operator" && target.active && (nextRole !== "operator" || !nextActive))) return
+async function requireRemainingOperator(target: Profile, nextRoles: ReadonlyArray<Profile["role"]>, nextActive: boolean): Promise<void> {
+  if (!(target.roles.includes("operator") && target.active && (!nextRoles.includes("operator") || !nextActive))) return
   const result = await service.from("profiles").select("auth_user_id", { count: "exact", head: true })
-    .eq("role", "operator").eq("active", true)
+    .contains("roles", ["operator"]).eq("active", true)
   if (result.error !== null) throw new HttpError(500, "ACCOUNT_READ_FAILED", "운영자 계정을 확인하지 못했습니다.")
   if ((result.count ?? 0) <= 1) throw new HttpError(409, "LAST_OPERATOR", "마지막 활성 운영자 계정은 제거할 수 없습니다.")
 }
 
 async function createAccount(request: Extract<AccountRequest, { operation: "create" }>): Promise<void> {
   try { validateRoleLink(request) } catch { throw new HttpError(400, "INVALID_INPUT", "역할과 연결 대상이 일치하지 않습니다.") }
+  const roles = request.roles ?? [request.role]
   const created = await service.auth.admin.createUser({
     email: accountEmailForUsername(request.username),
     password: request.password,
     email_confirm: true,
-    app_metadata: { role: request.role },
+    app_metadata: { role: request.role, roles },
   })
   if (created.error !== null || created.data.user === null) {
     const duplicate = created.error?.message.toLowerCase().includes("already") ?? false
@@ -97,6 +99,7 @@ async function createAccount(request: Extract<AccountRequest, { operation: "crea
     username: request.username,
     display_name: request.displayName,
     role: request.role,
+    roles,
     evaluator_id: request.evaluatorId,
     engineer_id: request.engineerId,
     active: request.active,
@@ -111,20 +114,22 @@ async function createAccount(request: Extract<AccountRequest, { operation: "crea
 
 async function updateAccount(actor: Profile, request: Extract<AccountRequest, { operation: "update" }>): Promise<void> {
   try { validateRoleLink(request) } catch { throw new HttpError(400, "INVALID_INPUT", "역할과 연결 대상이 일치하지 않습니다.") }
+  const roles = request.roles ?? [request.role]
   const target = await findProfile(request.accountId)
-  if (target.auth_user_id === actor.auth_user_id && (!request.active || request.role !== "operator")) {
+  if (target.auth_user_id === actor.auth_user_id && (!request.active || !roles.includes("operator"))) {
     throw new HttpError(409, "SELF_LOCKOUT", "현재 로그인한 운영자 계정은 잠글 수 없습니다.")
   }
-  await requireRemainingOperator(target, request.role, request.active)
+  await requireRemainingOperator(target, roles, request.active)
   const updated = await service.from("profiles").update({
     display_name: request.displayName,
     role: request.role,
+    roles,
     evaluator_id: request.evaluatorId,
     engineer_id: request.engineerId,
     active: request.active,
   }).eq("auth_user_id", request.accountId)
   if (updated.error !== null) throw new HttpError(400, "INVALID_INPUT", "계정 정보를 수정하지 못했습니다.")
-  await service.auth.admin.updateUserById(request.accountId, { app_metadata: { role: request.role } })
+  await service.auth.admin.updateUserById(request.accountId, { app_metadata: { role: request.role, roles } })
 }
 
 async function applyOperation(actor: Profile, request: AccountRequest): Promise<void> {
@@ -138,7 +143,7 @@ async function applyOperation(actor: Profile, request: AccountRequest): Promise<
     return
   }
   if (target.auth_user_id === actor.auth_user_id) throw new HttpError(409, "SELF_LOCKOUT", "현재 계정은 삭제할 수 없습니다.")
-  await requireRemainingOperator(target, "approver", false)
+  await requireRemainingOperator(target, ["approver"], false)
   const deleted = await service.auth.admin.deleteUser(request.accountId)
   if (deleted.error !== null) throw new HttpError(500, "ACCOUNT_DELETE_FAILED", "계정을 삭제하지 못했습니다.")
 }

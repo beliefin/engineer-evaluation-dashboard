@@ -11,11 +11,23 @@ export const profileSchema = z.object({
   username: z.string(),
   display_name: z.string(),
   role: roleSchema,
+  roles: z.array(roleSchema).min(1).max(2),
   evaluator_id: z.string().nullable(),
   engineer_id: z.string().nullable(),
   active: z.boolean(),
 })
 export type Profile = z.infer<typeof profileSchema>
+
+export function activateProfileRole(profile: Profile, activeRole: Role): Profile {
+  if (!profile.roles.includes(activeRole)) throw new Error("PROFILE_ROLE_FORBIDDEN")
+  if (activeRole === "evaluator" && profile.evaluator_id === null) {
+    throw new Error("PROFILE_ROLE_LINK_INVALID")
+  }
+  if (activeRole === "engineer" && profile.engineer_id === null) {
+    throw new Error("PROFILE_ROLE_LINK_INVALID")
+  }
+  return { ...profile, role: activeRole }
+}
 
 const cycle = z.object({
   id, name: z.string().trim().min(1), status: z.enum(["setup", "active", "closed"]),
@@ -29,28 +41,17 @@ const versionFiveEvaluator = z.object({
   id, employeeCode: z.string().trim().min(1), displayName: z.string().trim().min(1),
   team: z.enum(["생산 1팀", "생산 2팀"]),
 })
-const department = z.enum([
-  "전자약품담당", "메틸아민담당", "케미칼운영담당",
-  "염화메탄담당", "ECH1담당", "ECH2담당",
-])
-function validateOrganization(
-  value: { team: "생산 1팀" | "생산 2팀"; department: z.infer<typeof department> },
-  context: z.RefinementCtx,
-): void {
-  const validDepartments = value.team === "생산 1팀"
-    ? ["전자약품담당", "메틸아민담당", "케미칼운영담당"]
-    : ["염화메탄담당", "ECH1담당", "ECH2담당"]
-  if (!validDepartments.some((entry) => entry === value.department)) {
-    context.addIssue({ code: "custom", path: ["department"], message: "TEAM_DEPARTMENT_MISMATCH" })
-  }
-}
+const department = z.string().trim().min(1).max(100)
+const departmentCatalogEntry = z.object({
+  team: z.enum(["생산 1팀", "생산 2팀"]),
+  name: department,
+})
 const engineer = versionFiveEngineer
   .extend({
     division: z.literal("1부문"), department,
     organizationUnit: nullableText(100).default(null),
     jobTitle: nullableText(100).default(null),
   })
-  .superRefine(validateOrganization)
 const evaluator = versionFiveEvaluator
   .extend({
     division: z.literal("1부문"), department,
@@ -58,7 +59,6 @@ const evaluator = versionFiveEvaluator
     rank: nullableText(100).default(null),
     jobTitle: nullableText(100).default(null),
   })
-  .superRefine(validateOrganization)
 const rubricCriterion = z.object({
   score: z.number().int().min(0).max(10),
   description: z.string().trim().min(1).max(500),
@@ -75,8 +75,8 @@ export const taskSchema = z.object({
   id, cycleId: id, name: z.string().trim().min(1).max(100), description: z.string().max(1_000),
   method: z.enum(["evaluator_score", "evaluator_pass_fail", "operator_score", "operator_pass_fail"]),
   weight: z.number().min(0).max(100), order: z.number().int(), items: z.array(rubricItem).max(20),
-  evaluatorWeights: z.array(evaluatorWeight).max(50),
 })
+const legacyTaskSchema = taskSchema.extend({ evaluatorWeights: z.array(evaluatorWeight).max(50) })
 export type Task = z.infer<typeof taskSchema>
 const engineerTaskWeight = z.object({
   cycleId: id, engineerId: id, taskId: id, weight: z.number().min(0).max(100),
@@ -99,9 +99,10 @@ const directScoreRule = z.object({
   examName: z.string().trim().min(1).max(100).nullable().optional(),
   bonusCondition: z.enum(["grade_upgrade", "second_language_new"]).nullable().optional(),
 })
-export const assignmentSchema = z.object({
+const legacyAssignmentSchema = z.object({
   id, cycleId: id, engineerId: id, evaluatorId: id, taskId: id,
 })
+export const assignmentSchema = legacyAssignmentSchema.extend({ weight: z.number().positive().finite() })
 export type Assignment = z.infer<typeof assignmentSchema>
 const scoreEntry = z.object({ itemId: id, score: z.number().int().min(0).max(10).nullable() })
 export const scoreSheetSchema = z.object({
@@ -109,6 +110,11 @@ export const scoreSheetSchema = z.object({
   passResult: z.boolean().nullable(), updatedAt: timestamp, submittedAt: timestamp.nullable(),
 })
 export type ScoreSheet = z.infer<typeof scoreSheetSchema>
+const unlockRequestSchema = z.object({
+  id, cycleId: id, sheetId: id, evaluatorId: id,
+  reason: z.string().trim().min(1).max(500), status: z.enum(["pending", "resolved"]),
+  createdAt: timestamp, resolvedAt: timestamp.nullable(),
+})
 export const directScoreSchema = z.object({
   id, cycleId: id, engineerId: id, taskId: id, score: z.number().min(0).max(100).nullable(),
   passResult: z.boolean().nullable(), updatedAt: timestamp,
@@ -139,7 +145,8 @@ export const certificationRecordSchema = z.object({
 })
 export type CertificationRecord = z.infer<typeof certificationRecordSchema>
 const scheduleEvent = z.object({
-  id, cycleId: id, engineerId: id, title: z.string().trim().min(1).max(100), date: z.iso.date(),
+  id, cycleId: id, engineerId: id, taskId: id.nullable().default(null),
+  title: z.string().trim().min(1).max(100), date: z.iso.date(),
   startTime: z.string().regex(/^(?:[01]\d|2[0-3]):[0-5]\d$/).nullable(), note: nullableText(500),
   createdAt: timestamp, updatedAt: timestamp,
 })
@@ -148,22 +155,35 @@ const auditEvent = z.object({
   targetId: id, reason: z.string().trim().min(1).nullable(), createdAt: timestamp,
 })
 
-const snapshotFields = {
-  cycles: z.array(cycle).min(1), tasks: z.array(taskSchema),
-  engineerTaskWeights: z.array(engineerTaskWeight), directScoreRules: z.array(directScoreRule).default([]), engineers: z.array(engineer),
-  evaluators: z.array(evaluator), assignments: z.array(assignmentSchema),
+const sharedSnapshotFields = {
+  cycles: z.array(cycle).min(1),
+  engineerTaskWeights: z.array(engineerTaskWeight), directScoreRules: z.array(directScoreRule).default([]),
+  departmentCatalog: z.array(departmentCatalogEntry).default([]),
   scoreSheets: z.array(scoreSheetSchema), directScores: z.array(directScoreSchema),
   scoreAdjustments: z.array(scoreAdjustmentSchema).default([]),
   languageScoreRecords: z.array(languageRecordSchema),
   certificationRecords: z.array(certificationRecordSchema), scheduleEvents: z.array(scheduleEvent),
   auditEvents: z.array(auditEvent),
 }
-export const snapshotSchema = z.object({ schemaVersion: z.literal(6), ...snapshotFields })
+const snapshotFields = {
+  ...sharedSnapshotFields,
+  tasks: z.array(taskSchema), engineers: z.array(engineer), evaluators: z.array(evaluator),
+  assignments: z.array(assignmentSchema), unlockRequests: z.array(unlockRequestSchema).default([]),
+}
+const legacySnapshotFields = {
+  ...sharedSnapshotFields,
+  tasks: z.array(legacyTaskSchema), engineers: z.array(engineer), evaluators: z.array(evaluator),
+  assignments: z.array(legacyAssignmentSchema),
+}
+export const snapshotSchema = z.object({ schemaVersion: z.literal(7), ...snapshotFields })
 export type Snapshot = z.infer<typeof snapshotSchema>
+
+const versionSixSnapshotSchema = z.object({ schemaVersion: z.literal(6), ...legacySnapshotFields })
+type VersionSixSnapshot = z.infer<typeof versionSixSnapshotSchema>
 
 const versionFiveSnapshotSchema = z.object({
   schemaVersion: z.literal(5),
-  ...snapshotFields,
+  ...legacySnapshotFields,
   engineers: z.array(versionFiveEngineer),
   evaluators: z.array(versionFiveEvaluator),
 })
@@ -172,9 +192,41 @@ function defaultDepartment(team: "생산 1팀" | "생산 2팀") {
   return team === "생산 1팀" ? "전자약품담당" as const : "염화메탄담당" as const
 }
 
-export const storedSnapshotSchema = z.union([snapshotSchema, versionFiveSnapshotSchema]).transform((snapshot): Snapshot => {
-  if (snapshot.schemaVersion === 6) return snapshot
+function migrateVersionSix(snapshot: VersionSixSnapshot): Snapshot {
+  const sheetByAssignment = new Map(snapshot.scoreSheets.map((sheet) => [sheet.assignmentId, sheet]))
+  const assignments = snapshot.assignments.filter((assignment) => {
+    const sheet = sheetByAssignment.get(assignment.id)
+    return sheet?.status === "submitted" || sheet?.passResult !== null && sheet?.passResult !== undefined ||
+      sheet?.scores.some((entry) => entry.score !== null) === true
+  })
+  const assignmentIds = new Set(assignments.map((assignment) => assignment.id))
   return snapshotSchema.parse({
+    ...snapshot, schemaVersion: 7, unlockRequests: [],
+    tasks: snapshot.tasks.map((legacyTask) => {
+      const { evaluatorWeights, ...task } = legacyTask
+      void evaluatorWeights
+      return task
+    }),
+    assignments: assignments.map((assignment) => {
+      const task = snapshot.tasks.find((entry) => entry.id === assignment.taskId)
+      return {
+        ...assignment,
+        weight: task?.evaluatorWeights.find(
+          (entry) => entry.evaluatorId === assignment.evaluatorId,
+        )?.weight ?? 1,
+      }
+    }),
+    scoreSheets: snapshot.scoreSheets.filter((sheet) => assignmentIds.has(sheet.assignmentId)),
+  })
+}
+
+export const storedSnapshotSchema = z.union([
+  snapshotSchema,
+  versionSixSnapshotSchema,
+  versionFiveSnapshotSchema,
+]).transform((snapshot): Snapshot => {
+  if (snapshot.schemaVersion === 7) return snapshot
+  const normalized = snapshot.schemaVersion === 6 ? snapshot : versionSixSnapshotSchema.parse({
     ...snapshot,
     schemaVersion: 6,
     engineers: snapshot.engineers.map((entry) => ({
@@ -184,4 +236,5 @@ export const storedSnapshotSchema = z.union([snapshotSchema, versionFiveSnapshot
       ...entry, division: "1부문", department: defaultDepartment(entry.team),
     })),
   })
+  return migrateVersionSix(normalized)
 })

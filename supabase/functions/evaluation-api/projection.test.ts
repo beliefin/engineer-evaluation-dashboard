@@ -60,4 +60,51 @@ describe("projectSnapshot score adjustment boundary", () => {
 
     expect(projected.scoreAdjustments).toEqual([])
   })
+
+  it("shows an evaluator only schedule events linked to their assignments", () => {
+    const snapshot = createSeedSnapshot()
+    const owned = snapshot.assignments.find((entry) => entry.evaluatorId === "evaluator-01")
+    const ownedKeys = new Set(snapshot.assignments
+      .filter((entry) => entry.evaluatorId === "evaluator-01")
+      .map((entry) => `${entry.engineerId}:${entry.taskId}`))
+    const other = snapshot.assignments.find((entry) =>
+      entry.evaluatorId !== "evaluator-01" && !ownedKeys.has(`${entry.engineerId}:${entry.taskId}`))
+    if (owned === undefined || other === undefined) throw new RangeError("assignment fixture missing")
+    const projected = projectSnapshot(snapshotSchema.parse({
+      ...snapshot,
+      scheduleEvents: [
+        {
+          id: "schedule-owned",
+          cycleId: owned.cycleId,
+          engineerId: owned.engineerId,
+          taskId: owned.taskId,
+          title: "평가 일정",
+          date: "2026-07-16",
+          startTime: "09:00",
+          note: null,
+          createdAt: "2026-07-15T00:00:00.000Z",
+          updatedAt: "2026-07-15T00:00:00.000Z",
+        },
+        {
+          id: "schedule-other",
+          cycleId: other.cycleId,
+          engineerId: other.engineerId,
+          taskId: other.taskId,
+          title: "다른 평가자 일정",
+          date: "2026-07-16",
+          startTime: "10:00",
+          note: null,
+          createdAt: "2026-07-15T00:00:00.000Z",
+          updatedAt: "2026-07-15T00:00:00.000Z",
+        },
+      ],
+    }), {
+      ...PROFILE_BASE,
+      role: "evaluator",
+      engineer_id: null,
+      evaluator_id: "evaluator-01",
+    })
+
+    expect(projected.scheduleEvents.map((event) => event.id)).toEqual(["schedule-owned"])
+  })
 })

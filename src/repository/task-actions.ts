@@ -56,33 +56,7 @@ export function createBlankTaskArtifacts(
       })),
     }
   }
-
-  const assignments: EvaluatorAssignment[] = []
-  const scoreSheets: ScoreSheet[] = []
-  for (const engineer of context.snapshot.engineers) {
-    for (const evaluator of task.evaluatorWeights) {
-      const assignment: EvaluatorAssignment = {
-        id: createEntityId(context, "assignment"),
-        cycleId: task.cycleId,
-        engineerId: engineer.id,
-        evaluatorId: evaluator.evaluatorId,
-        taskId: task.id,
-      }
-      assignments.push(assignment)
-      scoreSheets.push({
-        id: createEntityId(context, "sheet"),
-        assignmentId: assignment.id,
-        status: "draft",
-        scores: task.method === "evaluator_score"
-          ? task.items.map((item) => ({ itemId: item.id, score: null }))
-          : [],
-        passResult: null,
-        updatedAt: context.now,
-        submittedAt: null,
-      })
-    }
-  }
-  return { assignments, scoreSheets, directScores: [] }
+  return { assignments: [], scoreSheets: [], directScores: [] }
 }
 
 function assertTaskEditable(snapshot: EvaluationSnapshot, taskId: string): void {
@@ -120,6 +94,65 @@ function removeTaskArtifacts(
   }
 }
 
+function sheetHasResponse(sheet: ScoreSheet): boolean {
+  return sheet.passResult !== null || sheet.scores.some((entry) => entry.score !== null)
+}
+
+function taskStructureChanged(existing: EvaluationTask, next: EvaluationTask): boolean {
+  if (existing.method !== next.method) return true
+  const existingIds = existing.items.map((item) => item.id)
+  const nextIds = next.items.map((item) => item.id)
+  return existingIds.length !== nextIds.length ||
+    existingIds.some((itemId, index) => itemId !== nextIds[index])
+}
+
+function existingTaskArtifacts(
+  context: MutationContext,
+  existing: EvaluationTask,
+  next: EvaluationTask,
+): TaskArtifacts {
+  const assignments = context.snapshot.assignments.filter(
+    (assignment) => assignment.taskId === existing.id,
+  )
+  const assignmentIds = new Set(assignments.map((assignment) => assignment.id))
+  const scoreSheets = context.snapshot.scoreSheets.filter(
+    (sheet) => assignmentIds.has(sheet.assignmentId),
+  )
+  const directScores = context.snapshot.directScores.filter(
+    (score) => score.taskId === existing.id,
+  )
+  const structureChanged = taskStructureChanged(existing, next)
+  const hasEnteredData = scoreSheets.some(sheetHasResponse) || directScores.some(
+    (score) => score.score !== null || score.passResult !== null,
+  )
+  if (structureChanged && hasEnteredData) {
+    throw new RepositoryError(
+      "TASK_LOCKED",
+      "입력 중인 평가가 있는 과제는 평가방식이나 문항 구성을 변경할 수 없습니다.",
+    )
+  }
+  if (isEvaluatorTask(existing) && isEvaluatorTask(next)) {
+    return {
+      assignments,
+      scoreSheets: structureChanged
+        ? scoreSheets.map((sheet) => ({
+            ...sheet,
+            scores: next.method === "evaluator_score"
+              ? next.items.map((item) => ({ itemId: item.id, score: null }))
+              : [],
+            passResult: null,
+            updatedAt: context.now,
+          }))
+        : scoreSheets,
+      directScores: [],
+    }
+  }
+  if (!isEvaluatorTask(existing) && !isEvaluatorTask(next) && !structureChanged) {
+    return { assignments: [], scoreSheets: [], directScores }
+  }
+  return createBlankTaskArtifacts(context, next)
+}
+
 export function saveEvaluationTaskAction(
   context: MutationContext,
   input: SaveEvaluationTaskInput,
@@ -136,13 +169,6 @@ export function saveEvaluationTaskAction(
       throw new RepositoryError("INVALID_INPUT", "과제의 평가 시즌을 변경할 수 없습니다.")
     }
     assertTaskEditable(context.snapshot, existing.id)
-  }
-
-  const evaluatorIds = new Set(context.snapshot.evaluators.map((evaluator) => evaluator.id))
-  for (const evaluator of parsed.evaluatorWeights) {
-    if (!evaluatorIds.has(evaluator.evaluatorId)) {
-      throw new RepositoryError("NOT_FOUND", `평가자 ${evaluator.evaluatorId}를 찾을 수 없습니다.`)
-    }
   }
 
   const nextOrder = Math.max(
@@ -166,23 +192,27 @@ export function saveEvaluationTaskAction(
       section: item.section,
       criteria: item.criteria,
     })),
-    evaluatorWeights: parsed.evaluatorWeights,
   }
 
   const baseArtifacts = removeTaskArtifacts(context.snapshot, task.id)
-  const blankArtifacts = createBlankTaskArtifacts(
-    { ...context, snapshot: { ...context.snapshot, ...baseArtifacts } },
-    task,
-  )
+  const nextArtifacts = existing === undefined
+    ? createBlankTaskArtifacts(
+        { ...context, snapshot: { ...context.snapshot, ...baseArtifacts } },
+        task,
+      )
+    : existingTaskArtifacts(context, existing, task)
   const tasks = existing === undefined
     ? [...context.snapshot.tasks, task]
     : context.snapshot.tasks.map((candidate) => candidate.id === task.id ? task : candidate)
+  const finalScoreSheets = [...baseArtifacts.scoreSheets, ...nextArtifacts.scoreSheets]
+  const finalSheetIds = new Set(finalScoreSheets.map((sheet) => sheet.id))
   const snapshot: EvaluationSnapshot = {
     ...context.snapshot,
     tasks,
-    assignments: [...baseArtifacts.assignments, ...blankArtifacts.assignments],
-    scoreSheets: [...baseArtifacts.scoreSheets, ...blankArtifacts.scoreSheets],
-    directScores: [...baseArtifacts.directScores, ...blankArtifacts.directScores],
+    assignments: [...baseArtifacts.assignments, ...nextArtifacts.assignments],
+    scoreSheets: finalScoreSheets,
+    unlockRequests: context.snapshot.unlockRequests.filter((request) => finalSheetIds.has(request.sheetId)),
+    directScores: [...baseArtifacts.directScores, ...nextArtifacts.directScores],
   }
   return appendAuditEvent(context, snapshot, {
     cycleId: task.cycleId,
@@ -202,6 +232,7 @@ export function deleteEvaluationTaskAction(
   requireCycleUnlocked(context.snapshot, task.cycleId)
   assertTaskEditable(context.snapshot, task.id)
   const artifacts = removeTaskArtifacts(context.snapshot, task.id)
+  const remainingSheetIds = new Set(artifacts.scoreSheets.map((sheet) => sheet.id))
   const snapshot: EvaluationSnapshot = {
     ...context.snapshot,
     tasks: context.snapshot.tasks.filter((candidate) => candidate.id !== task.id),
@@ -212,6 +243,7 @@ export function deleteEvaluationTaskAction(
       (entry) => entry.taskId !== task.id,
     ),
     ...artifacts,
+    unlockRequests: context.snapshot.unlockRequests.filter((request) => remainingSheetIds.has(request.sheetId)),
   }
   return appendAuditEvent(context, snapshot, {
     cycleId: task.cycleId,

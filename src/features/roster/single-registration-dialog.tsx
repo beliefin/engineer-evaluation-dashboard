@@ -23,6 +23,7 @@ import type {
   EngineerRegistration,
   EvaluatorRegistration,
   RosterDepartment,
+  RosterDepartmentOptions,
   RosterTeam,
 } from "./types"
 import { defaultRosterDepartment } from "./types"
@@ -31,6 +32,7 @@ interface SingleRegistrationDialogProps {
   readonly kind: "engineer" | "evaluator"
   readonly disabled: boolean
   readonly existingEmployeeCodes: readonly string[]
+  readonly departmentOptions: RosterDepartmentOptions
   readonly onAddEngineers: (rows: readonly EngineerRegistration[]) => boolean
   readonly onAddEvaluators: (rows: readonly EvaluatorRegistration[]) => boolean
 }
@@ -39,12 +41,14 @@ interface FormErrors {
   readonly employeeCode?: string
   readonly displayName?: string
   readonly position?: string
+  readonly department?: string
 }
 
 export function SingleRegistrationDialog({
   kind,
   disabled,
   existingEmployeeCodes,
+  departmentOptions,
   onAddEngineers,
   onAddEvaluators,
 }: SingleRegistrationDialogProps) {
@@ -78,6 +82,7 @@ export function SingleRegistrationDialog({
     event.preventDefault()
     const code = employeeCode.trim()
     const name = displayName.trim()
+    const departmentName = department.trim()
     const jobPosition = position.trim()
     const duplicate = existingEmployeeCodes.some(
       (value) => value.toLocaleUpperCase("ko-KR") === code.toLocaleUpperCase("ko-KR"),
@@ -86,6 +91,7 @@ export function SingleRegistrationDialog({
       ...(code === "" ? { employeeCode: "사번을 입력하세요." } : {}),
       ...(duplicate ? { employeeCode: "이미 등록된 사번입니다." } : {}),
       ...(name === "" ? { displayName: "이름을 입력하세요." } : {}),
+      ...(departmentName === "" ? { department: "담당을 입력하세요." } : {}),
       ...(kind === "engineer" && jobPosition === ""
         ? { position: "직급을 입력하세요." }
         : {}),
@@ -95,8 +101,8 @@ export function SingleRegistrationDialog({
     if (Object.keys(nextErrors).length > 0) return
 
     const succeeded = kind === "engineer"
-      ? onAddEngineers([{ employeeCode: code, displayName: name, division: "1부문", team, department, position: jobPosition }])
-      : onAddEvaluators([{ employeeCode: code, displayName: name, division: "1부문", team, department }])
+      ? onAddEngineers([{ employeeCode: code, displayName: name, division: "1부문", team, department: departmentName, position: jobPosition }])
+      : onAddEvaluators([{ employeeCode: code, displayName: name, division: "1부문", team, department: departmentName }])
     if (succeeded) handleOpenChange(false)
     else setSubmitError("등록하지 못했습니다. 사번 중복 여부를 확인하세요.")
   }
@@ -146,11 +152,17 @@ export function SingleRegistrationDialog({
           <div className="space-y-2">
             <Label htmlFor={`${id}-department`}>담당</Label>
             <DepartmentSelect
+              describedBy={errors.department === undefined ? undefined : `${id}-department-error`}
               id={`${id}-department`}
+              invalid={errors.department !== undefined}
               onValueChange={setDepartment}
+              savedDepartments={departmentOptions[team]}
               team={team}
               value={department}
             />
+            {errors.department === undefined ? null : (
+              <p className="text-xs text-destructive" id={`${id}-department-error`}>{errors.department}</p>
+            )}
           </div>
           {kind === "engineer" ? (
             <LabeledInput

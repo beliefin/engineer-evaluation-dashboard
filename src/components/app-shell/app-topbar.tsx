@@ -19,6 +19,7 @@ import {
 
 interface AppTopbarProps {
   readonly role: AppShellRole
+  readonly availableRoles: readonly AppShellRole[]
   readonly cycles: readonly AppShellCycleOption[]
   readonly evaluatorOptions: readonly AppShellEvaluatorOption[]
   readonly activeCycleId: string
@@ -27,11 +28,13 @@ interface AppTopbarProps {
   readonly onCycleChange: (cycleId: string) => void
   readonly onEvaluatorChange: (evaluatorId: string) => void
   readonly onLogout: () => void
+  readonly onRoleChange: (role: AppShellRole) => void
   readonly actorLabel?: string | undefined
 }
 
 export function AppTopbar({
   role,
+  availableRoles,
   cycles,
   evaluatorOptions,
   activeCycleId,
@@ -40,6 +43,7 @@ export function AppTopbar({
   onCycleChange,
   onEvaluatorChange,
   onLogout,
+  onRoleChange,
   actorLabel,
 }: AppTopbarProps) {
   return (
@@ -49,11 +53,13 @@ export function AppTopbar({
           activeCycleId={activeCycleId}
           activeEvaluatorId={activeEvaluatorId}
           actorLabel={actorLabel}
+          availableRoles={availableRoles}
           cycles={cycles}
           evaluatorOptions={evaluatorOptions}
           onCycleChange={onCycleChange}
           onEvaluatorChange={onEvaluatorChange}
           onLogout={onLogout}
+          onRoleChange={onRoleChange}
           role={role}
         />
         <AppBrand compact href={APP_SHELL_HOME_PATHS[role]} />
@@ -69,12 +75,14 @@ export function AppTopbar({
         <div className="hidden lg:block">
           <ShellControls
             activeCycleId={activeCycleId}
+            availableRoles={availableRoles}
             activeEvaluatorId={activeEvaluatorId}
             cycles={cycles}
             evaluatorOptions={evaluatorOptions}
             idPrefix="desktop-shell"
             onCycleChange={onCycleChange}
             onEvaluatorChange={onEvaluatorChange}
+            onRoleChange={onRoleChange}
             role={role}
           />
         </div>

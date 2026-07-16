@@ -43,6 +43,13 @@ const NAV_ITEMS: readonly NavItem[] = [
     roles: ["operator", "approver"],
   },
   {
+    href: "/today",
+    label: "오늘의 평가",
+    description: "날짜별 평가 대상 바로가기",
+    Icon: CalendarDaysIcon,
+    roles: ["evaluator"],
+  },
+  {
     href: "/evaluations",
     label: "평가하기",
     description: "배정 평가 입력",
@@ -68,7 +75,7 @@ const NAV_ITEMS: readonly NavItem[] = [
     label: "평가 일정",
     description: "발표일과 평가일 관리",
     Icon: CalendarDaysIcon,
-    roles: ["operator", "approver"],
+    roles: ["operator", "evaluator", "approver"],
   },
   {
     href: "/analysis",

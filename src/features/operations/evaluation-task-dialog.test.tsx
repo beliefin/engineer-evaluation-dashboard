@@ -13,7 +13,6 @@ describe("EvaluationTaskDialog", () => {
     render(
       <EvaluationTaskDialog
         disabled={false}
-        evaluators={[]}
         onSave={onSave}
       />,
     )
@@ -42,7 +41,6 @@ describe("EvaluationTaskDialog", () => {
     render(
       <EvaluationTaskDialog
         disabled={false}
-        evaluators={[{ id: "evaluator-01", name: "샘플 평가자 1", employeeCode: "EVAL-001" }]}
         onSave={vi.fn(() => true)}
       />,
     )
@@ -51,12 +49,6 @@ describe("EvaluationTaskDialog", () => {
     const rubricInput = screen.getByRole("textbox", { name: "평가 항목 1" })
     await user.clear(rubricInput)
     await user.type(rubricInput, "문제 정의")
-    await user.click(screen.getByRole("checkbox", { name: "샘플 평가자 1 평가 참여" }))
-    const weightInput = screen.getByRole("spinbutton", { name: "샘플 평가자 1 가중치" })
-    await user.clear(weightInput)
-    await user.type(weightInput, "2")
-
     expect(rubricInput).toHaveValue("문제 정의")
-    expect(weightInput).toHaveValue(2)
   })
 })

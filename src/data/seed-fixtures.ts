@@ -3,7 +3,6 @@ import {
   DEPARTMENTS_BY_TEAM,
   type EvaluationTask,
   type Evaluator,
-  type TaskEvaluatorWeight,
 } from "@/domain"
 
 import { GROWTH_PLAN_RUBRIC } from "./growth-plan-rubric"
@@ -24,15 +23,6 @@ export const EVALUATORS = [
   { id: "evaluator-04", employeeCode: "EVAL-004", displayName: "샘플 평가자 4", division: "1부문", team: TEAMS[1], department: DEPARTMENTS_BY_TEAM["생산 2팀"][1], organizationUnit: null, rank: null, jobTitle: null },
   { id: "evaluator-05", employeeCode: "EVAL-005", displayName: "샘플 평가자 5", division: "1부문", team: TEAMS[0], department: DEPARTMENTS_BY_TEAM["생산 1팀"][2], organizationUnit: null, rank: null, jobTitle: null },
 ] as const satisfies ReadonlyArray<Evaluator>
-
-const EVALUATOR_WEIGHTS = [30, 25, 20, 15, 10] as const
-
-function evaluatorWeights(): ReadonlyArray<TaskEvaluatorWeight> {
-  return EVALUATORS.map((evaluator, index) => ({
-    evaluatorId: evaluator.id,
-    weight: EVALUATOR_WEIGHTS[index] ?? 1,
-  }))
-}
 
 function scoreTask(
   id: string,
@@ -68,7 +58,6 @@ function scoreTask(
       section: item.section,
       criteria: item.criteria,
     })),
-    evaluatorWeights: evaluatorWeights(),
   }
 }
 
@@ -88,7 +77,6 @@ function operatorTask(
     weight,
     order,
     items: [],
-    evaluatorWeights: [],
   }
 }
 

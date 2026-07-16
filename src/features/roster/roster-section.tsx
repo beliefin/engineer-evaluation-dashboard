@@ -6,12 +6,14 @@ import type {
   EngineerRosterItem,
   EvaluatorRegistration,
   EvaluatorRosterItem,
+  RosterDepartmentOptions,
 } from "./types"
 
 interface RosterSectionProps {
   readonly kind: "engineer" | "evaluator"
   readonly rows: readonly (EngineerRosterItem | EvaluatorRosterItem)[]
   readonly disabled: boolean
+  readonly departmentOptions: RosterDepartmentOptions
   readonly onAddEngineers: (rows: readonly EngineerRegistration[]) => boolean
   readonly onAddEvaluators: (rows: readonly EvaluatorRegistration[]) => boolean
   readonly onUpdateEngineer: (engineerId: string, row: EngineerRegistration) => boolean
@@ -26,6 +28,7 @@ export function RosterSection({
   kind,
   rows,
   disabled,
+  departmentOptions,
   onAddEngineers,
   onAddEvaluators,
   onUpdateEngineer,
@@ -49,6 +52,7 @@ export function RosterSection({
         </div>
         <div className="flex flex-wrap gap-2">
           <SingleRegistrationDialog
+            departmentOptions={departmentOptions}
             disabled={disabled}
             existingEmployeeCodes={existingEmployeeCodes}
             kind={kind}
@@ -56,6 +60,7 @@ export function RosterSection({
             onAddEvaluators={onAddEvaluators}
           />
           <BulkRegistrationDialog
+            departmentOptions={departmentOptions}
             disabled={disabled}
             kind={kind}
             onAddEngineers={onAddEngineers}
@@ -64,6 +69,7 @@ export function RosterSection({
         </div>
       </div>
       <RosterList
+        departmentOptions={departmentOptions}
         disabled={disabled}
         kind={kind}
         linkedEngineerIds={linkedEngineerIds}

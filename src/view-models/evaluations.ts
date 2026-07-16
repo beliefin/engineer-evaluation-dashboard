@@ -72,6 +72,8 @@ export function selectAssignedEvaluations(
       )
       return [{
         id: assignment.id,
+        engineerId: engineer.id,
+        taskId: task.id,
         engineerName: engineer.displayName,
         teamName: engineer.team,
         evaluatorId: evaluator.id,
@@ -148,11 +150,14 @@ export function selectEvaluationScoreForm(
     teamName: engineer.team,
     evaluatorName: evaluator.displayName,
     proxyEntry: state.proxyEntry,
+    submitted: sheet?.status === "submitted",
+    unlockRequestPending: snapshot.unlockRequests.some((request) =>
+      request.sheetId === sheet?.id && request.status === "pending"),
     items,
     passResult: sheet?.passResult ?? null,
     autosaveStatus: state.autosaveStatus,
     lastSavedAtLabel: formatTimestamp(sheet?.updatedAt ?? null),
     submittedAtLabel: formatTimestamp(sheet?.submittedAt ?? null),
-    locked: sheet?.status === "submitted",
+    locked: sheet?.status === "submitted" && !state.proxyEntry,
   }
 }

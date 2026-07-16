@@ -34,6 +34,38 @@ const EVALUATORS: readonly EvaluatorRosterItem[] = [
 ]
 
 describe("RosterManagementPanel", () => {
+  it("registers a custom department and offers a previously saved department again", async () => {
+    const user = userEvent.setup()
+    const onAddEngineers = vi.fn(() => true)
+
+    render(
+      <RosterManagementPanel
+        departmentCatalog={[{ team: "생산 1팀", name: "기존특수담당" }]}
+        engineers={ENGINEERS}
+        evaluators={EVALUATORS}
+        onAddEngineers={onAddEngineers}
+        onAddEvaluators={() => true}
+        onDeleteEngineer={() => true}
+        onDeleteEvaluator={() => true}
+        onUpdateEngineer={() => true}
+        onUpdateEvaluator={() => true}
+      />,
+    )
+
+    await user.click(screen.getByRole("button", { name: "엔지니어 1명 추가" }))
+    const department = screen.getByRole("combobox", { name: "담당" })
+    expect(document.querySelector('datalist option[value="기존특수담당"]')).toBeInTheDocument()
+    await user.clear(department)
+    await user.type(department, "신공정지원담당")
+    await user.type(screen.getByRole("textbox", { name: "사번" }), "E-099")
+    await user.type(screen.getByRole("textbox", { name: "이름" }), "새담당")
+    await user.click(screen.getByRole("button", { name: "엔지니어 등록" }))
+
+    expect(onAddEngineers).toHaveBeenCalledWith([
+      expect.objectContaining({ department: "신공정지원담당" }),
+    ])
+  })
+
   it("registers one engineer with visible labeled fields", async () => {
     const user = userEvent.setup()
     const onAddEngineers = vi.fn(() => true)

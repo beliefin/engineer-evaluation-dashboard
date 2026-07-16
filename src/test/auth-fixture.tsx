@@ -8,13 +8,14 @@ export function seedTestAuthSession(
   role: Role = "operator",
   evaluatorId: string | null = null,
   engineerId: string | null = null,
+  roles: ReadonlyArray<Role> = [role],
 ): void {
   const accountId = `test-${role}`
   const now = new Date().toISOString()
-  const linkedEvaluatorId = role === "evaluator"
+  const linkedEvaluatorId = roles.includes("evaluator")
     ? (evaluatorId ?? "evaluator-01")
     : null
-  const linkedEngineerId = role === "engineer"
+  const linkedEngineerId = roles.includes("engineer")
     ? (engineerId ?? "engineer-01")
     : null
 
@@ -25,6 +26,7 @@ export function seedTestAuthSession(
       username: accountId,
       displayName: `테스트 ${role}`,
       role,
+      roles,
       evaluatorId: linkedEvaluatorId,
       engineerId: linkedEngineerId,
       active: true,

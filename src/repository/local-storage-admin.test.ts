@@ -60,7 +60,6 @@ describe("LocalStorageEvaluationRepository operations", () => {
       method: "operator_pass_fail",
       weight: 1,
       items: [],
-      evaluatorWeights: [],
       actor: OPERATOR,
     })
     const task = snapshot.tasks.at(-1)
@@ -108,7 +107,6 @@ describe("LocalStorageEvaluationRepository operations", () => {
       method: "operator_score",
       weight: 1,
       items: [],
-      evaluatorWeights: [],
       actor: APPROVER,
     })
 
