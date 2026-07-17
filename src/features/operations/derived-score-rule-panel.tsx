@@ -76,6 +76,22 @@ export function DerivedScoreRulePanel({
     }))
   }
 
+  function selectTargetEngineer(targetEngineerId: string) {
+    setForm((current) => ({
+      ...current,
+      targetEngineerId,
+      sourceEngineerIds: current.sourceEngineerIds.filter((id) => id !== targetEngineerId),
+    }))
+  }
+
+  function selectDerivedTask(taskId: string) {
+    setForm((current) => ({ ...current, taskId }))
+  }
+
+  function selectSourceTask(sourceTaskId: string) {
+    setForm((current) => ({ ...current, sourceTaskId }))
+  }
+
   function submit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault()
     if (form.taskId === "" || form.targetEngineerId === "" || form.sourceTaskId === "") {
@@ -111,9 +127,9 @@ export function DerivedScoreRulePanel({
               {form.ruleId !== null ? <Button onClick={reset} size="sm" type="button" variant="ghost">새 규칙</Button> : null}
             </div>
             <div className="grid gap-3 sm:grid-cols-2">
-              <label className="space-y-1.5 text-sm"><span className="font-medium">점수를 받을 엔지니어</span><select className="h-9 w-full rounded-md border border-input bg-background px-2" disabled={disabled} onChange={(event) => setForm((current) => ({ ...current, targetEngineerId: event.currentTarget.value, sourceEngineerIds: current.sourceEngineerIds.filter((id) => id !== event.currentTarget.value) }))} value={form.targetEngineerId}><option value="">선택</option>{engineers.map((engineer) => <option key={engineer.engineerId} value={engineer.engineerId}>{engineer.engineerName} · {engineer.teamName}</option>)}</select></label>
-              <label className="space-y-1.5 text-sm"><span className="font-medium">파생 점수 과제</span><select className="h-9 w-full rounded-md border border-input bg-background px-2" disabled={disabled} onChange={(event) => setForm((current) => ({ ...current, taskId: event.currentTarget.value }))} value={form.taskId}><option value="">선택</option>{derivedTasks.map((task) => <option key={task.taskId} value={task.taskId}>{task.taskName}</option>)}</select></label>
-              <label className="space-y-1.5 text-sm sm:col-span-2"><span className="font-medium">평균 원천 과제</span><select className="h-9 w-full rounded-md border border-input bg-background px-2" disabled={disabled} onChange={(event) => setForm((current) => ({ ...current, sourceTaskId: event.currentTarget.value }))} value={form.sourceTaskId}><option value="">평가자 과제 선택</option>{sourceTasks.map((task) => <option key={task.taskId} value={task.taskId}>{task.taskName}</option>)}</select></label>
+              <label className="space-y-1.5 text-sm"><span className="font-medium">점수를 받을 엔지니어</span><select className="h-9 w-full rounded-md border border-input bg-background px-2" disabled={disabled} onChange={(event) => selectTargetEngineer(event.currentTarget.value)} value={form.targetEngineerId}><option value="">선택</option>{engineers.map((engineer) => <option key={engineer.engineerId} value={engineer.engineerId}>{engineer.engineerName} · {engineer.teamName}</option>)}</select></label>
+              <label className="space-y-1.5 text-sm"><span className="font-medium">파생 점수 과제</span><select className="h-9 w-full rounded-md border border-input bg-background px-2" disabled={disabled} onChange={(event) => selectDerivedTask(event.currentTarget.value)} value={form.taskId}><option value="">선택</option>{derivedTasks.map((task) => <option key={task.taskId} value={task.taskId}>{task.taskName}</option>)}</select></label>
+              <label className="space-y-1.5 text-sm sm:col-span-2"><span className="font-medium">평균 원천 과제</span><select className="h-9 w-full rounded-md border border-input bg-background px-2" disabled={disabled} onChange={(event) => selectSourceTask(event.currentTarget.value)} value={form.sourceTaskId}><option value="">평가자 과제 선택</option>{sourceTasks.map((task) => <option key={task.taskId} value={task.taskId}>{task.taskName}</option>)}</select></label>
             </div>
             <div className="space-y-2">
               <div className="flex items-end justify-between gap-3"><div><p className="text-sm font-medium">원천 엔지니어</p><p className="text-xs text-muted-foreground">선택 {form.sourceEngineerIds.length}명</p></div><Input aria-label="원천 엔지니어 검색" className="max-w-56" onChange={(event) => setQuery(event.currentTarget.value)} placeholder="이름 또는 팀 검색" value={query} /></div>
