@@ -92,7 +92,7 @@ export function PasswordResetDialog({
               {passwordError ? (
                 <p className="text-xs text-destructive" id="reset-password-error">{passwordError}</p>
               ) : (
-                <p className="text-xs text-muted-foreground" id="reset-password-help">8자 이상으로 입력합니다.</p>
+                <p className="text-xs text-muted-foreground" id="reset-password-help">숫자 또는 문자를 포함해 4자 이상 입력합니다.</p>
               )}
             </div>
             <div className="space-y-2">

@@ -33,12 +33,14 @@ const cycle = z.object({
   id, name: z.string().trim().min(1), status: z.enum(["setup", "active", "closed"]),
   locked: z.boolean().default(false), startsAt: timestamp, endsAt: timestamp,
 })
+const employeeCode = z.string().trim().min(1).transform((value) =>
+  /^3101\d{4}$/.test(value) ? value.slice(4) : value)
 const versionFiveEngineer = z.object({
-  id, employeeCode: z.string().trim().min(1), displayName: z.string().trim().min(1),
+  id, employeeCode, displayName: z.string().trim().min(1),
   team: z.enum(["생산 1팀", "생산 2팀"]), position: z.string().trim().min(1),
 })
 const versionFiveEvaluator = z.object({
-  id, employeeCode: z.string().trim().min(1), displayName: z.string().trim().min(1),
+  id, employeeCode, displayName: z.string().trim().min(1),
   team: z.enum(["생산 1팀", "생산 2팀"]),
 })
 const department = z.string().trim().min(1).max(100)
@@ -73,7 +75,7 @@ const rubricItem = z.object({
 const evaluatorWeight = z.object({ evaluatorId: id, weight: z.number().positive().finite() })
 export const taskSchema = z.object({
   id, cycleId: id, name: z.string().trim().min(1).max(100), description: z.string().max(1_000),
-  method: z.enum(["evaluator_score", "evaluator_pass_fail", "operator_score", "operator_pass_fail"]),
+  method: z.enum(["evaluator_score", "evaluator_pass_fail", "operator_score", "operator_pass_fail", "derived_score"]),
   weight: z.number().min(0).max(100), order: z.number().int(), items: z.array(rubricItem).max(20),
 })
 const legacyTaskSchema = taskSchema.extend({ evaluatorWeights: z.array(evaluatorWeight).max(50) })
@@ -99,6 +101,18 @@ const directScoreRule = z.object({
   examName: z.string().trim().min(1).max(100).nullable().optional(),
   bonusCondition: z.enum(["grade_upgrade", "second_language_new"]).nullable().optional(),
 })
+const derivedScoreRule = z.object({
+  id, cycleId: id, taskId: id, targetEngineerId: id, sourceTaskId: id,
+  sourceEngineerIds: z.array(id).min(1).max(100).refine((ids) => new Set(ids).size === ids.length),
+  aggregation: z.literal("average"),
+})
+export type DerivedScoreRule = z.infer<typeof derivedScoreRule>
+const evaluationBenchmark = z.object({
+  assignmentId: id, sampleSize: z.number().int().min(1).max(3),
+  averageScore: z.number().min(0).max(100), minScore: z.number().min(0).max(100),
+  maxScore: z.number().min(0).max(100),
+})
+export type EvaluationBenchmark = z.infer<typeof evaluationBenchmark>
 const legacyAssignmentSchema = z.object({
   id, cycleId: id, engineerId: id, evaluatorId: id, taskId: id,
 })
@@ -175,7 +189,14 @@ const legacySnapshotFields = {
   tasks: z.array(legacyTaskSchema), engineers: z.array(engineer), evaluators: z.array(evaluator),
   assignments: z.array(legacyAssignmentSchema),
 }
-export const snapshotSchema = z.object({ schemaVersion: z.literal(7), ...snapshotFields })
+const versionSevenSnapshotSchema = z.object({ schemaVersion: z.literal(7), ...snapshotFields })
+type VersionSevenSnapshot = z.infer<typeof versionSevenSnapshotSchema>
+export const snapshotSchema = z.object({
+  schemaVersion: z.literal(8),
+  ...snapshotFields,
+  derivedScoreRules: z.array(derivedScoreRule).default([]),
+  evaluationBenchmarks: z.array(evaluationBenchmark).default([]),
+})
 export type Snapshot = z.infer<typeof snapshotSchema>
 
 const versionSixSnapshotSchema = z.object({ schemaVersion: z.literal(6), ...legacySnapshotFields })
@@ -200,7 +221,7 @@ function migrateVersionSix(snapshot: VersionSixSnapshot): Snapshot {
       sheet?.scores.some((entry) => entry.score !== null) === true
   })
   const assignmentIds = new Set(assignments.map((assignment) => assignment.id))
-  return snapshotSchema.parse({
+  return migrateVersionSeven(versionSevenSnapshotSchema.parse({
     ...snapshot, schemaVersion: 7, unlockRequests: [],
     tasks: snapshot.tasks.map((legacyTask) => {
       const { evaluatorWeights, ...task } = legacyTask
@@ -217,15 +238,26 @@ function migrateVersionSix(snapshot: VersionSixSnapshot): Snapshot {
       }
     }),
     scoreSheets: snapshot.scoreSheets.filter((sheet) => assignmentIds.has(sheet.assignmentId)),
+  }))
+}
+
+function migrateVersionSeven(snapshot: VersionSevenSnapshot): Snapshot {
+  return snapshotSchema.parse({
+    ...snapshot,
+    schemaVersion: 8,
+    derivedScoreRules: [],
+    evaluationBenchmarks: [],
   })
 }
 
 export const storedSnapshotSchema = z.union([
   snapshotSchema,
+  versionSevenSnapshotSchema,
   versionSixSnapshotSchema,
   versionFiveSnapshotSchema,
 ]).transform((snapshot): Snapshot => {
-  if (snapshot.schemaVersion === 7) return snapshot
+  if (snapshot.schemaVersion === 8) return snapshot
+  if (snapshot.schemaVersion === 7) return migrateVersionSeven(snapshot)
   const normalized = snapshot.schemaVersion === 6 ? snapshot : versionSixSnapshotSchema.parse({
     ...snapshot,
     schemaVersion: 6,

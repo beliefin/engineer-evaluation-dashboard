@@ -1,4 +1,12 @@
-import type { DirectScore, Profile, ScoreSheet, Snapshot, Task } from "./model.ts"
+import type {
+  Assignment,
+  DirectScore,
+  EvaluationBenchmark,
+  Profile,
+  ScoreSheet,
+  Snapshot,
+  Task,
+} from "./model.ts"
 
 function sheetValue(task: Task, sheet: ScoreSheet): number | null {
   if (sheet.status !== "submitted") return null
@@ -26,10 +34,71 @@ function aggregateEvaluatorScore(snapshot: Snapshot, task: Task, engineerId: str
   return values.reduce((total, entry) => total + (entry.score ?? 0) * entry.weight / totalWeight, 0)
 }
 
+function scheduleKey(date: string, startTime: string | null): string {
+  return `${date}T${startTime ?? "23:59"}`
+}
+
+function benchmarkForAssignment(
+  snapshot: Snapshot,
+  assignment: Assignment,
+): EvaluationBenchmark | null {
+  const task = snapshot.tasks.find((entry) => entry.id === assignment.taskId)
+  if (task?.method !== "evaluator_score") return null
+  const current = snapshot.scheduleEvents
+    .filter((event) =>
+      event.cycleId === assignment.cycleId &&
+      event.engineerId === assignment.engineerId &&
+      event.taskId === assignment.taskId)
+    .sort((left, right) => scheduleKey(left.date, left.startTime).localeCompare(
+      scheduleKey(right.date, right.startTime),
+    ))[0]
+  if (current === undefined) return null
+  const seen = new Set<string>()
+  const scores = snapshot.scheduleEvents
+    .filter((event) =>
+      event.cycleId === assignment.cycleId &&
+      event.taskId === assignment.taskId &&
+      event.engineerId !== assignment.engineerId &&
+      scheduleKey(event.date, event.startTime) < scheduleKey(current.date, current.startTime))
+    .sort((left, right) => scheduleKey(right.date, right.startTime).localeCompare(
+      scheduleKey(left.date, left.startTime),
+    ))
+    .flatMap((event) => {
+      if (seen.has(event.engineerId)) return []
+      seen.add(event.engineerId)
+      const score = aggregateEvaluatorScore(snapshot, task, event.engineerId)
+      return score === null ? [] : [score]
+    })
+    .slice(0, 3)
+  if (scores.length === 0) return null
+  return {
+    assignmentId: assignment.id,
+    sampleSize: scores.length,
+    averageScore: scores.reduce((total, score) => total + score, 0) / scores.length,
+    minScore: Math.min(...scores),
+    maxScore: Math.max(...scores),
+  }
+}
+
+function derivedScore(snapshot: Snapshot, taskId: string, targetEngineerId: string): number | null {
+  const rule = snapshot.derivedScoreRules.find((entry) =>
+    entry.taskId === taskId && entry.targetEngineerId === targetEngineerId)
+  if (rule === undefined) return null
+  const sourceTask = snapshot.tasks.find((task) => task.id === rule.sourceTaskId)
+  if (sourceTask === undefined ||
+    (sourceTask.method !== "evaluator_score" && sourceTask.method !== "evaluator_pass_fail")) return null
+  const scores = rule.sourceEngineerIds.map((engineerId) =>
+    aggregateEvaluatorScore(snapshot, sourceTask, engineerId))
+  if (scores.length === 0 || scores.some((score) => score === null)) return null
+  return scores.reduce<number>((total, score) => total + (score ?? 0), 0) / scores.length
+}
+
 function aggregateProjection(snapshot: Snapshot, engineerIds: ReadonlySet<string>): Snapshot {
   const evaluatorTasks = snapshot.tasks.filter((task) =>
     task.method === "evaluator_score" || task.method === "evaluator_pass_fail")
-  const tasks = snapshot.tasks.map((task) => evaluatorTasks.some((entry) => entry.id === task.id)
+  const derivedTasks = snapshot.tasks.filter((task) => task.method === "derived_score")
+  const tasks = snapshot.tasks.map((task) =>
+    evaluatorTasks.some((entry) => entry.id === task.id) || derivedTasks.some((entry) => entry.id === task.id)
     ? { ...task, method: "operator_score" as const, items: [] }
     : task)
   const preserved = snapshot.directScores.filter((score) => engineerIds.has(score.engineerId))
@@ -47,6 +116,17 @@ function aggregateProjection(snapshot: Snapshot, engineerIds: ReadonlySet<string
         updatedAt: now,
       })
     }
+    for (const task of derivedTasks) {
+      aggregated.push({
+        id: `derived:${task.id}:${engineerId}`,
+        cycleId: task.cycleId,
+        engineerId,
+        taskId: task.id,
+        score: derivedScore(snapshot, task.id, engineerId),
+        passResult: null,
+        updatedAt: now,
+      })
+    }
   }
   return {
     ...snapshot,
@@ -56,13 +136,18 @@ function aggregateProjection(snapshot: Snapshot, engineerIds: ReadonlySet<string
     scoreSheets: [],
     unlockRequests: [],
     directScores: [...preserved, ...aggregated],
+    derivedScoreRules: [],
+    evaluationBenchmarks: [],
     scoreAdjustments: snapshot.scoreAdjustments.filter((entry) => engineerIds.has(entry.engineerId)),
     auditEvents: [],
   }
 }
 
 function evaluatorProjection(snapshot: Snapshot, evaluatorId: string): Snapshot {
-  const assignments = snapshot.assignments.filter((entry) => entry.evaluatorId === evaluatorId)
+  const sourceAssignments = snapshot.assignments
+    .filter((entry) => entry.evaluatorId === evaluatorId)
+  const assignments = sourceAssignments
+    .map((entry) => ({ ...entry, weight: 1 }))
   const assignmentIds = new Set(assignments.map((entry) => entry.id))
   const engineerIds = new Set(assignments.map((entry) => entry.engineerId))
   const taskIds = new Set(assignments.map((entry) => entry.taskId))
@@ -81,6 +166,11 @@ function evaluatorProjection(snapshot: Snapshot, evaluatorId: string): Snapshot 
         snapshot.scoreSheets.find((sheet) => sheet.id === entry.sheetId)?.assignmentId ?? "",
       )),
     directScores: [],
+    derivedScoreRules: [],
+    evaluationBenchmarks: sourceAssignments.flatMap((assignment) => {
+      const benchmark = benchmarkForAssignment(snapshot, assignment)
+      return benchmark === null ? [] : [benchmark]
+    }),
     scoreAdjustments: [],
     languageScoreRecords: [],
     certificationRecords: [],

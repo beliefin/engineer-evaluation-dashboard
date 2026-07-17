@@ -37,11 +37,15 @@ function isEvaluatorTask(task: EvaluationTask): boolean {
   return task.method === "evaluator_score" || task.method === "evaluator_pass_fail"
 }
 
+function isDirectInputTask(task: EvaluationTask): boolean {
+  return task.method === "operator_score" || task.method === "operator_pass_fail"
+}
+
 export function createBlankTaskArtifacts(
   context: MutationContext,
   task: EvaluationTask,
 ): TaskArtifacts {
-  if (!isEvaluatorTask(task)) {
+  if (isDirectInputTask(task)) {
     return {
       assignments: [],
       scoreSheets: [],
@@ -241,6 +245,9 @@ export function deleteEvaluationTaskAction(
     ),
     directScoreRules: context.snapshot.directScoreRules.filter(
       (entry) => entry.taskId !== task.id,
+    ),
+    derivedScoreRules: context.snapshot.derivedScoreRules.filter(
+      (entry) => entry.taskId !== task.id && entry.sourceTaskId !== task.id,
     ),
     ...artifacts,
     unlockRequests: context.snapshot.unlockRequests.filter((request) => remainingSheetIds.has(request.sheetId)),

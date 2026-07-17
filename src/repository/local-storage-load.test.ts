@@ -145,7 +145,7 @@ describe("LocalStorageEvaluationRepository loading", () => {
 
     const snapshot = createRepository(storage).loadSnapshot()
 
-    expect(snapshot.schemaVersion).toBe(7)
+    expect(snapshot.schemaVersion).toBe(8)
     expect(snapshot.engineerTaskWeights).toEqual([])
     expect(snapshot.tasks).toEqual(seed.tasks)
   })
@@ -181,7 +181,7 @@ describe("LocalStorageEvaluationRepository loading", () => {
 
     const snapshot = createRepository(storage).loadSnapshot()
 
-    expect(snapshot.schemaVersion).toBe(7)
+    expect(snapshot.schemaVersion).toBe(8)
     expect(snapshot.engineers.every((engineer) => engineer.division === "1부문")).toBe(true)
     expect(snapshot.engineers.find((engineer) => engineer.team === "생산 1팀")?.department).toBe("전자약품담당")
     expect(snapshot.engineers.find((engineer) => engineer.team === "생산 2팀")?.department).toBe("염화메탄담당")
@@ -203,7 +203,7 @@ describe("LocalStorageEvaluationRepository loading", () => {
 
     const snapshot = createRepository(storage).loadSnapshot()
 
-    expect(snapshot.schemaVersion).toBe(7)
+    expect(snapshot.schemaVersion).toBe(8)
     expect(snapshot.tasks.map((task) => task.name)).toEqual([
       "성장탐구계획서",
       "DX 툴 활용",
@@ -225,9 +225,9 @@ describe("LocalStorageEvaluationRepository loading", () => {
     const versionTwo = createRepository(versionTwoStorage).loadSnapshot()
     const versionOne = createRepository(versionOneStorage).loadSnapshot()
 
-    expect(versionTwo.schemaVersion).toBe(7)
+    expect(versionTwo.schemaVersion).toBe(8)
     expect(versionTwo.languageScoreRecords).toEqual([])
-    expect(versionOne.schemaVersion).toBe(7)
+    expect(versionOne.schemaVersion).toBe(8)
     expect(versionOne.evaluators.every((evaluator) => evaluator.employeeCode.length > 0)).toBe(true)
     expect(versionOne.engineers.every((engineer) => engineer.team.startsWith("생산 "))).toBe(true)
   })

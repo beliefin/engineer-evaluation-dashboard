@@ -3,6 +3,7 @@ import { ZodError } from "zod"
 import {
   authSessionSchema,
   authSnapshotSchema,
+  changeOwnPasswordInputSchema,
   createAccountInputSchema,
   loginInputSchema,
   resetPasswordInputSchema,
@@ -36,6 +37,7 @@ function publicAccount(account: AuthAccountRecord): AuthAccount {
     evaluatorId: account.evaluatorId,
     engineerId: account.engineerId,
     active: account.active,
+    mustChangePassword: account.mustChangePassword,
     createdAt: account.createdAt,
     updatedAt: account.updatedAt,
   }
@@ -101,6 +103,7 @@ class LocalStorageAuthRepository implements AuthRepository {
       id: this.config.idFactory(),
       createdAt: now,
       updatedAt: now,
+      mustChangePassword: true,
       passwordSalt: salt,
       passwordHash: await this.config.hashPassword(input.password, salt),
     }
@@ -134,10 +137,34 @@ class LocalStorageAuthRepository implements AuthRepository {
           ...entry,
           passwordSalt: salt,
           passwordHash,
+          mustChangePassword: true,
           updatedAt: this.config.now(),
         }
       : entry)
     return this.persist({ ...snapshot, accounts })
+  }
+
+  async changeOwnPassword(rawInput: Parameters<AuthRepository["changeOwnPassword"]>[0]) {
+    const input = this.parse(() => changeOwnPasswordInputSchema.parse(rawInput))
+    const snapshot = await this.loadSnapshot()
+    const session = this.readSession()
+    const target = snapshot.accounts.find((entry) => entry.id === session?.accountId)
+    if (target === undefined || !target.active) {
+      throw new AuthError("FORBIDDEN", "로그인한 계정을 확인할 수 없습니다.")
+    }
+    const salt = this.config.saltFactory()
+    const account: AuthAccountRecord = {
+      ...target,
+      passwordSalt: salt,
+      passwordHash: await this.config.hashPassword(input.password, salt),
+      mustChangePassword: false,
+      updatedAt: this.config.now(),
+    }
+    this.writeSnapshot({
+      ...snapshot,
+      accounts: snapshot.accounts.map((entry) => entry.id === account.id ? account : entry),
+    })
+    return publicAccount(account)
   }
 
   async deleteAccount(accountId: string) {

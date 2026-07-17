@@ -45,6 +45,12 @@ export interface EvaluationScoreFormViewModel {
   readonly lastSavedAtLabel: string | null
   readonly submittedAtLabel: string | null
   readonly locked: boolean
+  readonly benchmark?: Readonly<{
+    sampleSize: number
+    averageScore: number
+    minScore: number
+    maxScore: number
+  }> | null
 }
 
 export interface EvaluationScoreFormProps {

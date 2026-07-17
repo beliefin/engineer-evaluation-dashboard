@@ -44,7 +44,7 @@ export function AppShell({
           saveState={saveState}
         />
         <main
-          className="mx-auto w-full max-w-[1440px] px-4 py-6 sm:px-5 lg:px-6 lg:py-8"
+          className="mx-auto w-full max-w-[1440px] px-4 py-6 print:max-w-none print:p-0 sm:px-5 lg:px-6 lg:py-8"
           id="main-content"
         >
           {children}

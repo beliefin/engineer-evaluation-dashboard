@@ -3,6 +3,16 @@ import { describe, expect, it } from "vitest"
 import { parseEngineerRoster, parseEvaluatorRoster } from "./parser"
 
 describe("parseEngineerRoster", () => {
+  it("removes the common 3101 prefix and keeps a four-digit employee code", () => {
+    const result = parseEngineerRoster(
+      "사번\t이름\n31019432\t이창준",
+      "생산 1팀",
+      "전자약품담당",
+    )
+
+    expect(result.errors).toEqual([])
+    expect(result.rows[0]?.employeeCode).toBe("9432")
+  })
   it("skips a header and applies the selected team and default position", () => {
     const result = parseEngineerRoster(
       "사번\t이름\t팀\t담당\t직급\nE-001\t김하늘\nE-002,박이든,생산 2팀,ECH1담당,선임",

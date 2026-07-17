@@ -35,6 +35,7 @@ export type AuthAccount = Readonly<{
   evaluatorId: string | null
   engineerId: string | null
   active: boolean
+  mustChangePassword: boolean
   createdAt: string
   updatedAt: string
 }>
@@ -83,6 +84,8 @@ export type ResetPasswordInput = Readonly<{
   password: string
 }>
 
+export type ChangeOwnPasswordInput = Readonly<{ password: string }>
+
 export interface AuthStorage {
   getItem(key: string): string | null
   setItem(key: string, value: string): void
@@ -107,5 +110,6 @@ export interface AuthRepository {
   createAccount(input: CreateAccountInput): Promise<ReadonlyArray<AuthAccount>>
   updateAccount(input: UpdateAccountInput): Promise<ReadonlyArray<AuthAccount>>
   resetPassword(input: ResetPasswordInput): Promise<ReadonlyArray<AuthAccount>>
+  changeOwnPassword(input: ChangeOwnPasswordInput): Promise<AuthAccount>
   deleteAccount(accountId: string): Promise<ReadonlyArray<AuthAccount>>
 }

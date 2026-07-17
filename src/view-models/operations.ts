@@ -335,6 +335,26 @@ export function selectOperationsViewModel(
     rosterEvaluators: snapshot.evaluators,
     departmentCatalog: snapshot.departmentCatalog ?? [],
     directScoreRules: cycleRules,
+    derivedScoreRules: snapshot.derivedScoreRules
+      .filter((rule) => rule.cycleId === cycleId)
+      .map((rule) => ({
+        ruleId: rule.id,
+        taskId: rule.taskId,
+        targetEngineerId: rule.targetEngineerId,
+        sourceTaskId: rule.sourceTaskId,
+        sourceEngineerIds: rule.sourceEngineerIds,
+      })),
+    derivedTasks: tasks
+      .filter((task) => task.method === "derived_score")
+      .map((task) => ({ taskId: task.id, taskName: task.name })),
+    derivedSourceTasks: tasks
+      .filter((task) => task.method === "evaluator_score" || task.method === "evaluator_pass_fail")
+      .map((task) => ({ taskId: task.id, taskName: task.name })),
+    derivedEngineerOptions: snapshot.engineers.map((engineer) => ({
+      engineerId: engineer.id,
+      engineerName: engineer.displayName,
+      teamName: engineer.team,
+    })),
     operatorTasks: operatorTasks.map((task) => ({ taskId: task.id, taskName: task.name })),
     certificationOptions,
     languageOptions: [...languageOptionMap.values()],

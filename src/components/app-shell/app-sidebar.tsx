@@ -54,7 +54,7 @@ export function AppSidebar({ role, actorLabel }: AppSidebarProps) {
   const authLabel = isSupabaseConfigured() ? "Supabase 인증" : "샘플 인증"
 
   return (
-    <aside className="sticky top-0 hidden h-dvh w-56 shrink-0 flex-col border-r border-sidebar-border bg-sidebar lg:flex">
+    <aside className="sticky top-0 hidden h-dvh w-56 shrink-0 flex-col border-r border-sidebar-border bg-sidebar print:hidden lg:flex">
       <div className="flex h-[52px] shrink-0 items-center px-4">
         <AppBrand href={APP_SHELL_HOME_PATHS[role]} />
       </div>

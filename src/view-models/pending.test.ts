@@ -96,7 +96,10 @@ describe("selectPendingEvaluations", () => {
 
   it("treats a direct score of zero as entered and excludes the completed engineer", () => {
     // Given
-    const snapshot = createSeedSnapshot()
+    const snapshot = {
+      ...createSeedSnapshot(),
+      directScoreRules: [],
+    }
     const withZero = {
       ...snapshot,
       directScores: snapshot.directScores.map((score) =>

@@ -19,6 +19,7 @@ import { Label } from "@/components/ui/label"
 
 import { TeamSelect } from "./team-select"
 import { DepartmentSelect } from "./department-select"
+import { normalizeEmployeeCode } from "./parser"
 import type {
   EngineerRegistration,
   EvaluatorRegistration,
@@ -80,7 +81,7 @@ export function SingleRegistrationDialog({
 
   const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault()
-    const code = employeeCode.trim()
+    const code = normalizeEmployeeCode(employeeCode)
     const name = displayName.trim()
     const departmentName = department.trim()
     const jobPosition = position.trim()

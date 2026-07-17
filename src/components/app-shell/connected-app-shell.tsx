@@ -2,10 +2,11 @@
 
 import { RefreshCw, RotateCcw } from "lucide-react"
 import { useRouter } from "next/navigation"
-import { useEffect, type ReactNode } from "react"
+import { useEffect, useState, type ReactNode } from "react"
 
 import { ErrorState, LoadingPageSkeleton } from "@/components/shared"
 import { Button } from "@/components/ui/button"
+import { InitialPasswordChangeDialog } from "@/features/auth"
 import {
   Dialog,
   DialogClose,
@@ -29,7 +30,10 @@ export function ConnectedAppShell({ children }: Readonly<{ children: ReactNode }
     errorMessage: authErrorMessage,
     logout,
     switchRole,
+    pending: authPending,
+    changeOwnPassword,
   } = useAuth()
+  const [postponedPasswordChangeFor, setPostponedPasswordChangeFor] = useState<string | null>(null)
   const {
     snapshot,
     role,
@@ -165,7 +169,8 @@ export function ConnectedAppShell({ children }: Readonly<{ children: ReactNode }
   }
 
   return (
-    <AppShell
+    <>
+      <AppShell
       activeCycleId={activeCycleId}
       activeEvaluatorId={activeEvaluatorId}
       actorLabel={session.displayName}
@@ -183,6 +188,14 @@ export function ConnectedAppShell({ children }: Readonly<{ children: ReactNode }
       saveState={saveState}
     >
       {children}
-    </AppShell>
+      </AppShell>
+      <InitialPasswordChangeDialog
+        key={session.id}
+        onChangePassword={changeOwnPassword}
+        onPostpone={() => setPostponedPasswordChangeFor(session.id)}
+        open={session.mustChangePassword && postponedPasswordChangeFor !== session.id}
+        pending={authPending}
+      />
+    </>
   )
 }

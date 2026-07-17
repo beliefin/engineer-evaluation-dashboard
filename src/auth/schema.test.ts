@@ -5,6 +5,9 @@ import { createAccountInputSchema, passwordSchema, usernameSchema } from "./sche
 import { accountEmailForUsername } from "./account-email"
 
 describe("passwordSchema", () => {
+  it("accepts a four-character numeric password", () => {
+    expect(passwordSchema.safeParse("1234").success).toBe(true)
+  })
   it("Given letters and numbers When no special character is present Then the password is accepted", () => {
     expect(passwordSchema.safeParse("Engineer2026").success).toBe(true)
   })

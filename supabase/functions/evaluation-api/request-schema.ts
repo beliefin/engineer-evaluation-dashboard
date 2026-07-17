@@ -29,6 +29,12 @@ const scheduleFields = {
 
 export const evaluationRequestSchema = z.discriminatedUnion("operation", [
   z.object({ operation: z.literal("load"), ...activeRole }),
+  z.object({ operation: z.literal("list_maintenance"), ...activeRole }),
+  z.object({ operation: z.literal("create_backup"), ...activeRole, label: z.string().trim().min(1).max(100) }),
+  z.object({
+    operation: z.literal("restore_backup"), ...activeRole, baseRevision,
+    backupId: z.uuid(),
+  }),
   z.object({
     operation: z.literal("operator_commit"), ...activeRole, baseRevision,
     action: z.string().trim().min(1).max(100), targetId: z.string().trim().min(1).nullable(),

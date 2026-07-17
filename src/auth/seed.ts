@@ -59,6 +59,7 @@ export async function createSeedAuthSnapshot(
   const accounts = await Promise.all(SEED_ACCOUNT_DEFINITIONS.map(async (definition) => ({
     ...definition,
     active: true,
+    mustChangePassword: true,
     createdAt: timestamp,
     updatedAt: timestamp,
     passwordHash: await hashPassword(DEMO_PASSWORD, definition.passwordSalt),

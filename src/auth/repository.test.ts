@@ -60,6 +60,19 @@ describe("LocalStorageAuthRepository", () => {
     expect(storage.serializedValues()).not.toContain("Demo!2026")
   })
 
+  it("marks an initial password for change and clears the notice after self-change", async () => {
+    const { repository } = createRepository()
+    const initial = await repository.login({ username: "operator", password: "Demo!2026" })
+
+    expect(initial.mustChangePassword).toBe(true)
+    const changed = await repository.changeOwnPassword({ password: "1234" })
+
+    expect(changed.mustChangePassword).toBe(false)
+    repository.logout()
+    await expect(repository.login({ username: "operator", password: "1234" }))
+      .resolves.toMatchObject({ mustChangePassword: false })
+  })
+
   it("rejects an invalid password without creating a session", async () => {
     // Given
     const { repository } = createRepository()

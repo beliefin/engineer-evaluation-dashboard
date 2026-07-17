@@ -17,11 +17,11 @@ export const FIXED_TIMESTAMP = "2026-01-02T00:00:00.000Z"
 export const POSITIONS = ["엔지니어", "선임 엔지니어", "책임 엔지니어"] as const
 
 export const EVALUATORS = [
-  { id: "evaluator-01", employeeCode: "EVAL-001", displayName: "샘플 평가자 1", division: "1부문", team: TEAMS[0], department: DEPARTMENTS_BY_TEAM["생산 1팀"][0], organizationUnit: null, rank: null, jobTitle: null },
-  { id: "evaluator-02", employeeCode: "EVAL-002", displayName: "샘플 평가자 2", division: "1부문", team: TEAMS[1], department: DEPARTMENTS_BY_TEAM["생산 2팀"][0], organizationUnit: null, rank: null, jobTitle: null },
-  { id: "evaluator-03", employeeCode: "EVAL-003", displayName: "샘플 평가자 3", division: "1부문", team: TEAMS[0], department: DEPARTMENTS_BY_TEAM["생산 1팀"][1], organizationUnit: null, rank: null, jobTitle: null },
-  { id: "evaluator-04", employeeCode: "EVAL-004", displayName: "샘플 평가자 4", division: "1부문", team: TEAMS[1], department: DEPARTMENTS_BY_TEAM["생산 2팀"][1], organizationUnit: null, rank: null, jobTitle: null },
-  { id: "evaluator-05", employeeCode: "EVAL-005", displayName: "샘플 평가자 5", division: "1부문", team: TEAMS[0], department: DEPARTMENTS_BY_TEAM["생산 1팀"][2], organizationUnit: null, rank: null, jobTitle: null },
+  { id: "evaluator-01", employeeCode: "9001", displayName: "샘플 평가자 1", division: "1부문", team: TEAMS[0], department: DEPARTMENTS_BY_TEAM["생산 1팀"][0], organizationUnit: null, rank: null, jobTitle: null },
+  { id: "evaluator-02", employeeCode: "9002", displayName: "샘플 평가자 2", division: "1부문", team: TEAMS[1], department: DEPARTMENTS_BY_TEAM["생산 2팀"][0], organizationUnit: null, rank: null, jobTitle: null },
+  { id: "evaluator-03", employeeCode: "9003", displayName: "샘플 평가자 3", division: "1부문", team: TEAMS[0], department: DEPARTMENTS_BY_TEAM["생산 1팀"][1], organizationUnit: null, rank: null, jobTitle: null },
+  { id: "evaluator-04", employeeCode: "9004", displayName: "샘플 평가자 4", division: "1부문", team: TEAMS[1], department: DEPARTMENTS_BY_TEAM["생산 2팀"][1], organizationUnit: null, rank: null, jobTitle: null },
+  { id: "evaluator-05", employeeCode: "9005", displayName: "샘플 평가자 5", division: "1부문", team: TEAMS[0], department: DEPARTMENTS_BY_TEAM["생산 1팀"][2], organizationUnit: null, rank: null, jobTitle: null },
 ] as const satisfies ReadonlyArray<Evaluator>
 
 function scoreTask(

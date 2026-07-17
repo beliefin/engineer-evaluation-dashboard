@@ -12,6 +12,7 @@ import type {
   SaveLanguageScoreRecordInput,
   SaveScoreAdjustmentInput,
   SaveDirectScoreRuleInput,
+  SaveDerivedScoreRuleInput,
   SaveEvaluationTaskInput,
   SetEvaluationCycleLockInput,
   SourceRecordKind,
@@ -60,6 +61,8 @@ export type EvaluationActions = Readonly<{
   deleteEvaluationCycle: (cycleId: string) => boolean
   saveDirectScoreRule: (input: Omit<SaveDirectScoreRuleInput, "cycleId" | "actor" | "ruleId"> & Readonly<{ ruleId: string | null }>) => boolean
   deleteDirectScoreRule: (ruleId: string) => boolean
+  saveDerivedScoreRule: (input: Omit<SaveDerivedScoreRuleInput, "cycleId" | "actor">) => boolean
+  deleteDerivedScoreRule: (ruleId: string) => boolean
   saveEvaluationTask: (
     input: Omit<SaveEvaluationTaskInput, "cycleId" | "actor">,
   ) => boolean
@@ -272,6 +275,22 @@ export function createEvaluationActions({
         (repository) => repository.deleteDirectScoreRule({ ruleId, actor }),
         "환산 규칙을 삭제했습니다.",
         { type: "operator", action: "direct_score_rule_deleted", targetId: ruleId },
+      ),
+    saveDerivedScoreRule: (input) =>
+      mutate(
+        (repository) => repository.saveDerivedScoreRule({
+          ...input,
+          cycleId: activeCycleId,
+          actor,
+        }),
+        "연계 점수 규칙을 저장했습니다.",
+        { type: "operator", action: "derived_score_rule_saved", targetId: input.ruleId },
+      ),
+    deleteDerivedScoreRule: (ruleId) =>
+      mutate(
+        (repository) => repository.deleteDerivedScoreRule({ ruleId, actor }),
+        "연계 점수 규칙을 삭제했습니다.",
+        { type: "operator", action: "derived_score_rule_deleted", targetId: ruleId },
       ),
     saveEvaluationTask: (input) =>
       mutate(

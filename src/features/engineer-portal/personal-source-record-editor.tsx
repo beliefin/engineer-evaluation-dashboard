@@ -7,6 +7,7 @@ import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
 import { SourceRecordReview } from "@/components/shared"
 import { CertificationRecordDialog } from "@/features/operations/certification-record-dialog"
 import { LanguageRecordDialog } from "@/features/operations/language-record-dialog"
+import { displayAcquisitionMonth } from "@/features/operations/acquisition-month"
 import { SourceRecordDeleteDialog } from "@/features/operations/source-record-delete-dialog"
 import { Badge } from "@/components/ui/badge"
 import type {
@@ -104,7 +105,7 @@ export function PersonalSourceRecordEditor({
                   </div>
                 </div>
                 <p className="mt-2 text-xs text-muted-foreground">
-                  취득일 {record.acquiredOn ?? "미입력"}{record.previousResult == null ? "" : ` · 전년도 ${record.previousResult}`}{record.note === null ? "" : ` · ${record.note}`}
+                  취득 년월 {displayAcquisitionMonth(record.acquiredOn)}{record.previousResult == null ? "" : ` · 전년도 ${record.previousResult}`}{record.note === null ? "" : ` · ${record.note}`}
                 </p>
                 <SourceRecordReview status={record.reviewStatus} sourceLabel={record.sourceLabel} updatedAtLabel={record.updatedAtLabel} />
               </article>
@@ -138,7 +139,7 @@ export function PersonalSourceRecordEditor({
                   </div>
                 </div>
                 <p className="mt-2 text-xs text-muted-foreground">
-                  취득일 {record.acquiredOn ?? "미입력"}{record.issuer === null ? "" : ` · ${record.issuer}`}
+                  취득 년월 {displayAcquisitionMonth(record.acquiredOn)}{record.issuer === null ? "" : ` · ${record.issuer}`}
                 </p>
                 <SourceRecordReview status={record.reviewStatus} sourceLabel={record.sourceLabel} updatedAtLabel={record.updatedAtLabel} />
               </article>

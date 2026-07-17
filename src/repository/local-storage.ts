@@ -9,6 +9,7 @@ import {
   updateEvaluationCycleAction,
 } from "./cycle-actions"
 import { deleteDirectScoreRuleAction, saveDirectScoreRuleAction } from "./direct-score-rule-actions"
+import { deleteDerivedScoreRuleAction, saveDerivedScoreRuleAction } from "./derived-score-rule-actions"
 import { deleteEngineerAction, updateEngineerAction } from "./engineer-roster-actions"
 import { deleteEvaluatorAction, updateEvaluatorAction } from "./evaluator-roster-actions"
 import { updateEvaluatorAssignmentsAction } from "./evaluator-assignment-actions"
@@ -59,6 +60,7 @@ import type {
   DeleteEvaluationTaskInput,
   DeleteEvaluationCycleInput,
   DeleteDirectScoreRuleInput,
+  DeleteDerivedScoreRuleInput,
   EvaluationRepository,
   ReopenSheetInput,
   RequestSheetUnlockInput,
@@ -69,6 +71,7 @@ import type {
   SaveScoreAdjustmentInput,
   SaveEvaluationTaskInput,
   SaveDirectScoreRuleInput,
+  SaveDerivedScoreRuleInput,
   SetEvaluationCycleLockInput,
   SheetActionInput,
   UpdateDirectScoreInput,
@@ -164,6 +167,14 @@ class LocalStorageEvaluationRepository implements EvaluationRepository {
 
   deleteDirectScoreRule(input: DeleteDirectScoreRuleInput): EvaluationSnapshot {
     return this.persist(deleteDirectScoreRuleAction(this.context(), input))
+  }
+
+  saveDerivedScoreRule(input: SaveDerivedScoreRuleInput): EvaluationSnapshot {
+    return this.persist(saveDerivedScoreRuleAction(this.context(), input))
+  }
+
+  deleteDerivedScoreRule(input: DeleteDerivedScoreRuleInput): EvaluationSnapshot {
+    return this.persist(deleteDerivedScoreRuleAction(this.context(), input))
   }
 
   saveEvaluationTask(input: SaveEvaluationTaskInput): EvaluationSnapshot {

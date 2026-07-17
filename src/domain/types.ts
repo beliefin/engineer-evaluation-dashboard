@@ -9,6 +9,7 @@ export const EVALUATION_METHODS = [
   "evaluator_pass_fail",
   "operator_score",
   "operator_pass_fail",
+  "derived_score",
 ] as const
 export type EvaluationMethod = (typeof EVALUATION_METHODS)[number]
 
@@ -139,6 +140,16 @@ export type DirectScoreRule = Readonly<{
   bonusCondition?: LanguageBonusCondition | null | undefined
 }>
 
+export type DerivedScoreRule = Readonly<{
+  id: string
+  cycleId: string
+  taskId: string
+  targetEngineerId: string
+  sourceTaskId: string
+  sourceEngineerIds: ReadonlyArray<string>
+  aggregation: "average"
+}>
+
 export type EvaluatorAssignment = Readonly<{
   id: string
   cycleId: string
@@ -233,6 +244,14 @@ export type EvaluationScheduleEvent = Readonly<{
   updatedAt: string
 }>
 
+export type EvaluationBenchmark = Readonly<{
+  assignmentId: string
+  sampleSize: number
+  averageScore: number
+  minScore: number
+  maxScore: number
+}>
+
 export type AuditEvent = Readonly<{
   id: string
   cycleId: string
@@ -241,6 +260,8 @@ export type AuditEvent = Readonly<{
     | "sheet_reopened"
     | "sheet_unlock_requested"
     | "direct_score_updated"
+    | "derived_score_rule_saved"
+    | "derived_score_rule_deleted"
     | "score_adjustment_saved"
     | "score_adjustment_deleted"
     | "language_record_saved"
@@ -275,11 +296,13 @@ export type AuditEvent = Readonly<{
 }>
 
 export type EvaluationSnapshot = Readonly<{
-  schemaVersion: 7
+  schemaVersion: 8
   cycles: ReadonlyArray<EvaluationCycle>
   tasks: ReadonlyArray<EvaluationTask>
   engineerTaskWeights: ReadonlyArray<EngineerTaskWeight>
   directScoreRules: ReadonlyArray<DirectScoreRule>
+  derivedScoreRules: ReadonlyArray<DerivedScoreRule>
+  evaluationBenchmarks: ReadonlyArray<EvaluationBenchmark>
   departmentCatalog?: ReadonlyArray<DepartmentCatalogEntry>
   engineers: ReadonlyArray<Engineer>
   evaluators: ReadonlyArray<Evaluator>

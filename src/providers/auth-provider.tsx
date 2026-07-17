@@ -20,6 +20,7 @@ import {
   type AuthAccount,
   type AuthErrorCode,
   type AuthRepository,
+  type ChangeOwnPasswordInput,
   type CreateAccountInput,
   type LoginInput,
   type ResetPasswordInput,
@@ -50,6 +51,7 @@ type AuthContextValue = Readonly<{
   createAccount: (input: CreateAccountInput) => Promise<AuthActionResult>
   updateAccount: (input: UpdateAccountInput) => Promise<AuthActionResult>
   resetPassword: (input: ResetPasswordInput) => Promise<AuthActionResult>
+  changeOwnPassword: (input: ChangeOwnPasswordInput) => Promise<AuthActionResult>
   deleteAccount: (accountId: string) => Promise<AuthActionResult>
 }>
 
@@ -213,6 +215,26 @@ export function AuthProvider({ children }: Readonly<{ children: ReactNode }>) {
       "비밀번호를 재설정했습니다.",
     ), [runAccountMutation])
 
+  const changeOwnPassword = useCallback(async (input: ChangeOwnPasswordInput): Promise<AuthActionResult> => {
+    const repository = repositoryRef.current
+    if (repository === null) return { ok: false, message: "인증 저장소를 준비하고 있습니다." }
+    setPending(true)
+    setErrorMessage(null)
+    try {
+      const account = await repository.changeOwnPassword(input)
+      setSession((current) => current === null ? account : { ...account, role: current.role })
+      toast.success("비밀번호를 변경했습니다.")
+      return { ok: true }
+    } catch (error) {
+      const failure = failureResult(error)
+      setErrorMessage(failure.message)
+      toast.error(failure.message)
+      return failure
+    } finally {
+      setPending(false)
+    }
+  }, [])
+
   const deleteAccount = useCallback((accountId: string) =>
     runAccountMutation(
       (repository) => repository.deleteAccount(accountId),
@@ -231,6 +253,7 @@ export function AuthProvider({ children }: Readonly<{ children: ReactNode }>) {
     createAccount,
     updateAccount,
     resetPassword,
+    changeOwnPassword,
     deleteAccount,
   }), [
     accounts,
@@ -243,6 +266,7 @@ export function AuthProvider({ children }: Readonly<{ children: ReactNode }>) {
     switchRole,
     pending,
     resetPassword,
+    changeOwnPassword,
     session,
     updateAccount,
   ])

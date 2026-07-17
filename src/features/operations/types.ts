@@ -11,7 +11,7 @@ import type {
 } from "@/domain"
 
 export type OperationsCycleStatus = "setup" | "active" | "closed"
-export type OperationsTab = "roster" | "season" | "tasks" | "assignments" | "weights" | "scores" | "scoreTables" | "adjustments" | "unlocks" | "reset"
+export type OperationsTab = "roster" | "season" | "tasks" | "assignments" | "weights" | "derived" | "scores" | "scoreTables" | "adjustments" | "unlocks" | "reset"
 
 export type OperationsTrack = "unselected" | "ots" | "dx"
 export type EvaluationCategoryKey = "growth_plan" | "core_track"
@@ -230,6 +230,30 @@ export type DirectScoreRuleDraft = Readonly<{
 
 export type DirectScoreRuleViewModel = DirectScoreRule
 
+export type DerivedScoreRuleDraft = Readonly<{
+  ruleId: string | null
+  taskId: string
+  targetEngineerId: string
+  sourceTaskId: string
+  sourceEngineerIds: ReadonlyArray<string>
+}>
+
+export type DerivedScoreRuleViewModel = DerivedScoreRuleDraft & Readonly<{
+  ruleId: string
+}>
+
+export type DirectScoreRuleImpactViewModel = Readonly<{
+  affectedCount: number
+  rows: ReadonlyArray<Readonly<{
+    engineerId: string
+    engineerName: string
+    currentTaskScore: number | null
+    proposedTaskScore: number | null
+    currentFinalScore: number | null
+    proposedFinalScore: number | null
+  }>>
+}>
+
 export type ScoreAdjustmentDraft = Readonly<{
   adjustmentId: string | null
   engineerId: string
@@ -297,6 +321,14 @@ export interface OperationsViewModel {
   readonly directScores: readonly EngineerDirectScoreViewModel[]
   readonly scoreAdjustments: readonly EngineerScoreAdjustmentViewModel[]
   readonly directScoreRules?: readonly DirectScoreRuleViewModel[]
+  readonly derivedScoreRules?: readonly DerivedScoreRuleViewModel[]
+  readonly derivedTasks?: readonly Readonly<{ taskId: string; taskName: string }>[]
+  readonly derivedSourceTasks?: readonly Readonly<{ taskId: string; taskName: string }>[]
+  readonly derivedEngineerOptions?: readonly Readonly<{
+    engineerId: string
+    engineerName: string
+    teamName: string
+  }>[]
   readonly operatorTasks?: readonly Readonly<{ taskId: string; taskName: string }>[]
   readonly certificationOptions?: readonly CertificationOptionViewModel[]
   readonly languageOptions?: readonly LanguageOptionViewModel[]
@@ -325,6 +357,9 @@ export interface OperationsCallbacks {
   ) => boolean
   readonly onSaveDirectScoreRule?: (rule: DirectScoreRuleDraft) => boolean
   readonly onDeleteDirectScoreRule?: (ruleId: string) => boolean
+  readonly onPreviewDirectScoreRule?: (rule: DirectScoreRuleDraft) => DirectScoreRuleImpactViewModel
+  readonly onSaveDerivedScoreRule?: (rule: DerivedScoreRuleDraft) => boolean
+  readonly onDeleteDerivedScoreRule?: (ruleId: string) => boolean
   readonly onDirectScoreChange: (
     engineerId: string,
     taskId: string,

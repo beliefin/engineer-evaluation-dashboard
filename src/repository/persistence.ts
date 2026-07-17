@@ -7,11 +7,13 @@ import {
   migrateVersionFourSnapshot,
   migrateVersionFiveSnapshot,
   migrateVersionSixSnapshot,
+  migrateVersionSevenSnapshot,
   previousEvaluationSnapshotSchema,
   versionThreeEvaluationSnapshotSchema,
   versionFourEvaluationSnapshotSchema,
   versionFiveEvaluationSnapshotSchema,
   versionSixEvaluationSnapshotSchema,
+  versionSevenEvaluationSnapshotSchema,
   type EvaluationSnapshot,
 } from "@/domain"
 
@@ -66,6 +68,9 @@ function parseSnapshot(raw: string): EvaluationSnapshot | null {
   const json = parseStoredJson(raw)
   const current = evaluationSnapshotSchema.safeParse(json)
   if (current.success) return current.data
+
+  const versionSeven = versionSevenEvaluationSnapshotSchema.safeParse(json)
+  if (versionSeven.success) return migrateVersionSevenSnapshot(versionSeven.data)
 
   const versionSix = versionSixEvaluationSnapshotSchema.safeParse(json)
   if (versionSix.success) return migrateVersionSixSnapshot(versionSix.data)

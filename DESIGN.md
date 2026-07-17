@@ -229,12 +229,13 @@
 - **Operator**: 전체 엔지니어 목록을 먼저 제시한다. 엔지니어 선택 후 실제 배정된 과제와 평가자를 순서대로 고르면 같은 화면에 평가표를 바로 표시한다. 운영자 입력은 제출 상태여도 잠그지 않고 계속 수정할 수 있다.
 - **Evaluator**: 로그인 계정에 실제 배정된 엔지니어와 과제만 표시한다. 제출 후에는 잠그고 수정이 필요하면 사유를 입력해 잠금 해제를 요청한다.
 - **Privacy**: 한 평가지에는 선택한 평가자 이름만 표시하고 다른 평가자의 점수와 가중치는 노출하지 않는다.
+- **Calibration reference**: 평가자 점수형 평가지에는 같은 시즌·같은 과제의 직전 완료 발표자 최대 3명에 대한 공식 합산 평균과 범위만 익명으로 표시한다. 원천 발표자 이름, 개별 점수, 평가자별 점수와 가중치는 노출하지 않는다. 확정 표본이 없으면 기준 없음 상태를 텍스트로 표시한다.
 - **States**: engineer selected, no assignment, task selected, evaluator selected, draft, submitted editable for operator, submitted locked for evaluator, unlock requested.
 
 ### Evaluation Season & Task Configurator
 
 - **Structure**: current season summary, create action, season name, period, status, configuration-copy option, weight-total status, and a flat task list. Each task opens one editor for name, evaluator guidance, overall weight, evaluation method, and rubric items.
-- **Evaluation methods**: evaluator score, evaluator P/F, operator score, and operator P/F. Score tasks normalize any count of 0–10 rubric items to 0–100. P/F tasks expose explicit pass and fail choices without numeric inputs.
+- **Evaluation methods**: evaluator score, evaluator P/F, operator score, operator P/F, and derived average. Score tasks normalize any count of 0–10 rubric items to 0–100. P/F tasks expose explicit pass and fail choices without numeric inputs. Derived average tasks receive no manual input and are configured per target engineer.
 - **Task detail**: rubric items are ordered editable rows with add and delete actions. 각 항목은 선택적 구분과 0~10점별 평가기준 문구를 추가·수정·삭제하며 같은 점수 기준을 중복 저장하지 않는다. 평가자 참여 여부와 가중치는 과제가 아니라 엔지니어별 평가자 배정에서 관리한다.
 - **Defaults**: create seasons in setup status, copy the current season task configuration by default, and start every evaluator assignment, engineer response, source record, and schedule empty. A copied season receives independent task IDs without automatically creating evaluator obligations.
 - **Weight rule**: season task weights are defaults. Operators may override every task weight per engineer; 0% means the task is not applicable to that engineer, and only weights above 0% create evaluation obligations or contribute to the final score. Ranking stays unconfirmed until that engineer's applicable task total is exactly 100%.
@@ -246,13 +247,14 @@
 ### Direct Score Source Editor
 
 - **Structure**: engineer selection, automatic-conversion summary, language record list, certification list, and add/edit Dialog.
-- **Language fields**: exam name, score or grade, acquired date, and note. Preserve score or grade as source text because formats differ by exam.
-- **Certification fields**: certificate name is selected from the active season score table; grade or class, acquired date, and issuer remain supporting source fields. Grade and issuer may be left blank.
+- **Language fields**: exam name, score or grade, acquired year-month, and note. Preserve score or grade as source text because formats differ by exam.
+- **Certification fields**: certificate name is selected from the active season score table; grade or class, acquired year-month, and issuer remain supporting source fields. Grade and issuer may be left blank.
 - **States**: populated, empty, validation error, saving, saved, delete confirmation, review pending, review complete, and disabled.
 - **Review workflow**: an engineer-authored record starts in `검토 대기`. The operator can mark it `검토 완료` without changing the raw value; any later engineer edit returns it to `검토 대기`. Operator-authored and seed records are shown separately so the queue count remains actionable.
 - **Traceability**: every record shows its latest update time and input source. The operator panel exposes a text summary of pending reviews and a record-level review action; the engineer portal exposes the same read-only status without operator controls.
 - **Conversion**: certification score shows the top-three base sum, one highest current-year acquisition bonus even when outside the top three, and one current-year written-exam partial score. Language records show a converted value only when an operator-configured rule matches.
 - **Score-table settings**: `자격·어학 평가표` is a separate operation tab. Certification rows expose name, category, difficulty, work relevance, base score, new-acquisition bonus, enabled state, edit, and delete. Language rules remain operator-editable without seeded score bands until a source table is supplied.
+- **Impact preview**: 규칙 저장 전 현재 시즌 원천 기록을 새 규칙 집합으로 재계산해 영향을 받는 인원, 과제 환산점수 전후, 최종점수 전후를 표로 비교한다. 미확정 점수는 0점으로 대체하지 않는다.
 - **Accessibility**: every input has a visible label; delete actions include the engineer and record names in their accessible labels.
 - **Responsive**: desktop compares language and certification in two columns; mobile uses one column and full-width Dialog fields.
 
@@ -311,6 +313,26 @@
 - 운영자 대리 입력은 제출 상태에서도 잠그지 않고 계속 수정할 수 있다.
 - 평가자는 잠긴 평가지에서 수정 사유를 입력해 잠금 해제를 요청한다. 운영자는 `평가 잠금 해제 요청` 화면에서 요청 사유를 확인한 뒤 잠금을 해제한다.
 - 잠금 해제는 기존 점수를 보존한 채 초안 상태로 되돌리고 감사 이벤트를 남긴다.
+
+### Operator Backup & Audit
+
+- 운영자 전용 화면에서 현재 평가 데이터의 이름 있는 백업과 최근 변경 이력을 함께 제공한다.
+- 백업 복구 전 현재 상태를 자동 백업하며, 복구는 현재 revision이 일치할 때만 실행한다.
+- 백업 목록은 이름, revision, 생성 시각, 생성자를 직접 표시하고 복구는 확인 Dialog를 거친다.
+- 변경 이력은 시각, 작업, 사용자, 대상, revision을 표로 제공하며 수정·삭제할 수 없다.
+
+### Linked / Derived Score
+
+- 운영자는 파생 평균형 과제마다 대상 엔지니어, 원천 평가 과제, 원천 엔지니어 목록을 설정한다.
+- 원천 과제는 평가자 점수형 또는 평가자 P/F형으로 제한하고 파생 과제를 다시 원천으로 선택할 수 없어 순환·재귀 연결을 만들지 않는다.
+- 선택된 원천 엔지니어의 해당 과제 공식 점수가 모두 확정된 경우에만 단순 평균을 산출한다. 일부 누락 상태에서는 제출자끼리 재정규화하지 않고 파생 과제를 미확정 처리한다.
+- 대상 엔지니어별 가중치는 기존 개인별 과제 가중치에서 관리하며 파생 규칙 자체는 가중치를 보유하지 않는다.
+
+### Printable Season Report
+
+- 운영자와 승인자가 현재 시즌의 대상·완료 현황, 과제 평균, 최종 순위를 읽기 전용 문서 레이아웃으로 확인한다.
+- 별도 안내문 생성 없이 브라우저 인쇄 기능으로 종이 또는 PDF 문서로 저장한다.
+- 인쇄 시 앱 탐색, 상단 제어, 인쇄 버튼은 숨기고 보고서 제목·평가 기간·출력 시각·표 머리글을 유지한다.
 
 ## 6. Motion & Interaction
 

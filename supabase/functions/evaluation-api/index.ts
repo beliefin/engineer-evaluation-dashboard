@@ -15,8 +15,10 @@ import {
 } from "./mutations.ts"
 import { projectSnapshot } from "./projection.ts"
 import { evaluationRequestSchema } from "./request-schema.ts"
+import { expectedRevisionForRequest } from "./revision-policy.ts"
 import { findMissingLinkedRosterIds } from "./roster-integrity.ts"
 import { commitState, loadState } from "./state-store.ts"
+import { createBackup, listMaintenance, restoreBackup } from "./maintenance.ts"
 
 const supabaseUrl = Deno.env.get("SUPABASE_URL")
 const serviceRoleKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")
@@ -53,6 +55,7 @@ function applyMutation(
   snapshot: Snapshot,
   profile: Profile,
   request: ReturnType<typeof evaluationRequestSchema.parse>,
+  currentRevision: number,
 ): { snapshot: Snapshot; operation: string; targetId: string | null; revision: number } {
   if (request.operation === "operator_commit") {
     if (profile.role !== "operator") throw new ApiError(403, "FORBIDDEN", "운영자 권한이 필요합니다.")
@@ -61,7 +64,7 @@ function applyMutation(
       snapshot: snapshotSchema.parse(mergeOperatorSnapshot(snapshot, request.snapshot)),
       operation: request.action,
       targetId: request.targetId,
-      revision: request.baseRevision,
+      revision: expectedRevisionForRequest(request, currentRevision),
     }
   }
   if (request.operation === "save_draft" || request.operation === "submit_sheet") {
@@ -69,7 +72,7 @@ function applyMutation(
       snapshot: mutateSheet(snapshot, profile, request),
       operation: request.operation,
       targetId: request.sheetId,
-      revision: request.baseRevision,
+      revision: expectedRevisionForRequest(request, currentRevision),
     }
   }
   if (
@@ -81,7 +84,7 @@ function applyMutation(
       snapshot: mutateSchedule(snapshot, profile, request),
       operation: request.operation,
       targetId: "eventId" in request ? request.eventId : null,
-      revision: request.baseRevision,
+      revision: expectedRevisionForRequest(request, currentRevision),
     }
   }
   if (request.operation === "request_sheet_unlock") {
@@ -89,7 +92,7 @@ function applyMutation(
       snapshot: mutateUnlockRequest(snapshot, profile, request),
       operation: request.operation,
       targetId: request.sheetId,
-      revision: request.baseRevision,
+      revision: expectedRevisionForRequest(request, currentRevision),
     }
   }
   if (request.operation === "save_score_adjustment" || request.operation === "delete_score_adjustment") {
@@ -99,10 +102,15 @@ function applyMutation(
       targetId: request.operation === "save_score_adjustment"
         ? request.adjustment.adjustmentId
         : request.adjustmentId,
-      revision: request.baseRevision,
+      revision: expectedRevisionForRequest(request, currentRevision),
     }
   }
-  if (request.operation === "load") throw new ApiError(400, "INVALID_INPUT", "저장 요청이 아닙니다.")
+  if (
+    request.operation === "load" || request.operation === "list_maintenance" ||
+    request.operation === "create_backup" || request.operation === "restore_backup"
+  ) {
+    throw new ApiError(400, "INVALID_INPUT", "저장 요청이 아닙니다.")
+  }
   const targetId = "recordId" in request
     ? request.recordId
     : request.record.recordId
@@ -110,7 +118,7 @@ function applyMutation(
     snapshot: mutateSource(snapshot, profile, request),
     operation: request.operation,
     targetId,
-    revision: request.baseRevision,
+    revision: expectedRevisionForRequest(request, currentRevision),
   }
 }
 
@@ -137,18 +145,41 @@ Deno.serve(async (request: Request) => {
     const payload: unknown = await request.json()
     const parsed = evaluationRequestSchema.parse(payload)
     const activeProfile = activateProfileRole(profile, parsed.activeRole ?? profile.role)
-    const state = await loadState(service)
+    let state = await loadState(service)
     if (parsed.operation === "load") {
       return jsonResponse(request, { snapshot: projectSnapshot(state.snapshot, activeProfile), revision: state.revision })
     }
-    const mutation = applyMutation(state.snapshot, activeProfile, parsed)
-    if (parsed.operation === "operator_commit") {
-      await requireLinkedRosterMembers(mutation.snapshot)
+    if (
+      parsed.operation === "list_maintenance" ||
+      parsed.operation === "create_backup" ||
+      parsed.operation === "restore_backup"
+    ) {
+      if (activeProfile.role !== "operator") {
+        throw new ApiError(403, "FORBIDDEN", "운영자 권한이 필요합니다.")
+      }
+      const result = parsed.operation === "list_maintenance"
+        ? await listMaintenance(service)
+        : parsed.operation === "create_backup"
+          ? await createBackup(service, state, activeProfile, parsed.label)
+          : await restoreBackup(service, activeProfile, parsed.backupId, parsed.baseRevision)
+      return jsonResponse(request, { ...result, currentRevision: "revision" in result ? result.revision : state.revision })
     }
-    const revision = await commitState(
-      service, mutation.revision, mutation.snapshot, activeProfile, mutation.operation, mutation.targetId,
-    )
-    return jsonResponse(request, { snapshot: projectSnapshot(mutation.snapshot, activeProfile), revision })
+    const strictCommit = parsed.operation === "operator_commit"
+    for (let attempt = 0; attempt < 2; attempt += 1) {
+      const mutation = applyMutation(state.snapshot, activeProfile, parsed, state.revision)
+      if (strictCommit) await requireLinkedRosterMembers(mutation.snapshot)
+      try {
+        const revision = await commitState(
+          service, mutation.revision, mutation.snapshot, activeProfile, mutation.operation, mutation.targetId,
+        )
+        return jsonResponse(request, { snapshot: projectSnapshot(mutation.snapshot, activeProfile), revision })
+      } catch (error) {
+        const retryable = !strictCommit && error instanceof ApiError && error.code === "REVISION_CONFLICT"
+        if (!retryable || attempt === 1) throw error
+        state = await loadState(service)
+      }
+    }
+    throw new ApiError(409, "REVISION_CONFLICT", "최신 데이터에 저장하지 못했습니다.")
   } catch (error) {
     if (error instanceof ApiError) {
       return jsonResponse(request, { error: { code: error.code, message: error.message } }, error.status)

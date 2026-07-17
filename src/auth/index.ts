@@ -12,6 +12,7 @@ export type {
   AuthErrorCode,
   AuthRepository,
   AuthStorage,
+  ChangeOwnPasswordInput,
   CreateAccountInput,
   LoginInput,
   PasswordHasher,

@@ -13,6 +13,11 @@ interface SourceRow {
   readonly cells: readonly string[]
 }
 
+export function normalizeEmployeeCode(value: string): string {
+  const trimmed = value.trim()
+  return /^3101\d{4}$/.test(trimmed) ? trimmed.slice(4) : trimmed
+}
+
 function toSourceRows(text: string): readonly SourceRow[] {
   return text
     .split(/\r?\n/)
@@ -50,7 +55,7 @@ function parseCommonRow(
   defaultDepartment: RosterDepartment,
   seenCodes: Map<string, string>,
 ): CommonRowResult {
-  const employeeCode = row.cells[0] ?? ""
+  const employeeCode = normalizeEmployeeCode(row.cells[0] ?? "")
   const displayName = row.cells[1] ?? ""
   const teamValue = row.cells[2] === "" || row.cells[2] === undefined
     ? defaultTeam

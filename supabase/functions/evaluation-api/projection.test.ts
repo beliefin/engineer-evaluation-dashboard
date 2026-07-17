@@ -61,6 +61,26 @@ describe("projectSnapshot score adjustment boundary", () => {
     expect(projected.scoreAdjustments).toEqual([])
   })
 
+  it("does not expose evaluator assignment weights in evaluator responses", () => {
+    const snapshot = createSeedSnapshot()
+    const weighted = snapshotSchema.parse({
+      ...snapshot,
+      assignments: snapshot.assignments.map((assignment, index) => ({
+        ...assignment,
+        weight: index % 2 === 0 ? 7 : 3,
+      })),
+    })
+    const projected = projectSnapshot(weighted, {
+      ...PROFILE_BASE,
+      role: "evaluator",
+      engineer_id: null,
+      evaluator_id: "evaluator-01",
+    })
+
+    expect(projected.assignments.length).toBeGreaterThan(0)
+    expect(projected.assignments.every((assignment) => assignment.weight === 1)).toBe(true)
+  })
+
   it("shows an evaluator only schedule events linked to their assignments", () => {
     const snapshot = createSeedSnapshot()
     const owned = snapshot.assignments.find((entry) => entry.evaluatorId === "evaluator-01")
@@ -106,5 +126,46 @@ describe("projectSnapshot score adjustment boundary", () => {
     })
 
     expect(projected.scheduleEvents.map((event) => event.id)).toEqual(["schedule-owned"])
+  })
+
+  it("projects an anonymous recent-presenter benchmark without exposing prior presenters", () => {
+    const snapshot = createSeedSnapshot()
+    const current = snapshot.assignments.find((entry) =>
+      entry.engineerId === "engineer-04" && entry.taskId === "task-growth-plan")
+    if (current === undefined) throw new RangeError("current assignment fixture missing")
+    const presenterIds = ["engineer-01", "engineer-02", "engineer-03", "engineer-04"]
+    const projected = projectSnapshot(snapshotSchema.parse({
+      ...snapshot,
+      scheduleEvents: presenterIds.map((engineerId, index) => ({
+        id: `benchmark-schedule-${index + 1}`,
+        cycleId: current.cycleId,
+        engineerId,
+        taskId: current.taskId,
+        title: "성장탐구계획서 발표",
+        date: `2026-07-${String(index + 1).padStart(2, "0")}`,
+        startTime: "09:00",
+        note: null,
+        createdAt: "2026-07-01T00:00:00.000Z",
+        updatedAt: "2026-07-01T00:00:00.000Z",
+      })),
+      evaluationBenchmarks: [],
+    }), {
+      ...PROFILE_BASE,
+      role: "evaluator",
+      engineer_id: null,
+      evaluator_id: current.evaluatorId,
+    })
+
+    expect(projected.evaluationBenchmarks).toContainEqual(expect.objectContaining({
+      assignmentId: current.id,
+      sampleSize: 3,
+    }))
+    expect(projected.evaluationBenchmarks.find((entry) => entry.assignmentId === current.id))
+      .toEqual(expect.objectContaining({
+        averageScore: expect.any(Number),
+        minScore: expect.any(Number),
+        maxScore: expect.any(Number),
+      }))
+    expect(projected.evaluationBenchmarks[0]).not.toHaveProperty("engineerIds")
   })
 })

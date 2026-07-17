@@ -22,6 +22,7 @@ import type {
   CertificationRecordDraft,
   CertificationRecordViewModel,
 } from "./types"
+import { acquisitionMonthInputValue, acquisitionMonthToStoredDate } from "./acquisition-month"
 
 interface CertificationRecordDialogProps {
   readonly engineerId: string
@@ -45,14 +46,14 @@ export function CertificationRecordDialog({
   const [open, setOpen] = useState(false)
   const [certificateName, setCertificateName] = useState(initial?.certificateName ?? "")
   const [grade, setGrade] = useState(initial?.grade ?? "")
-  const [acquiredOn, setAcquiredOn] = useState(initial?.acquiredOn ?? "")
+  const [acquiredOn, setAcquiredOn] = useState(acquisitionMonthInputValue(initial?.acquiredOn ?? null))
   const [issuer, setIssuer] = useState(initial?.issuer ?? "")
   const [error, setError] = useState<string | null>(null)
 
   function resetForm() {
     setCertificateName(initial?.certificateName ?? "")
     setGrade(initial?.grade ?? "")
-    setAcquiredOn(initial?.acquiredOn ?? "")
+    setAcquiredOn(acquisitionMonthInputValue(initial?.acquiredOn ?? null))
     setIssuer(initial?.issuer ?? "")
     setError(null)
   }
@@ -73,7 +74,7 @@ export function CertificationRecordDialog({
       engineerId,
       certificateName: certificateName.trim(),
       grade: grade.trim() === "" ? null : grade.trim(),
-      acquiredOn: acquiredOn === "" ? null : acquiredOn,
+      acquiredOn: acquisitionMonthToStoredDate(acquiredOn),
       issuer: issuer.trim() === "" ? null : issuer.trim(),
     })
     if (saved) setOpen(false)
@@ -146,11 +147,11 @@ export function CertificationRecordDialog({
               />
             </div>
             <div className="space-y-2">
-              <Label htmlFor="certificate-acquired-on">취득일</Label>
+              <Label htmlFor="certificate-acquired-on">취득 년월</Label>
               <Input
                 id="certificate-acquired-on"
                 onChange={(event) => setAcquiredOn(event.currentTarget.value)}
-                type="date"
+                type="month"
                 value={acquiredOn}
               />
               <p className="text-xs leading-5 text-muted-foreground">

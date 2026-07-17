@@ -82,11 +82,29 @@ export function createEvaluationCycleAction(
         return taskId === undefined ? [] : [{ ...rule, id: createEntityId(context, "score-rule"), cycleId: cycle.id, taskId }]
       })
     : []
+  const derivedRules = parsed.copyConfiguration
+    ? context.snapshot.derivedScoreRules
+      .filter((rule) => rule.cycleId === parsed.sourceCycleId)
+      .flatMap((rule) => {
+        const taskId = clonedTaskIdBySource.get(rule.taskId)
+        const sourceTaskId = clonedTaskIdBySource.get(rule.sourceTaskId)
+        return taskId === undefined || sourceTaskId === undefined
+          ? []
+          : [{
+              ...rule,
+              id: createEntityId(context, "derived-rule"),
+              cycleId: cycle.id,
+              taskId,
+              sourceTaskId,
+            }]
+      })
+    : []
   const baseSnapshot: EvaluationSnapshot = {
     ...context.snapshot,
     cycles: [...context.snapshot.cycles, cycle],
     tasks: [...context.snapshot.tasks, ...tasks],
     directScoreRules: [...context.snapshot.directScoreRules, ...rules],
+    derivedScoreRules: [...context.snapshot.derivedScoreRules, ...derivedRules],
   }
   const artifacts = tasks.map((task) => createBlankTaskArtifacts(
     { ...context, snapshot: baseSnapshot },
@@ -172,13 +190,13 @@ export function deleteEvaluationCycleAction(
   requireOperator(parsed.actor)
   const cycle = requireCycle(context.snapshot, parsed.cycleId)
   if (context.snapshot.cycles.length <= 1) {
-    throw new RepositoryError("INVALID_INPUT", "理쒖냼 ?섎굹???쒖쫵???④굅???놁뒿?덈떎.")
+    throw new RepositoryError("INVALID_INPUT", "최소 하나의 평가 시즌은 유지해야 합니다.")
   }
   if (cycle.locked) {
     throw new RepositoryError("TASK_LOCKED", "잠긴 평가 시즌은 삭제하기 전에 잠금을 해제해야 합니다.")
   }
   if (cycle.status === "active") {
-    throw new RepositoryError("INVALID_INPUT", "吏꾪뻾 以묒씤 ?쒖쫵???좉젣?섏? 紐삵빀?덈떎. 癒쇱? ?ㅼ젙 以묒씠???쒖쫵???좏깮?댁＜?몄슂.")
+    throw new RepositoryError("INVALID_INPUT", "진행 중인 평가 시즌은 삭제할 수 없습니다. 먼저 설정 중 또는 종료 상태로 변경해 주세요.")
   }
   const assignmentIds = new Set(
     context.snapshot.assignments
@@ -188,7 +206,7 @@ export function deleteEvaluationCycleAction(
   if (context.snapshot.scoreSheets.some(
     (sheet) => assignmentIds.has(sheet.assignmentId) && sheet.status === "submitted",
   )) {
-    throw new RepositoryError("TASK_LOCKED", "?쒖텧???됯?媛 ?덈뒗 ?쒖쫵???좉젣?섏? 紐삵빀?덈떎.")
+    throw new RepositoryError("TASK_LOCKED", "제출된 평가가 있는 평가 시즌은 삭제할 수 없습니다.")
   }
   const next = {
     ...context.snapshot,
@@ -196,6 +214,7 @@ export function deleteEvaluationCycleAction(
     tasks: context.snapshot.tasks.filter((task) => task.cycleId !== cycle.id),
     engineerTaskWeights: context.snapshot.engineerTaskWeights.filter((entry) => entry.cycleId !== cycle.id),
     directScoreRules: context.snapshot.directScoreRules.filter((rule) => rule.cycleId !== cycle.id),
+    derivedScoreRules: context.snapshot.derivedScoreRules.filter((rule) => rule.cycleId !== cycle.id),
     assignments: context.snapshot.assignments.filter((entry) => entry.cycleId !== cycle.id),
     scoreSheets: context.snapshot.scoreSheets.filter((entry) => !assignmentIds.has(entry.assignmentId)),
     unlockRequests: context.snapshot.unlockRequests.filter((entry) => entry.cycleId !== cycle.id),

@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, type FormEvent } from "react"
+import { useMemo, useState, type FormEvent } from "react"
 
 import { passwordSchema, usernameSchema, type AuthAccount } from "@/auth"
 import type { Role } from "@/domain"
@@ -60,6 +60,14 @@ export function AccountEditorDialog({
   const [errorMessage, setErrorMessage] = useState<string | null>(null)
   const [fieldErrors, setFieldErrors] = useState<EditorFieldErrors>({})
   const self = account?.id === currentAccountId
+  const linkedInitialPassword = useMemo(() => {
+    if (account !== null) return null
+    const engineerCode = engineerOptions.find((option) => option.id === engineerId)?.employeeCode
+    const evaluatorCode = evaluatorOptions.find((option) => option.id === evaluatorId)?.employeeCode
+    return engineerCode ?? evaluatorCode ?? null
+  }, [account, engineerId, engineerOptions, evaluatorId, evaluatorOptions])
+
+  const effectivePassword = linkedInitialPassword ?? password
 
   function clearFieldError(field: EditorField) {
     setFieldErrors((current) => ({ ...current, [field]: undefined }))
@@ -78,7 +86,7 @@ export function AccountEditorDialog({
     }
     if (account === null) {
       const usernameResult = usernameSchema.safeParse(username)
-      const passwordResult = passwordSchema.safeParse(password)
+      const passwordResult = passwordSchema.safeParse(effectivePassword)
       if (!usernameResult.success) {
         nextErrors.username = usernameResult.error.issues[0]?.message ?? "아이디를 확인해 주세요."
       }
@@ -109,7 +117,7 @@ export function AccountEditorDialog({
           roles,
           evaluatorId: linkedEvaluatorId,
           engineerId: linkedEngineerId,
-          password,
+          password: effectivePassword,
           active,
         })
       : await onUpdate({
@@ -217,7 +225,7 @@ export function AccountEditorDialog({
                   aria-describedby={fieldErrors.password ? "account-password-error" : "account-password-help"}
                   aria-invalid={Boolean(fieldErrors.password)}
                   autoComplete="new-password"
-                  disabled={pending}
+                  disabled={pending || linkedInitialPassword !== null}
                   id="account-password"
                   onChange={(event) => {
                     setPassword(event.currentTarget.value)
@@ -225,12 +233,16 @@ export function AccountEditorDialog({
                   }}
                   required
                   type="password"
-                  value={password}
+                  value={effectivePassword}
                 />
                 {fieldErrors.password ? (
                   <p className="text-xs text-destructive" id="account-password-error">{fieldErrors.password}</p>
                 ) : (
-                  <p className="text-xs text-muted-foreground" id="account-password-help">8자 이상으로 입력합니다.</p>
+                  <p className="text-xs text-muted-foreground" id="account-password-help">
+                    {linkedInitialPassword !== null
+                      ? "연결한 명단의 사번 4자리로 자동 설정됩니다."
+                      : "숫자 또는 문자를 포함해 4자 이상 입력합니다."}
+                  </p>
                 )}
               </div>
             ) : null}

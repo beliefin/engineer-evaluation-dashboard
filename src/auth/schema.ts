@@ -21,7 +21,7 @@ export const usernameSchema = z
 
 export const passwordSchema = z
   .string()
-  .min(8, "비밀번호는 8자 이상 입력해 주세요.")
+  .min(4, "비밀번호는 4자 이상 입력해 주세요.")
   .max(64, "비밀번호는 64자 이하로 입력해 주세요.")
 
 export const loginInputSchema = z.object({
@@ -92,6 +92,7 @@ export const createAccountInputSchema = z.object({
 
 export const updateAccountInputSchema = accountFieldsSchema.and(z.object({ accountId: idSchema }))
 export const resetPasswordInputSchema = z.object({ accountId: idSchema, password: passwordSchema })
+export const changeOwnPasswordInputSchema = z.object({ password: passwordSchema })
 
 export const authAccountRecordSchema = z.object({
   id: idSchema,
@@ -102,6 +103,7 @@ export const authAccountRecordSchema = z.object({
   evaluatorId: idSchema.nullable(),
   engineerId: idSchema.nullable().default(null),
   active: z.boolean(),
+  mustChangePassword: z.boolean().default(true),
   createdAt: z.string().trim().min(1),
   updatedAt: z.string().trim().min(1),
   passwordSalt: idSchema,

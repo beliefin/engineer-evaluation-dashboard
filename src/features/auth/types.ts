@@ -10,8 +10,8 @@ export type AccountActionResult =
   | Readonly<{ ok: true }>
   | Readonly<{ ok: false; message: string; code?: AuthErrorCode }>
 
-export type AuthEvaluatorOption = Readonly<{ id: string; label: string }>
-export type AuthEngineerOption = Readonly<{ id: string; label: string }>
+export type AuthEvaluatorOption = Readonly<{ id: string; label: string; employeeCode: string }>
+export type AuthEngineerOption = Readonly<{ id: string; label: string; employeeCode: string }>
 
 export type AccountManagementProps = Readonly<{
   accounts: ReadonlyArray<AuthAccount>

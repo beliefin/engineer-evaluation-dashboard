@@ -26,6 +26,7 @@ import type {
   LanguageScoreRecordDraft,
   LanguageOptionViewModel,
 } from "./types"
+import { displayAcquisitionMonth } from "./acquisition-month"
 
 interface DirectScoreSourceEditorProps {
   readonly rows: readonly EngineerDirectScoreViewModel[]
@@ -151,7 +152,7 @@ export function DirectScoreSourceEditor({
                     </div>
                   </div>
                   <p className="mt-2 text-xs text-muted-foreground">
-                    취득일 {record.acquiredOn ?? "미입력"}{record.previousResult == null ? "" : ` · 전년도 ${record.previousResult}`}{record.note === null ? "" : ` · ${record.note}`}
+                    취득 년월 {displayAcquisitionMonth(record.acquiredOn)}{record.previousResult == null ? "" : ` · 전년도 ${record.previousResult}`}{record.note === null ? "" : ` · ${record.note}`}
                   </p>
                   <SourceRecordReview status={record.reviewStatus} sourceLabel={record.sourceLabel} updatedAtLabel={record.updatedAtLabel} />
                   {record.reviewStatus === "pending" ? (
@@ -221,7 +222,7 @@ export function DirectScoreSourceEditor({
                     </div>
                   </div>
                   <p className="mt-2 text-xs text-muted-foreground">
-                    취득일 {record.acquiredOn ?? "미입력"}{record.issuer === null ? "" : ` · ${record.issuer}`}
+                    취득 년월 {displayAcquisitionMonth(record.acquiredOn)}{record.issuer === null ? "" : ` · ${record.issuer}`}
                   </p>
                   <SourceRecordReview status={record.reviewStatus} sourceLabel={record.sourceLabel} updatedAtLabel={record.updatedAtLabel} />
                   {record.reviewStatus === "pending" ? (

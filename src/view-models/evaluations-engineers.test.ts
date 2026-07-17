@@ -58,6 +58,36 @@ describe("evaluator-facing selectors", () => {
     expect(form).not.toHaveProperty("weight")
     expect(form).not.toHaveProperty("otherEvaluators")
   })
+
+  it("shows an anonymous recent-presenter benchmark for the same task", () => {
+    const seed = createSeedSnapshot()
+    const taskId = "task-growth-plan"
+    const currentAssignment = seed.assignments.find((assignment) =>
+      assignment.engineerId === "engineer-04" && assignment.taskId === taskId)
+    if (currentAssignment === undefined) throw new RangeError("assignment fixture missing")
+    const scheduleEvents = ["engineer-01", "engineer-02", "engineer-03", "engineer-04"]
+      .map((engineerId, index) => ({
+        id: `benchmark-schedule-${index}`,
+        cycleId: CYCLE_ID,
+        engineerId,
+        taskId,
+        title: "성장탐구계획서 발표",
+        date: `2026-07-${String(index + 1).padStart(2, "0")}`,
+        startTime: "09:00",
+        note: null,
+        createdAt: "2026-07-01T00:00:00.000Z",
+        updatedAt: "2026-07-01T00:00:00.000Z",
+      }))
+
+    const form = selectEvaluationScoreForm(
+      { ...seed, scheduleEvents, evaluationBenchmarks: [] },
+      currentAssignment.id,
+    )
+
+    expect(form?.benchmark).toMatchObject({ sampleSize: 3 })
+    expect(form?.benchmark?.averageScore).toBeGreaterThan(0)
+    expect(form?.benchmark?.minScore).toBeLessThanOrEqual(form?.benchmark?.maxScore ?? 0)
+  })
 })
 
 describe("engineer detail role boundary", () => {
@@ -86,7 +116,10 @@ describe("engineer detail role boundary", () => {
   })
 
   it("keeps a missing direct score distinct from a valid zero", () => {
-    const snapshot = createSeedSnapshot()
+    const snapshot = {
+      ...createSeedSnapshot(),
+      directScoreRules: [],
+    }
     const proposal = snapshot.directScores.find(
       (score) => score.engineerId === "engineer-19" && score.taskId === "task-proposal",
     )
@@ -141,7 +174,7 @@ describe("engineer detail role boundary", () => {
     }, CYCLE_ID, "engineer-01", "operator")
     if (adjusted?.result.status !== "complete") throw new RangeError("adjusted fixture missing")
 
-    expect(adjusted.result.baseScore).toBe(before.result.finalScore)
+    expect(adjusted.result.baseScore).toBeCloseTo(before.result.finalScore)
     expect(adjusted.result.adjustmentTotal).toBe(3)
     expect(adjusted.result.finalScore).toBe(Math.min(100, before.result.finalScore + 3))
     expect(adjusted.result.adjustments).toEqual([

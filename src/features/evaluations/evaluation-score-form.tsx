@@ -1,7 +1,7 @@
 "use client"
 
 import type { FormEvent } from "react"
-import { CheckIcon, InfoIcon, LockKeyholeIcon, UserRoundCogIcon, XIcon } from "lucide-react"
+import { CheckIcon, GaugeIcon, InfoIcon, LockKeyholeIcon, UserRoundCogIcon, XIcon } from "lucide-react"
 
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
 import { Button } from "@/components/ui/button"
@@ -85,6 +85,23 @@ export function EvaluationScoreForm({
               <AlertTitle>운영자 대리 입력 · {viewModel.evaluatorName}</AlertTitle>
               <AlertDescription className="text-primary/90">
                 이 평가자의 평가지에 대신 점수를 입력합니다. 운영자 입력은 저장 후에도 잠기지 않아 계속 수정할 수 있습니다.
+              </AlertDescription>
+            </Alert>
+          </div>
+        ) : null}
+
+        {viewModel.method === "evaluator_score" ? (
+          <div className="border-b border-border-subtle px-4 py-4 md:px-5">
+            <Alert className="border-border bg-muted/30">
+              <GaugeIcon aria-hidden="true" />
+              <AlertTitle>직전 발표 평가 기준점</AlertTitle>
+              <AlertDescription>
+                {viewModel.benchmark == null
+                  ? "같은 과제에서 확정된 직전 발표 점수가 아직 없습니다."
+                  : `최근 ${viewModel.benchmark.sampleSize}명 공식 평균 ${viewModel.benchmark.averageScore.toFixed(1)}점 · 범위 ${viewModel.benchmark.minScore.toFixed(1)}~${viewModel.benchmark.maxScore.toFixed(1)}점`}
+                <span className="mt-1 block text-xs text-muted-foreground">
+                  평가 눈높이를 맞추기 위한 익명 참고값이며, 발표자별 점수와 평가자 가중치는 표시하지 않습니다.
+                </span>
               </AlertDescription>
             </Alert>
           </div>

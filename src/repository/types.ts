@@ -171,6 +171,21 @@ export type DeleteDirectScoreRuleInput = Readonly<{
   actor: RepositoryActor
 }>
 
+export type SaveDerivedScoreRuleInput = Readonly<{
+  ruleId: string | null
+  cycleId: string
+  taskId: string
+  targetEngineerId: string
+  sourceTaskId: string
+  sourceEngineerIds: ReadonlyArray<string>
+  actor: RepositoryActor
+}>
+
+export type DeleteDerivedScoreRuleInput = Readonly<{
+  ruleId: string
+  actor: RepositoryActor
+}>
+
 export type CreateEvaluationCycleInput = NewEvaluationCycleInput & Readonly<{
   sourceCycleId: string
   actor: RepositoryActor
@@ -321,6 +336,8 @@ export interface EvaluationRepository {
   deleteEvaluationCycle(input: DeleteEvaluationCycleInput): EvaluationSnapshot
   saveDirectScoreRule(input: SaveDirectScoreRuleInput): EvaluationSnapshot
   deleteDirectScoreRule(input: DeleteDirectScoreRuleInput): EvaluationSnapshot
+  saveDerivedScoreRule(input: SaveDerivedScoreRuleInput): EvaluationSnapshot
+  deleteDerivedScoreRule(input: DeleteDerivedScoreRuleInput): EvaluationSnapshot
   saveEvaluationTask(input: SaveEvaluationTaskInput): EvaluationSnapshot
   deleteEvaluationTask(input: DeleteEvaluationTaskInput): EvaluationSnapshot
   updateEvaluatorAssignments(input: UpdateEvaluatorAssignmentsInput): EvaluationSnapshot

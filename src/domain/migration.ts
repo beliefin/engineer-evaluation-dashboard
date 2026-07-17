@@ -8,6 +8,7 @@ import type {
 import type { VersionFourEvaluationSnapshot } from "./schema"
 import type { VersionFiveEvaluationSnapshot } from "./schema"
 import type { VersionSixEvaluationSnapshot } from "./schema"
+import type { VersionSevenEvaluationSnapshot } from "./schema"
 import { DEPARTMENTS_BY_TEAM, TEAMS } from "./types"
 import type {
   LegacyEvaluationSnapshot,
@@ -166,7 +167,7 @@ export function migrateVersionThreeSnapshot(
 ): EvaluationSnapshot {
   const tasks = previous.cycles.flatMap((cycle) => tasksForCycle(previous, cycle))
   return {
-    schemaVersion: 7,
+    schemaVersion: 8,
     cycles: previous.cycles.map((cycle) => ({
       id: cycle.id,
       name: cycle.name,
@@ -178,6 +179,8 @@ export function migrateVersionThreeSnapshot(
     tasks,
     engineerTaskWeights: [],
     directScoreRules: [],
+    derivedScoreRules: [],
+    evaluationBenchmarks: [],
     engineers: previous.engineers.map((engineer, index) => ({
       ...engineer,
       team: teamForLegacyValue(engineer.team, index),
@@ -230,9 +233,11 @@ export function migrateVersionFourSnapshot(
   return {
     ...previous,
     ...artifacts,
-    schemaVersion: 7,
+    schemaVersion: 8,
     engineerTaskWeights: [],
     directScoreRules: [],
+    derivedScoreRules: [],
+    evaluationBenchmarks: [],
     scoreAdjustments: [],
     unlockRequests: [],
     engineers: previous.engineers.map((engineer) => ({
@@ -255,9 +260,11 @@ export function migrateVersionFiveSnapshot(
   return {
     ...previous,
     ...artifacts,
-    schemaVersion: 7,
+    schemaVersion: 8,
     scoreAdjustments: [],
     unlockRequests: [],
+    derivedScoreRules: [],
+    evaluationBenchmarks: [],
     engineers: previous.engineers.map((engineer) => ({
       ...engineer,
       ...organizationForTeam(engineer.team),
@@ -277,8 +284,21 @@ export function migrateVersionSixSnapshot(
   return {
     ...previous,
     ...migrateConfiguredArtifacts(previous),
-    schemaVersion: 7,
+    schemaVersion: 8,
     unlockRequests: [],
+    derivedScoreRules: [],
+    evaluationBenchmarks: [],
+  }
+}
+
+export function migrateVersionSevenSnapshot(
+  previous: VersionSevenEvaluationSnapshot,
+): EvaluationSnapshot {
+  return {
+    ...previous,
+    schemaVersion: 8,
+    derivedScoreRules: [],
+    evaluationBenchmarks: [],
   }
 }
 

@@ -169,6 +169,23 @@ export const deleteDirectScoreRuleInputSchema = z.object({
   actor: actorSchema,
 })
 
+export const saveDerivedScoreRuleInputSchema = z.object({
+  ruleId: idSchema.nullable(),
+  cycleId: idSchema,
+  taskId: idSchema,
+  targetEngineerId: idSchema,
+  sourceTaskId: idSchema,
+  sourceEngineerIds: z.array(idSchema).min(1).max(100).refine(
+    (ids) => new Set(ids).size === ids.length,
+  ),
+  actor: actorSchema,
+})
+
+export const deleteDerivedScoreRuleInputSchema = z.object({
+  ruleId: idSchema,
+  actor: actorSchema,
+})
+
 export const saveEvaluationTaskInputSchema = z.object({
   taskId: idSchema.nullable(),
   cycleId: idSchema,

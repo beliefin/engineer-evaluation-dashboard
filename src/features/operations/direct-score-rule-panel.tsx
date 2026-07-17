@@ -8,7 +8,11 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 
 import { OperationPanel } from "./operation-panel"
-import type { DirectScoreRuleDraft, DirectScoreRuleViewModel } from "./types"
+import type {
+  DirectScoreRuleDraft,
+  DirectScoreRuleImpactViewModel,
+  DirectScoreRuleViewModel,
+} from "./types"
 
 type Props = Readonly<{
   rules: readonly DirectScoreRuleViewModel[]
@@ -16,6 +20,7 @@ type Props = Readonly<{
   disabled: boolean
   onSave?: ((rule: DirectScoreRuleDraft) => boolean) | undefined
   onDelete?: ((ruleId: string) => boolean) | undefined
+  onPreview?: ((rule: DirectScoreRuleDraft) => DirectScoreRuleImpactViewModel) | undefined
 }>
 
 type FormState = Readonly<{
@@ -77,9 +82,10 @@ function formatRule(rule: DirectScoreRuleViewModel): string {
   return `${rule.label} · ${rule.value} ${operator} · ${outcome}`
 }
 
-export function DirectScoreRulePanel({ rules, operatorTasks, disabled, onSave, onDelete }: Props) {
+export function DirectScoreRulePanel({ rules, operatorTasks, disabled, onSave, onDelete, onPreview }: Props) {
   const [form, setForm] = useState<FormState>(EMPTY_FORM)
   const [error, setError] = useState<string | null>(null)
+  const [impact, setImpact] = useState<DirectScoreRuleImpactViewModel | null>(null)
 
   function update<K extends keyof FormState>(key: K, value: FormState[K]) {
     setForm((current) => ({ ...current, [key]: value }))
@@ -106,30 +112,32 @@ export function DirectScoreRulePanel({ rules, operatorTasks, disabled, onSave, o
       bonusCondition: rule.bonusCondition ?? "grade_upgrade",
     })
     setError(null)
+    setImpact(null)
   }
 
   function reset() {
     setForm(EMPTY_FORM)
     setError(null)
+    setImpact(null)
   }
 
-  function submit(event: FormEvent<HTMLFormElement>) {
-    event.preventDefault()
+  function draftFromForm(): DirectScoreRuleDraft | null {
     if (form.taskId === "" || form.label.trim() === "" || (form.kind !== "language" || form.ruleType === "base") && form.value.trim() === "") {
       setError("과제, 규칙명, 기준값을 입력해 주세요.")
-      return
+      return null
     }
     if (form.kind === "language" && form.ruleType === "base" && form.examName.trim() === "") {
       setError("어학 기본 점수에는 언어 구분과 시험명을 입력해 주세요.")
-      return
+      return null
     }
     const score = Number(form.score)
     const bonus = Number(form.bonus)
     if (!Number.isFinite(score) || !Number.isFinite(bonus) || score < 0 || score > 110 || bonus < 0 || bonus > 100) {
       setError("기본 점수는 0~110, 가산점은 0~100 사이로 입력해 주세요.")
-      return
+      return null
     }
-    const saved = onSave?.({
+    setError(null)
+    return {
       ruleId: form.ruleId,
       taskId: form.taskId,
       kind: form.kind,
@@ -152,7 +160,14 @@ export function DirectScoreRulePanel({ rules, operatorTasks, disabled, onSave, o
       ...(form.kind === "language" && form.ruleType === "bonus" ? {
         bonusCondition: form.bonusCondition,
       } : {}),
-    }) ?? false
+    }
+  }
+
+  function submit(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault()
+    const draft = draftFromForm()
+    if (draft === null) return
+    const saved = onSave?.(draft) ?? false
     if (saved) reset()
   }
 
@@ -212,7 +227,18 @@ export function DirectScoreRulePanel({ rules, operatorTasks, disabled, onSave, o
           </div>
           <label className="flex items-center gap-2 text-sm"><input checked={form.enabled} className="size-4 accent-primary" disabled={disabled} onChange={(event) => update("enabled", event.currentTarget.checked)} type="checkbox" />이 규칙 사용</label>
           {error !== null ? <p className="text-sm text-destructive" role="alert">{error}</p> : null}
-          <Button disabled={disabled || operatorTasks.length === 0} type="submit"><Plus aria-hidden="true" />{form.ruleId === null ? "환산 규칙 저장" : "수정 저장"}</Button>
+          <div className="flex flex-wrap gap-2">
+            <Button disabled={disabled || operatorTasks.length === 0 || onPreview === undefined} onClick={() => { const draft = draftFromForm(); if (draft !== null) setImpact(onPreview?.(draft) ?? null) }} type="button" variant="outline">변경 영향 미리보기</Button>
+            <Button disabled={disabled || operatorTasks.length === 0} type="submit"><Plus aria-hidden="true" />{form.ruleId === null ? "환산 규칙 저장" : "수정 저장"}</Button>
+          </div>
+          {impact === null ? null : (
+            <section aria-live="polite" className="space-y-2 rounded-md border bg-background p-3">
+              <div className="flex items-center justify-between gap-3"><p className="text-sm font-semibold">변경 예상 영향</p><Badge variant={impact.affectedCount === 0 ? "outline" : "secondary"}>{impact.affectedCount}명</Badge></div>
+              {impact.rows.length === 0 ? <p className="text-xs text-muted-foreground">현재 등록된 원천 실적에는 점수 변화가 없습니다.</p> : (
+                <div className="max-h-52 overflow-auto"><table className="w-full text-left text-xs"><thead><tr className="border-b"><th className="py-2">엔지니어</th><th className="py-2 text-right">과제 전 → 후</th><th className="py-2 text-right">최종 전 → 후</th></tr></thead><tbody>{impact.rows.map((row) => <tr className="border-b last:border-0" key={row.engineerId}><td className="py-2 font-medium">{row.engineerName}</td><td className="numeric py-2 text-right">{row.currentTaskScore?.toFixed(1) ?? "미확정"} → {row.proposedTaskScore?.toFixed(1) ?? "미확정"}</td><td className="numeric py-2 text-right">{row.currentFinalScore?.toFixed(2) ?? "미확정"} → {row.proposedFinalScore?.toFixed(2) ?? "미확정"}</td></tr>)}</tbody></table></div>
+              )}
+            </section>
+          )}
         </form>
 
         <div className="space-y-3">

@@ -6,7 +6,9 @@ import {
   BarChart3Icon,
   CalendarDaysIcon,
   ClipboardCheckIcon,
+  DatabaseBackupIcon,
   GaugeIcon,
+  FileTextIcon,
   ListChecksIcon,
   Settings2Icon,
   UsersRoundIcon,
@@ -85,6 +87,13 @@ const NAV_ITEMS: readonly NavItem[] = [
     roles: ["operator", "approver"],
   },
   {
+    href: "/reports/season",
+    label: "운영 보고서",
+    description: "시즌 결과 문서 출력",
+    Icon: FileTextIcon,
+    roles: ["operator", "approver"],
+  },
+  {
     href: "/operations",
     label: "운영 설정",
     description: "점수와 가중치 관리",
@@ -96,6 +105,13 @@ const NAV_ITEMS: readonly NavItem[] = [
     label: "계정 관리",
     description: "로그인과 역할 권한 관리",
     Icon: UsersRoundIcon,
+    roles: ["operator"],
+  },
+  {
+    href: "/maintenance",
+    label: "백업 및 이력",
+    description: "상태 복구와 변경 추적",
+    Icon: DatabaseBackupIcon,
     roles: ["operator"],
   },
 ]

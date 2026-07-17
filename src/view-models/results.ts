@@ -1,5 +1,5 @@
 import {
-  calculateEngineerResult,
+  calculateSeasonResults,
   type Engineer,
   type EngineerResult,
   type EvaluationSnapshot,
@@ -35,30 +35,12 @@ export function selectEngineerResultSummaries(
   const cycle = snapshot.cycles.find((entry) => entry.id === cycleId)
   if (cycle === undefined) return []
 
-  return snapshot.engineers.map((engineer) => {
-    const assignments = snapshot.assignments.filter(
-      (assignment) =>
-        assignment.cycleId === cycleId && assignment.engineerId === engineer.id,
-    )
-    const directScores = snapshot.directScores.filter(
-      (score) => score.cycleId === cycleId && score.engineerId === engineer.id,
-    )
-    const tasks = snapshot.tasks.filter((task) => task.cycleId === cycleId)
-    const result = calculateEngineerResult({
-      cycleId,
-      cycleStartsAt: cycle.startsAt,
-      engineerId: engineer.id,
-      tasks,
-      assignments,
-      sheets: snapshot.scoreSheets,
-      directScores,
-      engineerTaskWeights: snapshot.engineerTaskWeights,
-      directScoreRules: snapshot.directScoreRules,
-      languageRecords: snapshot.languageScoreRecords,
-      certificationRecords: snapshot.certificationRecords,
-      scoreAdjustments: snapshot.scoreAdjustments,
-    })
-
+  const resultByEngineer = new Map(
+    calculateSeasonResults(snapshot, cycleId).map((result) => [result.engineerId, result]),
+  )
+  return snapshot.engineers.flatMap((engineer) => {
+    const result = resultByEngineer.get(engineer.id)
+    if (result === undefined) return []
     return {
       engineer,
       result,

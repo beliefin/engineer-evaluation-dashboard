@@ -10,6 +10,7 @@ import {
 } from "@/features/operations"
 import { useAuth, useEvaluation } from "@/providers"
 import { selectOperationsViewModel } from "@/view-models/operations"
+import { selectDirectScoreRuleImpact } from "@/view-models/direct-score-rule-impact"
 
 export function OperationsScreen() {
   const { accounts } = useAuth()
@@ -46,6 +47,8 @@ export function OperationsScreen() {
     resetDemoData,
     saveDirectScoreRule,
     deleteDirectScoreRule,
+    saveDerivedScoreRule,
+    deleteDerivedScoreRule,
   } = useEvaluation()
   const requestedTab = parseOperationsTab(searchParams.get("tab"))
   const urlTab = backendMode === "supabase" && requestedTab === "reset" ? "roster" : requestedTab
@@ -116,6 +119,9 @@ export function OperationsScreen() {
       onEngineerTaskWeightsChange={updateEngineerTaskWeights}
       onSaveDirectScoreRule={saveDirectScoreRule}
       onDeleteDirectScoreRule={deleteDirectScoreRule}
+      onPreviewDirectScoreRule={(rule) => selectDirectScoreRuleImpact(snapshot, activeCycleId, rule)}
+      onSaveDerivedScoreRule={saveDerivedScoreRule}
+      onDeleteDerivedScoreRule={deleteDerivedScoreRule}
       onTabChange={changeTab}
       showReset={backendMode === "local"}
       viewModel={model}
@@ -129,6 +135,7 @@ function parseOperationsTab(value: string | null): OperationsTab {
     value === "tasks" ||
     value === "assignments" ||
     value === "weights" ||
+    value === "derived" ||
     value === "scores" ||
     value === "scoreTables" ||
     value === "adjustments" ||

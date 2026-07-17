@@ -154,3 +154,26 @@
     animation-iteration-count: 1 !important;
   }
 }
+
+@media print {
+  @page {
+    size: A4 portrait;
+    margin: 14mm;
+  }
+
+  body {
+    background: #ffffff;
+  }
+
+  .season-report {
+    font-size: 10pt;
+  }
+
+  .season-report table {
+    break-inside: auto;
+  }
+
+  .season-report thead {
+    display: table-header-group;
+  }
+}

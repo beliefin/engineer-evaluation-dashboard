@@ -1,4 +1,5 @@
 import {
+  calculateTaskResult,
   resolveEngineerTaskWeight,
   type EvaluationSnapshot,
   type ScoreSheet,
@@ -20,6 +21,65 @@ export type ScoreFormSelectorState = Readonly<{
 const DEFAULT_SCORE_FORM_STATE: ScoreFormSelectorState = {
   autosaveStatus: "idle",
   proxyEntry: false,
+}
+
+function scheduleKey(date: string, startTime: string | null): string {
+  return `${date}T${startTime ?? "23:59"}`
+}
+
+function selectRecentPresenterBenchmark(
+  snapshot: EvaluationSnapshot,
+  assignmentId: string,
+): Exclude<EvaluationScoreFormViewModel["benchmark"], undefined> {
+  const projected = snapshot.evaluationBenchmarks.find(
+    (benchmark) => benchmark.assignmentId === assignmentId,
+  )
+  if (projected !== undefined) return projected
+  const assignment = snapshot.assignments.find((entry) => entry.id === assignmentId)
+  if (assignment === undefined) return null
+  const task = snapshot.tasks.find((entry) => entry.id === assignment.taskId)
+  if (task?.method !== "evaluator_score") return null
+  const current = snapshot.scheduleEvents
+    .filter((event) =>
+      event.cycleId === assignment.cycleId &&
+      event.engineerId === assignment.engineerId &&
+      event.taskId === assignment.taskId)
+    .toSorted((left, right) => scheduleKey(left.date, left.startTime).localeCompare(
+      scheduleKey(right.date, right.startTime),
+    ))[0]
+  if (current === undefined) return null
+  const seen = new Set<string>()
+  const scores = snapshot.scheduleEvents
+    .filter((event) =>
+      event.cycleId === assignment.cycleId &&
+      event.taskId === assignment.taskId &&
+      event.engineerId !== assignment.engineerId &&
+      scheduleKey(event.date, event.startTime) < scheduleKey(current.date, current.startTime))
+    .toSorted((left, right) => scheduleKey(right.date, right.startTime).localeCompare(
+      scheduleKey(left.date, left.startTime),
+    ))
+    .flatMap((event) => {
+      if (seen.has(event.engineerId)) return []
+      seen.add(event.engineerId)
+      const score = calculateTaskResult(
+        task,
+        snapshot.assignments.filter((entry) =>
+          entry.cycleId === assignment.cycleId &&
+          entry.engineerId === event.engineerId &&
+          entry.taskId === task.id),
+        snapshot.scoreSheets,
+        [],
+      ).score
+      return score === null ? [] : [score]
+    })
+    .slice(0, 3)
+  if (scores.length === 0) return null
+  return {
+    sampleSize: scores.length,
+    averageScore: scores.reduce((total, score) => total + score, 0) / scores.length,
+    minScore: Math.min(...scores),
+    maxScore: Math.max(...scores),
+  }
 }
 
 function answeredCount(sheet: ScoreSheet | undefined): number {
@@ -159,5 +219,6 @@ export function selectEvaluationScoreForm(
     lastSavedAtLabel: formatTimestamp(sheet?.updatedAt ?? null),
     submittedAtLabel: formatTimestamp(sheet?.submittedAt ?? null),
     locked: sheet?.status === "submitted" && !state.proxyEntry,
+    benchmark: selectRecentPresenterBenchmark(snapshot, assignmentId),
   }
 }

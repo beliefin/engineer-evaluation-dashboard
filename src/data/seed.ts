@@ -42,7 +42,7 @@ function stateAt(index: number): SampleState {
 function createEngineers(): ReadonlyArray<Engineer> {
   return Array.from({ length: 24 }, (_, index) => ({
     id: `engineer-${String(index + 1).padStart(2, "0")}`,
-    employeeCode: `SAMPLE-${String(index + 1).padStart(3, "0")}`,
+    employeeCode: String(1001 + index),
     displayName: `샘플 엔지니어 ${String(index + 1).padStart(2, "0")}`,
     division: "1부문",
     team: itemAt(TEAMS, index),
@@ -220,7 +220,7 @@ export function createSeedSnapshot(): EvaluationSnapshot {
   const bundle = createAssignmentBundle(engineers)
   const achievements = createSampleAchievementRecords(engineers)
   return evaluationSnapshotSchema.parse({
-    schemaVersion: 7,
+    schemaVersion: 8,
     cycles: [{
       id: CYCLE_ID,
       name: "2026 상반기",
@@ -286,6 +286,8 @@ export function createSeedSnapshot(): EvaluationSnapshot {
         bonusCondition: entry.condition,
       })),
     ],
+    derivedScoreRules: [],
+    evaluationBenchmarks: [],
     engineers,
     evaluators: EVALUATORS,
     assignments: bundle.assignments,

@@ -16,6 +16,7 @@ const ACCOUNTS: readonly AuthAccount[] = [
     evaluatorId: null,
     engineerId: null,
     active: true,
+    mustChangePassword: false,
     createdAt: "2026-07-15T00:00:00.000Z",
     updatedAt: "2026-07-15T00:00:00.000Z",
   },
@@ -28,6 +29,7 @@ const ACCOUNTS: readonly AuthAccount[] = [
     evaluatorId: "evaluator-01",
     engineerId: null,
     active: true,
+    mustChangePassword: true,
     createdAt: "2026-07-15T00:00:00.000Z",
     updatedAt: "2026-07-15T00:00:00.000Z",
   },
@@ -37,12 +39,12 @@ const BASE_PROPS = {
   accounts: ACCOUNTS,
   currentAccountId: "account-operator",
   evaluatorOptions: [
-    { id: "evaluator-01", label: "샘플 평가자 01" },
-    { id: "evaluator-02", label: "샘플 평가자 02" },
+    { id: "evaluator-01", label: "샘플 평가자 01", employeeCode: "9001" },
+    { id: "evaluator-02", label: "샘플 평가자 02", employeeCode: "9002" },
   ],
   engineerOptions: [
-    { id: "engineer-01", label: "샘플 엔지니어 01" },
-    { id: "engineer-02", label: "샘플 엔지니어 02" },
+    { id: "engineer-01", label: "샘플 엔지니어 01", employeeCode: "1001" },
+    { id: "engineer-02", label: "샘플 엔지니어 02", employeeCode: "1002" },
   ],
   onCreate: vi.fn().mockResolvedValue({ ok: true }),
   onDelete: vi.fn().mockResolvedValue({ ok: true }),
@@ -84,7 +86,7 @@ describe("AccountManagementPanel", () => {
       roles: ["evaluator"],
       evaluatorId: "evaluator-02",
       engineerId: null,
-      password: "Evaluate2026",
+      password: "9002",
       active: true,
     })
   })
@@ -109,7 +111,7 @@ describe("AccountManagementPanel", () => {
       roles: ["evaluator", "engineer"],
       evaluatorId: "evaluator-02",
       engineerId: "engineer-02",
-      password: "31019467",
+      password: "1002",
       active: true,
     })
   })
@@ -163,7 +165,7 @@ describe("AccountManagementPanel", () => {
       roles: ["engineer"],
       evaluatorId: null,
       engineerId: "engineer-02",
-      password: "Engineer!2026",
+      password: "1002",
       active: true,
     })
   })

@@ -47,7 +47,7 @@ export function AppTopbar({
   actorLabel,
 }: AppTopbarProps) {
   return (
-    <header className="sticky top-0 z-40 flex h-[52px] items-center border-b border-border bg-card px-3 sm:px-4 lg:px-6">
+    <header className="sticky top-0 z-40 flex h-[52px] items-center border-b border-border bg-card px-3 print:hidden sm:px-4 lg:px-6">
       <div className="flex min-w-0 flex-1 items-center gap-2 lg:hidden">
         <MobileMenu
           activeCycleId={activeCycleId}

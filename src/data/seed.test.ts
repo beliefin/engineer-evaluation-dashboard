@@ -10,7 +10,7 @@ describe("createSeedSnapshot", () => {
     const snapshot = createSeedSnapshot()
 
     // Then
-    expect(snapshot.schemaVersion).toBe(7)
+    expect(snapshot.schemaVersion).toBe(8)
     expect(snapshot.cycles).toEqual([
       expect.objectContaining({ name: "2026 상반기", status: "active" }),
     ])

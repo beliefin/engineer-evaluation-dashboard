@@ -52,7 +52,7 @@ describe("DirectScoreSourceEditor", () => {
     await user.click(screen.getByRole("button", { name: "어학 성적 추가" }))
     await user.selectOptions(screen.getByLabelText("시험명"), "OPIc")
     await user.selectOptions(screen.getByLabelText("점수 또는 등급"), "IH")
-    await user.type(screen.getByLabelText("취득일"), "2026-03-14")
+    await user.type(screen.getByLabelText("취득 년월"), "2026-03")
     await user.click(screen.getByRole("button", { name: "저장" }))
 
     expect(callbacks.onSaveLanguageRecord).toHaveBeenCalledWith({
@@ -64,7 +64,7 @@ describe("DirectScoreSourceEditor", () => {
       result: "IH",
       previousResult: null,
       newlyAcquired: false,
-      acquiredOn: "2026-03-14",
+      acquiredOn: "2026-03-01",
       note: null,
     })
   })
@@ -83,7 +83,7 @@ describe("DirectScoreSourceEditor", () => {
 
     await user.click(screen.getByRole("button", { name: "자격증 추가" }))
     await user.selectOptions(screen.getByLabelText("자격증명"), "산업안전기사")
-    await user.type(screen.getByLabelText("취득일"), "2026-04-01")
+    await user.type(screen.getByLabelText("취득 년월"), "2026-04")
     await user.click(screen.getByRole("button", { name: "저장" }))
 
     expect(callbacks.onSaveCertificationRecord).toHaveBeenCalledWith(expect.objectContaining({

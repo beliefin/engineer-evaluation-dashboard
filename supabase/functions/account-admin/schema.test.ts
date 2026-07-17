@@ -3,6 +3,13 @@ import { describe, expect, it } from "vitest"
 import { requestSchema, validateRoleLink } from "./schema"
 
 describe("account admin dual-role schema", () => {
+  it("accepts a four-character password for the relaxed local policy", () => {
+    expect(requestSchema.safeParse({
+      operation: "reset_password",
+      accountId: "00000000-0000-4000-8000-000000000001",
+      password: "1234",
+    }).success).toBe(true)
+  })
   it("accepts evaluator and engineer links on one account", () => {
     const request = requestSchema.parse({
       operation: "create",

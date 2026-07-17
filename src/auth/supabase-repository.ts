@@ -7,6 +7,7 @@ import type {
   AuthAccount,
   AuthErrorCode,
   AuthRepository,
+  ChangeOwnPasswordInput,
   CreateAccountInput,
   LoginInput,
   ResetPasswordInput,
@@ -20,16 +21,17 @@ const profileSchema = z.object({
   role: z.enum(["operator", "evaluator", "approver", "engineer"]),
   roles: z.array(z.enum(["operator", "evaluator", "approver", "engineer"])).min(1),
   evaluator_id: z.string().nullable(), engineer_id: z.string().nullable(), active: z.boolean(),
-  created_at: z.string(), updated_at: z.string(),
+  must_change_password: z.boolean(), created_at: z.string(), updated_at: z.string(),
 })
 const accountSchema = z.object({
   id: z.string().uuid(), username: z.string(), displayName: z.string(),
   role: z.enum(["operator", "evaluator", "approver", "engineer"]),
   roles: z.array(z.enum(["operator", "evaluator", "approver", "engineer"])).min(1),
   evaluatorId: z.string().nullable(), engineerId: z.string().nullable(), active: z.boolean(),
-  createdAt: z.string(), updatedAt: z.string(),
+  mustChangePassword: z.boolean(), createdAt: z.string(), updatedAt: z.string(),
 })
 const accountsResponseSchema = z.object({ accounts: z.array(accountSchema) })
+const ownAccountResponseSchema = z.object({ account: accountSchema })
 
 function publicAccount(profile: z.infer<typeof profileSchema>): AuthAccount {
   return {
@@ -41,6 +43,7 @@ function publicAccount(profile: z.infer<typeof profileSchema>): AuthAccount {
     evaluatorId: profile.evaluator_id,
     engineerId: profile.engineer_id,
     active: profile.active,
+    mustChangePassword: profile.must_change_password,
     createdAt: profile.created_at,
     updatedAt: profile.updated_at,
   }
@@ -112,6 +115,18 @@ class SupabaseAuthRepository implements AuthRepository {
 
   async resetPassword(input: ResetPasswordInput): Promise<ReadonlyArray<AuthAccount>> {
     return this.invoke({ operation: "reset_password", ...input })
+  }
+
+  async changeOwnPassword(input: ChangeOwnPasswordInput): Promise<AuthAccount> {
+    try {
+      return (await invokeAuthenticated(
+        "account-admin",
+        { operation: "change_own_password", ...input },
+        ownAccountResponseSchema,
+      )).account
+    } catch (error) {
+      throw authFailure(error)
+    }
   }
 
   async deleteAccount(accountId: string): Promise<ReadonlyArray<AuthAccount>> {

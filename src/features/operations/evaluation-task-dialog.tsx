@@ -38,6 +38,7 @@ const METHOD_LABELS: Readonly<Record<EvaluationMethod, string>> = {
   evaluator_pass_fail: "평가자 P/F형",
   operator_score: "운영자 점수 입력",
   operator_pass_fail: "운영자 P/F 입력",
+  derived_score: "연계 점수 평균",
 }
 
 type Props = Readonly<{
@@ -51,6 +52,7 @@ function isEvaluationMethod(value: string): value is EvaluationMethod {
     || value === "evaluator_pass_fail"
     || value === "operator_score"
     || value === "operator_pass_fail"
+    || value === "derived_score"
 }
 
 export function EvaluationTaskDialog({ initial, disabled, onSave }: Props) {

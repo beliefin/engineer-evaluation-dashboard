@@ -118,6 +118,9 @@ export function deleteEngineerAction(
     engineerTaskWeights: context.snapshot.engineerTaskWeights.filter(
       (entry) => entry.engineerId !== parsed.engineerId,
     ),
+    derivedScoreRules: context.snapshot.derivedScoreRules.filter((rule) =>
+      rule.targetEngineerId !== parsed.engineerId &&
+      !rule.sourceEngineerIds.includes(parsed.engineerId)),
     assignments: context.snapshot.assignments.filter(
       (assignment) => assignment.engineerId !== parsed.engineerId,
     ),

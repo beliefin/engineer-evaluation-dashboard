@@ -23,6 +23,7 @@ import type {
   LanguageScoreRecordDraft,
   LanguageScoreRecordViewModel,
 } from "./types"
+import { acquisitionMonthInputValue, acquisitionMonthToStoredDate } from "./acquisition-month"
 
 interface LanguageRecordDialogProps {
   readonly engineerId: string
@@ -48,7 +49,7 @@ export function LanguageRecordDialog({
   const [result, setResult] = useState(initial?.result ?? "")
   const [previousResult, setPreviousResult] = useState(initial?.previousResult ?? "")
   const [newlyAcquired, setNewlyAcquired] = useState(initial?.newlyAcquired ?? false)
-  const [acquiredOn, setAcquiredOn] = useState(initial?.acquiredOn ?? "")
+  const [acquiredOn, setAcquiredOn] = useState(acquisitionMonthInputValue(initial?.acquiredOn ?? null))
   const [note, setNote] = useState(initial?.note ?? "")
   const [error, setError] = useState<string | null>(null)
 
@@ -59,7 +60,7 @@ export function LanguageRecordDialog({
     setResult(initial?.result ?? "")
     setPreviousResult(initial?.previousResult ?? "")
     setNewlyAcquired(initial?.newlyAcquired ?? false)
-    setAcquiredOn(initial?.acquiredOn ?? "")
+    setAcquiredOn(acquisitionMonthInputValue(initial?.acquiredOn ?? null))
     setNote(initial?.note ?? "")
     setError(null)
   }
@@ -84,7 +85,7 @@ export function LanguageRecordDialog({
       result: result.trim(),
       previousResult: previousResult.trim() === "" ? null : previousResult.trim(),
       newlyAcquired: languageGroup === "second_language" && newlyAcquired,
-      acquiredOn: acquiredOn === "" ? null : acquiredOn,
+      acquiredOn: acquisitionMonthToStoredDate(acquiredOn),
       note: note.trim() === "" ? null : note.trim(),
     })
     if (saved) setOpen(false)
@@ -143,16 +144,16 @@ export function LanguageRecordDialog({
               ) : <Input id="language-previous-result" inputMode="numeric" maxLength={100} onChange={(event) => setPreviousResult(event.currentTarget.value)} placeholder="없으면 비워두기" value={previousResult} />}
             </div>
             <div className="space-y-2">
-              <Label htmlFor="language-acquired-on">취득일</Label>
+              <Label htmlFor="language-acquired-on">취득 년월</Label>
               <Input
                 id="language-acquired-on"
                 onChange={(event) => setAcquiredOn(event.currentTarget.value)}
-                type="date"
+                type="month"
                 value={acquiredOn}
               />
             </div>
             {languageGroup === "second_language" ? <label className="flex items-center gap-2 text-sm sm:col-span-2"><input checked={newlyAcquired} className="size-4 accent-primary" onChange={(event) => setNewlyAcquired(event.currentTarget.checked)} type="checkbox" />이번 평가연도에 IM1 이상 신규 취득</label> : null}
-            <p className="text-xs leading-5 text-muted-foreground sm:col-span-2">전년도 결과가 있고 현재 환산 등급이 높아진 경우 등급 상향 가점이 1회 적용됩니다. 제2외국어 신규 취득은 취득일이 평가연도에 포함되어야 합니다.</p>
+            <p className="text-xs leading-5 text-muted-foreground sm:col-span-2">전년도 결과가 있고 현재 환산 등급이 높아진 경우 등급 상향 가점이 1회 적용됩니다. 제2외국어 신규 취득은 취득 년월이 평가연도에 포함되어야 합니다.</p>
             <div className="space-y-2 sm:col-span-2">
               <Label htmlFor="language-note">메모</Label>
               <Textarea

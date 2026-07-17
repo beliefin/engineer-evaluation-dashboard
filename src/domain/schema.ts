@@ -17,6 +17,8 @@ import {
 const idSchema = z.string().trim().min(1)
 const timestampSchema = z.string().trim().min(1)
 const scoreValueSchema = z.number().int().min(0).max(10).nullable()
+const employeeCodeSchema = z.string().trim().min(1).transform((value) =>
+  /^3101\d{4}$/.test(value) ? value.slice(4) : value)
 
 export const roleSchema = z.enum(ROLES)
 export const teamSchema = z.enum(TEAMS)
@@ -39,7 +41,7 @@ export const evaluationCycleSchema = z.object({
 
 const versionFiveEngineerSchema = z.object({
   id: idSchema,
-  employeeCode: z.string().trim().min(1),
+  employeeCode: employeeCodeSchema,
   displayName: z.string().trim().min(1),
   team: teamSchema,
   position: z.string().trim().min(1),
@@ -47,7 +49,7 @@ const versionFiveEngineerSchema = z.object({
 
 const versionFiveEvaluatorSchema = z.object({
   id: idSchema,
-  employeeCode: z.string().trim().min(1),
+  employeeCode: employeeCodeSchema,
   displayName: z.string().trim().min(1),
   team: teamSchema,
 })
@@ -155,6 +157,27 @@ export const directScoreRuleSchema = z.object({
   languageGroup: z.enum(LANGUAGE_GROUPS).nullable().optional(),
   examName: z.string().trim().min(1).max(100).nullable().optional(),
   bonusCondition: z.enum(LANGUAGE_BONUS_CONDITIONS).nullable().optional(),
+})
+
+export const derivedScoreRuleSchema = z.object({
+  id: idSchema,
+  cycleId: idSchema,
+  taskId: idSchema,
+  targetEngineerId: idSchema,
+  sourceTaskId: idSchema,
+  sourceEngineerIds: z.array(idSchema).min(1).max(100).refine(
+    (ids) => new Set(ids).size === ids.length,
+    "원천 엔지니어를 중복 선택할 수 없습니다.",
+  ),
+  aggregation: z.literal("average"),
+})
+
+export const evaluationBenchmarkSchema = z.object({
+  assignmentId: idSchema,
+  sampleSize: z.number().int().min(1).max(3),
+  averageScore: z.number().min(0).max(100),
+  minScore: z.number().min(0).max(100),
+  maxScore: z.number().min(0).max(100),
 })
 
 const legacyAssignmentSchema = z.object({
@@ -265,6 +288,8 @@ export const auditEventSchema = z.object({
     "sheet_reopened",
     "sheet_unlock_requested",
     "direct_score_updated",
+    "derived_score_rule_saved",
+    "derived_score_rule_deleted",
     "score_adjustment_saved",
     "score_adjustment_deleted",
     "language_record_saved",
@@ -341,7 +366,7 @@ export const versionSixEvaluationSnapshotSchema = z.object({
 })
 export type VersionSixEvaluationSnapshot = z.infer<typeof versionSixEvaluationSnapshotSchema>
 
-export const evaluationSnapshotSchema = z.object({
+export const versionSevenEvaluationSnapshotSchema = z.object({
   schemaVersion: z.literal(7),
   ...versionFourSnapshotFields,
   tasks: z.array(evaluationTaskSchema),
@@ -351,6 +376,23 @@ export const evaluationSnapshotSchema = z.object({
   unlockRequests: z.array(sheetUnlockRequestSchema).default([]),
   engineerTaskWeights: z.array(engineerTaskWeightSchema),
   directScoreRules: z.array(directScoreRuleSchema).default([]),
+  departmentCatalog: z.array(departmentCatalogEntrySchema).default([]),
+  scoreAdjustments: z.array(engineerScoreAdjustmentSchema).default([]),
+})
+export type VersionSevenEvaluationSnapshot = z.infer<typeof versionSevenEvaluationSnapshotSchema>
+
+export const evaluationSnapshotSchema = z.object({
+  schemaVersion: z.literal(8),
+  ...versionFourSnapshotFields,
+  tasks: z.array(evaluationTaskSchema),
+  engineers: z.array(engineerSchema),
+  evaluators: z.array(evaluatorSchema),
+  assignments: z.array(assignmentSchema),
+  unlockRequests: z.array(sheetUnlockRequestSchema).default([]),
+  engineerTaskWeights: z.array(engineerTaskWeightSchema),
+  directScoreRules: z.array(directScoreRuleSchema).default([]),
+  derivedScoreRules: z.array(derivedScoreRuleSchema).default([]),
+  evaluationBenchmarks: z.array(evaluationBenchmarkSchema).default([]),
   departmentCatalog: z.array(departmentCatalogEntrySchema).default([]),
   scoreAdjustments: z.array(engineerScoreAdjustmentSchema).default([]),
 })

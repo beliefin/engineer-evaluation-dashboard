@@ -8,6 +8,7 @@ import { CycleCreatorPanel } from "./cycle-creator-panel"
 import { DirectScoreEditor } from "./direct-score-editor"
 import { DirectScoreSourceEditor } from "./direct-score-source-editor"
 import { DirectScoreRulePanel } from "./direct-score-rule-panel"
+import { DerivedScoreRulePanel } from "./derived-score-rule-panel"
 import { EvaluationTaskPanel } from "./evaluation-task-panel"
 import { EvaluatorAssignmentPanel } from "./evaluator-assignment-panel"
 import { EngineerTaskWeightPanel } from "./engineer-task-weight-panel"
@@ -35,6 +36,9 @@ export function OperationsConsole({
   onDeleteLanguageRecord,
   onSaveDirectScoreRule,
   onDeleteDirectScoreRule,
+  onPreviewDirectScoreRule,
+  onSaveDerivedScoreRule,
+  onDeleteDerivedScoreRule,
   onSaveCertificationRecord,
   onDeleteCertificationRecord,
   onVerifySourceRecord,
@@ -79,6 +83,7 @@ export function OperationsConsole({
             value === "tasks" ||
             value === "assignments" ||
             value === "weights" ||
+            value === "derived" ||
             value === "scores" ||
             value === "scoreTables" ||
             value === "adjustments" ||
@@ -97,6 +102,7 @@ export function OperationsConsole({
             <TabsTrigger value="tasks">과제 구성</TabsTrigger>
             <TabsTrigger value="assignments">평가자 배정</TabsTrigger>
             <TabsTrigger value="weights">개인별 가중치</TabsTrigger>
+            <TabsTrigger value="derived">연계·파생 점수</TabsTrigger>
             <TabsTrigger value="scores">자격, 어학 입력</TabsTrigger>
             <TabsTrigger value="scoreTables">자격·어학 평가표</TabsTrigger>
             <TabsTrigger value="adjustments">개인 총점 가·감점</TabsTrigger>
@@ -160,6 +166,17 @@ export function OperationsConsole({
             rows={viewModel.engineerTaskWeights}
           />
         </TabsContent>
+        <TabsContent value="derived">
+          <DerivedScoreRulePanel
+            derivedTasks={viewModel.derivedTasks ?? []}
+            disabled={disabled || viewModel.cycleLocked}
+            engineers={viewModel.derivedEngineerOptions ?? []}
+            onDelete={onDeleteDerivedScoreRule}
+            onSave={onSaveDerivedScoreRule}
+            rules={viewModel.derivedScoreRules ?? []}
+            sourceTasks={viewModel.derivedSourceTasks ?? []}
+          />
+        </TabsContent>
         <TabsContent value="scores">
           <div className="space-y-4">
             <DirectScoreSourceEditor
@@ -187,6 +204,7 @@ export function OperationsConsole({
           <DirectScoreRulePanel
             disabled={disabled || viewModel.cycleLocked}
             onDelete={onDeleteDirectScoreRule}
+            onPreview={onPreviewDirectScoreRule}
             onSave={onSaveDirectScoreRule}
             operatorTasks={viewModel.operatorTasks ?? []}
             rules={viewModel.directScoreRules ?? []}

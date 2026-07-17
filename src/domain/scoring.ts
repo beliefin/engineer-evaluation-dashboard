@@ -3,10 +3,12 @@ import type {
   CertificationRecord,
   DirectScore,
   DirectScoreRule,
+  DerivedScoreRule,
   EngineerTaskWeight,
   EngineerResult,
   EngineerScoreAdjustment,
   EvaluationTask,
+  EvaluationSnapshot,
   EvaluatorAssignment,
   LanguageScoreRecord,
   RankedEngineerResult,
@@ -40,6 +42,7 @@ export function scoreSheetValue(task: EvaluationTask, sheet: ScoreSheet): number
       return sheet.passResult === null ? null : sheet.passResult ? 100 : 0
     case "operator_score":
     case "operator_pass_fail":
+    case "derived_score":
       return null
     default:
       return assertNever(task.method)
@@ -94,6 +97,17 @@ export function calculateTaskResult(
   certificationRecords: ReadonlyArray<CertificationRecord> = [],
   cycleStartsAt?: string,
 ): TaskResult {
+  if (task.method === "derived_score") {
+    return {
+      taskId: task.id,
+      method: task.method,
+      status: "incomplete",
+      score: null,
+      passCount: null,
+      evaluatorCount: null,
+      evaluators: [],
+    }
+  }
   if (!isEvaluatorTask(task)) {
     return operatorTaskResult(
       task,
@@ -154,6 +168,7 @@ type EngineerResultInput = Readonly<{
   languageRecords?: ReadonlyArray<LanguageScoreRecord>
   certificationRecords?: ReadonlyArray<CertificationRecord>
   scoreAdjustments?: ReadonlyArray<EngineerScoreAdjustment>
+  derivedScores?: Readonly<Record<string, number | null>>
 }>
 
 export function resolveEngineerTaskWeight(
@@ -176,8 +191,20 @@ export function calculateEngineerResult(input: EngineerResultInput): EngineerRes
     .filter((entry) => entry.weight > 0)
     .toSorted((left, right) => left.task.order - right.task.order)
   const tasks = weightedTasks.map((entry) => entry.task)
-  const taskResults = tasks.map((task) =>
-    calculateTaskResult(
+  const taskResults = tasks.map((task) => {
+    if (task.method === "derived_score") {
+      const score = input.derivedScores?.[task.id] ?? null
+      return {
+        taskId: task.id,
+        method: task.method,
+        status: score === null ? "incomplete" as const : "complete" as const,
+        score,
+        passCount: null,
+        evaluatorCount: null,
+        evaluators: [],
+      }
+    }
+    return calculateTaskResult(
       task,
       input.assignments,
       input.sheets,
@@ -186,8 +213,8 @@ export function calculateEngineerResult(input: EngineerResultInput): EngineerRes
       input.languageRecords,
       input.certificationRecords,
       input.cycleStartsAt,
-    ),
-  )
+    )
+  })
   const contributions = Object.fromEntries(
     weightedTasks.map(({ task, weight }) => {
       const score = taskResults.find((result) => result.taskId === task.id)?.score ?? null
@@ -223,6 +250,62 @@ export function calculateEngineerResult(input: EngineerResultInput): EngineerRes
     finalScore,
     roundedFinalScore: finalScore === null ? null : roundToTwo(finalScore),
   }
+}
+
+function calculateDerivedScore(
+  rule: DerivedScoreRule,
+  baseResults: ReadonlyArray<EngineerResult>,
+): number | null {
+  const scores = rule.sourceEngineerIds.map((engineerId) =>
+    baseResults
+      .find((result) => result.engineerId === engineerId)
+      ?.taskResults.find((result) => result.taskId === rule.sourceTaskId)?.score ?? null,
+  )
+  if (scores.length === 0 || scores.some((score) => score === null)) return null
+  return scores.reduce<number>((total, score) => total + (score ?? 0), 0) / scores.length
+}
+
+export function calculateSeasonResults(
+  snapshot: EvaluationSnapshot,
+  cycleId: string,
+): ReadonlyArray<EngineerResult> {
+  const cycle = snapshot.cycles.find((entry) => entry.id === cycleId)
+  if (cycle === undefined) return []
+  const tasks = snapshot.tasks.filter((task) => task.cycleId === cycleId)
+  const calculate = (
+    engineerId: string,
+    derivedScores?: Readonly<Record<string, number | null>>,
+  ) => calculateEngineerResult({
+    cycleId,
+    cycleStartsAt: cycle.startsAt,
+    engineerId,
+    tasks,
+    assignments: snapshot.assignments.filter((entry) =>
+      entry.cycleId === cycleId && entry.engineerId === engineerId),
+    sheets: snapshot.scoreSheets,
+    directScores: snapshot.directScores.filter((entry) =>
+      entry.cycleId === cycleId && entry.engineerId === engineerId),
+    engineerTaskWeights: snapshot.engineerTaskWeights,
+    directScoreRules: snapshot.directScoreRules,
+    languageRecords: snapshot.languageScoreRecords.filter((entry) =>
+      entry.cycleId === cycleId && entry.engineerId === engineerId),
+    certificationRecords: snapshot.certificationRecords.filter((entry) =>
+      entry.cycleId === cycleId && entry.engineerId === engineerId),
+    scoreAdjustments: snapshot.scoreAdjustments,
+    ...(derivedScores === undefined ? {} : { derivedScores }),
+  })
+  const baseResults = snapshot.engineers.map((engineer) => calculate(engineer.id))
+  const derivedByEngineer = new Map<string, Record<string, number | null>>()
+  snapshot.derivedScoreRules
+    .filter((rule) => rule.cycleId === cycleId)
+    .forEach((rule) => {
+      const scores = derivedByEngineer.get(rule.targetEngineerId) ?? {}
+      scores[rule.taskId] = calculateDerivedScore(rule, baseResults)
+      derivedByEngineer.set(rule.targetEngineerId, scores)
+    })
+  return snapshot.engineers.map((engineer) =>
+    calculate(engineer.id, derivedByEngineer.get(engineer.id)),
+  )
 }
 
 export function rankCompletedResults(

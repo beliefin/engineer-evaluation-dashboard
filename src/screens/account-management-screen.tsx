@@ -23,10 +23,12 @@ export function AccountManagementScreen() {
       evaluatorOptions={snapshot.evaluators.map((evaluator) => ({
         id: evaluator.id,
         label: `${evaluator.displayName} · ${evaluator.employeeCode}`,
+        employeeCode: evaluator.employeeCode,
       }))}
       engineerOptions={snapshot.engineers.map((engineer) => ({
         id: engineer.id,
         label: `${engineer.displayName} · ${engineer.employeeCode}`,
+        employeeCode: engineer.employeeCode,
       }))}
       onCreate={createAccount}
       onDelete={deleteAccount}

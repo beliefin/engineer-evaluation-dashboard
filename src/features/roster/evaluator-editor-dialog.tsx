@@ -16,6 +16,7 @@ import { Label } from "@/components/ui/label"
 
 import { TeamSelect } from "./team-select"
 import { DepartmentSelect } from "./department-select"
+import { normalizeEmployeeCode } from "./parser"
 import { defaultRosterDepartment } from "./types"
 import type { EvaluatorRegistration, EvaluatorRosterItem, RosterDepartmentOptions } from "./types"
 
@@ -51,7 +52,7 @@ export function EvaluatorEditorDialog({
   function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault()
     const next = {
-      employeeCode: employeeCode.trim(),
+      employeeCode: normalizeEmployeeCode(employeeCode),
       displayName: displayName.trim(),
       division: "1부문" as const,
       team,
