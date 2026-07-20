@@ -1,7 +1,7 @@
 "use client"
 
 import { useMemo, useState } from "react"
-import { ChevronRightIcon, ClipboardListIcon } from "lucide-react"
+import { ChevronRightIcon } from "lucide-react"
 
 import { Progress } from "@/components/ui/progress"
 
@@ -63,16 +63,14 @@ export function AssignedEvaluationList({
   return (
     <section
       aria-labelledby="assigned-evaluations-title"
-      className="overflow-hidden rounded-lg border border-border bg-card"
+      className="overflow-hidden rounded-md border border-border bg-card"
     >
       <header className="flex flex-col gap-4 border-b border-border-subtle p-5 lg:flex-row lg:items-end lg:justify-between">
         <div className="shrink-0">
-          <div className="flex items-center gap-2">
-            <ClipboardListIcon className="size-5 text-primary" aria-hidden="true" />
-            <h2 id="assigned-evaluations-title" className="whitespace-nowrap text-xl font-semibold tracking-tight">
-              {showEvaluatorFilter ? "전체 평가 입력" : "내 평가 배정"}
-            </h2>
-          </div>
+          <p className="mb-1 text-[10px] font-semibold tracking-[0.14em] text-primary uppercase">Evaluation register</p>
+          <h2 id="assigned-evaluations-title" className="whitespace-nowrap text-xl font-semibold tracking-tight">
+            {showEvaluatorFilter ? "전체 평가 입력" : "내 평가 배정"}
+          </h2>
           <p className="mt-1 text-sm text-muted-foreground">
             총 {assignments.length}건 중 {filteredAssignments.length}건 표시
           </p>
@@ -112,7 +110,7 @@ export function AssignedEvaluationList({
                   type="button"
                   onClick={() => onOpenEvaluation(item.id)}
                   aria-label={`${item.engineerName} 평가 열기, ${getEvaluationStatusLabel(item.status)}`}
-                  className="grid w-full gap-4 border-l-2 border-l-transparent px-5 py-4 text-left transition-colors hover:border-l-primary hover:bg-accent/45 focus-visible:border-l-primary focus-visible:bg-accent/45 md:grid-cols-[minmax(0,1fr)_180px_108px_20px] md:items-center"
+                  className="grid w-full gap-4 px-5 py-4 text-left transition-colors hover:bg-accent/45 focus-visible:bg-accent/45 md:grid-cols-[minmax(0,1fr)_180px_108px_20px] md:items-center"
                 >
                   <span className="min-w-0">
                     <span className="flex flex-wrap items-center gap-2">

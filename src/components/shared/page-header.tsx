@@ -36,7 +36,7 @@ function PageHeader({
         <h1
           className={cn(
             "font-heading font-bold tracking-[-0.025em] text-foreground",
-            compact ? "text-[1.625rem] leading-[1.3]" : "text-[1.875rem] leading-[1.25]"
+            compact ? "text-2xl leading-[1.3]" : "text-[1.75rem] leading-[1.25]"
           )}
         >
           {title}

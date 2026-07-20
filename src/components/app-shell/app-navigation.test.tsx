@@ -19,6 +19,17 @@ describe("AppNavigation", () => {
     expect(screen.getByRole("link", { name: /운영 설정/ })).toBeInTheDocument()
   })
 
+  it("uses a typographic ledger navigation instead of decorative icons", () => {
+    // Given / When
+    render(<AppNavigation role="operator" />)
+
+    // Then
+    const dashboardLink = screen.getByRole("link", { name: /전체 현황/ })
+    expect(dashboardLink).toHaveAttribute("aria-current", "page")
+    expect(dashboardLink).toHaveTextContent("01")
+    expect(dashboardLink.querySelector("svg")).toBeNull()
+  })
+
   it("keeps the evaluator navigation limited to their own work", () => {
     render(<AppNavigation role="evaluator" />)
 

@@ -35,7 +35,7 @@ export function RosterManagementPanel({
   return (
     <section
       aria-labelledby="roster-management-title"
-      className="overflow-hidden rounded-lg border bg-card"
+      className="overflow-hidden rounded-md border bg-card"
     >
       <header className="flex flex-col gap-3 border-b border-border-subtle px-4 py-4 sm:flex-row sm:items-start sm:justify-between sm:px-5">
         <div>

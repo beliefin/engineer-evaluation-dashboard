@@ -32,6 +32,12 @@ const STATUS_LABEL: Record<DashboardEvaluationStatus, string> = {
   complete: "평가 완료",
 }
 
+const TASK_STATUS_CLASS: Record<DashboardEvaluationStatus, string> = {
+  not_started: "text-muted-foreground",
+  in_progress: "text-warning",
+  complete: "text-success",
+}
+
 function ProgressStatus({ status }: Readonly<{ status: DashboardEvaluationStatus }>) {
   return (
     <StatusBadge
@@ -50,7 +56,9 @@ function TaskProgress({ task }: Readonly<{ task: EngineerTaskProgress | undefine
 
   return (
     <div className="min-w-28 space-y-1.5">
-      <ProgressStatus status={task.status} />
+      <p className={`text-xs font-semibold ${TASK_STATUS_CLASS[task.status]}`}>
+        {STATUS_LABEL[task.status]}
+      </p>
       <p className="numeric text-xs font-medium text-foreground">
         {task.score === null ? "점수 없음" : `${task.score.toFixed(1)}점`}
       </p>
@@ -65,7 +73,7 @@ export function EngineerEvaluationProgress({ tasks, rows }: EngineerEvaluationPr
   const completedCount = rows.filter((row) => row.status === "complete").length
 
   return (
-    <section className="overflow-hidden rounded-lg border border-border bg-card">
+    <section className="overflow-hidden rounded-md border border-border bg-card">
       <div className="flex items-start justify-between gap-4 border-b border-border-subtle px-5 py-4">
         <div>
           <h2 className="text-base font-semibold">엔지니어별 평가 현황</h2>
@@ -73,7 +81,7 @@ export function EngineerEvaluationProgress({ tasks, rows }: EngineerEvaluationPr
             개인 가중치가 0%보다 큰 과제만 표시하며, 배정 평가자가 모두 제출해야 해당 과제가 완료됩니다.
           </p>
         </div>
-        <Badge variant="outline" className="numeric rounded-md">
+        <Badge variant="outline" className="numeric">
           완료 {completedCount}/{rows.length}명
         </Badge>
       </div>
@@ -122,9 +130,14 @@ export function EngineerEvaluationProgress({ tasks, rows }: EngineerEvaluationPr
             </Table>
           </div>
 
-          <ul className="grid gap-3 p-4 md:hidden" aria-label="엔지니어별 평가 현황">
-            {rows.map((row) => (
-              <li className="rounded-lg border border-border p-4" key={row.id}>
+          <ul className="divide-y divide-border md:hidden" aria-label="엔지니어별 평가 현황">
+            {rows.map((row) => {
+              const outstandingTasks = row.tasks.filter((task) => task.status !== "complete")
+              const visibleOutstandingTasks = outstandingTasks.slice(0, 2)
+              const hiddenOutstandingCount = outstandingTasks.length - visibleOutstandingTasks.length
+
+              return (
+              <li className="bg-card px-4 py-3.5" key={row.id}>
                 <div className="flex items-start justify-between gap-3">
                   <div className="min-w-0">
                     <Link className="truncate font-semibold text-foreground underline-offset-4 hover:text-primary hover:underline" href={row.href}>
@@ -134,24 +147,17 @@ export function EngineerEvaluationProgress({ tasks, rows }: EngineerEvaluationPr
                   </div>
                   <ProgressStatus status={row.status} />
                 </div>
-                <p className="numeric mt-3 text-xs font-medium text-muted-foreground">
+                <p className="numeric mt-2.5 text-xs font-medium text-muted-foreground">
                   적용 과제 {row.completedTaskCount}/{row.taskCount}개 완료
                 </p>
-                <dl className="mt-3 divide-y divide-border-subtle border-y border-border-subtle">
-                  {row.tasks.map((task) => (
-                    <div className="grid grid-cols-[minmax(0,1fr)_auto] gap-3 py-3" key={task.taskId}>
-                      <div>
-                        <dt className="text-sm font-medium text-foreground">{task.label}</dt>
-                        <dd className="mt-1 text-xs text-muted-foreground">가중치 {task.weight}%</dd>
-                      </div>
-                      <div className="text-right">
-                        <TaskProgress task={task} />
-                      </div>
-                    </div>
-                  ))}
-                </dl>
+                <p className="mt-1.5 text-xs leading-5 text-muted-foreground">
+                  {outstandingTasks.length === 0
+                    ? "모든 적용 과제 평가 완료"
+                    : <>남은 과제: {visibleOutstandingTasks.map((task) => task.label).join(", ")}{hiddenOutstandingCount > 0 ? ` 외 ${hiddenOutstandingCount}개` : ""}</>}
+                </p>
               </li>
-            ))}
+              )
+            })}
           </ul>
         </>
       )}

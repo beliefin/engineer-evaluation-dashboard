@@ -28,7 +28,7 @@ function RankingState({ row }: Readonly<{ row: TaskRankingRow }>) {
     return (
       <div className="flex flex-wrap items-center gap-1.5">
         <StatusBadge status="completed" label="평가 완료" />
-        {row.isTied ? <Badge variant="outline" className="rounded-md">공동 순위</Badge> : null}
+        {row.isTied ? <Badge variant="outline">공동 순위</Badge> : null}
       </div>
     )
   }
@@ -47,14 +47,14 @@ export function TaskRankingPanel({ title, description, rankings }: TaskRankingPa
     ?? rankings[0]
 
   return (
-    <section className="overflow-hidden rounded-lg border border-border bg-card">
+    <section className="overflow-hidden rounded-md border border-border bg-card">
       <div className="flex flex-col gap-4 border-b border-border-subtle px-5 py-4 sm:flex-row sm:items-start sm:justify-between">
         <div>
           <h2 className="text-base font-semibold">{title}</h2>
           <p className="mt-1 max-w-2xl text-xs leading-5 text-muted-foreground">{description}</p>
         </div>
         {activeRanking ? (
-          <Badge variant="outline" className="numeric w-fit rounded-md">
+          <Badge variant="outline" className="numeric w-fit">
             완료 {activeRanking.completedCount}/{activeRanking.targetCount}명
           </Badge>
         ) : null}
@@ -62,7 +62,7 @@ export function TaskRankingPanel({ title, description, rankings }: TaskRankingPa
 
       {activeRanking ? (
         <>
-          <div className="flex flex-col gap-2 border-b border-border-subtle px-5 py-4 sm:flex-row sm:items-center sm:justify-between">
+          <div className="flex flex-col gap-2 border-b border-border bg-muted/45 px-5 py-3 sm:flex-row sm:items-center sm:justify-between">
             <label className="text-xs font-medium text-muted-foreground" htmlFor="dashboard-task-ranking-select">
               순위 과제
             </label>

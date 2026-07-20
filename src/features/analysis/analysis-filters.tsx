@@ -1,6 +1,6 @@
 "use client"
 
-import { RotateCcw, SlidersHorizontal } from "lucide-react"
+import { SlidersHorizontal } from "lucide-react"
 import { useId } from "react"
 
 import { Button } from "@/components/ui/button"
@@ -129,7 +129,7 @@ export function AnalysisFilters({
       <section
         aria-labelledby={`${id}-desktop-heading`}
         className={cn(
-          "hidden rounded-lg border border-border bg-card p-5 sm:block",
+          "hidden border-y border-border bg-muted/45 px-5 py-4 sm:block",
           className,
         )}
       >
@@ -149,7 +149,6 @@ export function AnalysisFilters({
             onClick={onReset}
             disabled={resetDisabled}
           >
-            <RotateCcw aria-hidden="true" />
             초기화
           </Button>
         </div>
@@ -166,7 +165,7 @@ export function AnalysisFilters({
 
       <div className={cn("sm:hidden", className)}>
         <Sheet>
-          <div className="flex items-center justify-between gap-3 rounded-lg border border-border bg-card px-4 py-3">
+          <div className="flex items-center justify-between gap-3 border-y border-border bg-muted/45 px-4 py-3">
             <div>
               <p className="text-sm font-semibold">분석 필터</p>
               <p className="mt-0.5 text-xs text-muted-foreground">
@@ -204,7 +203,6 @@ export function AnalysisFilters({
                 type="button"
                 variant="outline"
               >
-                <RotateCcw aria-hidden="true" />
                 필터 초기화
               </Button>
             </div>

@@ -1,6 +1,6 @@
 "use client"
 
-import { RotateCcw, SlidersHorizontal } from "lucide-react"
+import { SlidersHorizontal } from "lucide-react"
 
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -119,7 +119,6 @@ function FilterFields({
           value.query.length === 0 && value.team === "all" && value.status === "all"
         }
       >
-        <RotateCcw aria-hidden="true" data-icon="inline-start" />
         초기화
       </Button>
     </div>
@@ -134,7 +133,7 @@ export function RankingFilters(props: RankingFiltersProps) {
 
   return (
     <>
-      <div className="hidden items-end justify-between gap-4 border-b border-border-subtle px-5 py-4 md:flex">
+      <div className="hidden items-end justify-between gap-4 border-b border-border bg-muted/45 px-5 py-3 md:flex">
         <FilterFields
           {...props}
           idPrefix="desktop"

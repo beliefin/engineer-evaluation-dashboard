@@ -9,15 +9,15 @@ interface RankingMobileListProps {
 
 export function RankingMobileList({ rows }: RankingMobileListProps) {
   return (
-    <ol className="grid gap-3 p-4 md:hidden">
+    <ol className="divide-y divide-border md:hidden">
       {rows.map((row) => (
         <li
           key={row.id}
-          className="rounded-lg border border-border bg-card p-4"
+          className="bg-card px-4 py-4"
         >
           <div className="flex items-start justify-between gap-3">
             <div className="flex min-w-0 items-center gap-3">
-              <span className="numeric flex size-8 shrink-0 items-center justify-center rounded-md bg-accent text-sm font-bold text-accent-foreground">
+              <span className="numeric flex size-8 shrink-0 items-center justify-center border border-primary/30 bg-accent text-sm font-bold text-accent-foreground">
                 {row.rank ?? "—"}
               </span>
               <div className="min-w-0">

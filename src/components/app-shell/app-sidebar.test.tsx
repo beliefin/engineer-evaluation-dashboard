@@ -23,4 +23,16 @@ describe("AppBrand", () => {
     expect(screen.getByRole("link", { name: "엔지니어 역량평가 메인으로 이동" }))
       .toHaveAttribute("href", href)
   })
+
+  it("renders the angular product wordmark without an icon tile", () => {
+    // Given / When
+    render(<AppBrand href="/dashboard" />)
+
+    // Then
+    const brand = screen.getByRole("link", {
+      name: "엔지니어 역량평가 메인으로 이동",
+    })
+    expect(brand).toHaveTextContent("EE")
+    expect(brand.querySelector("svg")).toBeNull()
+  })
 })

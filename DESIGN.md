@@ -1,8 +1,17 @@
 # Engineer Evaluation Dashboard Design System
 
+## 0. 2026 Industrial Ledger Redesign
+
+- **Direction**: 일반적인 SaaS 카드 대시보드가 아니라 생산 현장의 평가 운영 장부와 계기판을 결합한 `Industrial Ledger`를 기준으로 한다.
+- **Primary reference**: Figma Community의 OpenBridge 6.1에서 안전 중요 환경의 명확한 위계, 낮은 채도의 스틸 블루, 얇은 규칙선, 직접 라벨을 차용한다. 해양 전용 계기나 브랜드 자산은 복제하지 않는다.
+- **Secondary references**: 100 Card Design Templates는 카드 모양이 아니라 정보 구조의 다양성만 참고하고, Select Codes는 Accounts Table·Add Filter Dropdown·Navigation Tabs의 상호작용만 참고한다. Goo, glow, prism, decorative motion은 사용하지 않는다.
+- **Color validation**: Adobe Color의 단색·유사색 조화와 색맹 시뮬레이션을 사용하고, 일반 텍스트 대비는 최소 4.5:1을 유지한다.
+- **Anti-references**: 반복되는 흰색 둥근 카드, 왼쪽 강조선이 있는 선택 박스, 점이 붙은 pill 배지, 모든 상태의 아이콘화, 기본 Lucide 아이콘의 장식적 반복을 금지한다.
+- **Rollback baseline**: 코드 적용 전 Git 기준점은 `backup/pre-industrial-ui-redesign-20260720`의 `1a255bf`다.
+
 ## 1. Atmosphere & Identity
 
-정밀하고 조용한 평가 운영실. 화면은 많은 수치를 다루되 사용자가 항상 현재 상태와 다음 행동을 즉시 찾을 수 있어야 한다. 시그니처는 얇은 인디고 선택선과 장부처럼 정렬된 표 구조다. 장식보다 계층, 간격, 정렬, 상태 색으로 신뢰를 만든다. 첫 번째 참조는 승인된 라이트 대시보드 시안이며, Linear의 명확한 정보 계층을 제품 맥락에 맞게 재구성한다.
+정밀하고 조용한 생산 평가 운영실. 화면은 많은 수치를 다루되 사용자가 현재 상태와 다음 행동을 즉시 찾을 수 있어야 한다. 시그니처는 스틸 블루 수치, 장부처럼 정렬된 규칙선, 짧은 직접 라벨이다. 장식보다 계층, 간격, 정렬, 상태 문구로 신뢰를 만든다. 반복 카드보다 연속적인 문서 흐름을 우선하고, 떠 있는 표면은 실제 계층이 필요한 오버레이에만 사용한다.
 
 ## 2. Color
 
@@ -10,28 +19,28 @@
 
 | Role | Token | Light | Usage |
 |---|---|---|---|
-| Canvas | `--background` | `#F7F8FB` | 앱 전체 배경 |
+| Canvas | `--background` | `#F3F5F6` | 앱 전체 배경 |
 | Surface | `--card` | `#FFFFFF` | 표, 입력, 주요 패널 |
-| Rail | `--sidebar` | `#FBFCFE` | 좌측 탐색 영역 |
-| Muted surface | `--muted` | `#F1F3F7` | 비활성 행, 보조 영역 |
-| Text primary | `--foreground` | `#171A21` | 제목, 본문, 수치 |
-| Text secondary | `--muted-foreground` | `#545E6D` | 설명, 메타데이터 |
-| Border default | `--border` | `#DDE2EA` | 패널, 표, 입력 경계 |
-| Border subtle | `--border-subtle` | `#E9ECF2` | 행과 그룹 구분 |
-| Accent primary | `--primary` | `#4056E8` | 현재 위치, 주 행동, 포커스 |
-| Accent hover | `--primary-hover` | `#3045C9` | 주 행동 hover |
-| Accent soft | `--accent` | `#EEF1FF` | 선택 행, 강조 배경 |
-| Success | `--success` | `#08724C` | 제출 완료, 저장 완료 |
-| Success soft | `--success-soft` | `#EAF7F1` | 완료 배지 배경 |
-| Warning | `--warning` | `#8A4B00` | 진행 중, 확인 필요 |
-| Warning soft | `--warning-soft` | `#FFF4DE` | 경고 배지 배경 |
-| Danger | `--destructive` | `#C43D38` | 미완료, 파괴적 행동 |
-| Danger soft | `--danger-soft` | `#FFF0EF` | 오류 배지 배경 |
-| Chart primary | `--chart-1` | `#4056E8` | 주요 점수 계열 |
-| Chart secondary | `--chart-2` | `#7B8CFB` | 보조 계열 |
-| Chart neutral | `--chart-3` | `#A7B0C0` | 기준 및 미확정 계열 |
-| Chart completion | `--chart-4` | `#0F845C` | 완료율과 완료 계열 |
-| Chart caution | `--chart-5` | `#A96300` | 편차와 점검 계열 |
+| Rail | `--sidebar` | `#EDF0F2` | 좌측 탐색 영역 |
+| Muted surface | `--muted` | `#EDF0F2` | 비활성 행, 보조 영역 |
+| Text primary | `--foreground` | `#111820` | 제목, 본문, 수치 |
+| Text secondary | `--muted-foreground` | `#5D6872` | 설명, 메타데이터 |
+| Border default | `--border` | `#D6DCE0` | 패널, 표, 입력 경계 |
+| Border subtle | `--border-subtle` | `#E4E8EB` | 행과 그룹 구분 |
+| Accent primary | `--primary` | `#2B5278` | 현재 위치, 주 행동, 포커스 |
+| Accent hover | `--primary-hover` | `#1E4265` | 주 행동 hover |
+| Accent soft | `--accent` | `#EAF0F4` | 선택 행, 강조 배경 |
+| Success | `--success` | `#2E6B4F` | 제출 완료, 저장 완료 |
+| Success soft | `--success-soft` | `#E9F2ED` | 완료 상태 배경 |
+| Warning | `--warning` | `#8A5A13` | 진행 중, 확인 필요 |
+| Warning soft | `--warning-soft` | `#F7F0E4` | 경고 상태 배경 |
+| Danger | `--destructive` | `#A9413A` | 미완료, 파괴적 행동 |
+| Danger soft | `--danger-soft` | `#F8ECEB` | 오류 상태 배경 |
+| Chart primary | `--chart-1` | `#2B5278` | 주요 점수 계열 |
+| Chart secondary | `--chart-2` | `#567896` | 보조 계열 |
+| Chart neutral | `--chart-3` | `#91A4B4` | 기준 및 미확정 계열 |
+| Chart completion | `--chart-4` | `#2E6B4F` | 완료율과 완료 계열 |
+| Chart caution | `--chart-5` | `#8A5A13` | 편차와 점검 계열 |
 
 ### Rules
 
@@ -46,10 +55,10 @@
 
 | Level | Size | Weight | Line height | Tracking | Usage |
 |---|---:|---:|---:|---:|---|
-| Page title | `30px` | 700 | 1.25 | `-0.025em` | 화면 제목 |
-| H1 | `26px` | 700 | 1.3 | `-0.02em` | 주요 결과 수치 |
-| H2 | `20px` | 650 | 1.4 | `-0.015em` | 섹션 제목 |
-| H3 | `16px` | 650 | 1.45 | `-0.01em` | 패널 제목 |
+| Page title | `28px` | 700 | 1.3 | `-0.025em` | 화면 제목 |
+| H1 | `24px` | 700 | 1.3 | `-0.02em` | 주요 결과 수치 |
+| H2 | `18px` | 650 | 1.4 | `-0.015em` | 섹션 제목 |
+| H3 | `15px` | 650 | 1.45 | `-0.01em` | 패널 제목 |
 | Body | `14px` | 450 | 1.6 | `0` | 기본 본문과 표 |
 | Body small | `13px` | 450 | 1.55 | `0` | 보조 설명 |
 | Caption | `12px` | 550 | 1.45 | `0.01em` | 레이블, 상태, 메타데이터 |
@@ -97,6 +106,8 @@
 
 - 카드 안에 카드를 중첩하지 않는다.
 - 섹션은 여백보다 얇은 구분선과 제목 계층으로 분리한다.
+- 모바일 결과 목록은 카드가 아니라 한 개의 표면 안에서 행 구분선으로 나눈다.
+- 앱 셸은 sidebar가 고정되고 main 문서가 수직 스크롤을 소유한다. 별도 패널 스크롤은 명시된 목록·Dialog에만 허용한다.
 - 점수 입력 화면의 제출 행동은 모바일 하단에 고정한다.
 
 ## 5. Components
@@ -110,6 +121,8 @@
 - **Authentication**: 데모 역할 전환기를 노출하지 않는다. 로그인 계정에 부여된 역할 집합을 권한의 기준으로 사용하고, 평가자·엔지니어 복합 계정에만 `사용 모드` 전환기를 제공한다. 실제 계정명·현재 사용 모드·로그아웃 행동을 데스크톱과 모바일에서 항상 확인할 수 있게 한다.
 - **Evaluator identity**: 평가자 계정은 연결된 평가자 본인으로 고정한다. 운영자는 평가 입력 작업 공간 안에서 엔지니어, 과제, 평가자를 순서대로 선택한다.
 - **Engineer identity**: 엔지니어 권한은 등록된 엔지니어 한 명과 고정 연결한다. 평가자·엔지니어 복합 계정은 평가자 명단과 엔지니어 명단에 각각 하나씩 연결하며, 엔지니어 모드에서는 연결된 본인의 결과와 원천 실적만 조회·변경할 수 있다.
+- **Navigation language**: 기본 내비게이션은 장식 아이콘을 제거하고 2자리 순번, 메뉴명, 짧은 설명으로 구성한다. 활성 상태는 글자 굵기, 스틸 블루 텍스트, 우측의 작은 정사각형 표식으로 표현하며 색 배경 박스와 왼쪽 강조선은 사용하지 않는다.
+- **Brand mark**: 둥근 아이콘 타일 대신 각진 `EE` 문자 마크를 사용한다. 모바일에서는 문자 마크만 유지한다.
 
 ### Login Surface
 
@@ -177,15 +190,15 @@
 
 ### Metric Strip
 
-- **Structure**: 한 개의 공유 표면 안에 세로 구분선으로 KPI를 나눈다.
+- **Structure**: 둥근 카드 없이 한 개의 장부형 공유 표면 안에 세로 구분선으로 KPI를 나눈다.
 - **Variants**: neutral, success, warning, danger value.
 - **States**: loading skeleton, empty zero, populated.
 - **Accessibility**: 값과 단위를 하나의 읽기 순서로 제공한다.
 
 ### Data Panel
 
-- **Structure**: header, optional controls, content, optional footer.
-- **Variants**: bordered, flush-table.
+- **Structure**: header, optional controls, content, optional footer. 제목과 본문은 얇은 규칙선으로만 나눈다.
+- **Variants**: `section`(배경·테두리 없음), `panel`(작은 반경과 1px 경계), `flush-table`(표면 안 행 구분선).
 - **States**: default, loading, empty, error.
 - **Depth**: 기본은 border와 tonal shift, shadow 금지.
 
@@ -195,6 +208,7 @@
 - **Variants**: desktop inline, mobile Sheet.
 - **States**: default, focused, active filter, disabled.
 - **Accessibility**: 모든 입력에 보이는 레이블 또는 접근 가능한 이름을 제공한다.
+- **Visual rule**: 하나의 연속 도구 모음으로 보이게 하며 필터마다 독립 카드나 pill을 만들지 않는다. 초기화는 낮은 우선순위의 텍스트 행동으로 둔다.
 
 ### Data Table / Mobile Result List
 
@@ -203,11 +217,18 @@
 - **Accessibility**: 정렬 버튼에 상태를 설명하고 행 전체 클릭과 명시적 링크를 함께 제공한다.
 - **Numeric rule**: 점수와 순위는 오른쪽 정렬, tabular nums.
 
-### Status Badge
+### Status Label
 
 - **Variants**: completed, progress, pending, unconfirmed, locked.
+- **Anatomy**: 높이 20~22px, 반경 3px, 짧은 상태 텍스트. common status에는 아이콘과 점을 사용하지 않고 `진행 6/10`처럼 상태와 수치를 직접 쓴다.
 - **States**: static only; interactive chip으로 오인되지 않게 hover 효과를 주지 않는다.
-- **Accessibility**: 색상 외에 상태 텍스트와 아이콘을 함께 제공한다.
+- **Accessibility**: 색상 외에 상태 텍스트를 항상 제공한다. 잠금·오류처럼 추가 주의가 필요한 상태에만 아이콘을 허용한다.
+
+### Iconography
+
+- 아이콘은 메뉴 장식이 아니라 명확한 도구 행동에만 사용한다.
+- 기존 Lucide는 폼 컨트롤, 날짜, 검색, 삭제처럼 보편적인 행동에 한해 유지한다. 내비게이션·상태·로고에서는 제거한다.
+- 한 화면에서 서로 다른 아이콘 세트를 혼합하지 않는다. OpenBridge 또는 Solar 아이콘을 도입할 경우 필요한 작은 세트만 가져오고 라이선스 표기를 유지한다.
 
 ### Score Input Row
 
@@ -350,7 +371,7 @@
 | Type | Duration | Easing | Usage |
 |---|---:|---|---|
 | Micro | `120ms` | `ease-out` | 버튼, 행 hover, focus |
-| Standard | `180ms` | `ease-in-out` | Sheet, dialog, sidebar |
+| Standard | `160ms` | `ease-in-out` | Sheet, dialog, sidebar |
 | Feedback | `240ms` | `ease-out` | 저장 상태와 toast 등장 |
 
 ### Rules
@@ -362,10 +383,10 @@
 
 ## 7. Depth & Surface
 
-### Strategy: constrained mixed
+### Strategy: industrial ledger
 
-- 기본 페이지, 표, 패널, 입력은 얇은 border와 작은 tonal shift만 사용한다.
+- 기본 페이지와 섹션은 border 없이 문서 흐름을 유지하고, 표·차트·입력 묶음에만 얇은 border와 tonal shift를 사용한다.
 - 기본 패널에는 box shadow를 사용하지 않는다.
-- Dialog, Dropdown, Sheet처럼 배경과 분리되어야 하는 overlay에만 `0 8px 24px rgb(23 26 33 / 0.12)`를 허용한다.
-- radius는 입력과 버튼 6px, 패널 8px, overlay 10px로 제한한다.
-- 선택 행은 shadow 대신 인디고 왼쪽 선과 accent soft 배경을 사용한다.
+- Dialog, Dropdown, Sheet처럼 배경과 분리되어야 하는 overlay에만 `0 8px 24px rgb(17 24 32 / 0.14)`를 허용한다.
+- radius는 상태 라벨 3px, 입력과 버튼 4px, 패널 4~6px, overlay 8px로 제한한다.
+- 선택 행은 shadow와 왼쪽 강조선 대신 스틸 블루 텍스트, 낮은 채도의 배경, 짧은 우측 표식으로 표현한다.

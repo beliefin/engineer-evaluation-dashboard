@@ -113,7 +113,7 @@ export function CompletedRanking({
   }
 
   return (
-    <section className="overflow-hidden rounded-lg border border-border bg-card">
+    <section className="overflow-hidden rounded-md border border-border bg-card">
       <div className="flex items-start justify-between gap-4 border-b border-border-subtle px-5 py-4">
         <div>
           <h2 className="text-base font-semibold">{title}</h2>
@@ -121,7 +121,7 @@ export function CompletedRanking({
             {description}
           </p>
         </div>
-        <Badge variant="outline" className="numeric rounded-md">
+        <Badge variant="outline" className="numeric">
           점수 반영 {rows.filter((row) => row.totalScore !== null).length}/{rows.length}명
         </Badge>
       </div>

@@ -1,16 +1,3 @@
-import type { ComponentType } from "react"
-import {
-  CheckCircle2,
-  CircleDashed,
-  ClipboardCheck,
-  Clock3,
-  Eye,
-  LockKeyhole,
-  ShieldCheck,
-  TriangleAlert,
-  UserRoundCheck,
-} from "lucide-react"
-
 import { Badge } from "@/components/ui/badge"
 import { cn } from "@/lib/utils"
 
@@ -26,57 +13,47 @@ type DemoRole = "operator" | "evaluator" | "approver" | "engineer"
 type BadgeConfig = {
   label: string
   className: string
-  icon: ComponentType<{ className?: string; "aria-hidden"?: boolean }>
 }
 
 const statusConfig: Record<EvaluationStatus, BadgeConfig> = {
   completed: {
     label: "완료",
-    className: "border-success/20 bg-success-soft text-success",
-    icon: CheckCircle2,
+    className: "border-success/30 bg-success-soft text-success",
   },
   in_progress: {
     label: "진행 중",
-    className: "border-warning/20 bg-warning-soft text-warning",
-    icon: Clock3,
+    className: "border-warning/30 bg-warning-soft text-warning",
   },
   pending: {
     label: "대기",
     className: "border-border bg-muted text-muted-foreground",
-    icon: CircleDashed,
   },
   unconfirmed: {
     label: "미확정",
-    className: "border-destructive/20 bg-danger-soft text-destructive",
-    icon: TriangleAlert,
+    className: "border-destructive/30 bg-danger-soft text-destructive",
   },
   locked: {
     label: "제출 잠금",
     className: "border-border bg-secondary text-secondary-foreground",
-    icon: LockKeyhole,
   },
 }
 
 const roleConfig: Record<DemoRole, BadgeConfig> = {
   operator: {
     label: "운영자",
-    className: "border-primary/20 bg-accent text-accent-foreground",
-    icon: ShieldCheck,
+    className: "border-primary/30 bg-accent text-accent-foreground",
   },
   evaluator: {
     label: "평가자",
     className: "border-border bg-card text-foreground",
-    icon: ClipboardCheck,
   },
   approver: {
     label: "승인자",
-    className: "border-success/20 bg-success-soft text-success",
-    icon: Eye,
+    className: "border-success/30 bg-success-soft text-success",
   },
   engineer: {
     label: "엔지니어",
-    className: "border-primary/20 bg-accent text-accent-foreground",
-    icon: UserRoundCheck,
+    className: "border-primary/30 bg-accent text-accent-foreground",
   },
 }
 
@@ -88,16 +65,14 @@ type StatusBadgeProps = {
 
 function StatusBadge({ status, label, className }: StatusBadgeProps) {
   const config = statusConfig[status]
-  const Icon = config.icon
   const visibleLabel = label ?? config.label
 
   return (
     <Badge
       variant="outline"
       aria-label={`상태: ${visibleLabel}`}
-      className={cn("gap-1 rounded-md px-2 py-0.5", config.className, className)}
+      className={cn(config.className, className)}
     >
-      <Icon className="size-3" aria-hidden />
       {visibleLabel}
     </Badge>
   )
@@ -110,15 +85,13 @@ type RoleBadgeProps = {
 
 function RoleBadge({ role, className }: RoleBadgeProps) {
   const config = roleConfig[role]
-  const Icon = config.icon
 
   return (
     <Badge
       variant="outline"
-      aria-label={`데모 역할: ${config.label}`}
-      className={cn("gap-1 rounded-md px-2 py-0.5", config.className, className)}
+      aria-label={`역할: ${config.label}`}
+      className={cn(config.className, className)}
     >
-      <Icon className="size-3" aria-hidden />
       {config.label}
     </Badge>
   )

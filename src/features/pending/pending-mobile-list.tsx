@@ -11,9 +11,9 @@ type PendingMobileListProps = Readonly<{
 
 export function PendingMobileList({ rows, role }: PendingMobileListProps) {
   return (
-    <ul className="grid gap-3 p-4 md:hidden" aria-label="미평가 엔지니어 목록">
+    <ul className="divide-y divide-border md:hidden" aria-label="미평가 엔지니어 목록">
       {rows.map((row) => (
-        <li key={row.engineerId} className="rounded-lg border border-border bg-card p-4">
+        <li key={row.engineerId} className="bg-card px-4 py-4">
           <div className="flex items-start justify-between gap-3">
             <div className="min-w-0">
               <p className="truncate font-semibold text-foreground">{row.engineerName}</p>
@@ -24,7 +24,7 @@ export function PendingMobileList({ rows, role }: PendingMobileListProps) {
             <PendingStatusBadge status={row.status} className="shrink-0" />
           </div>
 
-          <p className="mt-3 rounded-md bg-muted/60 px-3 py-2 text-sm leading-5 text-foreground">
+          <p className="mt-3 border-l-2 border-warning bg-warning-soft px-3 py-2 text-sm leading-5 text-foreground">
             {getPendingReason(row)}
           </p>
 

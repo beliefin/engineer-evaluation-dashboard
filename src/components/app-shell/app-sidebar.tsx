@@ -1,4 +1,3 @@
-import { ClipboardListIcon } from "lucide-react"
 import Link from "next/link"
 
 import { Separator } from "@/components/ui/separator"
@@ -23,12 +22,12 @@ export function AppBrand({ compact = false, href, onNavigate }: BrandProps) {
   return (
     <Link
       aria-label="엔지니어 역량평가 메인으로 이동"
-      className="-mx-2 flex min-w-0 items-center gap-2.5 rounded-md px-2 py-1.5 transition-colors hover:bg-muted focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-sidebar"
+      className="-mx-1 flex min-w-0 items-center gap-2.5 px-1 py-1 transition-colors hover:text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-sidebar"
       href={href}
       {...navigationProps}
     >
-      <span className="flex size-8 shrink-0 items-center justify-center rounded-md border border-primary/20 bg-accent text-primary">
-        <ClipboardListIcon aria-hidden="true" className="size-4" />
+      <span className="numeric flex size-8 shrink-0 items-center justify-center border border-primary text-[10px] font-bold tracking-[-0.06em] text-primary">
+        EE
       </span>
       {!compact && (
         <span className="min-w-0">
@@ -60,12 +59,12 @@ export function AppSidebar({ role, actorLabel }: AppSidebarProps) {
       </div>
       <Separator />
       <div className="flex-1 overflow-y-auto px-3 py-5 scrollbar-thin">
-        <p className="mb-2 px-3 text-xs font-medium text-muted-foreground">
+        <p className="mb-3 px-2 text-[10px] font-semibold tracking-[0.14em] text-muted-foreground uppercase">
           평가 운영
         </p>
         <AppNavigation role={role} />
       </div>
-      <div className="border-t border-sidebar-border px-4 py-4">
+      <div className="border-t border-sidebar-border bg-card/40 px-4 py-4">
         <p className="truncate text-xs font-semibold text-foreground">
           {currentActor}
         </p>

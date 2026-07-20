@@ -50,7 +50,7 @@ export function EvaluationScoreForm({
       onSubmit={handleSubmit}
       className="pb-28 md:pb-0"
     >
-      <section className="overflow-hidden rounded-lg border border-border bg-card">
+      <section className="overflow-hidden rounded-md border border-border bg-card">
         <header className="grid gap-5 border-b border-border-subtle px-4 py-5 md:grid-cols-[minmax(0,1fr)_auto] md:items-start md:px-5">
           <div className="min-w-0">
             <div className="flex flex-wrap items-center gap-2">
@@ -85,7 +85,7 @@ export function EvaluationScoreForm({
             <Alert className="border-primary/20 bg-primary/5 text-primary">
               <UserRoundCogIcon aria-hidden="true" />
               <AlertTitle>운영자 대리 입력 · {viewModel.evaluatorName}</AlertTitle>
-              <AlertDescription className="text-primary/90">
+              <AlertDescription className="text-primary">
                 이 평가자의 평가지에 대신 점수를 입력합니다. 운영자 입력은 저장 후에도 잠기지 않아 계속 수정할 수 있습니다.
               </AlertDescription>
             </Alert>

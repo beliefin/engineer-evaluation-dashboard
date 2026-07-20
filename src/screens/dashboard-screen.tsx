@@ -112,7 +112,7 @@ export function DashboardScreen() {
       />
       <section
         aria-labelledby="dashboard-scope-title"
-        className="flex flex-col gap-3 rounded-lg border border-border bg-card px-5 py-4 sm:flex-row sm:items-center sm:justify-between"
+        className="flex flex-col gap-3 border-y border-border bg-muted/45 px-5 py-4 sm:flex-row sm:items-center sm:justify-between"
       >
         <div>
           <h2 className="text-sm font-semibold" id="dashboard-scope-title">현황 범위</h2>

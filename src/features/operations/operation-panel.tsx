@@ -14,7 +14,7 @@ export function OperationPanel({
   aside,
 }: OperationPanelProps) {
   return (
-    <section className="overflow-hidden rounded-lg border bg-card">
+    <section className="overflow-hidden rounded-md border bg-card">
       <div className="flex flex-col gap-3 border-b border-border-subtle px-4 py-4 sm:flex-row sm:items-start sm:justify-between sm:px-5">
         <div className="min-w-0">
           <h2 className="text-base font-semibold tracking-[-0.01em]">{title}</h2>

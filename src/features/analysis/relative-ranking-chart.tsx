@@ -136,7 +136,7 @@ export function RelativeRankingChart({
       <ChartContainer
         config={chartConfig}
         className="h-[25rem] w-full aspect-auto"
-        role="img"
+        role="group"
         aria-label="선택 집단의 하위에서 상위로 상승하는 상대 서열 점수 곡선"
       >
         <LineChart

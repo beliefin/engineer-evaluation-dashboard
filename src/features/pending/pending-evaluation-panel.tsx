@@ -1,8 +1,6 @@
 "use client"
 
 import { useMemo, useState } from "react"
-import { ClipboardClock } from "lucide-react"
-
 import type { Role } from "@/domain"
 import type { PendingEvaluationRow } from "@/view-models/pending"
 
@@ -53,12 +51,10 @@ export function PendingEvaluationPanel({
   return (
     <section
       aria-labelledby="pending-evaluations-title"
-      className="overflow-hidden rounded-lg border border-border bg-card"
+      className="overflow-hidden rounded-md border border-border bg-card"
     >
-      <header className="flex items-start gap-3 border-b border-border-subtle p-5">
-        <span className="flex size-9 shrink-0 items-center justify-center rounded-md bg-accent text-primary">
-          <ClipboardClock className="size-5" aria-hidden="true" />
-        </span>
+      <header className="border-b border-border-subtle p-5">
+        <p className="mb-1 text-[10px] font-semibold tracking-[0.14em] text-primary uppercase">Exception register</p>
         <div>
           <h2 id="pending-evaluations-title" className="text-xl font-semibold tracking-tight">
             미평가 엔지니어

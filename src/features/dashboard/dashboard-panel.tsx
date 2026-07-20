@@ -30,11 +30,11 @@ export function DashboardPanel({
   return (
     <Card
       className={cn(
-        "gap-0 rounded-lg border border-border py-0 ring-0",
+        "gap-0 rounded-md py-0",
         className
       )}
     >
-      <CardHeader className="rounded-none border-b border-border-subtle px-5 py-4">
+      <CardHeader className="border-b border-border-subtle px-5 py-4">
         <CardTitle className="text-base font-semibold">{title}</CardTitle>
         <CardDescription className="max-w-2xl text-xs leading-5">
           {description}

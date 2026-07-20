@@ -30,7 +30,7 @@ export function AnalysisPanel({
   return (
     <section
       aria-labelledby={titleId}
-      className="min-w-0 rounded-lg border border-border bg-card"
+      className="min-w-0 rounded-md border border-border bg-card"
     >
       <header className="border-b border-border-subtle px-4 py-4 sm:px-5">
         <h2 id={titleId} className="text-base font-semibold tracking-tight">
