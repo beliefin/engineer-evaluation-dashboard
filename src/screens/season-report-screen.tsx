@@ -52,8 +52,8 @@ export function SeasonReportScreen() {
           <p className="mt-3 rounded-md border border-dashed p-4 text-sm text-muted-foreground">확정된 과제 점수가 없습니다.</p>
         ) : (
           <table className="mt-3 w-full border-collapse text-sm">
-            <thead><tr className="border-y bg-muted/40"><th className="px-3 py-2 text-left">과제</th><th className="px-3 py-2 text-right">평균 점수</th></tr></thead>
-            <tbody>{model.categoryAverages.map((task) => <tr className="border-b" key={task.id}><td className="px-3 py-2">{task.label}</td><td className="numeric px-3 py-2 text-right font-semibold">{task.score.toFixed(1)}</td></tr>)}</tbody>
+            <thead><tr className="border-y bg-muted/40"><th className="px-3 py-2 text-left">과제</th><th className="px-3 py-2 text-right">가중 평균</th><th className="px-3 py-2 text-right">비가중 평균</th><th className="px-3 py-2 text-right">완료 표본</th></tr></thead>
+            <tbody>{model.categoryAverages.map((task) => <tr className="border-b" key={task.id}><td className="px-3 py-2">{task.label}</td><td className="numeric px-3 py-2 text-right font-semibold">{task.weightedScore.toFixed(1)}</td><td className="numeric px-3 py-2 text-right">{task.unweightedScore.toFixed(1)}</td><td className="numeric px-3 py-2 text-right">{task.sampleSize}명</td></tr>)}</tbody>
           </table>
         )}
       </section>

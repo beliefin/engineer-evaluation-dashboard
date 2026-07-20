@@ -1,4 +1,4 @@
-import { cleanup, render, screen } from "@testing-library/react"
+import { cleanup, fireEvent, render, screen } from "@testing-library/react"
 import userEvent from "@testing-library/user-event"
 import { afterEach, beforeEach, describe, expect, it } from "vitest"
 
@@ -67,7 +67,7 @@ describe("EvaluationFormScreen autosave integration", () => {
     // Given
     const user = userEvent.setup()
     renderEvaluationForm()
-    const input = await screen.findByRole("spinbutton", { name: "결과물의 사용 편의성 점수" })
+    const input = await screen.findByRole("textbox", { name: "결과물의 사용 편의성 점수" })
 
     // When
     await user.type(input, "9")
@@ -85,7 +85,7 @@ describe("EvaluationFormScreen autosave integration", () => {
     // Given
     const user = userEvent.setup()
     const firstRender = renderEvaluationForm()
-    const input = await screen.findByRole("spinbutton", { name: "결과물의 사용 편의성 점수" })
+    const input = await screen.findByRole("textbox", { name: "결과물의 사용 편의성 점수" })
     await user.type(input, "8")
     expect(await screen.findByText("저장 완료")).toBeInTheDocument()
     firstRender.unmount()
@@ -94,6 +94,25 @@ describe("EvaluationFormScreen autosave integration", () => {
     renderEvaluationForm()
 
     // Then
-    expect(await screen.findByRole("spinbutton", { name: "결과물의 사용 편의성 점수" })).toHaveValue(8)
+    expect(await screen.findByRole("textbox", { name: "결과물의 사용 편의성 점수" })).toHaveValue("8")
+  })
+
+  it("persists ten TSV scores through one batch update", async () => {
+    // Given
+    const user = userEvent.setup()
+    renderEvaluationForm()
+    const input = await screen.findByRole("textbox", { name: "TSV 점수" })
+
+    // When
+    fireEvent.change(input, { target: { value: "10\t9\t8\t7\t6\t5\t4\t3\t2\t1" } })
+    await user.click(screen.getByRole("button", { name: "점수 일괄 적용" }))
+
+    // Then
+    expect(await screen.findByText("저장 완료")).toBeInTheDocument()
+    const persisted = createLocalStorageEvaluationRepository({
+      storage: window.localStorage,
+    }).loadSnapshot()
+    const sheet = persisted.scoreSheets.find((candidate) => candidate.id === SHEET_ID)
+    expect(sheet?.scores.map((entry) => entry.score)).toEqual([10, 9, 8, 7, 6, 5, 4, 3, 2, 1])
   })
 })

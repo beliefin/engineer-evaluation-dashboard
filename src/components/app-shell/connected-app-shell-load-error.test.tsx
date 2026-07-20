@@ -7,7 +7,7 @@ import { EvaluationProvider } from "@/providers"
 import { LOCAL_STORAGE_KEY } from "@/repository"
 import { seedTestAuthSession, TestAuthProvider } from "@/test/auth-fixture"
 
-import { ConnectedAppShell } from "./connected-app-shell"
+import { ConnectedAppShell, RemoteEvaluationLoadError } from "./connected-app-shell"
 
 vi.mock("next/navigation", () => ({
   usePathname: () => "/dashboard",
@@ -40,6 +40,26 @@ afterEach(() => {
 })
 
 describe("ConnectedAppShell initial repository load failure", () => {
+  it("offers logout when a remote operating-data load cannot recover", async () => {
+    const user = userEvent.setup()
+    const onRetry = vi.fn()
+    const onLogout = vi.fn()
+
+    render(
+      <RemoteEvaluationLoadError
+        description="운영 데이터를 불러오지 못했습니다."
+        onLogout={onLogout}
+        onRetry={onRetry}
+      />,
+    )
+
+    await user.click(screen.getByRole("button", { name: "다시 시도" }))
+    await user.click(screen.getByRole("button", { name: "로그아웃" }))
+
+    expect(onRetry).toHaveBeenCalledOnce()
+    expect(onLogout).toHaveBeenCalledOnce()
+  })
+
   it("shows an accessible error and recovers when retry succeeds", async () => {
     // Given
     const user = userEvent.setup()

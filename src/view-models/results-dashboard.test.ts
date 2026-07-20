@@ -87,4 +87,69 @@ describe("engineer result selectors", () => {
       dashboard?.metrics.find((metric) => metric.id === "unconfirmed")?.value,
     ).toBe(4)
   })
+
+  it("Given a team scope When selecting the dashboard Then every aggregate uses only that team", () => {
+    // Given
+    const snapshot = createSeedSnapshot()
+
+    // When
+    const dashboard = selectDashboardViewModel(snapshot, CYCLE_ID, "생산 1팀")
+
+    // Then
+    expect(dashboard?.metrics.find((metric) => metric.id === "target")?.value).toBe(12)
+    expect(dashboard?.evaluationRows).toHaveLength(12)
+    expect(dashboard?.evaluationRows.every((row) => row.team === "생산 1팀")).toBe(true)
+    expect(dashboard?.rankingRows.every((row) => row.team === "생산 1팀")).toBe(true)
+  })
+
+  it("Given assigned evaluations When no score exists or every evaluator submitted Then status is not started or complete", () => {
+    // Given
+    const dashboard = selectDashboardViewModel(createSeedSnapshot(), CYCLE_ID)
+
+    // When
+    const notStarted = dashboard?.evaluationRows.find((row) => row.name === "샘플 엔지니어 23")
+    const completed = dashboard?.evaluationRows.find((row) => row.name === "샘플 엔지니어 01")
+    const growth = completed?.tasks.find((task) => task.taskId === "task-growth-plan")
+
+    // Then
+    expect(notStarted?.status).toBe("not_started")
+    expect(completed?.status).toBe("complete")
+    expect(growth).toMatchObject({
+      status: "complete",
+      completedEvaluatorCount: 2,
+      evaluatorCount: 2,
+    })
+  })
+
+  it("Given unequal evaluator weights When task averages are calculated Then weighted and simple averages are both exposed", () => {
+    // Given
+    const snapshot = createSeedSnapshot()
+    const assignments = snapshot.assignments.filter((assignment) =>
+      assignment.engineerId === "engineer-01" && assignment.taskId === "task-growth-plan",
+    )
+    const scoreSheets = snapshot.scoreSheets.map((sheet) => {
+      const evaluatorIndex = assignments.findIndex((assignment) => assignment.id === sheet.assignmentId)
+      if (evaluatorIndex < 0) return sheet
+      return {
+        ...sheet,
+        status: "submitted" as const,
+        scores: sheet.scores.map((score) => ({ ...score, score: evaluatorIndex === 0 ? 10 : 0 })),
+      }
+    })
+
+    // When
+    const dashboard = selectDashboardViewModel(
+      { ...snapshot, scoreSheets },
+      CYCLE_ID,
+      "생산 1팀",
+    )
+    const growth = dashboard?.categoryAverages.find((task) => task.id === "task-growth-plan")
+
+    // Then
+    expect(growth).toMatchObject({
+      weightedScore: 78.8,
+      unweightedScore: 77.3,
+      sampleSize: 11,
+    })
+  })
 })

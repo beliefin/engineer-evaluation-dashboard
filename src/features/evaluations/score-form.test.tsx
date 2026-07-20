@@ -82,7 +82,7 @@ describe("ScoreInputRow", () => {
       />
     )
 
-    const input = screen.getByRole("spinbutton", { name: "평가 항목 1 점수" })
+    const input = screen.getByRole("textbox", { name: "평가 항목 1 점수" })
     fireEvent.change(input, { target: { value: "11" } })
     expect(onChange).not.toHaveBeenCalled()
     expect(screen.getByText("0에서 10 사이의 정수를 입력해 주세요.")).toBeInTheDocument()
@@ -104,7 +104,7 @@ describe("ScoreInputRow", () => {
       />
     )
 
-    const input = screen.getByRole("spinbutton", { name: "평가 항목 1 점수" })
+    const input = screen.getByRole("textbox", { name: "평가 항목 1 점수" })
     fireEvent.keyDown(input, { key: "ArrowUp" })
     fireEvent.keyDown(input, { key: "ArrowDown" })
 
@@ -128,6 +128,7 @@ describe("EvaluationScoreForm", () => {
       <EvaluationScoreForm
         viewModel={model}
         onScoreChange={vi.fn()}
+        onScoresChange={vi.fn()}
         onPassResultChange={onPassResultChange}
         onSave={vi.fn()}
         onSubmit={onSubmit}
@@ -150,6 +151,7 @@ describe("EvaluationScoreForm", () => {
       <EvaluationScoreForm
         viewModel={makeViewModel(values)}
         onScoreChange={vi.fn()}
+        onScoresChange={vi.fn()}
         onPassResultChange={vi.fn()}
         onSave={vi.fn()}
         onSubmit={onSubmit}
@@ -172,6 +174,7 @@ describe("EvaluationScoreForm", () => {
       <EvaluationScoreForm
         viewModel={makeViewModel([10, 9, 8, 7, 6, 5, 4, 3, 2, 1])}
         onScoreChange={vi.fn()}
+        onScoresChange={vi.fn()}
         onPassResultChange={vi.fn()}
         onSave={vi.fn()}
         onSubmit={onSubmit}
@@ -189,6 +192,7 @@ describe("EvaluationScoreForm", () => {
       <EvaluationScoreForm
         viewModel={makeViewModel([10, 9, 8, 7, 6, 5, 4, 3, 2, 1], true)}
         onScoreChange={vi.fn()}
+        onScoresChange={vi.fn()}
         onPassResultChange={vi.fn()}
         onSave={vi.fn()}
         onSubmit={vi.fn()}
@@ -200,7 +204,7 @@ describe("EvaluationScoreForm", () => {
     expect(
       screen.getByText(/운영자에게 잠금 해제를 요청하세요/),
     ).toBeInTheDocument()
-    for (const input of screen.getAllByRole("spinbutton")) {
+    for (const input of screen.getAllByRole("textbox", { name: /점수$/ })) {
       expect(input).toBeDisabled()
     }
     expect(screen.getByRole("button", { name: "임시저장" })).toBeDisabled()
@@ -214,6 +218,7 @@ describe("EvaluationScoreForm", () => {
       <EvaluationScoreForm
         viewModel={makeViewModel([10, 9, 8, 7, 6, 5, 4, 3, 2, 1], true)}
         onScoreChange={vi.fn()}
+        onScoresChange={vi.fn()}
         onPassResultChange={vi.fn()}
         onSave={vi.fn()}
         onSubmit={vi.fn()}
@@ -241,6 +246,7 @@ describe("EvaluationScoreForm", () => {
           proxyEntry: true,
         }}
         onScoreChange={vi.fn()}
+        onScoresChange={vi.fn()}
         onPassResultChange={vi.fn()}
         onSave={vi.fn()}
         onSubmit={vi.fn()}

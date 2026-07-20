@@ -2,14 +2,18 @@ import {
   rankCompletedResults,
   type EngineerResult,
   type EvaluationSnapshot,
+  type TaskResult,
 } from "@/domain"
 import type {
   CategoryAverageDatum,
   CompletedRankingRow,
   DashboardMetric,
+  DashboardEvaluationTask,
+  EngineerEvaluationProgressRow,
   ScoreDistributionDatum,
 } from "@/features/dashboard"
 
+import { selectDashboardProgress } from "./dashboard-progress"
 import { selectEngineerResultSummaries } from "./results"
 
 export type DashboardViewModel = Readonly<{
@@ -17,6 +21,8 @@ export type DashboardViewModel = Readonly<{
   distribution: readonly ScoreDistributionDatum[]
   categoryAverages: readonly CategoryAverageDatum[]
   rankingRows: readonly CompletedRankingRow[]
+  evaluationTasks: readonly DashboardEvaluationTask[]
+  evaluationRows: readonly EngineerEvaluationProgressRow[]
 }>
 
 const roundToOne = (value: number): number => Math.round(value * 10) / 10
@@ -41,7 +47,7 @@ function createMetrics(
       label: "평가 대상",
       value: targetCount,
       unit: "명",
-      description: "이번 시즌 전체 엔지니어",
+      description: "선택 범위의 시즌 엔지니어",
       tone: "neutral",
     },
     {
@@ -103,9 +109,14 @@ function createCategoryAverages(
     .map((task) => ({
       id: task.id,
       label: task.name,
-      scores: results
-        .map((result) => result.taskResults.find((entry) => entry.taskId === task.id)?.score ?? null)
-        .filter((score): score is number => score !== null),
+      scores: results.flatMap((result) => {
+        const taskResult = result.taskResults.find((entry) => entry.taskId === task.id)
+        if (taskResult?.status !== "complete" || taskResult.score === null) return []
+        return [{
+          weighted: taskResult.score,
+          unweighted: unweightedTaskScore(taskResult),
+        }]
+      }),
     }))
 
   return definitions
@@ -113,8 +124,22 @@ function createCategoryAverages(
     .map((definition) => ({
       id: definition.id,
       label: definition.label,
-      score: average(definition.scores),
+      weightedScore: average(definition.scores.map((score) => score.weighted)),
+      unweightedScore: average(definition.scores.map((score) => score.unweighted)),
+      sampleSize: definition.scores.length,
     }))
+}
+
+function unweightedTaskScore(result: TaskResult): number {
+  if (result.method !== "evaluator_score" && result.method !== "evaluator_pass_fail") {
+    return result.score ?? 0
+  }
+  const scores = result.evaluators.flatMap((evaluator) =>
+    evaluator.rawScore === null ? [] : [evaluator.rawScore],
+  )
+  return scores.length === 0
+    ? 0
+    : scores.reduce((total, score) => total + score, 0) / scores.length
 }
 
 function createRankingRows(
@@ -141,16 +166,22 @@ function createRankingRows(
 export function selectDashboardViewModel(
   snapshot: EvaluationSnapshot,
   cycleId: string,
+  team = "all",
 ): DashboardViewModel | null {
   const cycle = snapshot.cycles.find((entry) => entry.id === cycleId)
   if (cycle === undefined) return null
 
-  const summaries = selectEngineerResultSummaries(snapshot, cycleId)
+  const summaries = selectEngineerResultSummaries(snapshot, cycleId).filter(
+    (summary) => team === "all" || summary.engineer.team === team,
+  )
   const results = summaries.map((summary) => summary.result)
+  const progress = selectDashboardProgress(snapshot, summaries)
   return {
     metrics: createMetrics(summaries),
     distribution: createDistribution(results),
     categoryAverages: createCategoryAverages(results, snapshot, cycleId),
     rankingRows: createRankingRows(results, snapshot),
+    evaluationTasks: progress.tasks,
+    evaluationRows: progress.rows,
   }
 }

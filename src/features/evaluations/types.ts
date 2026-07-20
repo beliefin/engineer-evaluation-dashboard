@@ -56,6 +56,7 @@ export interface EvaluationScoreFormViewModel {
 export interface EvaluationScoreFormProps {
   readonly viewModel: EvaluationScoreFormViewModel
   readonly onScoreChange: (itemId: string, value: number | null) => void
+  readonly onScoresChange: (values: readonly number[]) => void
   readonly onPassResultChange: (value: boolean | null) => void
   readonly onSave: () => void
   readonly onSubmit: () => void

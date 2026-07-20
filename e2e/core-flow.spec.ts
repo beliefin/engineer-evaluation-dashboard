@@ -12,7 +12,7 @@ test.beforeEach(async ({ page }) => {
 })
 
 async function fillMissingScores(page: import("@playwright/test").Page, value = "8") {
-  const inputs = page.locator('input[type="number"]')
+  const inputs = page.locator('input[inputmode="numeric"][aria-label$=" 점수"]')
   await expect(inputs.first()).toBeVisible()
   const count = await inputs.count()
   for (let index = 0; index < count; index += 1) {

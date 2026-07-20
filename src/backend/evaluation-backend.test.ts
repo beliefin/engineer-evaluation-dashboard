@@ -1,10 +1,27 @@
 import { describe, expect, it } from "vitest"
 
 import { createSeedSnapshot } from "@/data/seed"
+import { evaluationSnapshotSchema } from "@/domain"
 
 import { createRemoteRequest } from "./evaluation-backend"
 
 describe("createRemoteRequest", () => {
+  it("accepts precise evaluator aggregates returned to engineer accounts", () => {
+    const snapshot = createSeedSnapshot()
+    const directScore = snapshot.directScores[0]
+    expect(directScore).toBeDefined()
+
+    const projected = {
+      ...snapshot,
+      directScores: snapshot.directScores.map((entry) =>
+        entry.id === directScore?.id
+          ? { ...entry, score: 85.72222222222223 }
+          : entry),
+    }
+
+    expect(evaluationSnapshotSchema.safeParse(projected).success).toBe(true)
+  })
+
   it("Given an evaluator draft command When serialized Then only the owned sheet payload is sent", () => {
     const snapshot = createSeedSnapshot()
     const sheet = snapshot.scoreSheets[0]

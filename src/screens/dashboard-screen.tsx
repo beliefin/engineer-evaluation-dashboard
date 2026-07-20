@@ -1,12 +1,15 @@
 "use client"
 
-import { usePathname, useRouter, useSearchParams } from "next/navigation"
+import { useEffect, useState } from "react"
+import { usePathname, useSearchParams } from "next/navigation"
 
 import { ErrorState } from "@/components/shared"
+import { Button } from "@/components/ui/button"
 import {
   CategoryAverageChart,
   CompletedRanking,
   DashboardHeader,
+  EngineerEvaluationProgress,
   MetricStrip,
   ScoreDistributionChart,
   type RankingFilterState,
@@ -26,55 +29,72 @@ function parseStatus(value: string | null): RankingStatusFilter {
 
 export function DashboardScreen() {
   const pathname = usePathname()
-  const router = useRouter()
   const searchParams = useSearchParams()
   const { snapshot, activeCycleId, backendMode } = useEvaluation()
+  const [filters, setFilters] = useState<RankingFilterState>(() => ({
+    query: searchParams.get("q") ?? "",
+    team: searchParams.get("team") ?? "all",
+    status: parseStatus(searchParams.get("status")),
+  }))
+  const [sorting, setSorting] = useState<RankingSortState>(() =>
+    parseRankingSortState(searchParams.get("sort"), searchParams.get("direction")),
+  )
+
+  useEffect(() => {
+    function restoreUrlState() {
+      const params = new URLSearchParams(window.location.search)
+      setFilters({
+        query: params.get("q") ?? "",
+        team: params.get("team") ?? "all",
+        status: parseStatus(params.get("status")),
+      })
+      setSorting(parseRankingSortState(params.get("sort"), params.get("direction")))
+    }
+
+    window.addEventListener("popstate", restoreUrlState)
+    return () => window.removeEventListener("popstate", restoreUrlState)
+  }, [])
 
   if (snapshot === null) return null
-  const model = selectDashboardViewModel(snapshot, activeCycleId)
+  const teams = Array.from(new Set(snapshot.engineers.map((engineer) => engineer.team)))
+    .sort((left, right) => left.localeCompare(right, "ko"))
+  const requestedTeam = filters.team
+  const selectedTeam = requestedTeam !== null && teams.some((team) => team === requestedTeam)
+    ? requestedTeam
+    : "all"
+  const scopeLabel = selectedTeam === "all" ? "전체" : selectedTeam
+  const model = selectDashboardViewModel(snapshot, activeCycleId, selectedTeam)
   if (model === null) {
     return <ErrorState description="선택한 평가 시즌의 데이터를 찾을 수 없습니다." />
   }
   const cycle = snapshot.cycles.find((entry) => entry.id === activeCycleId)
-  const filters: RankingFilterState = {
-    query: searchParams.get("q") ?? "",
-    team: searchParams.get("team") ?? "all",
-    status: parseStatus(searchParams.get("status")),
-  }
-  const sorting = parseRankingSortState(
-    searchParams.get("sort"),
-    searchParams.get("direction")
-  )
+  const visibleFilters: RankingFilterState = { ...filters, team: selectedTeam }
 
-  function replaceDashboardUrl(params: URLSearchParams) {
+  function replaceDashboardUrl(nextFilters: RankingFilterState, nextSorting: RankingSortState) {
+    const params = new URLSearchParams()
+    if (nextFilters.query !== "") params.set("q", nextFilters.query)
+    if (nextFilters.team !== "all") params.set("team", nextFilters.team)
+    if (nextFilters.status !== "all") params.set("status", nextFilters.status)
+    const isDefaultSorting =
+      nextSorting.key === DEFAULT_RANKING_SORT.key &&
+      nextSorting.direction === DEFAULT_RANKING_SORT.direction
+    if (!isDefaultSorting) {
+      params.set("sort", nextSorting.key)
+      params.set("direction", nextSorting.direction)
+    }
     const query = params.toString()
-    router.replace(query.length > 0 ? `${pathname}?${query}` : pathname, { scroll: false })
+    const nextUrl = query.length > 0 ? `${pathname}?${query}` : pathname
+    History.prototype.replaceState.call(window.history, window.history.state, "", nextUrl)
   }
 
   function updateFilters(next: RankingFilterState) {
-    const params = new URLSearchParams(searchParams.toString())
-    const values = { q: next.query, team: next.team, status: next.status }
-    Object.entries(values).forEach(([key, value]) => {
-      if (value === "" || value === "all") params.delete(key)
-      else params.set(key, value)
-    })
-    replaceDashboardUrl(params)
+    setFilters(next)
+    replaceDashboardUrl(next, sorting)
   }
 
   function updateSorting(next: RankingSortState) {
-    const params = new URLSearchParams(searchParams.toString())
-    const isDefault =
-      next.key === DEFAULT_RANKING_SORT.key &&
-      next.direction === DEFAULT_RANKING_SORT.direction
-
-    if (isDefault) {
-      params.delete("sort")
-      params.delete("direction")
-    } else {
-      params.set("sort", next.key)
-      params.set("direction", next.direction)
-    }
-    replaceDashboardUrl(params)
+    setSorting(next)
+    replaceDashboardUrl(visibleFilters, next)
   }
 
   return (
@@ -87,7 +107,41 @@ export function DashboardScreen() {
         sampleLabel={backendMode === "supabase" ? "운영 데이터" : "샘플 데이터"}
         title="엔지니어 역량평가 전체 현황"
       />
+      <section
+        aria-labelledby="dashboard-scope-title"
+        className="flex flex-col gap-3 rounded-lg border border-border bg-card px-5 py-4 sm:flex-row sm:items-center sm:justify-between"
+      >
+        <div>
+          <h2 className="text-sm font-semibold" id="dashboard-scope-title">현황 범위</h2>
+          <p className="mt-1 text-xs text-muted-foreground">
+            대상 수, 평가 현황, 과제 평균과 완료자 순위를 같은 팀 범위로 전환합니다.
+          </p>
+        </div>
+        <div className="flex flex-wrap gap-2" role="group" aria-label="현황 팀 범위">
+          {["all", ...teams].map((team) => {
+            const label = team === "all" ? "전체" : team
+            const selected = selectedTeam === team
+            return (
+              <Button
+                aria-label={`${label} 현황 보기`}
+                aria-pressed={selected}
+                key={team}
+                onClick={() => updateFilters({ ...visibleFilters, team })}
+                size="sm"
+                type="button"
+                variant={selected ? "default" : "outline"}
+              >
+                {label}
+              </Button>
+            )
+          })}
+        </div>
+      </section>
       <MetricStrip metrics={model.metrics} />
+      <EngineerEvaluationProgress
+        rows={model.evaluationRows}
+        tasks={model.evaluationTasks}
+      />
       <div className="grid gap-6 xl:grid-cols-2">
         <ScoreDistributionChart
           data={model.distribution}
@@ -96,18 +150,18 @@ export function DashboardScreen() {
         />
         <CategoryAverageChart
           data={model.categoryAverages}
-          description="각 과제에서 확정된 0~100 환산점수의 평균입니다."
-          title="과제별 평균"
+          description={`${scopeLabel}에서 과제가 완료된 엔지니어의 평가자 가중 평균과 단순 평균을 비교합니다.`}
+          title={`${scopeLabel} 과제별 평균`}
         />
       </div>
       <CompletedRanking
-        description="표시 총점 소수 둘째 자리 기준 공동순위(1, 2, 2, 4)를 적용합니다."
-        filters={filters}
+        description="본인에게 적용된 모든 과제가 완료된 대상만 포함하며, 표시 총점 소수 둘째 자리 기준 공동순위(1, 2, 2, 4)를 적용합니다."
+        filters={visibleFilters}
         onFiltersChange={updateFilters}
         sorting={sorting}
         onSortingChange={updateSorting}
         rows={model.rankingRows}
-        title="완료자 전체 순위"
+        title={`${scopeLabel} 완료자 순위`}
       />
     </div>
   )

@@ -223,7 +223,7 @@ export const directScoreSchema = z.object({
   cycleId: idSchema,
   engineerId: idSchema,
   taskId: idSchema,
-  score: z.number().min(0).max(100).multipleOf(0.1).nullable(),
+  score: z.number().finite().min(0).max(100).nullable(),
   passResult: z.boolean().nullable(),
   updatedAt: timestampSchema,
 })

@@ -78,6 +78,7 @@ vi.mock("@/features/dashboard", async () => {
     CategoryAverageChart: () => null,
     DashboardHeader: ({ title }: Readonly<{ title: string }>) =>
       createElement("h1", null, title),
+    EngineerEvaluationProgress: () => null,
     MetricStrip: () => null,
     ScoreDistributionChart: () => null,
     CompletedRanking: ({
@@ -102,7 +103,7 @@ vi.mock("@/features/dashboard", async () => {
             "aria-label": "팀 필터",
             type: "button",
             onClick: () =>
-              onFiltersChange?.({ ...filters, team: "설비기술팀" }),
+              onFiltersChange?.({ ...filters, team: "생산 2팀" }),
           },
           filters.team,
         ),
@@ -160,14 +161,20 @@ describe("dashboard URL filter state", () => {
     seedTestAuthSession()
     navigation.replace.mockClear()
     navigation.setUrl("/dashboard")
+    vi.spyOn(History.prototype, "replaceState").mockImplementation((_data, _unused, url) => {
+      if (url !== undefined && url !== null) navigation.setUrl(String(url))
+    })
   })
 
-  afterEach(() => cleanup())
+  afterEach(() => {
+    cleanup()
+    vi.restoreAllMocks()
+  })
 
   it("reads search, team, and status filters from the initial URL", async () => {
     // Given
     navigation.setUrl(
-      "/dashboard?q=%EC%83%98%ED%94%8C+%EC%97%94%EC%A7%80%EB%8B%88%EC%96%B4+01&team=%EA%B3%B5%EC%A0%95%EA%B8%B0%EC%88%A0+1%ED%8C%80&status=confirmed",
+      "/dashboard?q=%EC%83%98%ED%94%8C+%EC%97%94%EC%A7%80%EB%8B%88%EC%96%B4+01&team=%EC%83%9D%EC%82%B0+1%ED%8C%80&status=confirmed",
     )
 
     // When
@@ -177,7 +184,7 @@ describe("dashboard URL filter state", () => {
     const { searchInput, teamFilter, statusFilter } = await getFilterControls()
 
     expect(searchInput).toHaveValue("샘플 엔지니어 01")
-    expect(teamFilter).toHaveTextContent("공정기술 1팀")
+    expect(teamFilter).toHaveTextContent("생산 1팀")
     expect(statusFilter).toHaveTextContent("confirmed")
   })
 
@@ -195,15 +202,15 @@ describe("dashboard URL filter state", () => {
     // Then
     const params = new URL(navigation.getUrl(), "http://localhost").searchParams
     expect(params.get("q")).toBe("엔지니어 02")
-    expect(params.get("team")).toBe("설비기술팀")
+    expect(params.get("team")).toBe("생산 2팀")
     expect(params.get("status")).toBe("tied")
-    expect(navigation.replace).toHaveBeenCalled()
+    expect(History.prototype.replaceState).toHaveBeenCalled()
   })
 
   it("restores the current URL filters after the dashboard remounts", async () => {
     // Given
     navigation.setUrl(
-      "/dashboard?q=%EC%97%94%EC%A7%80%EB%8B%88%EC%96%B4+03&team=%EC%9E%90%EB%8F%99%ED%99%94%EA%B8%B0%EC%88%A0%ED%8C%80&status=tied",
+      "/dashboard?q=%EC%97%94%EC%A7%80%EB%8B%88%EC%96%B4+03&team=%EC%83%9D%EC%82%B0+2%ED%8C%80&status=tied",
     )
     const firstView = renderDashboard()
     await screen.findByRole("heading", { name: "엔지니어 역량평가 전체 현황" })
@@ -216,14 +223,14 @@ describe("dashboard URL filter state", () => {
     const { searchInput, teamFilter, statusFilter } = await getFilterControls()
 
     expect(searchInput).toHaveValue("엔지니어 03")
-    expect(teamFilter).toHaveTextContent("자동화기술팀")
+    expect(teamFilter).toHaveTextContent("생산 2팀")
     expect(statusFilter).toHaveTextContent("tied")
   })
 
   it("restores URL sorting and preserves filters when sorting changes", async () => {
     // Given
     navigation.setUrl(
-      "/dashboard?q=%EC%97%94%EC%A7%80%EB%8B%88%EC%96%B4&team=%EA%B3%B5%EC%A0%95%EA%B8%B0%EC%88%A0+1%ED%8C%80&status=confirmed&sort=totalScore&direction=asc",
+      "/dashboard?q=%EC%97%94%EC%A7%80%EB%8B%88%EC%96%B4&team=%EC%83%9D%EC%82%B0+1%ED%8C%80&status=confirmed&sort=totalScore&direction=asc",
     )
     const user = userEvent.setup()
     renderDashboard()
@@ -239,9 +246,27 @@ describe("dashboard URL filter state", () => {
     // Then
     const params = new URL(navigation.getUrl(), "http://localhost").searchParams
     expect(params.get("q")).toBe("엔지니어")
-    expect(params.get("team")).toBe("공정기술 1팀")
+    expect(params.get("team")).toBe("생산 1팀")
     expect(params.get("status")).toBe("confirmed")
     expect(params.get("sort")).toBe("totalScore")
     expect(params.get("direction")).toBe("desc")
+  })
+
+  it("uses the top team scope switch for every dashboard aggregate", async () => {
+    const user = userEvent.setup()
+    renderDashboard()
+    await screen.findByRole("heading", { name: "엔지니어 역량평가 전체 현황" })
+
+    await user.click(screen.getByRole("button", { name: "생산 1팀 현황 보기" }))
+
+    expect(new URL(navigation.getUrl(), "http://localhost").searchParams.get("team")).toBe("생산 1팀")
+    expect(screen.getByRole("button", { name: "생산 1팀 현황 보기" })).toHaveAttribute("aria-pressed", "true")
+
+    await user.click(screen.getByRole("button", { name: "생산 2팀 현황 보기" }))
+    expect(new URL(navigation.getUrl(), "http://localhost").searchParams.get("team")).toBe("생산 2팀")
+    expect(screen.getByRole("button", { name: "생산 2팀 현황 보기" })).toHaveAttribute("aria-pressed", "true")
+
+    await user.click(screen.getByRole("button", { name: "전체 현황 보기" }))
+    expect(new URL(navigation.getUrl(), "http://localhost").searchParams.get("team")).toBeNull()
   })
 })

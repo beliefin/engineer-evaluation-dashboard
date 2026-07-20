@@ -19,6 +19,16 @@ describe("analysis and operations view models", () => {
     expect(model?.categoryOptions.map((entry) => entry.label)).toContain("성장탐구계획서")
     expect(model?.rubricItemAverages.length).toBeGreaterThan(0)
     expect(model?.evaluatorDeviations.length).toBeGreaterThan(0)
+    expect(Array.from(new Set(model?.rubricItemAverages.map((entry) => entry.taskId))))
+      .toEqual(["task-growth-plan", "task-ots-scenario", "task-dx-tool"])
+    expect(Array.from(new Set(model?.evaluatorDeviations.map((entry) => entry.taskId))))
+      .toEqual(["task-growth-plan", "task-ots-scenario", "task-dx-tool"])
+    for (const taskId of ["task-growth-plan", "task-ots-scenario", "task-dx-tool"]) {
+      expect(model?.rubricItemAverages
+        .filter((entry) => entry.taskId === taskId)
+        .map((entry) => entry.itemNumber))
+        .toEqual([1, 2, 3, 4, 5, 6, 7, 8, 9, 10])
+    }
     expect(model?.scoreDistributions.length).toBeGreaterThan(0)
     expect(model?.taskCompletionRates.length).toBeGreaterThan(0)
     expect(model?.teamTaskPerformance.length).toBeGreaterThan(0)

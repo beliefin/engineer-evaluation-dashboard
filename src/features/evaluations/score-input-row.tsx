@@ -150,11 +150,9 @@ export function ScoreInputRow({
         <div className="relative">
           <Input
             id={inputId}
-            type="number"
+            type="text"
             inputMode="numeric"
-            min={0}
-            max={10}
-            step={1}
+            autoComplete="off"
             value={state.value}
             disabled={locked}
             aria-label={`${label} 점수`}

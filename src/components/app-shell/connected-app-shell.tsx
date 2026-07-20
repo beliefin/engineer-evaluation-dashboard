@@ -1,6 +1,6 @@
 "use client"
 
-import { RefreshCw, RotateCcw } from "lucide-react"
+import { LogOut, RefreshCw, RotateCcw } from "lucide-react"
 import { useRouter } from "next/navigation"
 import { useEffect, useState, type ReactNode } from "react"
 
@@ -21,6 +21,38 @@ import { useAuth, useEvaluation } from "@/providers"
 
 import { AppShell } from "./app-shell"
 import { APP_SHELL_HOME_PATHS, type AppShellRole } from "./types"
+
+export function RemoteEvaluationLoadError({
+  description,
+  onLogout,
+  onRetry,
+}: Readonly<{
+  description: string
+  onLogout: () => void
+  onRetry: () => void
+}>) {
+  return (
+    <main className="mx-auto flex min-h-dvh max-w-[1440px] items-center px-4 py-6 sm:px-5 lg:px-6">
+      <ErrorState
+        action={(
+          <>
+            <Button onClick={onRetry} type="button" variant="outline">
+              <RefreshCw aria-hidden="true" />
+              다시 시도
+            </Button>
+            <Button onClick={onLogout} type="button" variant="outline">
+              <LogOut aria-hidden="true" />
+              로그아웃
+            </Button>
+          </>
+        )}
+        className="mx-auto w-full max-w-2xl"
+        description={description}
+        title="운영 데이터를 불러오지 못했습니다"
+      />
+    </main>
+  )
+}
 
 export function ConnectedAppShell({ children }: Readonly<{ children: ReactNode }>) {
   const router = useRouter()
@@ -53,6 +85,11 @@ export function ConnectedAppShell({ children }: Readonly<{ children: ReactNode }
     if (authLoadState === "ready" && session === null) router.replace("/login")
   }, [authLoadState, router, session])
 
+  function handleLogout() {
+    logout()
+    router.replace("/login")
+  }
+
   if (authLoadState === "error") {
     return (
       <main className="mx-auto flex min-h-dvh max-w-[1440px] items-center px-4 py-6 sm:px-5 lg:px-6">
@@ -76,19 +113,11 @@ export function ConnectedAppShell({ children }: Readonly<{ children: ReactNode }
     case "error":
       if (backendMode === "supabase") {
         return (
-          <main className="mx-auto flex min-h-dvh max-w-[1440px] items-center px-4 py-6 sm:px-5 lg:px-6">
-            <ErrorState
-              action={(
-                <Button onClick={retryLoad} type="button" variant="outline">
-                  <RefreshCw aria-hidden="true" />
-                  다시 시도
-                </Button>
-              )}
-              className="mx-auto w-full max-w-2xl"
-              description={errorMessage ?? loadState.error.message}
-              title="운영 데이터를 불러오지 못했습니다"
-            />
-          </main>
+          <RemoteEvaluationLoadError
+            description={errorMessage ?? loadState.error.message}
+            onLogout={handleLogout}
+            onRetry={retryLoad}
+          />
         )
       }
       return (
@@ -156,11 +185,6 @@ export function ConnectedAppShell({ children }: Readonly<{ children: ReactNode }
 
   if (snapshot === null) {
     return null
-  }
-
-  function handleLogout() {
-    logout()
-    router.replace("/login")
   }
 
   function handleRoleChange(nextRole: AppShellRole) {

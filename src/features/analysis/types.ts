@@ -30,6 +30,8 @@ export type CategoryAverageDatum = Readonly<{
 }>
 
 export type RubricItemAverageDatum = Readonly<{
+  taskId: string
+  taskLabel: string
   itemNumber: number
   label: string
   score: number
@@ -44,6 +46,8 @@ export type TeamComparisonDatum = Readonly<{
 }>
 
 export type EvaluatorDeviationDatum = Readonly<{
+  taskId: string
+  taskLabel: string
   evaluatorId: string
   evaluatorLabel: string
   averageScore: number

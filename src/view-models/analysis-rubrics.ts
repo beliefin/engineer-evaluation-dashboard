@@ -77,8 +77,12 @@ export function selectRubricItemAverages(
   const items = snapshot.tasks
     .filter((task) => task.cycleId === cycleId && task.method === "evaluator_score")
     .filter((task) => selectedEvaluationTaskIds(snapshot, cycleId, normalizeAnalysisFilters(snapshot, filters)).includes(task.id))
-    .flatMap((task) => task.items.map((item) => ({ taskId: task.id, item })))
-  return items.flatMap(({ taskId, item }, itemIndex) => {
+    .flatMap((task) => task.items.map((item) => ({
+      taskId: task.id,
+      taskLabel: task.name,
+      item,
+    })))
+  return items.flatMap(({ taskId, taskLabel, item }) => {
     const values = submitted.flatMap(({ assignment, sheet }) => {
       if (assignment.taskId !== taskId) return []
       const score = sheet.scores.find((entry) => entry.itemId === item.id)?.score
@@ -86,7 +90,9 @@ export function selectRubricItemAverages(
     })
     if (values.length === 0) return []
     return [{
-      itemNumber: itemIndex + 1,
+      taskId,
+      taskLabel,
+      itemNumber: item.order,
       label: item.label,
       score: averageScore(values),
       responseCount: values.length,
@@ -128,7 +134,11 @@ export function selectEvaluatorDeviations(
     selectAssignments(snapshot, cycleId, filters),
   )
   const taskMeans = new Map<string, number>()
-  const taskIds = Array.from(new Set(observations.map((entry) => entry.taskId)))
+  const observedTaskIds = new Set(observations.map((entry) => entry.taskId))
+  const taskIds = snapshot.tasks
+    .filter((task) => task.cycleId === cycleId && observedTaskIds.has(task.id))
+    .toSorted((left, right) => left.order - right.order)
+    .map((task) => task.id)
   for (const taskId of taskIds) {
     const values = observations
       .filter((entry) => entry.taskId === taskId)
@@ -136,20 +146,26 @@ export function selectEvaluatorDeviations(
     if (values.length > 0) taskMeans.set(taskId, averageScore(values))
   }
 
-  return snapshot.evaluators.flatMap((evaluator) => {
-    const values = observations.filter(
-      (entry) => entry.evaluatorId === evaluator.id,
-    )
-    if (values.length === 0) return []
-    const deviations = values.map((entry) =>
-      Math.abs(entry.score - (taskMeans.get(entry.taskId) ?? entry.score)),
-    )
-    return [{
-      evaluatorId: evaluator.id,
-      evaluatorLabel: evaluator.displayName,
-      averageScore: averageScore(values.map((entry) => entry.score)),
-      meanAbsoluteDeviation: averageScore(deviations),
-      sheetCount: values.length,
-    }]
+  return taskIds.flatMap((taskId) => {
+    const task = snapshot.tasks.find((entry) => entry.id === taskId)
+    if (task === undefined) return []
+    return snapshot.evaluators.flatMap((evaluator) => {
+      const values = observations.filter(
+        (entry) => entry.taskId === taskId && entry.evaluatorId === evaluator.id,
+      )
+      if (values.length === 0) return []
+      const deviations = values.map((entry) =>
+        Math.abs(entry.score - (taskMeans.get(taskId) ?? entry.score)),
+      )
+      return [{
+        taskId,
+        taskLabel: task.name,
+        evaluatorId: evaluator.id,
+        evaluatorLabel: evaluator.displayName,
+        averageScore: averageScore(values.map((entry) => entry.score)),
+        meanAbsoluteDeviation: averageScore(deviations),
+        sheetCount: values.length,
+      }]
+    })
   })
 }

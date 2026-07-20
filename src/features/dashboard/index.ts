@@ -6,6 +6,7 @@ export {
 } from "./dashboard-view-models"
 export { DashboardHeader } from "./dashboard-header"
 export { DashboardPanel } from "./dashboard-panel"
+export { EngineerEvaluationProgress } from "./engineer-evaluation-progress"
 export { MetricStrip } from "./metric-strip"
 export { ScoreDistributionChart } from "./score-distribution-chart"
 export type {
@@ -16,6 +17,10 @@ export type {
   DashboardHeaderProps,
   DashboardMetric,
   DashboardMetricTone,
+  DashboardEvaluationStatus,
+  DashboardEvaluationTask,
+  EngineerEvaluationProgressRow,
+  EngineerTaskProgress,
   MetricStripProps,
   RankingFilterState,
   RankingSortDirection,

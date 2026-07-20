@@ -10,6 +10,7 @@ import { EvaluationStatusBadge } from "./evaluation-status-badge"
 import { ScoreFormActions } from "./score-form-actions"
 import { ScoreInputRow } from "./score-input-row"
 import { ScoreSummary } from "./score-summary"
+import { ScoreTsvInput } from "./score-tsv-input"
 import type { EvaluationScoreFormProps } from "./types"
 import { UnlockRequestDialog } from "./unlock-request-dialog"
 
@@ -20,6 +21,7 @@ function isValidScore(value: number | null): value is number {
 export function EvaluationScoreForm({
   viewModel,
   onScoreChange,
+  onScoresChange,
   onPassResultChange,
   onSave,
   onSubmit,
@@ -136,8 +138,14 @@ export function EvaluationScoreForm({
 
         {viewModel.method === "evaluator_score" ? (
           <>
+            <ScoreTsvInput
+              itemCount={viewModel.items.length}
+              key={`tsv-${viewModel.assignmentId}`}
+              locked={viewModel.locked}
+              onApply={onScoresChange}
+            />
             <ScoreSummary total={total} answeredCount={answeredCount} remainingCount={remainingCount} requirementsId={requirementsId} totalItems={viewModel.items.length} operatorMode={viewModel.proxyEntry} />
-            <div aria-label="평가 점수 입력 항목">{viewModel.items.map((item) => <ScoreInputRow key={item.id} assignmentId={viewModel.assignmentId} item={item} locked={viewModel.locked} onChange={(value) => onScoreChange(item.id, value)} />)}</div>
+            <div aria-label="평가 점수 입력 항목">{viewModel.items.map((item) => <ScoreInputRow key={`${viewModel.assignmentId}:${item.id}`} assignmentId={viewModel.assignmentId} item={item} locked={viewModel.locked} onChange={(value) => onScoreChange(item.id, value)} />)}</div>
           </>
         ) : (
           <section className="border-b border-border-subtle bg-muted/25 px-4 py-8 md:px-5" aria-labelledby="pass-fail-title">

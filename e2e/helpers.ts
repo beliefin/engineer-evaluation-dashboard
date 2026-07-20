@@ -58,6 +58,7 @@ export async function waitForApp(page: Page): Promise<void> {
     }
   }
   await page.getByText("샘플 데이터", { exact: true }).first().waitFor()
+  await dismissInitialPasswordChange(page)
 }
 
 const LOGIN_USERNAMES = {
@@ -72,6 +73,16 @@ async function submitLogin(page: Page, role: keyof typeof LOGIN_USERNAMES): Prom
   await page.getByLabel("비밀번호").fill("Demo!2026")
   await page.getByRole("button", { name: "로그인" }).click()
   await page.getByText("샘플 데이터", { exact: true }).first().waitFor()
+  await dismissInitialPasswordChange(page)
+}
+
+async function dismissInitialPasswordChange(page: Page): Promise<void> {
+  const postponePasswordChange = page.getByRole("button", { name: "나중에 변경" })
+  const passwordDialogOpened = await postponePasswordChange
+    .waitFor({ state: "visible", timeout: 3_000 })
+    .then(() => true)
+    .catch(() => false)
+  if (passwordDialogOpened) await postponePasswordChange.click()
 }
 
 export async function loginAs(

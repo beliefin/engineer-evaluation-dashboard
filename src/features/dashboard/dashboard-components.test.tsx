@@ -1,11 +1,15 @@
-import { render, screen } from "@testing-library/react"
+import { cleanup, render, screen } from "@testing-library/react"
 import userEvent from "@testing-library/user-event"
-import { describe, expect, it } from "vitest"
+import { afterEach, describe, expect, it } from "vitest"
 
 import { CompletedRanking } from "./completed-ranking"
+import { CategoryAverageChart } from "./category-average-chart"
+import { EngineerEvaluationProgress } from "./engineer-evaluation-progress"
 import { ScoreDistributionChart } from "./score-distribution-chart"
 import type {
+  CategoryAverageDatum,
   CompletedRankingRow,
+  EngineerEvaluationProgressRow,
   ScoreDistributionDatum,
 } from "./dashboard-view-models"
 
@@ -38,7 +42,85 @@ const ROWS: readonly CompletedRankingRow[] = [
   },
 ]
 
+const CATEGORY_AVERAGES: readonly CategoryAverageDatum[] = [
+  {
+    id: "task-growth",
+    label: "성장탐구계획서",
+    weightedScore: 82.4,
+    unweightedScore: 79.1,
+    sampleSize: 11,
+  },
+]
+
+const PROGRESS_ROWS: readonly EngineerEvaluationProgressRow[] = [
+  {
+    id: "engineer-1",
+    href: "/engineers/detail?engineerId=engineer-1",
+    name: "가상 엔지니어 1",
+    employeeCode: "0001",
+    team: "생산 1팀",
+    status: "in_progress",
+    completedTaskCount: 1,
+    taskCount: 2,
+    tasks: [
+      {
+        taskId: "task-growth",
+        label: "성장탐구계획서",
+        weight: 35,
+        status: "complete",
+        score: 82.4,
+        completedEvaluatorCount: 2,
+        evaluatorCount: 2,
+      },
+      {
+        taskId: "task-language",
+        label: "어학",
+        weight: 10,
+        status: "not_started",
+        score: null,
+        completedEvaluatorCount: null,
+        evaluatorCount: null,
+      },
+    ],
+  },
+]
+
 describe("dashboard presentation", () => {
+  afterEach(() => cleanup())
+
+  it("shows weighted and unweighted task averages with the same sample", () => {
+    render(
+      <CategoryAverageChart
+        title="과제별 평균"
+        description="완료된 과제만 집계"
+        data={CATEGORY_AVERAGES}
+      />
+    )
+
+    expect(screen.getAllByText("가중 평균").length).toBeGreaterThan(0)
+    expect(screen.getAllByText("비가중 평균").length).toBeGreaterThan(0)
+    expect(screen.getByText("82.4점")).toBeInTheDocument()
+    expect(screen.getByText("79.1점")).toBeInTheDocument()
+    expect(screen.getByText("11명")).toBeInTheDocument()
+  })
+
+  it("shows each engineer task completion and evaluator submission counts", () => {
+    render(
+      <EngineerEvaluationProgress
+        rows={PROGRESS_ROWS}
+        tasks={[
+          { id: "task-growth", label: "성장탐구계획서" },
+          { id: "task-language", label: "어학" },
+        ]}
+      />
+    )
+
+    expect(screen.getAllByText("가상 엔지니어 1").length).toBeGreaterThan(0)
+    expect(screen.getAllByText("평가 완료").length).toBeGreaterThan(0)
+    expect(screen.getAllByText("미진행").length).toBeGreaterThan(0)
+    expect(screen.getAllByText(/평가자 2\/2/).length).toBeGreaterThan(0)
+  })
+
   it("keeps weighted score bins inside the 0 to 100 range", () => {
     render(
       <ScoreDistributionChart

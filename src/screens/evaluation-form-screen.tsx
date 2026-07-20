@@ -70,6 +70,14 @@ export function EvaluationFormScreen({ assignmentId }: Readonly<{ assignmentId: 
     commit(next, null)
   }
 
+  function handleScoresChange(values: readonly number[]) {
+    const next = viewModel.items.map((item, index) => ({
+      itemId: item.id,
+      score: values[index] ?? null,
+    }))
+    commit(next, null)
+  }
+
   function handlePassResultChange(passResult: boolean | null) {
     commit([], passResult)
   }
@@ -89,6 +97,7 @@ export function EvaluationFormScreen({ assignmentId }: Readonly<{ assignmentId: 
       )}
       onPassResultChange={handlePassResultChange}
       onScoreChange={handleScoreChange}
+      onScoresChange={handleScoresChange}
       onSubmit={handleSubmit}
       onRequestUnlock={(reason) => requestSheetUnlock(sheetId, reason)}
       viewModel={viewModel}

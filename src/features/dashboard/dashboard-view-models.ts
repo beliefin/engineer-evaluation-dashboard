@@ -21,7 +21,38 @@ export interface ScoreDistributionDatum {
 export interface CategoryAverageDatum {
   readonly id: string
   readonly label: string
-  readonly score: number
+  readonly weightedScore: number
+  readonly unweightedScore: number
+  readonly sampleSize: number
+}
+
+export type DashboardEvaluationStatus = "not_started" | "in_progress" | "complete"
+
+export interface DashboardEvaluationTask {
+  readonly id: string
+  readonly label: string
+}
+
+export interface EngineerTaskProgress {
+  readonly taskId: string
+  readonly label: string
+  readonly weight: number
+  readonly status: DashboardEvaluationStatus
+  readonly score: number | null
+  readonly completedEvaluatorCount: number | null
+  readonly evaluatorCount: number | null
+}
+
+export interface EngineerEvaluationProgressRow {
+  readonly id: string
+  readonly href: string
+  readonly name: string
+  readonly employeeCode: string
+  readonly team: string
+  readonly status: DashboardEvaluationStatus
+  readonly completedTaskCount: number
+  readonly taskCount: number
+  readonly tasks: readonly EngineerTaskProgress[]
 }
 
 export type RankingStatus = "confirmed" | "tied"
