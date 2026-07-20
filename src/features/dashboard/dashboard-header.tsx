@@ -1,5 +1,3 @@
-import { Badge } from "@/components/ui/badge"
-
 import type { DashboardHeaderProps } from "./dashboard-view-models"
 
 export function DashboardHeader({
@@ -16,9 +14,9 @@ export function DashboardHeader({
         <div className="flex flex-wrap items-center gap-2 text-xs font-medium text-muted-foreground">
           <span>{contextLabel}</span>
           <span aria-hidden="true">/</span>
-          <Badge variant="outline" className="border-primary/30 bg-accent text-accent-foreground">
+          <span className="rounded-[3px] border border-primary/30 bg-accent px-2 py-0.5 text-accent-foreground">
             {sampleLabel}
-          </Badge>
+          </span>
         </div>
         <h1 className="text-[1.75rem] font-bold tracking-tight text-foreground">
           {title}

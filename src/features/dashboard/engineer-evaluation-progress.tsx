@@ -78,7 +78,7 @@ export function EngineerEvaluationProgress({ tasks, rows }: EngineerEvaluationPr
         <div>
           <h2 className="text-base font-semibold">엔지니어별 평가 현황</h2>
           <p className="mt-1 max-w-3xl text-xs leading-5 text-muted-foreground">
-            개인 가중치가 0%보다 큰 과제만 표시하며, 배정 평가자가 모두 제출해야 해당 과제가 완료됩니다.
+            가중치가 있는 과제만 표시합니다. 평가자 전원이 제출하면 완료됩니다.
           </p>
         </div>
         <Badge variant="outline" className="numeric">

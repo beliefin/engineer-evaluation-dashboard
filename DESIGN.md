@@ -5,6 +5,7 @@
 - **Direction**: 일반적인 SaaS 카드 대시보드가 아니라 생산 현장의 평가 운영 장부와 계기판을 결합한 `Industrial Ledger`를 기준으로 한다.
 - **Primary reference**: Figma Community의 OpenBridge 6.1에서 안전 중요 환경의 명확한 위계, 낮은 채도의 스틸 블루, 얇은 규칙선, 직접 라벨을 차용한다. 해양 전용 계기나 브랜드 자산은 복제하지 않는다.
 - **Secondary references**: 100 Card Design Templates는 카드 모양이 아니라 정보 구조의 다양성만 참고하고, Select Codes는 Accounts Table·Add Filter Dropdown·Navigation Tabs의 상호작용만 참고한다. Goo, glow, prism, decorative motion은 사용하지 않는다.
+- **Operational references**: HyperUI의 연결형 Button Group·Details List에서 도구 모음의 밀도와 경계 처리만, Tremor Blocks의 Status Monitoring·KPI Card·Filterbar에서 상태 레일과 분모가 있는 보조 지표 표현만 참고한다. 컴포넌트 코드를 복제하지 않고 이 제품의 토큰과 접근성 규칙으로 다시 구현한다.
 - **Color validation**: Adobe Color의 단색·유사색 조화와 색맹 시뮬레이션을 사용하고, 일반 텍스트 대비는 최소 4.5:1을 유지한다.
 - **Anti-references**: 반복되는 흰색 둥근 카드, 왼쪽 강조선이 있는 선택 박스, 점이 붙은 pill 배지, 모든 상태의 아이콘화, 기본 Lucide 아이콘의 장식적 반복을 금지한다.
 - **Rollback baseline**: 코드 적용 전 Git 기준점은 `backup/pre-industrial-ui-redesign-20260720`의 `1a255bf`다.
@@ -194,6 +195,14 @@
 - **Variants**: neutral, success, warning, danger value.
 - **States**: loading skeleton, empty zero, populated.
 - **Accessibility**: 값과 단위를 하나의 읽기 순서로 제공한다.
+- **Progress rail**: 전체 대상이라는 명확한 분모가 있는 완료·미완료·미확정 지표에만 2px 보조 레일을 제공한다. 시간 비교 데이터가 없는 상태에서 증감률이나 추세 화살표를 만들지 않는다.
+
+### Evaluation Status Tracker
+
+- **Structure**: 엔지니어 한 명을 하나의 짧은 세로 구간으로 표현하고 `완료 · 진행 중 · 미진행`을 한 줄의 운영 레일에 배치한다. 레일 아래에는 상태명과 인원 수를 직접 표기한다.
+- **Interaction**: 각 구간은 엔지니어 상세로 이동하며 키보드 포커스와 이름·팀·상태가 포함된 접근 가능한 이름을 제공한다. hover 정보는 보조 수단일 뿐 핵심 상태와 집계는 기본 화면에 유지한다.
+- **Responsive**: 390px에서도 모든 구간을 가로 스크롤 없이 유지하되 최소 폭을 확보하고, 대상 수가 많아질 경우 같은 폭의 조밀한 구간으로 축소한다.
+- **Visual rule**: 그래프처럼 과장하지 않고 얇은 경계, 낮은 채도의 상태색, 직사각형 구간을 사용한다. 원형 점, 그라데이션, 애니메이션은 사용하지 않는다.
 
 ### Data Panel
 
@@ -209,6 +218,7 @@
 - **States**: default, focused, active filter, disabled.
 - **Accessibility**: 모든 입력에 보이는 레이블 또는 접근 가능한 이름을 제공한다.
 - **Visual rule**: 하나의 연속 도구 모음으로 보이게 하며 필터마다 독립 카드나 pill을 만들지 않는다. 초기화는 낮은 우선순위의 텍스트 행동으로 둔다.
+- **Scope group**: 서로 배타적인 2~4개 범위 선택은 연결형 버튼 그룹으로 제공한다. 버튼 사이 여백을 제거하고 바깥 모서리만 둥글게 하며 `aria-pressed`로 현재 범위를 전달한다.
 
 ### Data Table / Mobile Result List
 

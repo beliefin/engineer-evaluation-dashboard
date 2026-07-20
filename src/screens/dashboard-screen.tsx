@@ -10,6 +10,7 @@ import {
   CompletedRanking,
   DashboardHeader,
   EngineerEvaluationProgress,
+  EvaluationStatusTracker,
   MetricStrip,
   TaskRankingPanel,
   type RankingFilterState,
@@ -106,7 +107,7 @@ export function DashboardScreen() {
         asOfLabel={cycle === undefined ? "평가 시즌 기준" : `${cycle.startsAt} ~ ${cycle.endsAt}`}
         contextLabel="평가 운영"
         cycleLabel={cycle?.name ?? "평가 시즌"}
-        description="과제별 완료 평균과 현재까지 반영된 가중 점수로 순위를 확인합니다. 모든 적용 과제가 끝난 대상은 최종 확정으로 구분합니다."
+        description="과제 평균과 현재 점수로 순위를 확인합니다. 완료 후 결과를 확정합니다."
         sampleLabel={backendMode === "supabase" ? "운영 데이터" : "샘플 데이터"}
         title="엔지니어 역량평가 전체 현황"
       />
@@ -117,10 +118,10 @@ export function DashboardScreen() {
         <div>
           <h2 className="text-sm font-semibold" id="dashboard-scope-title">현황 범위</h2>
           <p className="mt-1 text-xs text-muted-foreground">
-            대상 수, 평가 현황, 과제 평균과 과제·종합 순위를 같은 팀 범위로 전환합니다.
+            팀 선택은 대상, 평가 현황, 과제 평균과 종합 순위에 적용됩니다.
           </p>
         </div>
-        <div className="flex flex-wrap gap-2" role="group" aria-label="현황 팀 범위">
+        <div className="inline-flex self-start overflow-hidden rounded-[3px] border border-border bg-card" role="group" aria-label="현황 팀 범위">
           {["all", ...teams].map((team) => {
             const label = team === "all" ? "전체" : team
             const selected = selectedTeam === team
@@ -132,7 +133,8 @@ export function DashboardScreen() {
                 onClick={() => updateFilters({ ...visibleFilters, team })}
                 size="sm"
                 type="button"
-                variant={selected ? "default" : "outline"}
+                variant={selected ? "default" : "ghost"}
+                className="rounded-none border-r border-border last:border-r-0"
               >
                 {label}
               </Button>
@@ -141,6 +143,7 @@ export function DashboardScreen() {
         </div>
       </section>
       <MetricStrip metrics={model.metrics} />
+      <EvaluationStatusTracker rows={model.evaluationRows} />
       <EngineerEvaluationProgress
         rows={model.evaluationRows}
         tasks={model.evaluationTasks}

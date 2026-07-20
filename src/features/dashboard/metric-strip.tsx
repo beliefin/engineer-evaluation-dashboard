@@ -12,6 +12,13 @@ const TONE_CLASSES: Record<DashboardMetricTone, string> = {
   danger: "text-destructive",
 }
 
+const TONE_BAR_CLASSES: Record<DashboardMetricTone, string> = {
+  neutral: "bg-foreground",
+  success: "bg-success",
+  warning: "bg-warning",
+  danger: "bg-destructive",
+}
+
 export function MetricStrip({ metrics, loading = false }: MetricStripProps) {
   return (
     <section aria-label="평가 현황 요약" className="overflow-hidden border-y border-border bg-card">
@@ -37,6 +44,23 @@ export function MetricStrip({ metrics, loading = false }: MetricStripProps) {
               <span className="mt-1 block text-xs leading-5 text-muted-foreground">
                 {metric.description}
               </span>
+              {metric.progress !== undefined ? (
+                <span
+                  aria-label={`${metric.label} ${metric.progress}%`}
+                  aria-valuemax={100}
+                  aria-valuemin={0}
+                  aria-valuenow={metric.progress}
+                  className="mt-3 block"
+                  role="progressbar"
+                >
+                  <span className="block h-0.5 overflow-hidden bg-muted">
+                    <span
+                      className={`block h-full ${TONE_BAR_CLASSES[metric.tone]}`}
+                      style={{ width: `${Math.min(100, Math.max(0, metric.progress))}%` }}
+                    />
+                  </span>
+                </span>
+              ) : null}
             </dd>
           </div>
         ))}

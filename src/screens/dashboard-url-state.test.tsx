@@ -79,6 +79,7 @@ vi.mock("@/features/dashboard", async () => {
     DashboardHeader: ({ title }: Readonly<{ title: string }>) =>
       createElement("h1", null, title),
     EngineerEvaluationProgress: () => null,
+    EvaluationStatusTracker: () => null,
     MetricStrip: () => null,
     ScoreDistributionChart: () => null,
     TaskRankingPanel: () => null,

@@ -41,6 +41,8 @@ function createMetrics(
   const inProgressCount = summaries.filter((entry) => entry.status === "in_progress").length
   const unconfirmedCount = summaries.filter((entry) => entry.status === "unconfirmed").length
   const completionRate = targetCount === 0 ? 0 : roundToOne((completedCount / targetCount) * 100)
+  const inProgressRate = targetCount === 0 ? 0 : roundToOne((inProgressCount / targetCount) * 100)
+  const unconfirmedRate = targetCount === 0 ? 0 : roundToOne((unconfirmedCount / targetCount) * 100)
 
   return [
     {
@@ -58,6 +60,7 @@ function createMetrics(
       unit: "%",
       description: "필수 평가와 직접점수 입력 완료",
       tone: "success",
+      progress: completionRate,
     },
     {
       id: "in-progress",
@@ -66,6 +69,7 @@ function createMetrics(
       unit: "명",
       description: "필수 평가 제출이 남은 대상",
       tone: "danger",
+      progress: inProgressRate,
     },
     {
       id: "unconfirmed",
@@ -74,6 +78,7 @@ function createMetrics(
       unit: "명",
       description: "평가는 완료됐으나 직접점수 입력 필요",
       tone: "warning",
+      progress: unconfirmedRate,
     },
   ]
 }

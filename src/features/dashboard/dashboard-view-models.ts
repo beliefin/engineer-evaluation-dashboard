@@ -11,6 +11,7 @@ export interface DashboardMetric {
   readonly unit: string
   readonly description: string
   readonly tone: DashboardMetricTone
+  readonly progress?: number
 }
 
 export interface ScoreDistributionDatum {
