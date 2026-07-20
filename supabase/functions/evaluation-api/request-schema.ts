@@ -10,6 +10,7 @@ import {
 
 const baseRevision = z.number().int().nonnegative()
 const activeRole = { activeRole: roleSchema.optional() }
+const evaluationView = z.enum(["default", "insights"])
 const scoreEntry = z.object({
   itemId: z.string().trim().min(1), score: z.number().int().min(0).max(10).nullable(),
 })
@@ -28,7 +29,7 @@ const scheduleFields = {
 }
 
 export const evaluationRequestSchema = z.discriminatedUnion("operation", [
-  z.object({ operation: z.literal("load"), ...activeRole }),
+  z.object({ operation: z.literal("load"), ...activeRole, view: evaluationView.default("default") }),
   z.object({ operation: z.literal("list_maintenance"), ...activeRole }),
   z.object({ operation: z.literal("create_backup"), ...activeRole, label: z.string().trim().min(1).max(100) }),
   z.object({

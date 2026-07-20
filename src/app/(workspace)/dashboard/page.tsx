@@ -5,7 +5,7 @@ import { DashboardScreen } from "@/screens/dashboard-screen"
 
 export default function DashboardPage() {
   return (
-    <RoleGate allowed={["operator", "approver"]}>
+    <RoleGate allowEvaluatorInsights allowed={["operator", "approver"]}>
       <Suspense fallback={<LoadingPageSkeleton />}>
         <DashboardScreen />
       </Suspense>

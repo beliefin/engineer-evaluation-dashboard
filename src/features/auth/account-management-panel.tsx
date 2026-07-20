@@ -80,6 +80,10 @@ function accountRoleLabel(account: AuthAccount): string {
   return account.roles.map((role) => APP_SHELL_ROLE_LABELS[role]).join(" · ")
 }
 
+function accountAccessLabel(account: AuthAccount): string {
+  return account.canViewInsights ? " · 현황·분석 열람" : ""
+}
+
 export function AccountManagementPanel({
   accounts,
   currentAccountId,
@@ -138,7 +142,7 @@ export function AccountManagementPanel({
             {accounts.map((account) => (
               <li className="space-y-3 px-4 py-4" key={account.id}>
                 <div className="flex items-start justify-between gap-3"><div><p className="font-semibold">{account.displayName}</p><p className="mt-0.5 text-xs text-muted-foreground">{account.username}</p></div><Badge variant={account.active ? "secondary" : "destructive"}>{account.active ? "활성" : "비활성"}</Badge></div>
-                <p className="text-sm text-muted-foreground">{accountRoleLabel(account)} · {linkedRosterLabel(account, evaluatorOptions, engineerOptions)}</p>
+                <p className="text-sm text-muted-foreground">{accountRoleLabel(account)}{accountAccessLabel(account)} · {linkedRosterLabel(account, evaluatorOptions, engineerOptions)}</p>
                 {actionsFor(account)}
               </li>
             ))}
@@ -150,7 +154,7 @@ export function AccountManagementPanel({
               {accounts.map((account) => (
                 <TableRow key={account.id}>
                   <TableCell><span className="block font-semibold">{account.username}</span><span className="mt-0.5 block text-xs text-muted-foreground">{account.displayName}</span></TableCell>
-                  <TableCell>{accountRoleLabel(account)}</TableCell>
+                  <TableCell>{accountRoleLabel(account)}{accountAccessLabel(account)}</TableCell>
                   <TableCell>{linkedRosterLabel(account, evaluatorOptions, engineerOptions)}</TableCell>
                   <TableCell><Badge variant={account.active ? "secondary" : "destructive"}>{account.active ? "활성" : "비활성"}</Badge></TableCell>
                   <TableCell>{actionsFor(account)}</TableCell>

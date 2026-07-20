@@ -15,6 +15,7 @@ const ACCOUNTS: readonly AuthAccount[] = [
     roles: ["operator"],
     evaluatorId: null,
     engineerId: null,
+    canViewInsights: false,
     active: true,
     mustChangePassword: false,
     createdAt: "2026-07-15T00:00:00.000Z",
@@ -28,6 +29,7 @@ const ACCOUNTS: readonly AuthAccount[] = [
     roles: ["evaluator"],
     evaluatorId: "evaluator-01",
     engineerId: null,
+    canViewInsights: false,
     active: true,
     mustChangePassword: true,
     createdAt: "2026-07-15T00:00:00.000Z",
@@ -75,6 +77,7 @@ describe("AccountManagementPanel", () => {
     await userEvent.type(screen.getByLabelText("표시 이름"), "평가 담당자 02")
     await userEvent.selectOptions(screen.getByLabelText("역할"), "evaluator")
     await userEvent.selectOptions(screen.getByLabelText("연결 평가자"), "evaluator-02")
+    await userEvent.click(screen.getByRole("checkbox", { name: /^전체 현황·분석 열람/ }))
     await userEvent.type(screen.getByLabelText("초기 비밀번호"), "Evaluate2026")
     await userEvent.click(screen.getByRole("button", { name: "계정 저장" }))
 
@@ -86,6 +89,7 @@ describe("AccountManagementPanel", () => {
       roles: ["evaluator"],
       evaluatorId: "evaluator-02",
       engineerId: null,
+      canViewInsights: true,
       password: "9002",
       active: true,
     })
@@ -111,6 +115,7 @@ describe("AccountManagementPanel", () => {
       roles: ["evaluator", "engineer"],
       evaluatorId: "evaluator-02",
       engineerId: "engineer-02",
+      canViewInsights: false,
       password: "1002",
       active: true,
     })
@@ -139,6 +144,7 @@ describe("AccountManagementPanel", () => {
       roles: ["evaluator"],
       evaluatorId: "evaluator-01",
       engineerId: null,
+      canViewInsights: false,
       active: false,
     })
   })
@@ -165,6 +171,7 @@ describe("AccountManagementPanel", () => {
       roles: ["engineer"],
       evaluatorId: null,
       engineerId: "engineer-02",
+      canViewInsights: false,
       password: "1002",
       active: true,
     })

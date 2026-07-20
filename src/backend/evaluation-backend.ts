@@ -70,6 +70,11 @@ const responseSchema = z.object({
   revision: z.number().int().nonnegative(),
 })
 export type RemoteEvaluationState = z.infer<typeof responseSchema>
+export type EvaluationView = "default" | "insights"
+
+export function createRemoteLoadRequest(activeRole: Role, view: EvaluationView): unknown {
+  return { operation: "load", activeRole, view }
+}
 
 export function createRemoteRequest(
   command: RemoteEvaluationCommand,
@@ -128,8 +133,11 @@ export function createRemoteRequest(
   }
 }
 
-export async function loadRemoteEvaluation(activeRole: Role): Promise<RemoteEvaluationState> {
-  return invokeAuthenticated("evaluation-api", { operation: "load", activeRole }, responseSchema)
+export async function loadRemoteEvaluation(
+  activeRole: Role,
+  view: EvaluationView = "default",
+): Promise<RemoteEvaluationState> {
+  return invokeAuthenticated("evaluation-api", createRemoteLoadRequest(activeRole, view), responseSchema)
 }
 
 export async function persistRemoteEvaluation(

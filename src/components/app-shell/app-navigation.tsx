@@ -13,6 +13,7 @@ interface NavItem {
   readonly label: string
   readonly description: string
   readonly roles: readonly AppShellRole[]
+  readonly evaluatorInsights?: boolean
 }
 
 const NAV_ITEMS: readonly NavItem[] = [
@@ -27,6 +28,7 @@ const NAV_ITEMS: readonly NavItem[] = [
     label: "전체 현황",
     description: "완료율과 순위",
     roles: ["operator", "approver"],
+    evaluatorInsights: true,
   },
   {
     href: "/today",
@@ -63,6 +65,7 @@ const NAV_ITEMS: readonly NavItem[] = [
     label: "분석",
     description: "분야와 팀 비교",
     roles: ["operator", "approver"],
+    evaluatorInsights: true,
   },
   {
     href: "/reports/season",
@@ -96,15 +99,19 @@ function isActivePath(pathname: string, href: string) {
 
 interface AppNavigationProps {
   readonly role: AppShellRole
+  readonly canViewInsights?: boolean
   readonly closeOnNavigate?: boolean
 }
 
 export function AppNavigation({
   role,
+  canViewInsights = false,
   closeOnNavigate = false,
 }: AppNavigationProps) {
   const pathname = usePathname()
-  const visibleItems = NAV_ITEMS.filter((item) => item.roles.includes(role))
+  const visibleItems = NAV_ITEMS.filter((item) =>
+    item.roles.includes(role) ||
+    (role === "evaluator" && canViewInsights && item.evaluatorInsights === true))
 
   return (
     <nav aria-label="주요 메뉴" className="flex flex-col border-t border-sidebar-border/80">

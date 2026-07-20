@@ -5,7 +5,7 @@ import { AnalysisScreen } from "@/screens/analysis-screen"
 
 export default function AnalysisPage() {
   return (
-    <RoleGate allowed={["operator", "approver"]}>
+    <RoleGate allowEvaluatorInsights allowed={["operator", "approver"]}>
       <Suspense fallback={<LoadingPageSkeleton />}>
         <AnalysisScreen />
       </Suspense>

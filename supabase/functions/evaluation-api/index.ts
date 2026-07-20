@@ -16,6 +16,7 @@ import {
 import { projectSnapshot } from "./projection.ts"
 import { evaluationRequestSchema } from "./request-schema.ts"
 import { expectedRevisionForRequest } from "./revision-policy.ts"
+import { projectRequestedSnapshot } from "./load-projection.ts"
 import { findMissingLinkedRosterIds } from "./roster-integrity.ts"
 import { commitState, loadState } from "./state-store.ts"
 import { createBackup, listMaintenance, restoreBackup } from "./maintenance.ts"
@@ -43,7 +44,7 @@ async function authenticate(request: Request): Promise<Profile> {
     throw new ApiError(401, "UNAUTHENTICATED", "로그인이 만료되었습니다.")
   }
   const response = await service.from("profiles").select(
-    "auth_user_id, username, display_name, role, roles, evaluator_id, engineer_id, active",
+    "auth_user_id, username, display_name, role, roles, evaluator_id, engineer_id, can_view_insights, active",
   ).eq("auth_user_id", data.user.id).single()
   if (response.error !== null) throw new ApiError(403, "PROFILE_REQUIRED", "사용자 권한을 확인할 수 없습니다.")
   const profile = profileSchema.parse(response.data)
@@ -147,7 +148,10 @@ Deno.serve(async (request: Request) => {
     const activeProfile = activateProfileRole(profile, parsed.activeRole ?? profile.role)
     let state = await loadState(service)
     if (parsed.operation === "load") {
-      return jsonResponse(request, { snapshot: projectSnapshot(state.snapshot, activeProfile), revision: state.revision })
+      return jsonResponse(request, {
+        snapshot: projectRequestedSnapshot(state.snapshot, activeProfile, parsed.view),
+        revision: state.revision,
+      })
     }
     if (
       parsed.operation === "list_maintenance" ||

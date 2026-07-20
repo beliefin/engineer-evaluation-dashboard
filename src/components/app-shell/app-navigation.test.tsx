@@ -37,6 +37,16 @@ describe("AppNavigation", () => {
     expect(screen.getByRole("link", { name: /평가하기/ })).toBeInTheDocument()
     expect(screen.queryByRole("link", { name: /미평가 현황/ })).not.toBeInTheDocument()
     expect(screen.getByRole("link", { name: /평가 일정/ })).toBeInTheDocument()
+    expect(screen.queryByRole("link", { name: /전체 현황/ })).not.toBeInTheDocument()
+    expect(screen.queryByRole("link", { name: /^분석/ })).not.toBeInTheDocument()
+  })
+
+  it("shows dashboard and analysis only to an evaluator with insight access", () => {
+    render(<AppNavigation canViewInsights role="evaluator" />)
+
+    expect(screen.getByRole("link", { name: /전체 현황/ })).toBeInTheDocument()
+    expect(screen.getByRole("link", { name: /^분석/ })).toBeInTheDocument()
+    expect(screen.queryByRole("link", { name: /미평가 현황/ })).not.toBeInTheDocument()
   })
 
   it("gives approvers read-only result, pending, and calendar entries", () => {

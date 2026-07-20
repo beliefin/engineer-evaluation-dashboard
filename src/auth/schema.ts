@@ -35,6 +35,7 @@ const accountFieldsSchema = z.object({
   roles: accountRolesSchema,
   evaluatorId: idSchema.nullable(),
   engineerId: idSchema.nullable(),
+  canViewInsights: z.boolean(),
   active: z.boolean(),
 }).superRefine((account, context) => {
   if (account.role !== account.roles[0]) {
@@ -74,6 +75,13 @@ const accountFieldsSchema = z.object({
       path: ["engineerId"],
     })
   }
+  if (account.canViewInsights && !evaluatorRole) {
+    context.addIssue({
+      code: "custom",
+      message: "현황·분석 열람 권한은 평가자 역할에만 부여할 수 있습니다.",
+      path: ["canViewInsights"],
+    })
+  }
 })
 
 export const createAccountInputSchema = z.object({
@@ -84,6 +92,7 @@ export const createAccountInputSchema = z.object({
   roles: accountRolesSchema,
   evaluatorId: idSchema.nullable(),
   engineerId: idSchema.nullable(),
+  canViewInsights: z.boolean().default(false),
   active: z.boolean(),
 }).pipe(accountFieldsSchema.extend({
   username: usernameSchema,
@@ -102,6 +111,7 @@ export const authAccountRecordSchema = z.object({
   roles: accountRolesSchema.optional(),
   evaluatorId: idSchema.nullable(),
   engineerId: idSchema.nullable().default(null),
+  canViewInsights: z.boolean().default(false),
   active: z.boolean(),
   mustChangePassword: z.boolean().default(true),
   createdAt: z.string().trim().min(1),

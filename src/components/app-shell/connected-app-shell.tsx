@@ -198,6 +198,7 @@ export function ConnectedAppShell({ children }: Readonly<{ children: ReactNode }
       activeCycleId={activeCycleId}
       activeEvaluatorId={activeEvaluatorId}
       actorLabel={session.displayName}
+      canViewInsights={session.canViewInsights}
       availableRoles={session.roles}
       cycles={snapshot.cycles.map((cycle) => ({ id: cycle.id, label: cycle.name }))}
       evaluatorOptions={snapshot.evaluators.map((evaluator) => ({

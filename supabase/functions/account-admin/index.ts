@@ -60,6 +60,7 @@ function publicAccount(profile: Profile) {
     roles: profile.roles,
     evaluatorId: profile.evaluator_id,
     engineerId: profile.engineer_id,
+    canViewInsights: profile.can_view_insights,
     active: profile.active,
     mustChangePassword: profile.must_change_password,
     createdAt: profile.created_at,
@@ -123,6 +124,7 @@ async function createAccount(request: Extract<AccountRequest, { operation: "crea
     roles,
     evaluator_id: request.evaluatorId,
     engineer_id: request.engineerId,
+    can_view_insights: request.canViewInsights,
     active: request.active,
     must_change_password: true,
   })
@@ -148,6 +150,7 @@ async function updateAccount(actor: Profile, request: Extract<AccountRequest, { 
     roles,
     evaluator_id: request.evaluatorId,
     engineer_id: request.engineerId,
+    can_view_insights: request.canViewInsights,
     active: request.active,
   }).eq("auth_user_id", request.accountId)
   if (updated.error !== null) throw new HttpError(400, "INVALID_INPUT", "계정 정보를 수정하지 못했습니다.")

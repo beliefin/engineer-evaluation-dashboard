@@ -18,6 +18,7 @@ const SEED_ACCOUNT_DEFINITIONS = [
     roles: ["operator"],
     evaluatorId: null,
     engineerId: null,
+    canViewInsights: false,
     passwordSalt: "seed-operator-salt",
   },
   {
@@ -28,6 +29,7 @@ const SEED_ACCOUNT_DEFINITIONS = [
     roles: ["evaluator"],
     evaluatorId: "evaluator-01",
     engineerId: null,
+    canViewInsights: false,
     passwordSalt: "seed-evaluator-01-salt",
   },
   {
@@ -38,6 +40,7 @@ const SEED_ACCOUNT_DEFINITIONS = [
     roles: ["approver"],
     evaluatorId: null,
     engineerId: null,
+    canViewInsights: false,
     passwordSalt: "seed-approver-salt",
   },
   {
@@ -48,6 +51,7 @@ const SEED_ACCOUNT_DEFINITIONS = [
     roles: ["engineer"],
     evaluatorId: null,
     engineerId: "engineer-01",
+    canViewInsights: false,
     passwordSalt: "seed-engineer-01-salt",
   },
 ] as const

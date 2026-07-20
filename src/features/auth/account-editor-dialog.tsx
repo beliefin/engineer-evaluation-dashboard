@@ -18,6 +18,7 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 
 import { AccountRoleFields } from "./account-role-fields"
+import { AccountInsightsPermissionField } from "./account-insights-permission-field"
 import type {
   AccountManagementProps,
   AuthEngineerOption,
@@ -55,6 +56,7 @@ export function AccountEditorDialog({
   const [roles, setRoles] = useState<ReadonlyArray<Role>>(account?.roles ?? ["approver"])
   const [evaluatorId, setEvaluatorId] = useState(account?.evaluatorId ?? "")
   const [engineerId, setEngineerId] = useState(account?.engineerId ?? "")
+  const [canViewInsights, setCanViewInsights] = useState(account?.canViewInsights ?? false)
   const [password, setPassword] = useState("")
   const [active, setActive] = useState(account?.active ?? true)
   const [errorMessage, setErrorMessage] = useState<string | null>(null)
@@ -117,6 +119,7 @@ export function AccountEditorDialog({
           roles,
           evaluatorId: linkedEvaluatorId,
           engineerId: linkedEngineerId,
+          canViewInsights,
           password: effectivePassword,
           active,
         })
@@ -127,6 +130,7 @@ export function AccountEditorDialog({
           roles,
           evaluatorId: linkedEvaluatorId,
           engineerId: linkedEngineerId,
+          canViewInsights,
           active,
         })
     if (result.ok) {
@@ -210,13 +214,22 @@ export function AccountEditorDialog({
               }}
               onRolesChange={(value) => {
                 setRoles(value)
-                if (!value.includes("evaluator")) setEvaluatorId("")
+                if (!value.includes("evaluator")) {
+                  setEvaluatorId("")
+                  setCanViewInsights(false)
+                }
                 if (!value.includes("engineer")) setEngineerId("")
                 clearFieldError("evaluator")
                 clearFieldError("engineer")
               }}
               roles={roles}
               roleDisabled={self || pending}
+            />
+            <AccountInsightsPermissionField
+              checked={canViewInsights}
+              disabled={pending}
+              onChange={setCanViewInsights}
+              visible={roles.includes("evaluator")}
             />
             {account === null ? (
               <div className="space-y-2">

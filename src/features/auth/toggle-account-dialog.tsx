@@ -44,6 +44,7 @@ export function ToggleAccountDialog({
       roles: account.roles,
       evaluatorId: account.evaluatorId,
       engineerId: account.engineerId,
+      canViewInsights: account.canViewInsights,
       active: nextActive,
     })
     if (result.ok) onOpenChange(false)

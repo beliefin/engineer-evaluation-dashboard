@@ -19,6 +19,7 @@ import {
 
 interface AppTopbarProps {
   readonly role: AppShellRole
+  readonly canViewInsights: boolean
   readonly availableRoles: readonly AppShellRole[]
   readonly cycles: readonly AppShellCycleOption[]
   readonly evaluatorOptions: readonly AppShellEvaluatorOption[]
@@ -34,6 +35,7 @@ interface AppTopbarProps {
 
 export function AppTopbar({
   role,
+  canViewInsights,
   availableRoles,
   cycles,
   evaluatorOptions,
@@ -53,6 +55,7 @@ export function AppTopbar({
           activeCycleId={activeCycleId}
           activeEvaluatorId={activeEvaluatorId}
           actorLabel={actorLabel}
+          canViewInsights={canViewInsights}
           availableRoles={availableRoles}
           cycles={cycles}
           evaluatorOptions={evaluatorOptions}

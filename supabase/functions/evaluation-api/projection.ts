@@ -143,6 +143,10 @@ function aggregateProjection(snapshot: Snapshot, engineerIds: ReadonlySet<string
   }
 }
 
+export function projectInsightsSnapshot(snapshot: Snapshot): Snapshot {
+  return aggregateProjection(snapshot, new Set(snapshot.engineers.map((entry) => entry.id)))
+}
+
 function evaluatorProjection(snapshot: Snapshot, evaluatorId: string): Snapshot {
   const sourceAssignments = snapshot.assignments
     .filter((entry) => entry.evaluatorId === evaluatorId)
@@ -186,7 +190,7 @@ export function projectSnapshot(snapshot: Snapshot, profile: Profile): Snapshot 
     return evaluatorProjection(snapshot, profile.evaluator_id)
   }
   if (profile.role === "approver") {
-    return aggregateProjection(snapshot, new Set(snapshot.engineers.map((entry) => entry.id)))
+    return projectInsightsSnapshot(snapshot)
   }
   if (profile.role === "engineer" && profile.engineer_id !== null) {
     const engineerIds = new Set([profile.engineer_id])

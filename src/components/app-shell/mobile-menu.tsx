@@ -28,6 +28,7 @@ import {
 
 interface MobileMenuProps {
   readonly role: AppShellRole
+  readonly canViewInsights: boolean
   readonly availableRoles: readonly AppShellRole[]
   readonly cycles: readonly AppShellCycleOption[]
   readonly evaluatorOptions: readonly AppShellEvaluatorOption[]
@@ -42,6 +43,7 @@ interface MobileMenuProps {
 
 export function MobileMenu({
   role,
+  canViewInsights,
   availableRoles,
   cycles,
   evaluatorOptions,
@@ -115,7 +117,7 @@ export function MobileMenu({
           <p className="mb-2 px-3 text-xs font-medium text-muted-foreground">
             평가 운영
           </p>
-          <AppNavigation closeOnNavigate role={role} />
+          <AppNavigation canViewInsights={canViewInsights} closeOnNavigate role={role} />
         </div>
 
         <div className="border-t border-sidebar-border px-4 py-4">

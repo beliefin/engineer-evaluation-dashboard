@@ -3,9 +3,17 @@ import { describe, expect, it } from "vitest"
 import { createSeedSnapshot } from "@/data/seed"
 import { evaluationSnapshotSchema } from "@/domain"
 
-import { createRemoteRequest } from "./evaluation-backend"
+import { createRemoteLoadRequest, createRemoteRequest } from "./evaluation-backend"
 
 describe("createRemoteRequest", () => {
+  it("requests the aggregate insights projection explicitly", () => {
+    expect(createRemoteLoadRequest("evaluator", "insights")).toEqual({
+      operation: "load",
+      activeRole: "evaluator",
+      view: "insights",
+    })
+  })
+
   it("accepts precise evaluator aggregates returned to engineer accounts", () => {
     const snapshot = createSeedSnapshot()
     const directScore = snapshot.directScores[0]

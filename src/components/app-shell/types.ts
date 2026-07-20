@@ -23,6 +23,7 @@ export interface AppShellEvaluatorOption {
 export interface AppShellProps {
   readonly children: ReactNode
   readonly role: AppShellRole
+  readonly canViewInsights: boolean
   readonly availableRoles: readonly AppShellRole[]
   readonly cycles: readonly AppShellCycleOption[]
   readonly evaluatorOptions: readonly AppShellEvaluatorOption[]

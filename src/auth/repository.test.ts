@@ -98,6 +98,7 @@ describe("LocalStorageAuthRepository", () => {
       roles: ["approver"],
       evaluatorId: null,
       engineerId: null,
+      canViewInsights: false,
       password: "Review!2026",
       active: true,
     })
@@ -125,6 +126,7 @@ describe("LocalStorageAuthRepository", () => {
       roles: ["evaluator", "engineer"],
       evaluatorId: "evaluator-dual",
       engineerId: "engineer-dual",
+      canViewInsights: true,
       password: "31019467",
       active: true,
     })
@@ -136,6 +138,7 @@ describe("LocalStorageAuthRepository", () => {
         roles: ["evaluator", "engineer"],
         evaluatorId: "evaluator-dual",
         engineerId: "engineer-dual",
+        canViewInsights: true,
       })
   })
 
@@ -177,6 +180,7 @@ describe("LocalStorageAuthRepository", () => {
       roles: ["approver"],
       evaluatorId: null,
       engineerId: null,
+      canViewInsights: false,
       password: "Review!2026",
       active: true,
     })
@@ -191,6 +195,7 @@ describe("LocalStorageAuthRepository", () => {
       roles: ["evaluator"],
       evaluatorId: "evaluator-02",
       engineerId: null,
+      canViewInsights: false,
       active: true,
     })
     await repository.resetPassword({
@@ -218,6 +223,7 @@ describe("LocalStorageAuthRepository", () => {
       roles: ["operator"],
       evaluatorId: null,
       engineerId: null,
+      canViewInsights: false,
       active: false,
     })
 

@@ -1,6 +1,11 @@
 import { describe, expect, it } from "vitest"
 
-import { createAccountInputSchema, passwordSchema, usernameSchema } from "./schema"
+import {
+  authAccountRecordSchema,
+  createAccountInputSchema,
+  passwordSchema,
+  usernameSchema,
+} from "./schema"
 
 import { accountEmailForUsername } from "./account-email"
 
@@ -51,5 +56,59 @@ describe("createAccountInputSchema", () => {
     expect(parsed.roles).toEqual(["evaluator", "engineer"])
     expect(parsed.evaluatorId).toBe("evaluator-kim")
     expect(parsed.engineerId).toBe("engineer-kim")
+  })
+
+  it("allows an evaluator account to receive dashboard and analysis access", () => {
+    const parsed = createAccountInputSchema.parse({
+      username: "lead-evaluator",
+      password: "4241",
+      displayName: "박경철",
+      role: "evaluator",
+      roles: ["evaluator"],
+      evaluatorId: "evaluator-lead",
+      engineerId: null,
+      canViewInsights: true,
+      active: true,
+    })
+
+    expect(parsed.canViewInsights).toBe(true)
+  })
+
+  it("rejects insight access for an account without the evaluator role", () => {
+    const result = createAccountInputSchema.safeParse({
+      username: "engineer-only",
+      password: "4242",
+      displayName: "엔지니어 전용",
+      role: "engineer",
+      roles: ["engineer"],
+      evaluatorId: null,
+      engineerId: "engineer-only",
+      canViewInsights: true,
+      active: true,
+    })
+
+    expect(result.success).toBe(false)
+  })
+})
+
+describe("authAccountRecordSchema", () => {
+  it("restores legacy accounts with insight access disabled", () => {
+    const parsed = authAccountRecordSchema.parse({
+      id: "legacy-account",
+      username: "legacy",
+      displayName: "기존 평가자",
+      role: "evaluator",
+      roles: ["evaluator"],
+      evaluatorId: "evaluator-legacy",
+      engineerId: null,
+      active: true,
+      mustChangePassword: false,
+      createdAt: "2026-07-21T00:00:00.000Z",
+      updatedAt: "2026-07-21T00:00:00.000Z",
+      passwordSalt: "salt",
+      passwordHash: "hash",
+    })
+
+    expect(parsed.canViewInsights).toBe(false)
   })
 })

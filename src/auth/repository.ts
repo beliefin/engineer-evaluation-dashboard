@@ -36,6 +36,7 @@ function publicAccount(account: AuthAccountRecord): AuthAccount {
     roles: account.roles,
     evaluatorId: account.evaluatorId,
     engineerId: account.engineerId,
+    canViewInsights: account.canViewInsights,
     active: account.active,
     mustChangePassword: account.mustChangePassword,
     createdAt: account.createdAt,

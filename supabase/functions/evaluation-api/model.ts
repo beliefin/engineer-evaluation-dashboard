@@ -14,6 +14,7 @@ export const profileSchema = z.object({
   roles: z.array(roleSchema).min(1).max(2),
   evaluator_id: z.string().nullable(),
   engineer_id: z.string().nullable(),
+  can_view_insights: z.boolean().default(false),
   active: z.boolean(),
 })
 export type Profile = z.infer<typeof profileSchema>

@@ -7,6 +7,7 @@ import type { AppShellProps } from "./types"
 export function AppShell({
   children,
   role,
+  canViewInsights,
   availableRoles,
   cycles,
   evaluatorOptions,
@@ -27,12 +28,13 @@ export function AppShell({
       >
         본문으로 건너뛰기
       </a>
-      <AppSidebar actorLabel={actorLabel} role={role} />
+      <AppSidebar actorLabel={actorLabel} canViewInsights={canViewInsights} role={role} />
       <div className="min-w-0 flex-1">
         <AppTopbar
           activeCycleId={activeCycleId}
           activeEvaluatorId={activeEvaluatorId}
           actorLabel={actorLabel}
+          canViewInsights={canViewInsights}
           availableRoles={availableRoles}
           cycles={cycles}
           evaluatorOptions={evaluatorOptions}

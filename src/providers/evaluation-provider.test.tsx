@@ -4,7 +4,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest"
 
 import { seedTestAuthSession, TestAuthProvider } from "@/test/auth-fixture"
 
-import { EvaluationProvider, useEvaluation } from "./evaluation-provider"
+import { EvaluationProvider, evaluationViewForPath, useEvaluation } from "./evaluation-provider"
 
 function SelectionProbe() {
   const {
@@ -57,5 +57,15 @@ describe("EvaluationProvider shell selections", () => {
 
     expect(screen.getByLabelText("현재 시즌")).toHaveTextContent("cycle-next")
     expect(screen.getByLabelText("현재 대리 평가자")).toHaveTextContent("evaluator-02")
+  })
+})
+
+describe("evaluationViewForPath", () => {
+  it("requests aggregate insights only on granted evaluator insight routes", () => {
+    expect(evaluationViewForPath("evaluator", true, "/dashboard")).toBe("insights")
+    expect(evaluationViewForPath("evaluator", true, "/analysis/")).toBe("insights")
+    expect(evaluationViewForPath("evaluator", true, "/evaluations")).toBe("default")
+    expect(evaluationViewForPath("evaluator", false, "/dashboard")).toBe("default")
+    expect(evaluationViewForPath("engineer", true, "/analysis")).toBe("default")
   })
 })

@@ -45,10 +45,11 @@ export function AppBrand({ compact = false, href, onNavigate }: BrandProps) {
 
 interface AppSidebarProps {
   readonly role: AppShellRole
+  readonly canViewInsights: boolean
   readonly actorLabel?: string | undefined
 }
 
-export function AppSidebar({ role, actorLabel }: AppSidebarProps) {
+export function AppSidebar({ role, canViewInsights, actorLabel }: AppSidebarProps) {
   const currentActor = actorLabel ?? `데모 ${APP_SHELL_ROLE_LABELS[role]}`
   const authLabel = isSupabaseConfigured() ? "Supabase 인증" : "샘플 인증"
 
@@ -62,7 +63,7 @@ export function AppSidebar({ role, actorLabel }: AppSidebarProps) {
         <p className="mb-3 px-2 text-[10px] font-semibold tracking-[0.14em] text-muted-foreground uppercase">
           평가 운영
         </p>
-        <AppNavigation role={role} />
+        <AppNavigation canViewInsights={canViewInsights} role={role} />
       </div>
       <div className="border-t border-sidebar-border bg-card/40 px-4 py-4">
         <p className="truncate text-xs font-semibold text-foreground">

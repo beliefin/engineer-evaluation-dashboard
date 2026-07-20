@@ -34,6 +34,7 @@ export type AuthAccount = Readonly<{
   roles: ReadonlyArray<Role>
   evaluatorId: string | null
   engineerId: string | null
+  canViewInsights: boolean
   active: boolean
   mustChangePassword: boolean
   createdAt: string
@@ -65,6 +66,7 @@ export type CreateAccountInput = Readonly<{
   roles: ReadonlyArray<Role>
   evaluatorId: string | null
   engineerId: string | null
+  canViewInsights: boolean
   password: string
   active: boolean
 }>
@@ -76,6 +78,7 @@ export type UpdateAccountInput = Readonly<{
   roles: ReadonlyArray<Role>
   evaluatorId: string | null
   engineerId: string | null
+  canViewInsights: boolean
   active: boolean
 }>
 

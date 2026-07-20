@@ -10,11 +10,19 @@ import { LoadingPageSkeleton } from "./loading-page-skeleton"
 
 export function RoleGate({
   allowed,
+  allowEvaluatorInsights = false,
   children,
-}: Readonly<{ allowed: ReadonlyArray<Role>; children: ReactNode }>) {
-  const { role, snapshot } = useEvaluation()
+}: Readonly<{
+  allowed: ReadonlyArray<Role>
+  allowEvaluatorInsights?: boolean
+  children: ReactNode
+}>) {
+  const { role, snapshot, canViewInsights } = useEvaluation()
 
   if (snapshot === null) return <LoadingPageSkeleton />
-  if (!allowed.includes(role)) return <AccessDenied allowedRoles={allowed} currentRole={role} />
+  const evaluatorInsightAccess = allowEvaluatorInsights && role === "evaluator" && canViewInsights
+  if (!allowed.includes(role) && !evaluatorInsightAccess) {
+    return <AccessDenied allowedRoles={allowed} currentRole={role} />
+  }
   return children
 }

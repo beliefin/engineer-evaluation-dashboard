@@ -11,6 +11,7 @@ const accountFields = {
   roles: rolesSchema.optional(),
   evaluatorId: z.string().trim().min(1).nullable(),
   engineerId: z.string().trim().min(1).nullable(),
+  canViewInsights: z.boolean().default(false),
   active: z.boolean(),
 }
 
@@ -29,6 +30,7 @@ export const profileSchema = z.object({
   auth_user_id: z.uuid(), username: z.string(), display_name: z.string(), role: roleSchema,
   roles: rolesSchema,
   evaluator_id: z.string().nullable(), engineer_id: z.string().nullable(), active: z.boolean(),
+  can_view_insights: z.boolean().default(false),
   must_change_password: z.boolean(),
   created_at: z.string(), updated_at: z.string(),
 })
@@ -39,6 +41,7 @@ export function validateRoleLink(input: {
   roles?: ReadonlyArray<z.infer<typeof roleSchema>>
   evaluatorId: string | null
   engineerId: string | null
+  canViewInsights: boolean
 }): void {
   const roles = input.roles ?? [input.role]
   const validRoleSet = roles.length === 1
@@ -48,6 +51,7 @@ export function validateRoleLink(input: {
   const engineerRole = roles.includes("engineer")
   const valid = validRoleSet &&
     evaluatorRole === (input.evaluatorId !== null) &&
-    engineerRole === (input.engineerId !== null)
+    engineerRole === (input.engineerId !== null) &&
+    (!input.canViewInsights || evaluatorRole)
   if (!valid) throw new Error("ROLE_LINK_INVALID")
 }

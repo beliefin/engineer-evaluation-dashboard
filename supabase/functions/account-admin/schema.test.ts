@@ -38,5 +38,34 @@ describe("account admin dual-role schema", () => {
     })
 
     expect(() => validateRoleLink(request)).not.toThrow()
+    expect(request.canViewInsights).toBe(false)
+  })
+
+  it("accepts insight access only for accounts with the evaluator role", () => {
+    const evaluator = requestSchema.parse({
+      operation: "update",
+      accountId: "00000000-0000-4000-8000-000000000001",
+      displayName: "박경철",
+      role: "evaluator",
+      roles: ["evaluator"],
+      evaluatorId: "evaluator-lead",
+      engineerId: null,
+      canViewInsights: true,
+      active: true,
+    })
+    const engineer = requestSchema.parse({
+      operation: "update",
+      accountId: "00000000-0000-4000-8000-000000000002",
+      displayName: "엔지니어 전용",
+      role: "engineer",
+      roles: ["engineer"],
+      evaluatorId: null,
+      engineerId: "engineer-only",
+      canViewInsights: true,
+      active: true,
+    })
+
+    expect(() => validateRoleLink(evaluator)).not.toThrow()
+    expect(() => validateRoleLink(engineer)).toThrow("ROLE_LINK_INVALID")
   })
 })

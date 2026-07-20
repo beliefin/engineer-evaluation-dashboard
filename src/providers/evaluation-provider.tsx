@@ -5,9 +5,10 @@ import {
   type ReactNode,
 } from "react"
 import { toast } from "sonner"
+import { usePathname } from "next/navigation"
 
 import {
-  loadRemoteEvaluation, persistRemoteEvaluation, type RemoteEvaluationCommand,
+  loadRemoteEvaluation, persistRemoteEvaluation, type EvaluationView, type RemoteEvaluationCommand,
 } from "@/backend/evaluation-backend"
 import { createSnapshotRepository } from "@/backend/snapshot-repository"
 import { isSupabaseConfigured } from "@/backend/supabase-client"
@@ -34,6 +35,7 @@ export type EvaluationLoadState =
 type EvaluationContextValue = Readonly<{
   snapshot: EvaluationSnapshot | null
   role: Role
+  canViewInsights: boolean
   activeCycleId: string
   activeEvaluatorId: string
   backendMode: "supabase" | "local"
@@ -49,6 +51,15 @@ const EvaluationContext = createContext<EvaluationContextValue | null>(null)
 const EVALUATOR_KEY = "engineer-evaluation-dashboard:selected-evaluator"
 const CYCLE_KEY = "engineer-evaluation-dashboard:selected-cycle"
 const LOAD_ERROR_MESSAGE = "운영 데이터를 불러오지 못했습니다. 네트워크 연결을 확인한 뒤 다시 시도해 주세요."
+
+export function evaluationViewForPath(
+  role: Role,
+  canViewInsights: boolean,
+  pathname: string,
+): EvaluationView {
+  const insightsRoute = /\/(dashboard|analysis)\/?$/.test(pathname)
+  return role === "evaluator" && canViewInsights && insightsRoute ? "insights" : "default"
+}
 
 function readSessionSelection(key: string): string | null {
   try {
@@ -68,6 +79,7 @@ function writeSessionSelection(key: string, value: string): void {
 
 export function EvaluationProvider({ children }: Readonly<{ children: ReactNode }>) {
   const { session } = useAuth()
+  const pathname = usePathname()
   const remoteMode = isSupabaseConfigured()
   const sessionId = remoteMode ? (session?.id ?? null) : null
   const repositoryRef = useRef<EvaluationRepository | null>(null)
@@ -76,12 +88,15 @@ export function EvaluationProvider({ children }: Readonly<{ children: ReactNode 
   const pendingWritesRef = useRef(0)
   const clearTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
   const [snapshot, setSnapshot] = useState<EvaluationSnapshot | null>(null)
+  const [loadedView, setLoadedView] = useState<EvaluationView | null>(null)
   const [activeCycleId, setActiveCycleIdState] = useState("")
   const [proxyEvaluatorId, setProxyEvaluatorId] = useState("")
   const [saveState, setSaveState] = useState<SaveState>("idle")
   const [loadState, setLoadState] = useState<EvaluationLoadState>({ status: "loading" })
   const [errorMessage, setErrorMessage] = useState<string | null>(null)
   const role = session?.role ?? "operator"
+  const canViewInsights = session?.canViewInsights ?? false
+  const requestedView = evaluationViewForPath(role, canViewInsights, pathname)
   const activeEvaluatorId = role === "evaluator" ? (session?.evaluatorId ?? "") : proxyEvaluatorId
 
   const commitSnapshot = useCallback((loaded: EvaluationSnapshot) => {
@@ -107,19 +122,24 @@ export function EvaluationProvider({ children }: Readonly<{ children: ReactNode 
     setLoadState({ status: "error", error: { kind, message: LOAD_ERROR_MESSAGE } })
   }, [])
 
-  const installRemoteState = useCallback((state: Awaited<ReturnType<typeof loadRemoteEvaluation>>) => {
+  const installRemoteState = useCallback((
+    state: Awaited<ReturnType<typeof loadRemoteEvaluation>>,
+    view: EvaluationView,
+  ) => {
     revisionRef.current = state.revision
     repositoryRef.current = createSnapshotRepository(state.snapshot)
+    setLoadedView(view)
     commitSnapshot(state.snapshot)
   }, [commitSnapshot])
 
   useEffect(() => {
     let active = true
     setLoadState({ status: "loading" })
+    setLoadedView(null)
     if (remoteMode) {
       if (sessionId === null) return () => { active = false }
-      void loadRemoteEvaluation(role).then((state) => {
-        if (active) installRemoteState(state)
+      void loadRemoteEvaluation(role, requestedView).then((state) => {
+        if (active) installRemoteState(state, requestedView)
       }).catch((error: unknown) => {
         if (active) failLoad(error)
       })
@@ -128,13 +148,18 @@ export function EvaluationProvider({ children }: Readonly<{ children: ReactNode 
         const repository = createLocalStorageEvaluationRepository({ storage: window.localStorage })
         repositoryRef.current = repository
         const loaded = repository.loadSnapshot()
-        queueMicrotask(() => { if (active) commitSnapshot(loaded) })
+        queueMicrotask(() => {
+          if (active) {
+            setLoadedView("default")
+            commitSnapshot(loaded)
+          }
+        })
       } catch (error) {
         queueMicrotask(() => { if (active) failLoad(error) })
       }
     }
     return () => { active = false }
-  }, [commitSnapshot, failLoad, installRemoteState, remoteMode, role, sessionId])
+  }, [commitSnapshot, failLoad, installRemoteState, remoteMode, requestedView, role, sessionId])
 
   useEffect(() => () => {
     if (clearTimerRef.current !== null) clearTimeout(clearTimerRef.current)
@@ -162,14 +187,17 @@ export function EvaluationProvider({ children }: Readonly<{ children: ReactNode 
   const retryLoad = useCallback(() => {
     setLoadState({ status: "loading" })
     if (remoteMode) {
-      void loadRemoteEvaluation(role).then(installRemoteState).catch(failLoad)
+      setLoadedView(null)
+      void loadRemoteEvaluation(role, requestedView)
+        .then((state) => installRemoteState(state, requestedView))
+        .catch(failLoad)
       return
     }
     try {
       const loaded = repositoryRef.current?.loadSnapshot()
       if (loaded !== undefined) commitSnapshot(loaded)
     } catch (error) { failLoad(error) }
-  }, [commitSnapshot, failLoad, installRemoteState, remoteMode, role])
+  }, [commitSnapshot, failLoad, installRemoteState, remoteMode, requestedView, role])
 
   const queueRemoteWrite = useCallback((command: RemoteEvaluationCommand, next: EvaluationSnapshot, message?: string) => {
     pendingWritesRef.current += 1
@@ -192,7 +220,7 @@ export function EvaluationProvider({ children }: Readonly<{ children: ReactNode 
         setErrorMessage(text)
         toast.error(text)
         try {
-          installRemoteState(await loadRemoteEvaluation(role))
+          installRemoteState(await loadRemoteEvaluation(role), "default")
         } catch {
           setErrorMessage(text)
         }
@@ -227,12 +255,26 @@ export function EvaluationProvider({ children }: Readonly<{ children: ReactNode 
     activeCycleId, actor, mutate, selectCycle: setActiveCycleId, snapshot,
   }), [activeCycleId, actor, mutate, setActiveCycleId, snapshot])
 
-  const value = useMemo<EvaluationContextValue>(() => ({
-    snapshot, role, activeCycleId, activeEvaluatorId,
-    backendMode: remoteMode ? "supabase" : "local", saveState, loadState, errorMessage,
-    setActiveCycleId, setActiveEvaluatorId, retryLoad, ...actions,
-  }), [snapshot, role, activeCycleId, activeEvaluatorId, remoteMode, saveState, loadState,
-    errorMessage, setActiveCycleId, setActiveEvaluatorId, retryLoad, actions])
+  const value = useMemo<EvaluationContextValue>(() => {
+    const projectionMatches = !remoteMode || loadedView === requestedView
+    return {
+      snapshot: projectionMatches ? snapshot : null,
+      role,
+      canViewInsights,
+      activeCycleId,
+      activeEvaluatorId,
+      backendMode: remoteMode ? "supabase" : "local",
+      saveState,
+      loadState: projectionMatches ? loadState : { status: "loading" },
+      errorMessage,
+      setActiveCycleId,
+      setActiveEvaluatorId,
+      retryLoad,
+      ...actions,
+    }
+  }, [remoteMode, loadedView, requestedView, snapshot, role, canViewInsights, activeCycleId,
+    activeEvaluatorId, saveState, loadState, errorMessage, setActiveCycleId,
+    setActiveEvaluatorId, retryLoad, actions])
 
   return <EvaluationContext value={value}>{children}</EvaluationContext>
 }

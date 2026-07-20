@@ -21,6 +21,7 @@ const profileSchema = z.object({
   role: z.enum(["operator", "evaluator", "approver", "engineer"]),
   roles: z.array(z.enum(["operator", "evaluator", "approver", "engineer"])).min(1),
   evaluator_id: z.string().nullable(), engineer_id: z.string().nullable(), active: z.boolean(),
+  can_view_insights: z.boolean().default(false),
   must_change_password: z.boolean(), created_at: z.string(), updated_at: z.string(),
 })
 const accountSchema = z.object({
@@ -28,6 +29,7 @@ const accountSchema = z.object({
   role: z.enum(["operator", "evaluator", "approver", "engineer"]),
   roles: z.array(z.enum(["operator", "evaluator", "approver", "engineer"])).min(1),
   evaluatorId: z.string().nullable(), engineerId: z.string().nullable(), active: z.boolean(),
+  canViewInsights: z.boolean().default(false),
   mustChangePassword: z.boolean(), createdAt: z.string(), updatedAt: z.string(),
 })
 const accountsResponseSchema = z.object({ accounts: z.array(accountSchema) })
@@ -42,6 +44,7 @@ function publicAccount(profile: z.infer<typeof profileSchema>): AuthAccount {
     roles: profile.roles,
     evaluatorId: profile.evaluator_id,
     engineerId: profile.engineer_id,
+    canViewInsights: profile.can_view_insights,
     active: profile.active,
     mustChangePassword: profile.must_change_password,
     createdAt: profile.created_at,
