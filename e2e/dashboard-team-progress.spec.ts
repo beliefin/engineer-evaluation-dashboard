@@ -12,7 +12,7 @@ test.beforeEach(async ({ page }) => {
   await clearDemoStorage(page)
 })
 
-test("팀 범위가 평가 현황, 과제 평균과 완료자 순위에 함께 적용된다", async ({ page }, testInfo) => {
+test("팀 범위가 평가 현황, 과제 평균과 과제·종합 순위에 함께 적용된다", async ({ page }, testInfo) => {
   test.skip(testInfo.project.name !== "desktop-chromium", "single responsive verification pass")
   test.setTimeout(180_000)
 
@@ -28,17 +28,21 @@ test("팀 범위가 평가 현황, 과제 평균과 완료자 순위에 함께 �
     await expect(targetMetric.locator("span.numeric")).toContainText("24")
     await expect(page.getByText("가중 평균", { exact: true }).first()).toBeVisible()
     await expect(page.getByText("비가중 평균", { exact: true }).first()).toBeVisible()
-    await expect(page.getByRole("heading", { name: "전체 완료자 순위" })).toBeVisible()
+    await expect(page.getByRole("heading", { name: "전체 과제별 순위" })).toBeVisible()
+    await expect(page.getByRole("heading", { name: "전체 종합 순위" })).toBeVisible()
+    await expect(page.getByText("최종 총점 분포", { exact: true })).toHaveCount(0)
     await expect(progress.getByText("생산 1팀", { exact: false }).first()).toBeVisible()
     await expect(progress.getByText("생산 2팀", { exact: false }).first()).toBeVisible()
     await page.getByRole("button", { name: "생산 1팀 현황 보기" }).click()
     await expect(page).toHaveURL(/team=/)
     await expect(targetMetric.locator("span.numeric")).toContainText("12")
-    await expect(page.getByRole("heading", { name: "생산 1팀 완료자 순위" })).toBeVisible()
+    await expect(page.getByRole("heading", { name: "생산 1팀 과제별 순위" })).toBeVisible()
+    await expect(page.getByRole("heading", { name: "생산 1팀 종합 순위" })).toBeVisible()
     await expect(progress.getByText("생산 2팀", { exact: false })).toHaveCount(0)
     await page.getByRole("button", { name: "생산 2팀 현황 보기" }).click()
     await expect(targetMetric.locator("span.numeric")).toContainText("12")
-    await expect(page.getByRole("heading", { name: "생산 2팀 완료자 순위" })).toBeVisible()
+    await expect(page.getByRole("heading", { name: "생산 2팀 과제별 순위" })).toBeVisible()
+    await expect(page.getByRole("heading", { name: "생산 2팀 종합 순위" })).toBeVisible()
     await expect(progress.getByText("생산 1팀", { exact: false })).toHaveCount(0)
     expect(
       await page.evaluate(() => document.documentElement.scrollWidth > document.documentElement.clientWidth),

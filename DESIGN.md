@@ -276,6 +276,17 @@
 - **States**: loading, empty, filtered.
 - **Rules**: radar/pie 금지, 축 범위는 점수에서 항상 0~100.
 
+### Relative Ranking Simulation
+
+- **Structure**: compact cohort summary, engineer selection rail, left-low-to-right-high score curve, C/B/S-A vertical bands, cutoff lines, selected engineer detail, and an accessible ranking table.
+- **Population rule**: 현재 시즌에서 하나 이상의 과제 반영점수가 있는 엔지니어를 기본 전원 선택한다. 미완료자의 현재 부분점수는 포함하되 `부분점수`로 표시한다. 반영점수가 전혀 없는 인원은 0점으로 대체하지 않고 선택 목록에서 `점수 없음` 비활성 상태로 남긴다.
+- **Recalculation**: 개별 체크 변경은 선택 인원, 경쟁 순위, `순위 ÷ 선택 인원 × 100`으로 표시하는 상위 백분위, C 20%·B 50%·S/A 30% 인원, 커트라인, 경계 점수 차이, 경계 동점과 밀집 인원을 즉시 다시 계산한다. 등급은 운영 검토용 명목 구간이며 확정 고과로 표현하지 않는다.
+- **Chart encoding**: X축은 선택 집단 내 하위에서 상위로, Y축은 0~100점으로 고정한다. 등급은 낮은 채도의 세로 배경과 직접 라벨로 중복 표현하고, 경계는 점선과 진입 점수로 표시한다. 선은 실제 점을 직선으로만 연결한다.
+- **Tie handling**: 동일 점수는 공동 순위로 표시한다. 동점이 명목 등급 경계를 가르면 해당 점과 경고를 함께 표시하고 임의로 확정된 등급처럼 보이지 않게 한다.
+- **Selection**: 전체 선택, 전체 해제, 검색, 팀·담당 필터, 필터 결과 선택을 제공한다. 개인 선택은 분석 세션 상태이며 시즌이 바뀌면 현재 시즌의 점수 보유자 전체로 초기화한다.
+- **Responsive**: 모바일은 차트와 요약을 먼저 보여 주고 인원 선택은 Sheet로 이동한다. 데스크톱은 280px 선택 rail과 차트를 나란히 둔다. 차트는 가로 스크롤에 의존하지 않는다.
+- **Accessibility**: 커트라인과 구간 정보는 hover 없이 노출하고, 점 툴팁의 이름·점수·순위·백분위·상태는 하단 시맨틱 표에서도 확인할 수 있어야 한다. 선택, 동점, 부분점수는 색상과 텍스트를 함께 사용한다.
+
 ### Analysis Insight Strip
 
 - **Structure**: 한 개의 공유 표면 안에 변별 폭, 완료율 병목, 팀 격차 요약을 세로 구분선으로 배치한다.

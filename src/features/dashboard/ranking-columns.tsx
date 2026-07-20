@@ -39,13 +39,17 @@ function SortHeader({ column, label, align = "left" }: SortHeaderProps) {
   )
 }
 
-export function createRankingColumns(): ColumnDef<CompletedRankingRow>[] {
+export function createRankingColumns(scoreLabel = "종합 점수"): ColumnDef<CompletedRankingRow>[] {
   return [
     {
-      accessorKey: "rank",
+      id: "rank",
+      accessorFn: (row) => row.rank ?? undefined,
+      sortUndefined: "last",
       header: ({ column }) => <SortHeader column={column} label="순위" />,
       cell: ({ row }) => (
-        <span className="numeric font-bold">{row.original.rank}</span>
+        <span className="numeric font-bold">
+          {row.original.rank === null ? "—" : `${row.original.rank}위`}
+        </span>
       ),
     },
     {
@@ -65,20 +69,31 @@ export function createRankingColumns(): ColumnDef<CompletedRankingRow>[] {
       header: ({ column }) => <SortHeader column={column} label="팀" />,
     },
     {
-      accessorKey: "totalScore",
+      id: "totalScore",
+      accessorFn: (row) => row.totalScore ?? undefined,
+      sortUndefined: "last",
       header: ({ column }) => (
-        <SortHeader column={column} label="최종 총점" align="right" />
+        <SortHeader column={column} label={scoreLabel} align="right" />
       ),
       cell: ({ row }) => (
         <span className="numeric block text-right font-bold text-primary">
-          {row.original.totalScore.toFixed(2)}
+          {row.original.totalScore === null ? "—" : row.original.totalScore.toFixed(2)}
         </span>
       ),
     },
     {
       accessorKey: "status",
       header: "상태",
-      cell: ({ row }) => <RankingStatusBadge status={row.original.status} />,
+      cell: ({ row }) => (
+        <div className="space-y-1.5">
+          <RankingStatusBadge status={row.original.status} isTied={row.original.isTied ?? false} />
+          {row.original.taskCount !== undefined ? (
+            <p className="numeric text-xs text-muted-foreground">
+              {row.original.completedTaskCount ?? 0}/{row.original.taskCount}개 과제 반영
+            </p>
+          ) : null}
+        </div>
+      ),
       enableSorting: false,
     },
   ]

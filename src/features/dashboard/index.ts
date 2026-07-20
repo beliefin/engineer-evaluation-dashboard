@@ -9,6 +9,7 @@ export { DashboardPanel } from "./dashboard-panel"
 export { EngineerEvaluationProgress } from "./engineer-evaluation-progress"
 export { MetricStrip } from "./metric-strip"
 export { ScoreDistributionChart } from "./score-distribution-chart"
+export { TaskRankingPanel } from "./task-ranking-panel"
 export type {
   CategoryAverageChartProps,
   CategoryAverageDatum,
@@ -30,4 +31,7 @@ export type {
   RankingStatusFilter,
   ScoreDistributionChartProps,
   ScoreDistributionDatum,
+  TaskRankingPanelProps,
+  TaskRankingRow,
+  TaskRankingSection,
 } from "./dashboard-view-models"

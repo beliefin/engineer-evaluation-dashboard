@@ -11,7 +11,7 @@ import {
   DashboardHeader,
   EngineerEvaluationProgress,
   MetricStrip,
-  ScoreDistributionChart,
+  TaskRankingPanel,
   type RankingFilterState,
   type RankingStatusFilter,
 } from "@/features/dashboard"
@@ -24,7 +24,10 @@ import { useEvaluation } from "@/providers"
 import { selectDashboardViewModel } from "@/view-models/dashboard"
 
 function parseStatus(value: string | null): RankingStatusFilter {
-  return value === "confirmed" || value === "tied" ? value : "all"
+  return value === "confirmed" || value === "in_progress" ||
+    value === "not_started" || value === "tied"
+    ? value
+    : "all"
 }
 
 export function DashboardScreen() {
@@ -84,7 +87,7 @@ export function DashboardScreen() {
     }
     const query = params.toString()
     const nextUrl = query.length > 0 ? `${pathname}?${query}` : pathname
-    History.prototype.replaceState.call(window.history, window.history.state, "", nextUrl)
+    window.history.replaceState(window.history.state, "", nextUrl)
   }
 
   function updateFilters(next: RankingFilterState) {
@@ -103,7 +106,7 @@ export function DashboardScreen() {
         asOfLabel={cycle === undefined ? "평가 시즌 기준" : `${cycle.startsAt} ~ ${cycle.endsAt}`}
         contextLabel="평가 운영"
         cycleLabel={cycle?.name ?? "평가 시즌"}
-        description="시즌 과제의 평가와 운영자 입력이 모두 끝나고 엔지니어별 적용 가중치 합계가 100%인 대상만 공식 순위에 반영됩니다."
+        description="과제별 완료 평균과 현재까지 반영된 가중 점수로 순위를 확인합니다. 모든 적용 과제가 끝난 대상은 최종 확정으로 구분합니다."
         sampleLabel={backendMode === "supabase" ? "운영 데이터" : "샘플 데이터"}
         title="엔지니어 역량평가 전체 현황"
       />
@@ -114,7 +117,7 @@ export function DashboardScreen() {
         <div>
           <h2 className="text-sm font-semibold" id="dashboard-scope-title">현황 범위</h2>
           <p className="mt-1 text-xs text-muted-foreground">
-            대상 수, 평가 현황, 과제 평균과 완료자 순위를 같은 팀 범위로 전환합니다.
+            대상 수, 평가 현황, 과제 평균과 과제·종합 순위를 같은 팀 범위로 전환합니다.
           </p>
         </div>
         <div className="flex flex-wrap gap-2" role="group" aria-label="현황 팀 범위">
@@ -143,10 +146,10 @@ export function DashboardScreen() {
         tasks={model.evaluationTasks}
       />
       <div className="grid gap-6 xl:grid-cols-2">
-        <ScoreDistributionChart
-          data={model.distribution}
-          description="완료자의 과제 가중 점수에 개인별 가·감점을 반영한 최종 총점을 0~100 구간에 집계합니다."
-          title="최종 총점 분포"
+        <TaskRankingPanel
+          description="과제가 완료된 엔지니어는 평가자 가중 평균으로 순위를 매기고, 진행 중·미진행 대상은 순위 아래에 구분해 표시합니다."
+          rankings={model.taskRankings}
+          title={`${scopeLabel} 과제별 순위`}
         />
         <CategoryAverageChart
           data={model.categoryAverages}
@@ -155,13 +158,14 @@ export function DashboardScreen() {
         />
       </div>
       <CompletedRanking
-        description="본인에게 적용된 모든 과제가 완료된 대상만 포함하며, 표시 총점 소수 둘째 자리 기준 공동순위(1, 2, 2, 4)를 적용합니다."
+        description="완료된 과제의 개인별 가중 환산점수를 합산한 현재 점수로 임시 순위를 표시합니다. 모든 적용 과제가 완료되면 최종 확정으로 전환하며, 표시 점수 소수 둘째 자리 기준 공동순위(1, 2, 2, 4)를 적용합니다."
         filters={visibleFilters}
         onFiltersChange={updateFilters}
         sorting={sorting}
         onSortingChange={updateSorting}
         rows={model.rankingRows}
-        title={`${scopeLabel} 완료자 순위`}
+        scoreLabel="현재 종합 점수"
+        title={`${scopeLabel} 종합 순위`}
       />
     </div>
   )

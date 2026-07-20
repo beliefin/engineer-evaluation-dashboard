@@ -15,6 +15,10 @@ export function SeasonReportScreen() {
   if (cycle === undefined || model === null) {
     return <ErrorState description="선택한 평가 시즌의 보고서 데이터를 찾을 수 없습니다." />
   }
+  const completedRankingRows = model.rankingRows.filter(
+    (row): row is typeof row & Readonly<{ rank: number; totalScore: number }> =>
+      row.status === "confirmed" && row.rank !== null && row.totalScore !== null,
+  )
   const generatedAt = new Intl.DateTimeFormat("ko-KR", {
     dateStyle: "long",
     timeStyle: "short",
@@ -59,13 +63,13 @@ export function SeasonReportScreen() {
       </section>
 
       <section aria-labelledby="report-ranking-title">
-        <div className="flex items-end justify-between gap-3"><div><h2 className="text-lg font-semibold" id="report-ranking-title">완료자 최종 순위</h2><p className="mt-1 text-xs text-muted-foreground">개인별 적용 과제 가중치 100%와 필수 입력이 모두 확정된 대상만 포함합니다.</p></div><p className="numeric text-sm font-semibold">{model.rankingRows.length}명</p></div>
-        {model.rankingRows.length === 0 ? (
+        <div className="flex items-end justify-between gap-3"><div><h2 className="text-lg font-semibold" id="report-ranking-title">완료자 최종 순위</h2><p className="mt-1 text-xs text-muted-foreground">개인별 적용 과제 가중치 100%와 필수 입력이 모두 확정된 대상만 포함합니다.</p></div><p className="numeric text-sm font-semibold">{completedRankingRows.length}명</p></div>
+        {completedRankingRows.length === 0 ? (
           <p className="mt-3 rounded-md border border-dashed p-4 text-sm text-muted-foreground">공식 순위에 포함된 대상이 없습니다.</p>
         ) : (
           <table className="mt-3 w-full border-collapse text-sm">
             <thead><tr className="border-y bg-muted/40"><th className="px-3 py-2 text-left">순위</th><th className="px-3 py-2 text-left">이름</th><th className="px-3 py-2 text-left">팀</th><th className="px-3 py-2 text-right">최종 점수</th></tr></thead>
-            <tbody>{model.rankingRows.map((row) => <tr className="border-b break-inside-avoid" key={row.id}><td className="numeric px-3 py-2 font-semibold">{row.rank}</td><td className="px-3 py-2">{row.name}</td><td className="px-3 py-2">{row.team}</td><td className="numeric px-3 py-2 text-right font-semibold">{row.totalScore.toFixed(2)}</td></tr>)}</tbody>
+            <tbody>{completedRankingRows.map((row) => <tr className="border-b break-inside-avoid" key={row.id}><td className="numeric px-3 py-2 font-semibold">{row.rank}</td><td className="px-3 py-2">{row.name}</td><td className="px-3 py-2">{row.team}</td><td className="numeric px-3 py-2 text-right font-semibold">{row.totalScore.toFixed(2)}</td></tr>)}</tbody>
           </table>
         )}
       </section>

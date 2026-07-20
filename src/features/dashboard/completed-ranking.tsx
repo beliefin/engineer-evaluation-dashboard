@@ -34,6 +34,7 @@ export function CompletedRanking({
   title,
   description,
   rows,
+  scoreLabel = "종합 점수",
   filters,
   onFiltersChange,
   sorting,
@@ -70,14 +71,15 @@ export function CompletedRanking({
       const matchesTeam =
         activeFilters.team === "all" || row.team === activeFilters.team
       const matchesStatus =
-        activeFilters.status === "all" || row.status === activeFilters.status
+        activeFilters.status === "all" ||
+        (activeFilters.status === "tied" ? row.isTied === true : row.status === activeFilters.status)
 
       return matchesQuery && matchesTeam && matchesStatus
     })
   }, [activeFilters, rows])
-  const columns = useMemo(() => createRankingColumns(), [])
+  const columns = useMemo(() => createRankingColumns(scoreLabel), [scoreLabel])
   const table = useDashboardTable({
-    data: [...filteredRows],
+    data: filteredRows,
     columns,
     state: { sorting: tableSorting },
     onSortingChange: (updater) => {
@@ -120,7 +122,7 @@ export function CompletedRanking({
           </p>
         </div>
         <Badge variant="outline" className="numeric rounded-md">
-          완료 {rows.length}명
+          점수 반영 {rows.filter((row) => row.totalScore !== null).length}/{rows.length}명
         </Badge>
       </div>
 
@@ -138,9 +140,9 @@ export function CompletedRanking({
         </>
       ) : (
         <div role="status" className="px-5 py-12 text-center">
-          <p className="text-sm font-medium">조건에 맞는 완료자가 없습니다.</p>
+          <p className="text-sm font-medium">조건에 맞는 대상자가 없습니다.</p>
           <p className="mt-1 text-xs text-muted-foreground">
-            검색어나 팀, 순위 상태 필터를 조정해 주세요.
+            검색어나 팀, 진행 상태 필터를 조정해 주세요.
           </p>
         </div>
       )}

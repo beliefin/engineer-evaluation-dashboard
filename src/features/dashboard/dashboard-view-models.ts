@@ -55,19 +55,41 @@ export interface EngineerEvaluationProgressRow {
   readonly tasks: readonly EngineerTaskProgress[]
 }
 
-export type RankingStatus = "confirmed" | "tied"
+export interface TaskRankingRow {
+  readonly id: string
+  readonly href: string
+  readonly rank: number | null
+  readonly name: string
+  readonly team: string
+  readonly score: number | null
+  readonly status: DashboardEvaluationStatus
+  readonly isTied: boolean
+}
+
+export interface TaskRankingSection {
+  readonly taskId: string
+  readonly label: string
+  readonly completedCount: number
+  readonly targetCount: number
+  readonly rows: readonly TaskRankingRow[]
+}
+
+export type RankingStatus = "confirmed" | "in_progress" | "not_started"
 
 export interface CompletedRankingRow {
   readonly id: string
   readonly href: string
-  readonly rank: number
+  readonly rank: number | null
   readonly name: string
   readonly team: string
-  readonly totalScore: number
+  readonly totalScore: number | null
   readonly status: RankingStatus
+  readonly isTied?: boolean
+  readonly completedTaskCount?: number
+  readonly taskCount?: number
 }
 
-export type RankingStatusFilter = "all" | RankingStatus
+export type RankingStatusFilter = "all" | RankingStatus | "tied"
 
 export type RankingSortKey = keyof Pick<
   CompletedRankingRow,
@@ -150,8 +172,15 @@ export interface CompletedRankingProps {
   readonly title: string
   readonly description: string
   readonly rows: readonly CompletedRankingRow[]
+  readonly scoreLabel?: string
   readonly filters?: RankingFilterState
   readonly onFiltersChange?: (next: RankingFilterState) => void
   readonly sorting?: RankingSortState
   readonly onSortingChange?: (next: RankingSortState) => void
+}
+
+export interface TaskRankingPanelProps {
+  readonly title: string
+  readonly description: string
+  readonly rankings: readonly TaskRankingSection[]
 }

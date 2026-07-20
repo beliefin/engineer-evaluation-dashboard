@@ -22,26 +22,19 @@ describe("engineer result selectors", () => {
     expect(summaries.filter((entry) => entry.status === "unconfirmed")).toHaveLength(4)
   })
 
-  it("keeps incomplete engineers out of weighted score ranking", () => {
+  it("ranks current weighted scores while keeping never-started engineers at the bottom", () => {
     const dashboard = selectDashboardViewModel(createSeedSnapshot(), CYCLE_ID)
 
     expect(dashboard).not.toBeNull()
-    expect(dashboard?.rankingRows).toHaveLength(12)
+    expect(dashboard?.rankingRows).toHaveLength(24)
     expect(
-      dashboard?.rankingRows.every(
-        (row) => row.totalScore >= 0 && row.totalScore <= 100,
-      ),
+      dashboard?.rankingRows.filter((row) => row.totalScore !== null),
+    ).toHaveLength(22)
+    expect(
+      dashboard?.rankingRows
+        .filter((row) => row.totalScore === null)
+        .every((row) => row.rank === null && row.status === "not_started"),
     ).toBe(true)
-    expect(
-      dashboard?.distribution.reduce((total, datum) => total + datum.count, 0),
-    ).toBe(12)
-    expect(dashboard?.distribution.map((datum) => datum.range)).toEqual([
-      "0~59",
-      "60~69",
-      "70~79",
-      "80~89",
-      "90~100",
-    ])
   })
 
   it("keeps every engineer out of final scoring when task weights do not total 100", () => {
@@ -67,10 +60,10 @@ describe("engineer result selectors", () => {
           result.roundedFinalScore === null,
       ),
     ).toBe(true)
-    expect(dashboard?.rankingRows).toEqual([])
     expect(
-      dashboard?.distribution.reduce((total, datum) => total + datum.count, 0),
-    ).toBe(0)
+      dashboard?.rankingRows.every((row) => row.status !== "confirmed"),
+    ).toBe(true)
+    expect(dashboard?.rankingRows.some((row) => row.status === "in_progress")).toBe(true)
   })
 
   it("reports the sample completion metrics without merging missing states", () => {
@@ -100,6 +93,50 @@ describe("engineer result selectors", () => {
     expect(dashboard?.evaluationRows).toHaveLength(12)
     expect(dashboard?.evaluationRows.every((row) => row.team === "생산 1팀")).toBe(true)
     expect(dashboard?.rankingRows.every((row) => row.team === "생산 1팀")).toBe(true)
+    expect(
+      dashboard?.taskRankings.every((ranking) =>
+        ranking.rows.every((row) => row.team === "생산 1팀"),
+      ),
+    ).toBe(true)
+  })
+
+  it("ranks each task by completed weighted average and leaves unfinished targets below ranked rows", () => {
+    const dashboard = selectDashboardViewModel(createSeedSnapshot(), CYCLE_ID)
+    const growth = dashboard?.taskRankings.find((ranking) => ranking.taskId === "task-growth-plan")
+
+    expect(dashboard?.taskRankings).toHaveLength(6)
+    expect(growth).toMatchObject({
+      label: "성장탐구계획서",
+      completedCount: 22,
+      targetCount: 24,
+    })
+    expect(growth?.rows.slice(0, 22).every((row) => row.rank !== null && row.score !== null)).toBe(true)
+    expect(growth?.rows.slice(22).every((row) => row.rank === null && row.status === "not_started")).toBe(true)
+  })
+
+  it("applies competition ranks to equal task averages", () => {
+    const snapshot = createSeedSnapshot()
+    const tiedEngineerIds = new Set(["engineer-01", "engineer-02"])
+    const assignmentIds = new Set(
+      snapshot.assignments
+        .filter((assignment) =>
+          tiedEngineerIds.has(assignment.engineerId) && assignment.taskId === "task-growth-plan",
+        )
+        .map((assignment) => assignment.id),
+    )
+    const scoreSheets = snapshot.scoreSheets.map((sheet) =>
+      assignmentIds.has(sheet.assignmentId)
+        ? { ...sheet, scores: sheet.scores.map((score) => ({ ...score, score: 8 })) }
+        : sheet,
+    )
+    const dashboard = selectDashboardViewModel({ ...snapshot, scoreSheets }, CYCLE_ID)
+    const growthRows = dashboard?.taskRankings
+      .find((ranking) => ranking.taskId === "task-growth-plan")
+      ?.rows.filter((row) => tiedEngineerIds.has(row.id))
+
+    expect(growthRows).toHaveLength(2)
+    expect(growthRows?.[0]?.rank).toBe(growthRows?.[1]?.rank)
+    expect(growthRows?.every((row) => row.isTied)).toBe(true)
   })
 
   it("Given assigned evaluations When no score exists or every evaluator submitted Then status is not started or complete", () => {

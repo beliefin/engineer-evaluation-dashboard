@@ -5,11 +5,13 @@ import { usePathname, useRouter, useSearchParams } from "next/navigation"
 import { ErrorState, PageHeader } from "@/components/shared"
 import {
   AnalysisDashboard,
+  RelativeRankingSection,
   type AnalysisFilterKey,
   type AnalysisFilterState,
 } from "@/features/analysis"
 import { useEvaluation } from "@/providers"
 import { selectAnalysisViewModel } from "@/view-models/analysis"
+import { selectRelativeRankingCandidates } from "@/view-models/relative-ranking"
 
 export function AnalysisScreen() {
   const pathname = usePathname()
@@ -28,6 +30,8 @@ export function AnalysisScreen() {
     return <ErrorState description="선택한 평가 시즌의 분석 데이터를 찾을 수 없습니다." />
   }
   const activeModel = model
+  const activeCycle = snapshot.cycles.find((cycle) => cycle.id === activeCycleId)
+  const relativeRankingCandidates = selectRelativeRankingCandidates(snapshot, activeCycleId)
 
   function updateUrl(next: AnalysisFilterState) {
     const params = new URLSearchParams(searchParams.toString())
@@ -46,9 +50,14 @@ export function AnalysisScreen() {
   return (
     <div className="space-y-6">
       <PageHeader
-        description="점수 분포, 완료 병목, 팀별 성과와 평가자 편차를 함께 비교합니다."
+        description="상대 서열, 점수 분포, 완료 병목과 평가 편차를 비교합니다."
         context={`평가 인사이트 · ${backendMode === "supabase" ? "운영 데이터" : "샘플 데이터"}`}
         title="평가 항목 분석"
+      />
+      <RelativeRankingSection
+        key={activeCycleId}
+        candidates={relativeRankingCandidates}
+        seasonLabel={activeCycle?.name ?? "선택 평가 시즌"}
       />
       <AnalysisDashboard
         categoryAverages={model.categoryAverages}

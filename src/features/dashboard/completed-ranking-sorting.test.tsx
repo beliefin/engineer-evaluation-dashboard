@@ -34,7 +34,17 @@ const RANKING_ROWS: readonly CompletedRankingRow[] = [
     name: "가상 엔지니어 중간점수",
     team: "인프라기술팀",
     totalScore: 88.5,
-    status: "tied",
+    status: "confirmed",
+    isTied: true,
+  },
+  {
+    id: "engineer-pending",
+    href: "/engineers/engineer-pending",
+    rank: null,
+    name: "가상 엔지니어 미진행",
+    team: "공정기술팀",
+    totalScore: null,
+    status: "not_started",
   },
 ]
 
@@ -57,11 +67,12 @@ describe("completed ranking sorting", () => {
       "가상 엔지니어 고득점",
       "가상 엔지니어 저득점",
       "가상 엔지니어 중간점수",
+      "가상 엔지니어 미진행",
     ])
 
     await user.click(
       within(table).getByRole("button", {
-        name: /^최종 총점, 현재 정렬 안 됨/,
+        name: /^종합 점수, 현재 정렬 안 됨/,
       })
     )
 
@@ -72,6 +83,7 @@ describe("completed ranking sorting", () => {
       "가상 엔지니어 저득점",
       "가상 엔지니어 중간점수",
       "가상 엔지니어 고득점",
+      "가상 엔지니어 미진행",
     ])
   })
 
@@ -97,6 +109,7 @@ describe("completed ranking sorting", () => {
       "/engineers/engineer-low",
       "/engineers/engineer-middle",
       "/engineers/engineer-high",
+      "/engineers/engineer-pending",
     ])
   })
 
@@ -115,7 +128,7 @@ describe("completed ranking sorting", () => {
     )
     const table = within(view.container).getByRole("table")
     // When
-    await user.click(within(table).getByRole("button", { name: /^최종 총점/ }))
+    await user.click(within(table).getByRole("button", { name: /^종합 점수/ }))
 
     // Then
     expect(onSortingChange).toHaveBeenCalledWith({

@@ -37,7 +37,7 @@ const navigation = vi.hoisted(() => {
 type ProbeFilters = Readonly<{
   query: string
   team: string
-  status: "all" | "confirmed" | "tied"
+  status: "all" | "confirmed" | "in_progress" | "not_started" | "tied"
 }>
 
 type ProbeSorting = Readonly<{
@@ -81,6 +81,7 @@ vi.mock("@/features/dashboard", async () => {
     EngineerEvaluationProgress: () => null,
     MetricStrip: () => null,
     ScoreDistributionChart: () => null,
+    TaskRankingPanel: () => null,
     CompletedRanking: ({
       filters = { query: "", team: "all", status: "all" },
       onFiltersChange,
@@ -164,10 +165,17 @@ describe("dashboard URL filter state", () => {
     vi.spyOn(History.prototype, "replaceState").mockImplementation((_data, _unused, url) => {
       if (url !== undefined && url !== null) navigation.setUrl(String(url))
     })
+    Object.defineProperty(window.history, "replaceState", {
+      configurable: true,
+      value: vi.fn((data: unknown, unused: string, url?: string | URL | null) =>
+        History.prototype.replaceState.call(window.history, data, unused, url),
+      ),
+    })
   })
 
   afterEach(() => {
     cleanup()
+    delete (window.history as Partial<History>).replaceState
     vi.restoreAllMocks()
   })
 
@@ -268,5 +276,19 @@ describe("dashboard URL filter state", () => {
 
     await user.click(screen.getByRole("button", { name: "전체 현황 보기" }))
     expect(new URL(navigation.getUrl(), "http://localhost").searchParams.get("team")).toBeNull()
+  })
+
+  it("routes a team switch through the history instance patched by Next.js", async () => {
+    const user = userEvent.setup()
+    renderDashboard()
+    await screen.findByRole("heading", { name: "엔지니어 역량평가 전체 현황" })
+
+    await user.click(screen.getByRole("button", { name: "생산 1팀 현황 보기" }))
+
+    expect(window.history.replaceState).toHaveBeenCalledWith(
+      window.history.state,
+      "",
+      "/dashboard?team=%EC%83%9D%EC%82%B0+1%ED%8C%80",
+    )
   })
 })

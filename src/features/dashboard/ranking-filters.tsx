@@ -85,11 +85,14 @@ function FilterFields({
       </label>
 
       <label className="grid gap-1 text-xs font-medium text-muted-foreground">
-        순위 상태
+        진행 상태
         <Select
           value={value.status}
           onValueChange={(status) => {
-            if (status === "all" || status === "confirmed" || status === "tied") {
+            if (
+              status === "all" || status === "confirmed" || status === "in_progress" ||
+              status === "not_started" || status === "tied"
+            ) {
               onChange({ ...value, status })
             }
           }}
@@ -99,7 +102,9 @@ function FilterFields({
           </SelectTrigger>
           <SelectContent>
             <SelectItem value="all">전체 상태</SelectItem>
-            <SelectItem value="confirmed">순위 확정</SelectItem>
+            <SelectItem value="confirmed">최종 확정</SelectItem>
+            <SelectItem value="in_progress">진행 중</SelectItem>
+            <SelectItem value="not_started">미진행</SelectItem>
             <SelectItem value="tied">공동 순위</SelectItem>
           </SelectContent>
         </Select>
@@ -155,7 +160,7 @@ export function RankingFilters(props: RankingFiltersProps) {
             <SheetHeader>
               <SheetTitle>순위표 필터</SheetTitle>
               <SheetDescription>
-                이름, 팀, 순위 상태로 완료자 목록을 좁힙니다.
+                이름, 팀, 진행 상태로 순위 대상을 좁힙니다.
               </SheetDescription>
             </SheetHeader>
             <FilterFields

@@ -1,5 +1,4 @@
 import {
-  rankCompletedResults,
   type EngineerResult,
   type EvaluationSnapshot,
   type TaskResult,
@@ -10,7 +9,8 @@ import type {
   DashboardMetric,
   DashboardEvaluationTask,
   EngineerEvaluationProgressRow,
-  ScoreDistributionDatum,
+  TaskRankingRow,
+  TaskRankingSection,
 } from "@/features/dashboard"
 
 import { selectDashboardProgress } from "./dashboard-progress"
@@ -18,14 +18,15 @@ import { selectEngineerResultSummaries } from "./results"
 
 export type DashboardViewModel = Readonly<{
   metrics: readonly DashboardMetric[]
-  distribution: readonly ScoreDistributionDatum[]
   categoryAverages: readonly CategoryAverageDatum[]
   rankingRows: readonly CompletedRankingRow[]
+  taskRankings: readonly TaskRankingSection[]
   evaluationTasks: readonly DashboardEvaluationTask[]
   evaluationRows: readonly EngineerEvaluationProgressRow[]
 }>
 
 const roundToOne = (value: number): number => Math.round(value * 10) / 10
+const roundToTwo = (value: number): number => Math.round(value * 100) / 100
 
 function average(values: readonly number[]): number {
   if (values.length === 0) return 0
@@ -77,27 +78,6 @@ function createMetrics(
   ]
 }
 
-function createDistribution(results: readonly EngineerResult[]): readonly ScoreDistributionDatum[] {
-  const counts = [0, 0, 0, 0, 0]
-  results.forEach((result) => {
-    const score = result.roundedFinalScore
-    if (score === null) return
-    if (score < 60) counts[0] = (counts[0] ?? 0) + 1
-    else if (score < 70) counts[1] = (counts[1] ?? 0) + 1
-    else if (score < 80) counts[2] = (counts[2] ?? 0) + 1
-    else if (score < 90) counts[3] = (counts[3] ?? 0) + 1
-    else counts[4] = (counts[4] ?? 0) + 1
-  })
-
-  return [
-    { range: "0~59", count: counts[0] ?? 0 },
-    { range: "60~69", count: counts[1] ?? 0 },
-    { range: "70~79", count: counts[2] ?? 0 },
-    { range: "80~89", count: counts[3] ?? 0 },
-    { range: "90~100", count: counts[4] ?? 0 },
-  ]
-}
-
 function createCategoryAverages(
   results: readonly EngineerResult[],
   snapshot: EvaluationSnapshot,
@@ -142,25 +122,140 @@ function unweightedTaskScore(result: TaskResult): number {
     : scores.reduce((total, score) => total + score, 0) / scores.length
 }
 
+type RankCandidate<T> = Readonly<{
+  row: T
+  id: string
+  score: number | null
+  statusOrder: number
+  name: string
+}>
+
+function applyCompetitionRanks<T>(
+  candidates: readonly RankCandidate<T>[],
+): ReadonlyArray<T & Readonly<{ rank: number | null; isTied: boolean }>> {
+  const sorted = candidates.toSorted((left, right) => {
+    if (left.score === null && right.score !== null) return 1
+    if (left.score !== null && right.score === null) return -1
+    if (left.score !== null && right.score !== null && left.score !== right.score) {
+      return right.score - left.score
+    }
+    if (left.statusOrder !== right.statusOrder) return left.statusOrder - right.statusOrder
+    return left.name.localeCompare(right.name, "ko")
+  })
+  const scoreCounts = new Map<number, number>()
+  sorted.forEach((candidate) => {
+    if (candidate.score !== null) {
+      scoreCounts.set(candidate.score, (scoreCounts.get(candidate.score) ?? 0) + 1)
+    }
+  })
+  let previousScore: number | null = null
+  let previousRank = 0
+  return sorted.map((candidate, index) => {
+    const rank = candidate.score === null
+      ? null
+      : previousScore !== null && candidate.score === previousScore
+        ? previousRank
+        : index + 1
+    if (candidate.score !== null) {
+      previousScore = candidate.score
+      previousRank = rank ?? previousRank
+    }
+    return {
+      ...candidate.row,
+      rank,
+      isTied: candidate.score !== null && (scoreCounts.get(candidate.score) ?? 0) > 1,
+    }
+  })
+}
+
 function createRankingRows(
   results: readonly EngineerResult[],
   snapshot: EvaluationSnapshot,
 ): readonly CompletedRankingRow[] {
-  const ranked = rankCompletedResults(results)
-  return ranked.flatMap((result) => {
+  const candidates = results.flatMap((result) => {
     const engineer = snapshot.engineers.find((entry) => entry.id === result.engineerId)
-    if (engineer === undefined || result.roundedFinalScore === null) return []
-    const tied = ranked.filter((entry) => entry.rank === result.rank).length > 1
+    if (engineer === undefined) return []
+    const contributionValues = Object.values(result.contributions)
+    const completedTaskCount = contributionValues.filter((value) => value !== null).length
+    const earnedScore = contributionValues.reduce<number>(
+      (total, value) => total + (value ?? 0),
+      0,
+    )
+    const totalScore = result.roundedFinalScore ?? (
+      completedTaskCount === 0
+        ? null
+        : roundToTwo(Math.min(100, Math.max(0, earnedScore + result.adjustmentTotal)))
+    )
+    const status = result.roundedFinalScore !== null
+      ? "confirmed" as const
+      : totalScore === null
+        ? "not_started" as const
+        : "in_progress" as const
     return [{
       id: engineer.id,
-      href: `/engineers/detail?engineerId=${encodeURIComponent(engineer.id)}`,
-      rank: result.rank,
+      score: totalScore,
+      statusOrder: status === "confirmed" ? 0 : status === "in_progress" ? 1 : 2,
       name: engineer.displayName,
-      team: engineer.team,
-      totalScore: result.roundedFinalScore,
-      status: tied ? "tied" : "confirmed",
+      row: {
+        id: engineer.id,
+        href: `/engineers/detail?engineerId=${encodeURIComponent(engineer.id)}`,
+        name: engineer.displayName,
+        team: engineer.team,
+        totalScore,
+        status,
+        completedTaskCount,
+        taskCount: contributionValues.length,
+      },
     }]
   })
+  return applyCompetitionRanks(candidates)
+}
+
+function createTaskRankings(
+  results: readonly EngineerResult[],
+  snapshot: EvaluationSnapshot,
+  cycleId: string,
+  evaluationRows: readonly EngineerEvaluationProgressRow[],
+): readonly TaskRankingSection[] {
+  return snapshot.tasks
+    .filter((task) => task.cycleId === cycleId)
+    .toSorted((left, right) => left.order - right.order)
+    .map((task) => {
+      const candidates = results.flatMap((result): readonly RankCandidate<Omit<TaskRankingRow, "rank" | "isTied">>[] => {
+        const taskResult = result.taskResults.find((entry) => entry.taskId === task.id)
+        const engineer = snapshot.engineers.find((entry) => entry.id === result.engineerId)
+        if (taskResult === undefined || engineer === undefined) return []
+        const progressStatus = evaluationRows
+          .find((row) => row.id === engineer.id)
+          ?.tasks.find((entry) => entry.taskId === task.id)
+          ?.status ?? "not_started"
+        const score = taskResult.status === "complete" && taskResult.score !== null
+          ? roundToTwo(taskResult.score)
+          : null
+        return [{
+          id: engineer.id,
+          score,
+          statusOrder: progressStatus === "complete" ? 0 : progressStatus === "in_progress" ? 1 : 2,
+          name: engineer.displayName,
+          row: {
+            id: engineer.id,
+            href: `/engineers/detail?engineerId=${encodeURIComponent(engineer.id)}`,
+            name: engineer.displayName,
+            team: engineer.team,
+            score,
+            status: progressStatus,
+          },
+        }]
+      })
+      const rows = applyCompetitionRanks(candidates)
+      return {
+        taskId: task.id,
+        label: task.name,
+        completedCount: rows.filter((row) => row.status === "complete").length,
+        targetCount: rows.length,
+        rows,
+      }
+    })
 }
 
 export function selectDashboardViewModel(
@@ -178,9 +273,9 @@ export function selectDashboardViewModel(
   const progress = selectDashboardProgress(snapshot, summaries)
   return {
     metrics: createMetrics(summaries),
-    distribution: createDistribution(results),
     categoryAverages: createCategoryAverages(results, snapshot, cycleId),
     rankingRows: createRankingRows(results, snapshot),
+    taskRankings: createTaskRankings(results, snapshot, cycleId, progress.rows),
     evaluationTasks: progress.tasks,
     evaluationRows: progress.rows,
   }

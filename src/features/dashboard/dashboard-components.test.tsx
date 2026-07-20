@@ -6,11 +6,13 @@ import { CompletedRanking } from "./completed-ranking"
 import { CategoryAverageChart } from "./category-average-chart"
 import { EngineerEvaluationProgress } from "./engineer-evaluation-progress"
 import { ScoreDistributionChart } from "./score-distribution-chart"
+import { TaskRankingPanel } from "./task-ranking-panel"
 import type {
   CategoryAverageDatum,
   CompletedRankingRow,
   EngineerEvaluationProgressRow,
   ScoreDistributionDatum,
+  TaskRankingSection,
 } from "./dashboard-view-models"
 
 const DISTRIBUTION: readonly ScoreDistributionDatum[] = [
@@ -38,7 +40,8 @@ const ROWS: readonly CompletedRankingRow[] = [
     name: "가상 엔지니어 2",
     team: "설비기술팀",
     totalScore: 87.1,
-    status: "tied",
+    status: "confirmed",
+    isTied: true,
   },
 ]
 
@@ -49,6 +52,37 @@ const CATEGORY_AVERAGES: readonly CategoryAverageDatum[] = [
     weightedScore: 82.4,
     unweightedScore: 79.1,
     sampleSize: 11,
+  },
+]
+
+const TASK_RANKINGS: readonly TaskRankingSection[] = [
+  {
+    taskId: "task-growth",
+    label: "성장탐구계획서",
+    completedCount: 1,
+    targetCount: 2,
+    rows: [
+      {
+        id: "engineer-1",
+        href: "/engineers/engineer-1",
+        rank: 1,
+        name: "가상 엔지니어 1",
+        team: "생산 1팀",
+        score: 91.25,
+        status: "complete",
+        isTied: false,
+      },
+      {
+        id: "engineer-2",
+        href: "/engineers/engineer-2",
+        rank: null,
+        name: "가상 엔지니어 2",
+        team: "생산 2팀",
+        score: null,
+        status: "not_started",
+        isTied: false,
+      },
+    ],
   },
 ]
 
@@ -133,6 +167,22 @@ describe("dashboard presentation", () => {
     expect(screen.getByText("0~59점")).toBeInTheDocument()
     expect(screen.getByText("90~100점")).toBeInTheDocument()
     expect(screen.getByText("분포 표 데이터 보기")).toBeInTheDocument()
+  })
+
+  it("shows completed task ranks before unfinished engineers", () => {
+    render(
+      <TaskRankingPanel
+        title="과제별 순위"
+        description="완료 평균 기준"
+        rankings={TASK_RANKINGS}
+      />
+    )
+
+    expect(screen.getByText("성장탐구계획서 순위")).toBeInTheDocument()
+    expect(screen.getByText("1위")).toBeInTheDocument()
+    expect(screen.getByText("91.25")).toBeInTheDocument()
+    expect(screen.getByText("미진행")).toBeInTheDocument()
+    expect(screen.getByText("완료 1/2명")).toBeInTheDocument()
   })
 
   it("filters the completed ranking by engineer name", async () => {
