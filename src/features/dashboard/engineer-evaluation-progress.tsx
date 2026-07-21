@@ -1,6 +1,7 @@
 "use client"
 
 import Link from "next/link"
+import { useMemo, useState } from "react"
 
 import { StatusBadge } from "@/components/shared"
 import { Badge } from "@/components/ui/badge"
@@ -20,6 +21,12 @@ import type {
   EngineerEvaluationProgressRow,
   EngineerTaskProgress,
 } from "./dashboard-view-models"
+import { EvaluationProgressControls } from "./evaluation-progress-controls"
+import {
+  filterAndSortProgressRows,
+  type ProgressFilters,
+  type ProgressSort,
+} from "./evaluation-progress-filtering"
 
 type EngineerEvaluationProgressProps = Readonly<{
   tasks: readonly DashboardEvaluationTask[]
@@ -88,6 +95,21 @@ function TaskProgress({ task }: Readonly<{ task: EngineerTaskProgress | undefine
 
 export function EngineerEvaluationProgress({ tasks, rows }: EngineerEvaluationProgressProps) {
   const completedCount = rows.filter((row) => row.status === "complete").length
+  const [filters, setFilters] = useState<ProgressFilters>({
+    query: "",
+    overallStatus: "all",
+    taskFilters: {},
+  })
+  const [sort, setSort] = useState<ProgressSort>("default")
+  const visibleRows = useMemo(
+    () => filterAndSortProgressRows(rows, filters, sort),
+    [filters, rows, sort],
+  )
+
+  function resetControls() {
+    setFilters({ query: "", overallStatus: "all", taskFilters: {} })
+    setSort("default")
+  }
 
   return (
     <section className="overflow-hidden rounded-md border border-border bg-card">
@@ -104,9 +126,20 @@ export function EngineerEvaluationProgress({ tasks, rows }: EngineerEvaluationPr
         </Badge>
       </div>
 
-      {rows.length === 0 ? (
+      <EvaluationProgressControls
+        filters={filters}
+        onFiltersChange={setFilters}
+        onReset={resetControls}
+        onSortChange={setSort}
+        resultCount={visibleRows.length}
+        sort={sort}
+        tasks={tasks}
+        totalCount={rows.length}
+      />
+
+      {visibleRows.length === 0 ? (
         <div role="status" className="px-5 py-12 text-center text-sm text-muted-foreground">
-          선택한 범위에 평가 대상이 없습니다.
+          조건에 맞는 평가 대상이 없습니다.
         </div>
       ) : (
         <>
@@ -123,7 +156,7 @@ export function EngineerEvaluationProgress({ tasks, rows }: EngineerEvaluationPr
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {rows.map((row) => (
+                {visibleRows.map((row) => (
                   <TableRow key={row.id}>
                     <TableCell className="sticky left-0 z-10 bg-card px-5 py-3">
                       <Link className="font-semibold text-foreground underline-offset-4 hover:text-primary hover:underline" href={row.href}>
@@ -155,7 +188,7 @@ export function EngineerEvaluationProgress({ tasks, rows }: EngineerEvaluationPr
           </div>
 
           <ul className="divide-y divide-border md:hidden" aria-label="엔지니어별 평가 현황">
-            {rows.map((row) => {
+            {visibleRows.map((row) => {
               const outstandingTasks = row.tasks.filter((task) => task.status !== "complete")
               const visibleOutstandingTasks = outstandingTasks.slice(0, 2)
               const hiddenOutstandingCount = outstandingTasks.length - visibleOutstandingTasks.length

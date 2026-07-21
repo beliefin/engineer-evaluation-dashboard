@@ -152,6 +152,7 @@ export const languageRecordSchema = z.object({
   id, cycleId: id, engineerId: id, examName: z.string().trim().min(1).max(100),
   languageName: nullableText(100).optional(),
   result: z.string().trim().min(1).max(100), acquiredOn: z.iso.date().nullable(),
+  noScore: z.boolean().optional(),
   languageGroup: z.enum(["english", "second_language"]).optional(),
   previousResult: nullableText(100).optional(), newlyAcquired: z.boolean().optional(),
   note: nullableText(300), updatedAt: timestamp,
@@ -159,6 +160,7 @@ export const languageRecordSchema = z.object({
 export type LanguageRecord = z.infer<typeof languageRecordSchema>
 export const certificationRecordSchema = z.object({
   id, cycleId: id, engineerId: id, certificateName: z.string().trim().min(1).max(100),
+  noScore: z.boolean().optional(),
   grade: nullableText(100), acquiredOn: z.iso.date().nullable(), issuer: nullableText(100),
   updatedAt: timestamp,
 })

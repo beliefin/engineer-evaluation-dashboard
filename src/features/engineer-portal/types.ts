@@ -49,6 +49,7 @@ export type EngineerPortalLanguageDraft = Readonly<{
   languageName: string | null
   languageGroup: "english" | "second_language"
   result: string
+  noScore?: boolean
   previousResult: string | null
   newlyAcquired: boolean
   acquiredOn: string | null
@@ -59,6 +60,7 @@ export type EngineerPortalCertificationDraft = Readonly<{
   recordId: string | null
   engineerId: string
   certificateName: string
+  noScore?: boolean
   grade: string | null
   acquiredOn: string | null
   issuer: string | null
@@ -67,7 +69,9 @@ export type EngineerPortalCertificationDraft = Readonly<{
 export type EngineerPortalViewModel = Readonly<{
   detail: EngineerDetailViewModel
   languageRecords: ReadonlyArray<EngineerPortalLanguageRecord>
+  languageNoScoreRecordId?: string
   certificationRecords: ReadonlyArray<EngineerPortalCertificationRecord>
+  certificationNoScoreRecordId?: string
   certificationOptions?: ReadonlyArray<CertificationOptionViewModel>
   certificationScore?: CertificationScoreSummaryViewModel
   languageOptions?: ReadonlyArray<LanguageOptionViewModel>

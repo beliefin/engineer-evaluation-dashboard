@@ -21,6 +21,7 @@ export function EngineerPortal({
       <EngineerDetail model={model.detail} role="engineer" />
       <PersonalSourceRecordEditor
         certificationRecords={model.certificationRecords}
+        certificationNoScoreRecordId={model.certificationNoScoreRecordId}
         certificationOptions={model.certificationOptions ?? []}
         certificationScore={model.certificationScore}
         cycleStartsAt={model.cycleStartsAt}
@@ -28,6 +29,7 @@ export function EngineerPortal({
         engineerId={model.detail.engineer.id}
         engineerName={model.detail.engineer.displayName}
         languageRecords={model.languageRecords}
+        languageNoScoreRecordId={model.languageNoScoreRecordId}
         languageOptions={model.languageOptions ?? []}
         languageScore={model.languageScore}
         onDeleteCertificationRecord={onDeleteCertificationRecord}

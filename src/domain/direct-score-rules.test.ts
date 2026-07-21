@@ -36,6 +36,29 @@ const rule = (input: Partial<DirectScoreRule>): DirectScoreRule => ({
 })
 
 describe("direct score rules", () => {
+  it("treats an explicit no-language-score declaration as a confirmed zero", () => {
+    const noScoreRecord: LanguageScoreRecord = {
+      ...record,
+      id: "language-none",
+      examName: "보유 어학성적 없음",
+      result: "0",
+      noScore: true,
+    }
+
+    expect(calculateLanguageScore([noScoreRecord], [rule({})])).toMatchObject({ score: 0 })
+  })
+
+  it("treats an explicit no-certification declaration as a confirmed zero", () => {
+    const noScoreRecord: CertificationRecord = {
+      ...certificationRecord("보유 자격증 없음"),
+      noScore: true,
+    }
+
+    expect(highestConvertedDirectScore([noScoreRecord], [
+      certificationRule("화공기사", 23, 15, 1),
+    ])).toBe(0)
+  })
+
   it("converts a numeric threshold and adds matching bonuses", () => {
     expect(convertDirectScoreRecord(record, [
       rule({}),

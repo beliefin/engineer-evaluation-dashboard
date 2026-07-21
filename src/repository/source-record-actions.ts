@@ -54,6 +54,14 @@ export function saveLanguageScoreRecordAction(
   ) {
     throw new RepositoryError("INVALID_INPUT", "어학 성적 기록의 대상이 일치하지 않습니다.")
   }
+  const otherLanguageRecords = context.snapshot.languageScoreRecords.filter((candidate) =>
+    candidate.id !== existing?.id &&
+    candidate.cycleId === parsed.cycleId &&
+    candidate.engineerId === parsed.engineerId
+  )
+  if (parsed.noScore && otherLanguageRecords.some((candidate) => candidate.noScore !== true)) {
+    throw new RepositoryError("INVALID_INPUT", "등록된 어학 성적을 먼저 삭제해 주세요.")
+  }
 
   const record: LanguageScoreRecord = {
     id: existing?.id ?? createEntityId(context, "language-record"),
@@ -62,6 +70,7 @@ export function saveLanguageScoreRecordAction(
     examName: parsed.examName.trim(),
     languageName: nullableText(parsed.languageName),
     result: parsed.result.trim(),
+    noScore: parsed.noScore,
     languageGroup: parsed.languageGroup,
     previousResult: nullableText(parsed.previousResult),
     newlyAcquired: parsed.newlyAcquired,
@@ -69,11 +78,15 @@ export function saveLanguageScoreRecordAction(
     note: nullableText(parsed.note),
     updatedAt: context.now,
   }
-  const languageScoreRecords = existing === undefined
-    ? [...context.snapshot.languageScoreRecords, record]
-    : context.snapshot.languageScoreRecords.map((candidate) =>
-        candidate.id === record.id ? record : candidate,
-      )
+  const retainedLanguageRecords = context.snapshot.languageScoreRecords.filter((candidate) =>
+    candidate.id !== record.id && !(
+      parsed.noScore !== true &&
+      candidate.cycleId === parsed.cycleId &&
+      candidate.engineerId === parsed.engineerId &&
+      candidate.noScore === true
+    )
+  )
+  const languageScoreRecords = [...retainedLanguageRecords, record]
   return appendAuditEvent(context, { ...context.snapshot, languageScoreRecords }, {
     cycleId: record.cycleId,
     type: "language_record_saved",
@@ -142,11 +155,19 @@ export function saveCertificationRecordAction(
       )
       .map((rule) => rule.value),
   )
-  if (!configuredNames.has(certificateName)) {
+  if (!parsed.noScore && !configuredNames.has(certificateName)) {
     throw new RepositoryError(
       "INVALID_INPUT",
       "현재 평가 시즌의 자격증 평가표에 등록된 자격증만 입력할 수 있습니다.",
     )
+  }
+  const otherCertificationRecords = context.snapshot.certificationRecords.filter((candidate) =>
+    candidate.id !== existing?.id &&
+    candidate.cycleId === parsed.cycleId &&
+    candidate.engineerId === parsed.engineerId
+  )
+  if (parsed.noScore && otherCertificationRecords.some((candidate) => candidate.noScore !== true)) {
+    throw new RepositoryError("INVALID_INPUT", "등록된 자격증을 먼저 삭제해 주세요.")
   }
   const duplicate = context.snapshot.certificationRecords.some((record) =>
     record.id !== existing?.id &&
@@ -163,16 +184,21 @@ export function saveCertificationRecordAction(
     cycleId: parsed.cycleId,
     engineerId: parsed.engineerId,
     certificateName,
+    noScore: parsed.noScore,
     grade: nullableText(parsed.grade),
     acquiredOn: parsed.acquiredOn,
     issuer: nullableText(parsed.issuer),
     updatedAt: context.now,
   }
-  const certificationRecords = existing === undefined
-    ? [...context.snapshot.certificationRecords, record]
-    : context.snapshot.certificationRecords.map((candidate) =>
-        candidate.id === record.id ? record : candidate,
-      )
+  const retainedCertificationRecords = context.snapshot.certificationRecords.filter((candidate) =>
+    candidate.id !== record.id && !(
+      parsed.noScore !== true &&
+      candidate.cycleId === parsed.cycleId &&
+      candidate.engineerId === parsed.engineerId &&
+      candidate.noScore === true
+    )
+  )
+  const certificationRecords = [...retainedCertificationRecords, record]
   return appendAuditEvent(context, { ...context.snapshot, certificationRecords }, {
     cycleId: record.cycleId,
     type: "certification_record_saved",

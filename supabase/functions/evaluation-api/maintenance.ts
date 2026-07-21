@@ -31,7 +31,9 @@ export async function listMaintenance(client: SupabaseClient) {
     })),
     auditEvents: audit.data.map((event) => ({
       id: String(event.id),
-      actorName: profileNames.get(event.actor_user_id) ?? event.actor_user_id,
+      actorName: event.actor_user_id === null
+        ? "시스템"
+        : profileNames.get(event.actor_user_id) ?? event.actor_user_id,
       actorRole: event.actor_role,
       operation: event.operation,
       targetId: event.target_id,

@@ -71,6 +71,9 @@ export function DashboardScreen() {
     return <ErrorState description="선택한 평가 시즌의 데이터를 찾을 수 없습니다." />
   }
   const cycle = snapshot.cycles.find((entry) => entry.id === activeCycleId)
+  const seasonPopulationRows = selectedTeam === "all"
+    ? model.rankingRows
+    : selectDashboardViewModel(snapshot, activeCycleId, "all")?.rankingRows ?? model.rankingRows
   const visibleFilters: RankingFilterState = { ...filters, team: selectedTeam }
 
   function replaceDashboardUrl(nextFilters: RankingFilterState, nextSorting: RankingSortState) {
@@ -168,7 +171,8 @@ export function DashboardScreen() {
         scoreLabel="현재 종합 점수"
         title={`${scopeLabel} 종합 순위`}
         populationSelectable
-        populationResetKey={`${activeCycleId}:${selectedTeam}`}
+        populationRows={seasonPopulationRows}
+        populationResetKey={activeCycleId}
       />
     </div>
   )

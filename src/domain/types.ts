@@ -218,6 +218,7 @@ export type LanguageScoreRecord = Readonly<{
   examName: string
   languageName?: string | null | undefined
   result: string
+  noScore?: boolean | undefined
   languageGroup?: LanguageGroup | undefined
   previousResult?: string | null | undefined
   newlyAcquired?: boolean | undefined
@@ -231,6 +232,7 @@ export type CertificationRecord = Readonly<{
   cycleId: string
   engineerId: string
   certificateName: string
+  noScore?: boolean | undefined
   grade: string | null
   acquiredOn: string | null
   issuer: string | null

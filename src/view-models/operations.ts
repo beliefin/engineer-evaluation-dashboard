@@ -278,7 +278,10 @@ export function selectOperationsViewModel(
           formulaDriven: taskRules.length > 0,
         }]
       }),
-      languageRecords: languageRecords.map((record) => ({
+      ...(languageRecords.find((record) => record.noScore === true)?.id == null ? {} : {
+        languageNoScoreRecordId: languageRecords.find((record) => record.noScore === true)!.id,
+      }),
+      languageRecords: languageRecords.filter((record) => record.noScore !== true).map((record) => ({
           ...languageEntries.get(record.id),
           id: record.id,
           examName: record.examName,
@@ -292,7 +295,10 @@ export function selectOperationsViewModel(
           convertedScore: languageEntries.get(record.id)?.baseScore ?? convertDirectScoreRecord(record, languageRules),
           ...selectSourceRecordReview(snapshot, record.id, record.updatedAt),
         })),
-      certificationRecords: certificationRecords.map((record) => {
+      ...(certificationRecords.find((record) => record.noScore === true)?.id == null ? {} : {
+        certificationNoScoreRecordId: certificationRecords.find((record) => record.noScore === true)!.id,
+      }),
+      certificationRecords: certificationRecords.filter((record) => record.noScore !== true).map((record) => {
         const scoreEntry = certificationEntries.get(record.id)
         return {
           id: record.id,

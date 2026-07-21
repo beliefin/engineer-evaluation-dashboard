@@ -11,6 +11,7 @@ type LanguageRecordInput = Readonly<{
   examName: string
   languageName?: string | null
   result: string
+  noScore?: boolean
   languageGroup?: "english" | "second_language"
   previousResult?: string | null
   newlyAcquired?: boolean
@@ -22,6 +23,7 @@ type CertificationRecordInput = Readonly<{
   cycleId: string
   engineerId: string
   certificateName: string
+  noScore?: boolean
   grade: string | null
   acquiredOn: string | null
   issuer: string | null

@@ -19,12 +19,53 @@ function createRepository() {
 }
 
 function engineerIdWithoutSeedRecords(): string {
-  const id = createSeedSnapshot().engineers[10]?.id
+  const snapshot = createSeedSnapshot()
+  const id = snapshot.engineers.find((engineer) =>
+    !snapshot.languageScoreRecords.some((record) => record.engineerId === engineer.id) &&
+    !snapshot.certificationRecords.some((record) => record.engineerId === engineer.id)
+  )?.id
   if (id === undefined) throw new RangeError("seed engineer was not created")
   return id
 }
 
 describe("LocalStorageEvaluationRepository source records", () => {
+  it("persists explicit no-score declarations without confusing them with missing input", () => {
+    const repository = createRepository()
+    const engineerId = engineerIdWithoutSeedRecords()
+
+    const language = repository.saveLanguageScoreRecord({
+      recordId: null,
+      cycleId: CYCLE_ID,
+      engineerId,
+      examName: "보유 어학성적 없음",
+      result: "0",
+      noScore: true,
+      acquiredOn: null,
+      note: null,
+      actor: OPERATOR,
+    })
+    const certification = repository.saveCertificationRecord({
+      recordId: null,
+      cycleId: CYCLE_ID,
+      engineerId,
+      certificateName: "보유 자격증 없음",
+      noScore: true,
+      grade: null,
+      acquiredOn: null,
+      issuer: null,
+      actor: OPERATOR,
+    })
+
+    expect(language.languageScoreRecords).toContainEqual(expect.objectContaining({
+      engineerId,
+      noScore: true,
+    }))
+    expect(certification.certificationRecords).toContainEqual(expect.objectContaining({
+      engineerId,
+      noScore: true,
+    }))
+  })
+
   it("adds and updates a language score without changing the converted score", () => {
     const repository = createRepository()
     const engineerId = engineerIdWithoutSeedRecords()

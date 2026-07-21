@@ -179,6 +179,7 @@ export interface CompletedRankingProps {
   readonly sorting?: RankingSortState
   readonly onSortingChange?: (next: RankingSortState) => void
   readonly populationSelectable?: boolean
+  readonly populationRows?: readonly CompletedRankingRow[]
   readonly populationResetKey?: string
 }
 

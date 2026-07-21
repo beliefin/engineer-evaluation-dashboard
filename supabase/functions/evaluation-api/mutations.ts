@@ -288,6 +288,14 @@ export function mutateSource(snapshot: Snapshot, profile: Profile, request: Sour
       throw new ApiError(404, "NOT_FOUND", "어학 기록을 찾을 수 없습니다.")
     }
     const id = existing?.id ?? crypto.randomUUID()
+    const otherLanguageRecords = snapshot.languageScoreRecords.filter((entry) =>
+      entry.id !== existing?.id &&
+      entry.cycleId === request.record.cycleId &&
+      entry.engineerId === request.record.engineerId
+    )
+    if (request.record.noScore === true && otherLanguageRecords.some((entry) => entry.noScore !== true)) {
+      throw new ApiError(400, "INVALID_INPUT", "등록된 어학 성적을 먼저 삭제해 주세요.")
+    }
     const persisted = {
       id,
       cycleId: request.record.cycleId,
@@ -295,6 +303,7 @@ export function mutateSource(snapshot: Snapshot, profile: Profile, request: Sour
       examName: request.record.examName,
       languageName: request.record.languageName,
       result: request.record.result,
+      noScore: request.record.noScore,
       languageGroup: request.record.languageGroup,
       previousResult: request.record.previousResult,
       newlyAcquired: request.record.newlyAcquired,
@@ -304,9 +313,17 @@ export function mutateSource(snapshot: Snapshot, profile: Profile, request: Sour
     }
     return {
       ...snapshot,
-      languageScoreRecords: existing === undefined
-        ? [...snapshot.languageScoreRecords, persisted]
-        : snapshot.languageScoreRecords.map((entry) => entry.id === id ? persisted : entry),
+      languageScoreRecords: [
+        ...snapshot.languageScoreRecords.filter((entry) =>
+          entry.id !== id && !(
+            request.record.noScore !== true &&
+            entry.cycleId === request.record.cycleId &&
+            entry.engineerId === request.record.engineerId &&
+            entry.noScore === true
+          )
+        ),
+        persisted,
+      ],
       auditEvents: [...snapshot.auditEvents, audit(snapshot, profile, "language_record_saved", persisted.cycleId, id)],
     }
   }
@@ -328,8 +345,16 @@ export function mutateSource(snapshot: Snapshot, profile: Profile, request: Sour
         )
         .map((rule) => rule.value),
     )
-    if (!configuredNames.has(request.record.certificateName)) {
+    if (request.record.noScore !== true && !configuredNames.has(request.record.certificateName)) {
       throw new ApiError(400, "INVALID_INPUT", "현재 평가 시즌의 자격증 평가표에 등록된 자격증만 입력할 수 있습니다.")
+    }
+    const otherCertificationRecords = snapshot.certificationRecords.filter((entry) =>
+      entry.id !== existing?.id &&
+      entry.cycleId === request.record.cycleId &&
+      entry.engineerId === request.record.engineerId
+    )
+    if (request.record.noScore === true && otherCertificationRecords.some((entry) => entry.noScore !== true)) {
+      throw new ApiError(400, "INVALID_INPUT", "등록된 자격증을 먼저 삭제해 주세요.")
     }
     const duplicate = snapshot.certificationRecords.some((entry) =>
       entry.id !== existing?.id &&
@@ -346,6 +371,7 @@ export function mutateSource(snapshot: Snapshot, profile: Profile, request: Sour
       cycleId: request.record.cycleId,
       engineerId: request.record.engineerId,
       certificateName: request.record.certificateName,
+      noScore: request.record.noScore,
       grade: request.record.grade,
       acquiredOn: request.record.acquiredOn,
       issuer: request.record.issuer,
@@ -353,9 +379,17 @@ export function mutateSource(snapshot: Snapshot, profile: Profile, request: Sour
     }
     return {
       ...snapshot,
-      certificationRecords: existing === undefined
-        ? [...snapshot.certificationRecords, persisted]
-        : snapshot.certificationRecords.map((entry) => entry.id === id ? persisted : entry),
+      certificationRecords: [
+        ...snapshot.certificationRecords.filter((entry) =>
+          entry.id !== id && !(
+            request.record.noScore !== true &&
+            entry.cycleId === request.record.cycleId &&
+            entry.engineerId === request.record.engineerId &&
+            entry.noScore === true
+          )
+        ),
+        persisted,
+      ],
       auditEvents: [...snapshot.auditEvents, audit(snapshot, profile, "certification_record_saved", persisted.cycleId, id)],
     }
   }

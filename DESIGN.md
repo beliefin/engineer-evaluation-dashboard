@@ -283,7 +283,8 @@
 - **Structure**: engineer selection, automatic-conversion summary, language record list, certification list, and add/edit Dialog.
 - **Language fields**: exam name, score or grade, acquired year-month, and note. Preserve score or grade as source text because formats differ by exam.
 - **Certification fields**: certificate name is selected from the active season score table; grade or class, acquired year-month, and issuer remain supporting source fields. Grade and issuer may be left blank.
-- **States**: populated, empty, validation error, saving, saved, delete confirmation, review pending, review complete, and disabled.
+- **States**: populated, empty, explicit no-score, validation error, saving, saved, delete confirmation, review pending, review complete, and disabled.
+- **Explicit zero**: 빈 목록은 계속 `미입력`으로 취급한다. 사용자가 `보유 어학성적 없음` 또는 `보유 자격증 없음`을 명시적으로 선택한 경우에만 해당 원천 점수를 확정 0점으로 저장·집계하며, 화면에는 `0점 반영`과 선택 해제를 함께 표시한다. 실제 기록과 없음 선언은 동시에 유지하지 않는다.
 - **Review workflow**: an engineer-authored record starts in `검토 대기`. The operator can mark it `검토 완료` without changing the raw value; any later engineer edit returns it to `검토 대기`. Operator-authored and seed records are shown separately so the queue count remains actionable.
 - **Traceability**: every record shows its latest update time and input source. The operator panel exposes a text summary of pending reviews and a record-level review action; the engineer portal exposes the same read-only status without operator controls.
 - **Conversion**: certification score shows the top-three base sum, one highest current-year acquisition bonus even when outside the top three, and one current-year written-exam partial score. Language records show a converted value only when an operator-configured rule matches.
@@ -382,8 +383,14 @@
 
 ### Dashboard Ranking Population
 
-- 전체 종합 순위는 현재 팀 범위의 엔지니어를 기본 전원 포함한다. 운영자가 순위 대상 관리에서 체크를 해제하면 현재 화면의 순위와 공동순위를 즉시 다시 계산한다.
-- 제외 선택은 분석 세션 상태이며 평가 점수, 개인 가중치, 공식 확정 상태를 수정하지 않는다. 팀 또는 시즌 범위가 바뀌면 새 범위의 전원을 다시 기본 선택한다.
+- 전체 종합 순위는 현재 시즌의 엔지니어를 기본 전원 포함한다. 운영자가 순위 대상 관리에서 체크를 해제하면 현재 화면의 순위와 공동순위를 즉시 다시 계산한다.
+- 제외 선택은 시즌 단위 분석 세션 상태이며 평가 점수, 개인 가중치, 공식 확정 상태를 수정하지 않는다. 팀 전환은 표시 행만 바꾸고 선택 대상은 유지하며, 시즌이 바뀔 때만 새 시즌 전원을 기본 선택한다.
+
+### Evaluation Progress Matrix Controls
+
+- 엔지니어 검색, 전체 상태 필터, 과제별 상태 필터를 표 상단에 제공하고 결과 수를 항상 표시한다.
+- 정렬은 한 번에 한 기준만 적용한다. 이름, 전체 완료 과제 수, 과제별 완료 상태, 과제별 점수의 오름차순·내림차순을 지원한다.
+- 점수가 없는 행과 해당 과제가 없는 행은 점수 정렬에서 뒤로 보내고 상태 필터에서는 `미진행`과 `해당 없음`으로 구분한다.
 
 ## 6. Motion & Interaction
 

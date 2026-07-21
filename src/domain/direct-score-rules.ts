@@ -168,6 +168,21 @@ export function calculateLanguageScore(
   rules: ReadonlyArray<DirectScoreRule>,
   cycleStartsAt?: string,
 ): LanguageScoreBreakdown {
+  if (records.some((record) => record.noScore === true)) {
+    return {
+      score: 0,
+      baseScore: 0,
+      gradeUpgradeBonus: 0,
+      secondLanguageNewBonus: 0,
+      entries: records.map((record) => ({
+        recordId: record.id,
+        baseScore: record.noScore === true ? 0 : null,
+        selectedAsBest: false,
+        gradeUpgradeApplied: false,
+        secondLanguageNewBonusApplied: false,
+      })),
+    }
+  }
   const matched = records.map((record) => ({
     record,
     rule: matchingLanguageBaseRule(record, rules),
@@ -213,6 +228,23 @@ export function calculateCertificationScore(
   rules: ReadonlyArray<DirectScoreRule>,
   cycleStartsAt?: string,
 ): CertificationScoreBreakdown {
+  if (records.some((record) => record.noScore === true)) {
+    return {
+      score: 0,
+      baseScore: 0,
+      bonusScore: 0,
+      partialScore: 0,
+      entries: records.flatMap((record) => record.noScore === true ? [{
+        recordId: record.id,
+        certificateName: record.certificateName,
+        baseScore: 0,
+        newAcquisitionBonus: 0,
+        includedInTopThree: false,
+        bonusApplied: false,
+        partialScoreApplied: false,
+      }] : []),
+    }
+  }
   const matched = records.flatMap((record) => {
     const rule = rules
       .filter((candidate) =>

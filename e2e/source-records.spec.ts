@@ -27,3 +27,25 @@ test("어학 원천 성적을 저장해도 환산 점수는 바뀌지 않고 새
   await expect(page.getByRole("heading", { name: "TEPS" })).toBeVisible()
   await expect(page.getByLabel("샘플 엔지니어 01 어학 점수").first()).toHaveValue(before)
 })
+
+test("보유 실적 없음을 선택하면 어학과 자격증이 확정 0점으로 유지된다", async ({ page }) => {
+  await page.goto("/operations?tab=scores")
+  await waitForApp(page)
+
+  await page.getByRole("combobox", { name: "엔지니어 선택" }).click()
+  await page.getByRole("option", { name: /샘플 엔지니어 13/ }).click()
+  await page.getByRole("button", { name: "보유 어학성적 없음" }).click()
+  await page.getByRole("button", { name: "보유 자격증 없음" }).click()
+
+  await expect(page.getByText("보유 어학성적 없음 · 0점 반영")).toBeVisible()
+  await expect(page.getByText("보유 자격증 없음 · 0점 반영")).toBeVisible()
+  await expect(page.getByText("현재 어학 환산 0점", { exact: false })).toBeVisible()
+  await expect(page.getByText("현재 자격증 환산 0점", { exact: false })).toBeVisible()
+
+  await page.reload()
+  await waitForApp(page)
+  await page.getByRole("combobox", { name: "엔지니어 선택" }).click()
+  await page.getByRole("option", { name: /샘플 엔지니어 13/ }).click()
+  await expect(page.getByText("보유 어학성적 없음 · 0점 반영")).toBeVisible()
+  await expect(page.getByText("보유 자격증 없음 · 0점 반영")).toBeVisible()
+})

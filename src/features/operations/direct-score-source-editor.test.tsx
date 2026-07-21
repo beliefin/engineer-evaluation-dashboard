@@ -44,6 +44,24 @@ function renderEditor(
 }
 
 describe("DirectScoreSourceEditor", () => {
+  it("saves explicit zero declarations when no language score or certification is held", async () => {
+    const user = userEvent.setup()
+    const callbacks = renderEditor()
+
+    await user.click(screen.getByRole("button", { name: "보유 어학성적 없음" }))
+    await user.click(screen.getByRole("button", { name: "보유 자격증 없음" }))
+
+    expect(callbacks.onSaveLanguageRecord).toHaveBeenCalledWith(expect.objectContaining({
+      engineerId: "engineer-01",
+      noScore: true,
+      result: "0",
+    }))
+    expect(callbacks.onSaveCertificationRecord).toHaveBeenCalledWith(expect.objectContaining({
+      engineerId: "engineer-01",
+      noScore: true,
+    }))
+  })
+
   it("stores a language result and explains automatic conversion", async () => {
     const user = userEvent.setup()
     const callbacks = renderEditor(undefined, [], [{ languageGroup: "english", examName: "OPIc", numericResult: false, resultOptions: ["AL", "IH", "IM3", "IM2", "IM1"] }])

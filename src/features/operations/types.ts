@@ -122,8 +122,10 @@ export interface EngineerDirectScoreViewModel {
   readonly teamName: string
   readonly directTasks: readonly DirectTaskScoreViewModel[]
   readonly languageRecords: readonly LanguageScoreRecordViewModel[]
+  readonly languageNoScoreRecordId?: string
   readonly languageScore?: LanguageScoreSummaryViewModel
   readonly certificationRecords: readonly CertificationRecordViewModel[]
+  readonly certificationNoScoreRecordId?: string
   readonly certificationScore?: CertificationScoreSummaryViewModel
 }
 
@@ -200,6 +202,7 @@ export type LanguageScoreRecordDraft = Readonly<{
   languageName: string | null
   languageGroup: "english" | "second_language"
   result: string
+  noScore?: boolean
   previousResult: string | null
   newlyAcquired: boolean
   acquiredOn: string | null
@@ -210,6 +213,7 @@ export type CertificationRecordDraft = Readonly<{
   recordId: string | null
   engineerId: string
   certificateName: string
+  noScore?: boolean
   grade: string | null
   acquiredOn: string | null
   issuer: string | null

@@ -10,6 +10,7 @@ import { LanguageRecordDialog } from "@/features/operations/language-record-dial
 import { displayAcquisitionMonth } from "@/features/operations/acquisition-month"
 import { SourceRecordDeleteDialog } from "@/features/operations/source-record-delete-dialog"
 import { Badge } from "@/components/ui/badge"
+import { Button } from "@/components/ui/button"
 import type {
   CertificationOptionViewModel,
   CertificationScoreSummaryViewModel,
@@ -27,7 +28,9 @@ type PersonalSourceRecordEditorProps = EngineerPortalCallbacks & Readonly<{
   engineerId: string
   engineerName: string
   languageRecords: ReadonlyArray<EngineerPortalLanguageRecord>
+  languageNoScoreRecordId?: string | undefined
   certificationRecords: ReadonlyArray<EngineerPortalCertificationRecord>
+  certificationNoScoreRecordId?: string | undefined
   certificationOptions?: ReadonlyArray<CertificationOptionViewModel> | undefined
   certificationScore?: CertificationScoreSummaryViewModel | undefined
   languageOptions?: ReadonlyArray<LanguageOptionViewModel> | undefined
@@ -40,7 +43,9 @@ export function PersonalSourceRecordEditor({
   engineerId,
   engineerName,
   languageRecords,
+  languageNoScoreRecordId,
   certificationRecords,
+  certificationNoScoreRecordId,
   certificationOptions = [],
   certificationScore,
   languageOptions = [],
@@ -88,8 +93,19 @@ export function PersonalSourceRecordEditor({
             count={languageRecords.length}
             title="어학 성적"
           >
-            {languageRecords.length === 0 ? (
-              <EmptyRecord message="등록한 어학 성적이 없습니다." />
+            {languageNoScoreRecordId !== undefined ? (
+              <NoScoreDeclaration disabled={disabled} label="보유 어학성적 없음 · 0점 반영" onClear={() => onDeleteLanguageRecord(languageNoScoreRecordId)} />
+            ) : languageRecords.length === 0 ? (
+              <EmptyRecord
+                action={(
+                  <Button disabled={disabled} onClick={() => onSaveLanguageRecord({
+                    recordId: null, engineerId, examName: "보유 어학성적 없음",
+                    languageName: null, languageGroup: "english", result: "0", noScore: true,
+                    previousResult: null, newlyAcquired: false, acquiredOn: null, note: null,
+                  })} size="sm" variant="outline">보유 어학성적 없음</Button>
+                )}
+                message="등록한 어학 성적이 없습니다."
+              />
             ) : languageRecords.map((record) => (
               <article className="border-t border-border-subtle py-3 first:border-t-0" key={record.id}>
                 <div className="flex items-start justify-between gap-3">
@@ -119,8 +135,18 @@ export function PersonalSourceRecordEditor({
             count={certificationRecords.length}
             title="자격증"
           >
-            {certificationRecords.length === 0 ? (
-              <EmptyRecord message="등록한 자격증이 없습니다." />
+            {certificationNoScoreRecordId !== undefined ? (
+              <NoScoreDeclaration disabled={disabled} label="보유 자격증 없음 · 0점 반영" onClear={() => onDeleteCertificationRecord(certificationNoScoreRecordId)} />
+            ) : certificationRecords.length === 0 ? (
+              <EmptyRecord
+                action={(
+                  <Button disabled={disabled} onClick={() => onSaveCertificationRecord({
+                    recordId: null, engineerId, certificateName: "보유 자격증 없음", noScore: true,
+                    grade: null, acquiredOn: null, issuer: null,
+                  })} size="sm" variant="outline">보유 자격증 없음</Button>
+                )}
+                message="등록한 자격증이 없습니다."
+              />
             ) : certificationRecords.map((record) => (
               <article className="border-t border-border-subtle py-3 first:border-t-0" key={record.id}>
                 <div className="flex items-start justify-between gap-3">
@@ -168,6 +194,15 @@ function RecordColumn({
   )
 }
 
-function EmptyRecord({ message }: Readonly<{ message: string }>) {
-  return <p className="rounded-md border border-dashed px-3 py-6 text-center text-sm text-muted-foreground">{message}</p>
+function EmptyRecord({ message, action }: Readonly<{ message: string; action?: ReactNode }>) {
+  return <div className="rounded-md border border-dashed px-3 py-5 text-center text-sm text-muted-foreground"><p>{message}</p>{action === undefined ? null : <div className="mt-3">{action}</div>}</div>
+}
+
+function NoScoreDeclaration({ label, disabled, onClear }: Readonly<{ label: string; disabled: boolean; onClear: () => void }>) {
+  return (
+    <div className="flex items-center justify-between gap-3 rounded-md border border-success/30 bg-success-soft px-3 py-4">
+      <div><p className="font-medium text-success">{label}</p><p className="mt-1 text-xs text-muted-foreground">미입력이 아닌 확정 0점으로 집계됩니다.</p></div>
+      <Button disabled={disabled} onClick={onClear} size="sm" variant="outline">선택 해제</Button>
+    </div>
+  )
 }

@@ -62,6 +62,7 @@ export function CompletedRanking({
   sorting,
   onSortingChange,
   populationSelectable = false,
+  populationRows: populationCandidates = rows,
   populationResetKey,
 }: CompletedRankingProps) {
   const [internalFilters, setInternalFilters] =
@@ -70,10 +71,10 @@ export function CompletedRanking({
     useState<RankingSortState>(DEFAULT_RANKING_SORT)
   const activeFilters = filters ?? internalFilters
   const activeSorting = sorting ?? internalSorting
-  const populationKey = populationResetKey ?? rows.map((row) => row.id).join("|")
+  const populationKey = populationResetKey ?? populationCandidates.map((row) => row.id).join("|")
   const defaultSelectedIds = useMemo(
-    () => new Set(rows.map((row) => row.id)),
-    [rows],
+    () => new Set(populationCandidates.map((row) => row.id)),
+    [populationCandidates],
   )
   const [populationSelection, setPopulationSelection] = useState<Readonly<{
     key: string
@@ -169,7 +170,7 @@ export function CompletedRanking({
           {populationSelectable ? (
             <RankingPopulationDialog
               onChange={(ids) => setPopulationSelection({ key: populationKey, ids })}
-              rows={rows}
+              rows={populationCandidates}
               selectedIds={selectedIds}
             />
           ) : null}
