@@ -33,6 +33,10 @@ export function activateProfileRole(profile: Profile, activeRole: Role): Profile
 const cycle = z.object({
   id, name: z.string().trim().min(1), status: z.enum(["setup", "active", "closed"]),
   locked: z.boolean().default(false), startsAt: timestamp, endsAt: timestamp,
+  evaluatorPreset: z.array(z.object({
+    evaluatorId: id,
+    weight: z.number().positive().finite(),
+  })).max(50).default([]),
 })
 const employeeCode = z.string().trim().min(1).transform((value) =>
   /^3101\d{4}$/.test(value) ? value.slice(4) : value)

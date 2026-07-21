@@ -12,6 +12,7 @@ const VIEW_MODEL = {
   cycleEndsAt: "2026-06-30",
   tasks: [],
   evaluatorOptions: [],
+  evaluatorPreset: [],
   weightTotal: 0,
   engineerTaskWeights: [],
   evaluatorAssignments: [],
@@ -48,6 +49,7 @@ describe("OperationsConsole", () => {
         onDeleteTask={vi.fn(() => true)}
         onEngineerTaskWeightsChange={vi.fn(() => true)}
         onUpdateEvaluatorAssignments={vi.fn(() => true)}
+        onUpdateEvaluatorPreset={vi.fn(() => true)}
         onReopenSheet={vi.fn(() => true)}
         activeTab="unlocks"
         viewModel={VIEW_MODEL}

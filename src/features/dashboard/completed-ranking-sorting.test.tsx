@@ -49,6 +49,26 @@ const RANKING_ROWS: readonly CompletedRankingRow[] = [
 ]
 
 describe("completed ranking sorting", () => {
+  it("recalculates ranks after an engineer is excluded from the population", async () => {
+    const user = userEvent.setup()
+    const view = render(
+      <CompletedRanking
+        description="선택 인원 기준 현재 순위"
+        populationSelectable
+        rows={RANKING_ROWS}
+        title="전체 종합 순위"
+      />
+    )
+
+    await user.click(within(view.container).getByRole("button", { name: "순위 대상 관리" }))
+    await user.click(within(document.body).getByRole("checkbox", { name: "가상 엔지니어 고득점 순위 포함" }))
+    await user.click(within(document.body).getByRole("button", { name: "확인" }))
+
+    const table = within(view.container).getByRole("table")
+    expect(within(table).queryByText("가상 엔지니어 고득점")).not.toBeInTheDocument()
+    expect(within(table).getByText("가상 엔지니어 중간점수").closest("tr")).toHaveTextContent("1위")
+  })
+
   it("orders visible desktop rows by total score when the total header is selected", async () => {
     const user = userEvent.setup()
     const view = render(

@@ -12,7 +12,10 @@ import { deleteDirectScoreRuleAction, saveDirectScoreRuleAction } from "./direct
 import { deleteDerivedScoreRuleAction, saveDerivedScoreRuleAction } from "./derived-score-rule-actions"
 import { deleteEngineerAction, updateEngineerAction } from "./engineer-roster-actions"
 import { deleteEvaluatorAction, updateEvaluatorAction } from "./evaluator-roster-actions"
-import { updateEvaluatorAssignmentsAction } from "./evaluator-assignment-actions"
+import {
+  updateEvaluatorAssignmentsAction,
+  updateEvaluatorPresetAction,
+} from "./evaluator-assignment-actions"
 
 import { updateDirectScoreAction } from "./admin-actions"
 import { type MutationContext } from "./mutation-context"
@@ -79,6 +82,7 @@ import type {
   UpdateEvaluatorInput,
   UpdateEvaluationCycleInput,
   UpdateEvaluatorAssignmentsInput,
+  UpdateEvaluatorPresetInput,
   UpdateEngineerTaskWeightsInput,
   UpdateScheduleEventInput,
   VerifySourceRecordInput,
@@ -187,6 +191,10 @@ class LocalStorageEvaluationRepository implements EvaluationRepository {
 
   updateEvaluatorAssignments(input: UpdateEvaluatorAssignmentsInput): EvaluationSnapshot {
     return this.persist(updateEvaluatorAssignmentsAction(this.context(), input))
+  }
+
+  updateEvaluatorPreset(input: UpdateEvaluatorPresetInput): EvaluationSnapshot {
+    return this.persist(updateEvaluatorPresetAction(this.context(), input))
   }
 
   updateEngineerTaskWeights(input: UpdateEngineerTaskWeightsInput): EvaluationSnapshot {

@@ -30,6 +30,11 @@ export type DepartmentCatalogEntry = Readonly<{
   name: Department
 }>
 
+export type EvaluatorPresetMember = Readonly<{
+  evaluatorId: string
+  weight: number
+}>
+
 export type EvaluationCycle = Readonly<{
   id: string
   name: string
@@ -37,6 +42,7 @@ export type EvaluationCycle = Readonly<{
   locked: boolean
   startsAt: string
   endsAt: string
+  evaluatorPreset?: ReadonlyArray<EvaluatorPresetMember>
 }>
 
 export type Engineer = Readonly<{
@@ -277,6 +283,7 @@ export type AuditEvent = Readonly<{
     | "task_saved"
     | "task_deleted"
     | "evaluator_assignments_updated"
+    | "evaluator_preset_updated"
     | "engineer_task_weights_updated"
     | "engineer_added"
     | "engineer_updated"

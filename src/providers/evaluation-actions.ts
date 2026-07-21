@@ -72,6 +72,9 @@ export type EvaluationActions = Readonly<{
     taskId: string,
     evaluatorWeights: ReadonlyArray<Readonly<{ evaluatorId: string; weight: number }>>,
   ) => boolean
+  updateEvaluatorPreset: (
+    evaluatorWeights: ReadonlyArray<Readonly<{ evaluatorId: string; weight: number }>>,
+  ) => boolean
   updateEngineerTaskWeights: (
     engineerId: string,
     weights: ReadonlyArray<Readonly<{ taskId: string; weight: number }>>,
@@ -319,6 +322,16 @@ export function createEvaluationActions({
         }),
         "엔지니어별 평가자 배정을 저장했습니다.",
         { type: "operator", action: "evaluator_assignments_updated", targetId: `${engineerId}:${taskId}` },
+      ),
+    updateEvaluatorPreset: (evaluatorWeights) =>
+      mutate(
+        (repository) => repository.updateEvaluatorPreset({
+          cycleId: activeCycleId,
+          evaluatorWeights,
+          actor,
+        }),
+        "고정 평가자 멤버를 저장했습니다.",
+        { type: "operator", action: "evaluator_preset_updated", targetId: activeCycleId },
       ),
     updateEngineerTaskWeights: (engineerId, weights, useSeasonDefaults = false) =>
       mutate(

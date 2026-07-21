@@ -5,7 +5,6 @@ import { afterEach, describe, expect, it } from "vitest"
 import { CompletedRanking } from "./completed-ranking"
 import { CategoryAverageChart } from "./category-average-chart"
 import { EngineerEvaluationProgress } from "./engineer-evaluation-progress"
-import { EvaluationStatusTracker } from "./evaluation-status-tracker"
 import { ScoreDistributionChart } from "./score-distribution-chart"
 import { TaskRankingPanel } from "./task-ranking-panel"
 import type {
@@ -154,17 +153,6 @@ describe("dashboard presentation", () => {
     expect(screen.getAllByText("평가 완료").length).toBeGreaterThan(0)
     expect(screen.getAllByText("미진행").length).toBeGreaterThan(0)
     expect(screen.getAllByText(/평가자 2\/2/).length).toBeGreaterThan(0)
-  })
-
-  it("summarizes engineer progress in a linked status rail", () => {
-    render(<EvaluationStatusTracker rows={PROGRESS_ROWS} />)
-
-    expect(screen.getByRole("heading", { name: "평가 진행 레일" })).toBeInTheDocument()
-    expect(screen.getByRole("link", { name: /가상 엔지니어 1, 생산 1팀, 진행 중/ })).toHaveAttribute(
-      "href",
-      "/engineers/detail?engineerId=engineer-1",
-    )
-    expect(screen.getByText("1명")).toBeInTheDocument()
   })
 
   it("keeps weighted score bins inside the 0 to 100 range", () => {

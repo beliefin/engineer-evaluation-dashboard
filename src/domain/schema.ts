@@ -37,6 +37,10 @@ export const evaluationCycleSchema = z.object({
   locked: z.boolean().default(false),
   startsAt: timestampSchema,
   endsAt: timestampSchema,
+  evaluatorPreset: z.array(z.object({
+    evaluatorId: idSchema,
+    weight: z.number().positive().finite(),
+  })).max(50).default([]),
 })
 
 const versionFiveEngineerSchema = z.object({
@@ -304,6 +308,7 @@ export const auditEventSchema = z.object({
     "task_saved",
     "task_deleted",
     "evaluator_assignments_updated",
+    "evaluator_preset_updated",
     "engineer_task_weights_updated",
     "engineer_added",
     "engineer_updated",

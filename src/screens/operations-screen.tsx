@@ -28,6 +28,7 @@ export function OperationsScreen() {
     saveEvaluationTask,
     deleteEvaluationTask,
     updateEvaluatorAssignments,
+    updateEvaluatorPreset,
     updateEngineerTaskWeights,
     updateDirectScore,
     saveScoreAdjustment,
@@ -116,6 +117,7 @@ export function OperationsScreen() {
       onSaveTask={saveEvaluationTask}
       onDeleteTask={deleteEvaluationTask}
       onUpdateEvaluatorAssignments={updateEvaluatorAssignments}
+      onUpdateEvaluatorPreset={updateEvaluatorPreset}
       onEngineerTaskWeightsChange={updateEngineerTaskWeights}
       onSaveDirectScoreRule={saveDirectScoreRule}
       onDeleteDirectScoreRule={deleteDirectScoreRule}

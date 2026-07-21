@@ -28,6 +28,7 @@ export function OperationsConsole({
   onSaveTask,
   onDeleteTask,
   onUpdateEvaluatorAssignments,
+  onUpdateEvaluatorPreset,
   onEngineerTaskWeightsChange,
   onDirectScoreChange,
   onSaveScoreAdjustment,
@@ -156,7 +157,9 @@ export function OperationsConsole({
             disabled={disabled || viewModel.cycleLocked}
             evaluators={viewModel.evaluatorOptions}
             groups={viewModel.evaluatorAssignments}
+            preset={viewModel.evaluatorPreset}
             onSave={onUpdateEvaluatorAssignments}
+            onSavePreset={onUpdateEvaluatorPreset}
           />
         </TabsContent>
         <TabsContent value="weights">

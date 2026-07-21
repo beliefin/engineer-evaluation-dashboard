@@ -217,6 +217,12 @@ export type UpdateEvaluatorAssignmentsInput = Readonly<{
   actor: RepositoryActor
 }>
 
+export type UpdateEvaluatorPresetInput = Readonly<{
+  cycleId: string
+  evaluatorWeights: ReadonlyArray<Readonly<{ evaluatorId: string; weight: number }>>
+  actor: RepositoryActor
+}>
+
 export type DeleteEvaluationTaskInput = Readonly<{
   taskId: string
   actor: RepositoryActor
@@ -341,6 +347,7 @@ export interface EvaluationRepository {
   saveEvaluationTask(input: SaveEvaluationTaskInput): EvaluationSnapshot
   deleteEvaluationTask(input: DeleteEvaluationTaskInput): EvaluationSnapshot
   updateEvaluatorAssignments(input: UpdateEvaluatorAssignmentsInput): EvaluationSnapshot
+  updateEvaluatorPreset(input: UpdateEvaluatorPresetInput): EvaluationSnapshot
   updateEngineerTaskWeights(input: UpdateEngineerTaskWeightsInput): EvaluationSnapshot
   addEngineers(input: AddEngineersInput): EvaluationSnapshot
   updateEngineer(input: UpdateEngineerInput): EvaluationSnapshot

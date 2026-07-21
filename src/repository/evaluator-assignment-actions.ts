@@ -1,6 +1,10 @@
 import { resolveEngineerTaskWeight, type EvaluationSnapshot, type ScoreSheet } from "@/domain"
 
-import { updateEvaluatorAssignmentsInputSchema, parseRepositoryInput } from "./input-schemas"
+import {
+  updateEvaluatorAssignmentsInputSchema,
+  updateEvaluatorPresetInputSchema,
+  parseRepositoryInput,
+} from "./input-schemas"
 import { appendAuditEvent, createEntityId, type MutationContext } from "./mutation-context"
 import {
   requireCycleUnlocked,
@@ -9,7 +13,11 @@ import {
   requireOperator,
   requireTask,
 } from "./repository-helpers"
-import { RepositoryError, type UpdateEvaluatorAssignmentsInput } from "./types"
+import {
+  RepositoryError,
+  type UpdateEvaluatorAssignmentsInput,
+  type UpdateEvaluatorPresetInput,
+} from "./types"
 
 function sheetHasResponse(sheet: ScoreSheet | undefined): boolean {
   return sheet?.status === "submitted" || sheet?.passResult !== null && sheet?.passResult !== undefined ||
@@ -106,5 +114,27 @@ export function updateEvaluatorAssignmentsAction(
     type: "evaluator_assignments_updated",
     actor: parsed.actor,
     targetId: `${parsed.engineerId}:${parsed.taskId}`,
+  })
+}
+
+export function updateEvaluatorPresetAction(
+  context: MutationContext,
+  input: UpdateEvaluatorPresetInput,
+): EvaluationSnapshot {
+  const parsed = parseRepositoryInput(updateEvaluatorPresetInputSchema, input)
+  requireOperator(parsed.actor)
+  const cycle = requireCycleUnlocked(context.snapshot, parsed.cycleId)
+  parsed.evaluatorWeights.forEach((entry) => requireEvaluator(context.snapshot, entry.evaluatorId))
+
+  return appendAuditEvent(context, {
+    ...context.snapshot,
+    cycles: context.snapshot.cycles.map((entry) => entry.id === cycle.id
+      ? { ...entry, evaluatorPreset: parsed.evaluatorWeights }
+      : entry),
+  }, {
+    cycleId: parsed.cycleId,
+    type: "evaluator_preset_updated",
+    actor: parsed.actor,
+    targetId: parsed.cycleId,
   })
 }

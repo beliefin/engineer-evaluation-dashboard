@@ -14,6 +14,7 @@ import { createRankingColumns } from "./ranking-columns"
 import { RankingDesktopTable } from "./ranking-desktop-table"
 import { RankingFilters } from "./ranking-filters"
 import { RankingMobileList } from "./ranking-mobile-list"
+import { RankingPopulationDialog } from "./ranking-population-dialog"
 import {
   DEFAULT_RANKING_SORT,
   parseRankingSortState,
@@ -30,6 +31,27 @@ const DEFAULT_FILTERS: RankingFilterState = {
 
 const useDashboardTable = useReactTable
 
+export function recalculateRankingRows(
+  rows: ReadonlyArray<CompletedRankingProps["rows"][number]>,
+  selectedIds: ReadonlySet<string>,
+): ReadonlyArray<CompletedRankingProps["rows"][number]> {
+  const selected = rows.filter((row) => selectedIds.has(row.id))
+  const scores = selected.flatMap((row) => row.totalScore === null ? [] : [row.totalScore])
+  const scoreCounts = new Map<number, number>()
+  scores.forEach((score) => scoreCounts.set(score, (scoreCounts.get(score) ?? 0) + 1))
+  const sortedScores = [...new Set(scores)].toSorted((left, right) => right - left)
+  const rankByScore = new Map(sortedScores.map((score) => [
+    score,
+    selected.filter((row) => row.totalScore !== null && row.totalScore > score).length + 1,
+  ]))
+
+  return selected.map((row) => ({
+    ...row,
+    rank: row.totalScore === null ? null : rankByScore.get(row.totalScore) ?? null,
+    isTied: row.totalScore !== null && (scoreCounts.get(row.totalScore) ?? 0) > 1,
+  }))
+}
+
 export function CompletedRanking({
   title,
   description,
@@ -39,6 +61,8 @@ export function CompletedRanking({
   onFiltersChange,
   sorting,
   onSortingChange,
+  populationSelectable = false,
+  populationResetKey,
 }: CompletedRankingProps) {
   const [internalFilters, setInternalFilters] =
     useState<RankingFilterState>(DEFAULT_FILTERS)
@@ -46,6 +70,23 @@ export function CompletedRanking({
     useState<RankingSortState>(DEFAULT_RANKING_SORT)
   const activeFilters = filters ?? internalFilters
   const activeSorting = sorting ?? internalSorting
+  const populationKey = populationResetKey ?? rows.map((row) => row.id).join("|")
+  const defaultSelectedIds = useMemo(
+    () => new Set(rows.map((row) => row.id)),
+    [rows],
+  )
+  const [populationSelection, setPopulationSelection] = useState<Readonly<{
+    key: string
+    ids: ReadonlySet<string>
+  }>>(() => ({ key: populationKey, ids: defaultSelectedIds }))
+  const selectedIds = useMemo(
+    () => populationSelection.key === populationKey ? populationSelection.ids : defaultSelectedIds,
+    [defaultSelectedIds, populationKey, populationSelection],
+  )
+  const populationRows = useMemo(
+    () => populationSelectable ? recalculateRankingRows(rows, selectedIds) : rows,
+    [populationSelectable, rows, selectedIds],
+  )
   const tableSorting = useMemo<SortingState>(
     () => [
       {
@@ -58,15 +99,15 @@ export function CompletedRanking({
 
   const teams = useMemo(
     () =>
-      Array.from(new Set(rows.map((row) => row.team))).sort((left, right) =>
+      Array.from(new Set(populationRows.map((row) => row.team))).sort((left, right) =>
         left.localeCompare(right, "ko")
       ),
-    [rows]
+    [populationRows]
   )
   const filteredRows = useMemo(() => {
     const query = activeFilters.query.trim().toLocaleLowerCase("ko")
 
-    return rows.filter((row) => {
+    return populationRows.filter((row) => {
       const matchesQuery = row.name.toLocaleLowerCase("ko").includes(query)
       const matchesTeam =
         activeFilters.team === "all" || row.team === activeFilters.team
@@ -76,7 +117,7 @@ export function CompletedRanking({
 
       return matchesQuery && matchesTeam && matchesStatus
     })
-  }, [activeFilters, rows])
+  }, [activeFilters, populationRows])
   const columns = useMemo(() => createRankingColumns(scoreLabel), [scoreLabel])
   const table = useDashboardTable({
     data: filteredRows,
@@ -121,9 +162,18 @@ export function CompletedRanking({
             {description}
           </p>
         </div>
-        <Badge variant="outline" className="numeric">
-          점수 반영 {rows.filter((row) => row.totalScore !== null).length}/{rows.length}명
-        </Badge>
+        <div className="flex shrink-0 flex-col items-end gap-2">
+          <Badge variant="outline" className="numeric">
+            점수 반영 {populationRows.filter((row) => row.totalScore !== null).length}/{populationRows.length}명
+          </Badge>
+          {populationSelectable ? (
+            <RankingPopulationDialog
+              onChange={(ids) => setPopulationSelection({ key: populationKey, ids })}
+              rows={rows}
+              selectedIds={selectedIds}
+            />
+          ) : null}
+        </div>
       </div>
 
       <RankingFilters

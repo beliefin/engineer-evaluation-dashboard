@@ -232,6 +232,24 @@ export const updateEvaluatorAssignmentsInputSchema = z.object({
   }
 })
 
+export const updateEvaluatorPresetInputSchema = z.object({
+  cycleId: idSchema,
+  evaluatorWeights: z.array(z.object({
+    evaluatorId: idSchema,
+    weight: z.number().positive().finite(),
+  })).max(50),
+  actor: actorSchema,
+}).superRefine((value, context) => {
+  const evaluatorIds = value.evaluatorWeights.map((entry) => entry.evaluatorId)
+  if (new Set(evaluatorIds).size !== evaluatorIds.length) {
+    context.addIssue({
+      code: "custom",
+      message: "고정 멤버에 같은 평가자를 두 번 저장할 수 없습니다.",
+      path: ["evaluatorWeights"],
+    })
+  }
+})
+
 export const deleteEvaluationTaskInputSchema = z.object({
   taskId: idSchema,
   actor: actorSchema,

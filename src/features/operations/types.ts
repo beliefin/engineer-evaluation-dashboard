@@ -78,6 +78,14 @@ export type EvaluatorOptionViewModel = Readonly<{
   employeeCode: string
 }>
 
+export type EvaluatorPresetEntryViewModel = Readonly<{
+  evaluatorId: string
+  evaluatorName: string
+  employeeCode: string
+  weight: number
+  normalizedRatio: number
+}>
+
 export type EvaluatorAssignmentEntryViewModel = Readonly<{
   assignmentId: string
   evaluatorId: string
@@ -315,6 +323,7 @@ export interface OperationsViewModel {
   readonly cycleEndsAt: string
   readonly tasks: readonly EvaluationTaskViewModel[]
   readonly evaluatorOptions: readonly EvaluatorOptionViewModel[]
+  readonly evaluatorPreset: readonly EvaluatorPresetEntryViewModel[]
   readonly evaluatorAssignments: readonly EvaluatorAssignmentGroupViewModel[]
   readonly weightTotal: number
   readonly engineerTaskWeights: readonly EngineerTaskWeightViewModel[]
@@ -348,6 +357,9 @@ export interface OperationsCallbacks {
   readonly onUpdateEvaluatorAssignments: (
     engineerId: string,
     taskId: string,
+    evaluatorWeights: ReadonlyArray<Readonly<{ evaluatorId: string; weight: number }>>,
+  ) => boolean
+  readonly onUpdateEvaluatorPreset: (
     evaluatorWeights: ReadonlyArray<Readonly<{ evaluatorId: string; weight: number }>>,
   ) => boolean
   readonly onEngineerTaskWeightsChange: (

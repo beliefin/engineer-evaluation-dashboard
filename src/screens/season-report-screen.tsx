@@ -4,6 +4,7 @@ import { PrinterIcon } from "lucide-react"
 
 import { ErrorState } from "@/components/shared"
 import { Button } from "@/components/ui/button"
+import { SeasonExportPanel } from "@/features/reports/season-export-panel"
 import { useEvaluation } from "@/providers"
 import { selectDashboardViewModel } from "@/view-models/dashboard"
 
@@ -37,6 +38,8 @@ export function SeasonReportScreen() {
         </Button>
       </header>
 
+      <SeasonExportPanel cycleId={activeCycleId} snapshot={snapshot} />
+
       <section aria-labelledby="report-summary-title">
         <h2 className="text-lg font-semibold" id="report-summary-title">운영 요약</h2>
         <div className="mt-3 grid overflow-hidden rounded-md border sm:grid-cols-4">
@@ -63,7 +66,7 @@ export function SeasonReportScreen() {
       </section>
 
       <section aria-labelledby="report-ranking-title">
-        <div className="flex items-end justify-between gap-3"><div><h2 className="text-lg font-semibold" id="report-ranking-title">완료자 최종 순위</h2><p className="mt-1 text-xs text-muted-foreground">개인별 적용 과제 가중치 100%와 필수 입력이 모두 확정된 대상만 포함합니다.</p></div><p className="numeric text-sm font-semibold">{completedRankingRows.length}명</p></div>
+        <div className="flex items-end justify-between gap-3"><div><h2 className="text-lg font-semibold" id="report-ranking-title">완료자 최종 순위</h2><p className="mt-1 text-xs text-muted-foreground">개인별 적용 과제 가중치 100%와 필수 입력이 모두 확정된 대상만 포함합니다.</p></div><p className="numeric shrink-0 whitespace-nowrap text-sm font-semibold">{completedRankingRows.length}명</p></div>
         {completedRankingRows.length === 0 ? (
           <p className="mt-3 rounded-md border border-dashed p-4 text-sm text-muted-foreground">공식 순위에 포함된 대상이 없습니다.</p>
         ) : (

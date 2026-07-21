@@ -10,7 +10,6 @@ import {
   CompletedRanking,
   DashboardHeader,
   EngineerEvaluationProgress,
-  EvaluationStatusTracker,
   MetricStrip,
   TaskRankingPanel,
   type RankingFilterState,
@@ -143,7 +142,6 @@ export function DashboardScreen() {
         </div>
       </section>
       <MetricStrip metrics={model.metrics} />
-      <EvaluationStatusTracker rows={model.evaluationRows} />
       <EngineerEvaluationProgress
         rows={model.evaluationRows}
         tasks={model.evaluationTasks}
@@ -169,6 +167,8 @@ export function DashboardScreen() {
         rows={model.rankingRows}
         scoreLabel="현재 종합 점수"
         title={`${scopeLabel} 종합 순위`}
+        populationSelectable
+        populationResetKey={`${activeCycleId}:${selectedTeam}`}
       />
     </div>
   )

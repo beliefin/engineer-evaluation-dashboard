@@ -111,6 +111,8 @@ export function selectOperationsViewModel(
       newAcquisitionBonus: rule.bonus,
       enabled: rule.enabled,
     }))
+  const presetTotalWeight = (cycle.evaluatorPreset ?? [])
+    .reduce((total, entry) => total + entry.weight, 0)
 
   return {
     cycleId: cycle.id,
@@ -149,6 +151,16 @@ export function selectOperationsViewModel(
       name: evaluator.displayName,
       employeeCode: evaluator.employeeCode,
     })),
+    evaluatorPreset: (cycle.evaluatorPreset ?? []).flatMap((entry) => {
+      const evaluator = snapshot.evaluators.find((candidate) => candidate.id === entry.evaluatorId)
+      return evaluator === undefined ? [] : [{
+        evaluatorId: evaluator.id,
+        evaluatorName: evaluator.displayName,
+        employeeCode: evaluator.employeeCode,
+        weight: entry.weight,
+        normalizedRatio: presetTotalWeight > 0 ? entry.weight / presetTotalWeight : 0,
+      }]
+    }),
     evaluatorAssignments: snapshot.engineers.flatMap((engineer) =>
       tasks
         .filter((task) =>

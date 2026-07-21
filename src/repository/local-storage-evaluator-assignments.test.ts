@@ -15,6 +15,30 @@ function createRepository() {
 }
 
 describe("LocalStorageEvaluationRepository evaluator assignments", () => {
+  it("stores a season evaluator preset without creating assignments", () => {
+    const repository = createRepository()
+    const snapshot = repository.loadSnapshot()
+    const evaluators = snapshot.evaluators.slice(0, 3)
+    if (evaluators.length < 3) throw new RangeError("evaluator fixture missing")
+    const assignmentCount = snapshot.assignments.length
+
+    const updated = repository.updateEvaluatorPreset({
+      cycleId: CYCLE_ID,
+      evaluatorWeights: evaluators.map((evaluator, index) => ({
+        evaluatorId: evaluator.id,
+        weight: index === 0 ? 3 : 2,
+      })),
+      actor: OPERATOR,
+    })
+
+    expect(updated.cycles.find((cycle) => cycle.id === CYCLE_ID)?.evaluatorPreset).toEqual([
+      { evaluatorId: evaluators[0]?.id, weight: 3 },
+      { evaluatorId: evaluators[1]?.id, weight: 2 },
+      { evaluatorId: evaluators[2]?.id, weight: 2 },
+    ])
+    expect(updated.assignments).toHaveLength(assignmentCount)
+  })
+
   it("creates obligations only for evaluators explicitly assigned to one engineer and task", () => {
     const repository = createRepository()
     const created = repository.saveEvaluationTask({

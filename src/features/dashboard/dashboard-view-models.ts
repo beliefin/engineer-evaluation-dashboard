@@ -178,6 +178,8 @@ export interface CompletedRankingProps {
   readonly onFiltersChange?: (next: RankingFilterState) => void
   readonly sorting?: RankingSortState
   readonly onSortingChange?: (next: RankingSortState) => void
+  readonly populationSelectable?: boolean
+  readonly populationResetKey?: string
 }
 
 export interface TaskRankingPanelProps {

@@ -38,6 +38,23 @@ const TASK_STATUS_CLASS: Record<DashboardEvaluationStatus, string> = {
   complete: "text-success",
 }
 
+const STATUS_CELL_CLASS: Record<DashboardEvaluationStatus, string> = {
+  not_started: "bg-danger-soft/60",
+  in_progress: "bg-warning-soft/70",
+  complete: "bg-success-soft/75",
+}
+
+function TaskLegend() {
+  return (
+    <div className="flex flex-wrap gap-x-4 gap-y-1 text-[11px] text-muted-foreground" aria-label="평가 상태 색상 안내">
+      <span><span aria-hidden="true" className="mr-1.5 inline-block size-2.5 bg-success-soft ring-1 ring-success/25" />평가 완료</span>
+      <span><span aria-hidden="true" className="mr-1.5 inline-block size-2.5 bg-warning-soft ring-1 ring-warning/25" />진행 중</span>
+      <span><span aria-hidden="true" className="mr-1.5 inline-block size-2.5 bg-danger-soft ring-1 ring-destructive/20" />미진행</span>
+      <span><span aria-hidden="true" className="mr-1.5 inline-block size-2.5 bg-muted ring-1 ring-border" />해당 없음</span>
+    </div>
+  )
+}
+
 function ProgressStatus({ status }: Readonly<{ status: DashboardEvaluationStatus }>) {
   return (
     <StatusBadge
@@ -80,6 +97,7 @@ export function EngineerEvaluationProgress({ tasks, rows }: EngineerEvaluationPr
           <p className="mt-1 max-w-3xl text-xs leading-5 text-muted-foreground">
             가중치가 있는 과제만 표시합니다. 평가자 전원이 제출하면 완료됩니다.
           </p>
+          <div className="mt-2"><TaskLegend /></div>
         </div>
         <Badge variant="outline" className="numeric">
           완료 {completedCount}/{rows.length}명
@@ -113,17 +131,23 @@ export function EngineerEvaluationProgress({ tasks, rows }: EngineerEvaluationPr
                       </Link>
                       <p className="mt-0.5 text-xs text-muted-foreground">{row.employeeCode} · {row.team}</p>
                     </TableCell>
-                    <TableCell>
+                    <TableCell className={STATUS_CELL_CLASS[row.status]}>
                       <ProgressStatus status={row.status} />
                       <p className="numeric mt-1.5 text-xs text-muted-foreground">
                         {row.completedTaskCount}/{row.taskCount}개 과제 완료
                       </p>
                     </TableCell>
-                    {tasks.map((task) => (
-                      <TableCell className="py-3 align-top" key={task.id}>
-                        <TaskProgress task={row.tasks.find((entry) => entry.taskId === task.id)} />
+                    {tasks.map((task) => {
+                      const progress = row.tasks.find((entry) => entry.taskId === task.id)
+                      return (
+                      <TableCell
+                        className={`border-l border-border-subtle py-3 align-top ${progress === undefined ? "bg-muted/55" : STATUS_CELL_CLASS[progress.status]}`}
+                        key={task.id}
+                      >
+                        <TaskProgress task={progress} />
                       </TableCell>
-                    ))}
+                      )
+                    })}
                   </TableRow>
                 ))}
               </TableBody>
@@ -137,7 +161,7 @@ export function EngineerEvaluationProgress({ tasks, rows }: EngineerEvaluationPr
               const hiddenOutstandingCount = outstandingTasks.length - visibleOutstandingTasks.length
 
               return (
-              <li className="bg-card px-4 py-3.5" key={row.id}>
+              <li className={`px-4 py-3.5 ${STATUS_CELL_CLASS[row.status]}`} key={row.id}>
                 <div className="flex items-start justify-between gap-3">
                   <div className="min-w-0">
                     <Link className="truncate font-semibold text-foreground underline-offset-4 hover:text-primary hover:underline" href={row.href}>

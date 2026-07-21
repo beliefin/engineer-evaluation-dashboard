@@ -61,6 +61,9 @@ export function createEvaluationCycleAction(
     locked: false,
     startsAt: parsed.startsAt,
     endsAt: parsed.endsAt,
+    evaluatorPreset: parsed.copyConfiguration
+      ? context.snapshot.cycles.find((entry) => entry.id === parsed.sourceCycleId)?.evaluatorPreset ?? []
+      : [],
   }
   const tasks = parsed.copyConfiguration
     ? cloneTasks(context, parsed.sourceCycleId, cycle.id)

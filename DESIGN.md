@@ -227,6 +227,7 @@
 - **States**: sort ascending/descending, selected row, loading, empty.
 - **Accessibility**: 정렬 버튼에 상태를 설명하고 행 전체 클릭과 명시적 링크를 함께 제공한다.
 - **Numeric rule**: 점수와 순위는 오른쪽 정렬, tabular nums.
+- **Progress cell encoding**: 엔지니어별 평가 현황은 완료 `success-soft`, 진행 `warning-soft`, 미진행 `danger-soft`, 해당 없음 `muted`로 셀 전체를 낮은 채도로 채운다. 텍스트 상태와 범례를 함께 제공하며 색만으로 상태를 전달하지 않는다.
 
 ### Status Label
 
@@ -255,6 +256,7 @@
 - **Protection**: 점수가 입력되었거나 제출된 배정은 이 화면에서 제거할 수 없으며, 미입력 초안만 안전하게 제거한다. 원시 가중치 변경은 같은 엔지니어·과제 그룹 안에서 즉시 정규화 비율로 안내한다.
 - **States**: no assignment, pending assignment, in-progress protected assignment, submitted protected assignment, saving, saved, and validation error.
 - **Responsive**: 엔지니어와 과제 선택은 모바일에서 한 열로 쌓고 평가자 행은 체크, 이름, 가중치, 실제 반영 비율을 읽는 순서로 유지한다.
+- **Fixed-member preset**: 시즌마다 자주 쓰는 평가자와 원시 가중치를 하나의 프리셋으로 저장한다. 프리셋 저장만으로 평가 의무를 만들지 않으며, 선택한 엔지니어·과제 편집기에서 `고정 멤버 적용` 후 배정 저장할 때만 실제 배정을 생성한다.
 
 ### Evaluation Entry Workspace
 
@@ -376,6 +378,12 @@
 - 운영자와 승인자가 현재 시즌의 대상·완료 현황, 과제 평균, 최종 순위를 읽기 전용 문서 레이아웃으로 확인한다.
 - 별도 안내문 생성 없이 브라우저 인쇄 기능으로 종이 또는 PDF 문서로 저장한다.
 - 인쇄 시 앱 탐색, 상단 제어, 인쇄 버튼은 숨기고 보고서 제목·평가 기간·출력 시각·표 머리글을 유지한다.
+- 운영자용 Excel 출력은 인쇄 보고서와 분리된 도구 영역에서 제공한다. 전체 파일은 종합 결과, 과제별 점수, 평가자별 원점수, 어학, 자격증, 가·감점을 시트로 분리하고 과제별 파일은 선택한 과제와 관련 평가자 원점수만 포함한다.
+
+### Dashboard Ranking Population
+
+- 전체 종합 순위는 현재 팀 범위의 엔지니어를 기본 전원 포함한다. 운영자가 순위 대상 관리에서 체크를 해제하면 현재 화면의 순위와 공동순위를 즉시 다시 계산한다.
+- 제외 선택은 분석 세션 상태이며 평가 점수, 개인 가중치, 공식 확정 상태를 수정하지 않는다. 팀 또는 시즌 범위가 바뀌면 새 범위의 전원을 다시 기본 선택한다.
 
 ## 6. Motion & Interaction
 
