@@ -58,6 +58,7 @@ export function EventEditorDialog({
   const [engineerIds, setEngineerIds] = useState<readonly string[]>(
     event === null ? [] : [event.engineerId],
   )
+  const [parallel, setParallel] = useState(false)
   const [title, setTitle] = useState(event?.title ?? tasks.find((task) => task.id === initialTaskId)?.name ?? "")
   const [date, setDate] = useState(event?.date ?? `${month}-01`)
   const [startTime, setStartTime] = useState(event?.startTime ?? "")
@@ -81,19 +82,26 @@ export function EventEditorDialog({
       startTime: startTime === "" ? null : startTime,
       note: normalizedNote === "" ? null : normalizedNote,
     }
-    const result = event === null
-      ? calendarCreateInputSchema.safeParse({ ...common, engineerIds })
-      : calendarInputSchema.safeParse({ ...common, engineerId })
-    if (!result.success) {
-      const issue = result.error.issues[0]
-      setError(issue?.message ?? "입력 내용을 확인해 주세요.")
-      setErrorField(issue === undefined ? null : getCalendarInputErrorField(issue.path))
-      return
+    let saved: boolean
+    if (event === null) {
+      const result = calendarCreateInputSchema.safeParse({ ...common, engineerIds, parallel })
+      if (!result.success) {
+        const issue = result.error.issues[0]
+        setError(issue?.message ?? "입력 내용을 확인해 주세요.")
+        setErrorField(issue === undefined ? null : getCalendarInputErrorField(issue.path))
+        return
+      }
+      saved = onCreate(result.data)
+    } else {
+      const result = calendarInputSchema.safeParse({ ...common, engineerId })
+      if (!result.success) {
+        const issue = result.error.issues[0]
+        setError(issue?.message ?? "입력 내용을 확인해 주세요.")
+        setErrorField(issue === undefined ? null : getCalendarInputErrorField(issue.path))
+        return
+      }
+      saved = onUpdate(event.id, result.data)
     }
-
-    const saved = event === null
-      ? onCreate(result.data as EvaluationCalendarCreateInput)
-      : onUpdate(event.id, result.data as EvaluationCalendarInput)
     if (!saved) {
       setError("일정을 저장하지 못했습니다. 잠시 후 다시 시도해 주세요.")
       setErrorField(null)
@@ -108,20 +116,25 @@ export function EventEditorDialog({
     const nextEligible = engineers.filter((engineer) => engineer.taskIds.includes(nextTaskId))
     setTaskId(nextTaskId)
     setEngineerIds([])
+    setParallel(false)
     setEngineerId((current) => nextEligible.some((engineer) => engineer.id === current)
       ? current : (nextEligible[0]?.id ?? ""))
     setTitle((current) => current === "" || current === previousTaskName ? nextTaskName : current)
   }
 
   function toggleEngineer(nextEngineerId: string, checked: boolean) {
-    setEngineerIds((current) => checked
-      ? [...current, nextEngineerId]
-      : current.filter((candidate) => candidate !== nextEngineerId))
+    setEngineerIds((current) => {
+      const next = checked
+        ? [...current, nextEngineerId]
+        : current.filter((candidate) => candidate !== nextEngineerId)
+      if (next.length !== 2) setParallel(false)
+      return next
+    })
   }
 
   return (
     <Dialog open onOpenChange={(open) => { if (!open) onClose() }}>
-      <DialogContent className="max-h-[calc(100dvh-var(--space-8))] overflow-hidden sm:max-w-lg">
+      <DialogContent className="grid max-h-[min(48rem,calc(100dvh-2rem))] grid-rows-[minmax(0,1fr)] overflow-hidden sm:max-w-lg">
         <form className="flex min-h-0 flex-col overflow-hidden" onSubmit={handleSubmit}>
           <DialogHeader className="shrink-0">
             <DialogTitle>{isEditing ? "발표 일정 수정" : "발표 일정 추가"}</DialogTitle>
@@ -222,6 +235,26 @@ export function EventEditorDialog({
                     </label>
                   ))}
                 </div>
+                <label
+                  className="mt-1 flex cursor-pointer items-start gap-3 rounded-md border border-border bg-muted/25 p-3"
+                  htmlFor={`${id}-parallel`}
+                >
+                  <input
+                    checked={parallel}
+                    className="mt-0.5 size-4 shrink-0 accent-primary"
+                    disabled={engineerIds.length !== 2}
+                    id={`${id}-parallel`}
+                    onChange={(inputEvent) => setParallel(inputEvent.currentTarget.checked)}
+                    type="checkbox"
+                  />
+                  <span className="text-sm">
+                    <span className="block font-medium">두 발표자를 한 화면에서 평가</span>
+                    <span className="mt-0.5 block text-xs leading-5 text-muted-foreground">
+                      엔지니어 2명을 선택하면 하나의 동시 발표로 묶여 한 화면에 함께 표시되고,
+                      넓은 화면에서는 좌우로 배치됩니다.
+                    </span>
+                  </span>
+                </label>
               </fieldset>
             )}
 

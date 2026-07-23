@@ -16,6 +16,15 @@ export const calendarInputSchema = z.object({
 
 export const calendarCreateInputSchema = calendarInputSchema.omit({ engineerId: true }).extend({
   engineerIds: z.array(z.string().trim().min(1)).min(1, "엔지니어를 한 명 이상 선택해 주세요."),
+  parallel: z.boolean(),
+}).superRefine((input, context) => {
+  if (input.parallel && input.engineerIds.length !== 2) {
+    context.addIssue({
+      code: "custom",
+      path: ["engineerIds"],
+      message: "동시 발표 평가는 엔지니어 2명을 선택해야 합니다.",
+    })
+  }
 })
 
 export type CalendarInputField = keyof z.infer<typeof calendarInputSchema> | "engineerIds"

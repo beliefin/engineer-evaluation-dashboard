@@ -20,6 +20,8 @@ const EVENTS: readonly CalendarEventView[] = [
     taskId: "task-1",
     taskName: "성장탐구",
     assignmentId: "assignment-1",
+    parallelAssignmentId: null,
+    presentationGroupId: null,
     title: "성장탐구 발표",
     date: "2026-07-14",
     startTime: "09:00",
@@ -80,6 +82,7 @@ describe("EvaluationCalendar", () => {
 
     expect(callbacks.onCreate).toHaveBeenCalledWith({
       engineerIds: ["engineer-2"],
+      parallel: false,
       taskId: "task-1",
       title: "OTS 발표",
       date: "2026-07-21",
@@ -87,6 +90,21 @@ describe("EvaluationCalendar", () => {
       note: "대회의실",
     })
     expect(screen.queryByRole("dialog")).not.toBeInTheDocument()
+  })
+
+  it("groups exactly two selected presenters for parallel evaluation", async () => {
+    const callbacks = renderCalendar()
+    await userEvent.click(screen.getByRole("button", { name: "일정 추가" }))
+    const dialog = screen.getByRole("dialog")
+    await userEvent.click(within(dialog).getByLabelText(/김새벽/))
+    await userEvent.click(within(dialog).getByLabelText(/이바다/))
+    await userEvent.click(within(dialog).getByLabelText(/두 발표자를 한 화면에서 평가/))
+    await userEvent.click(screen.getByRole("button", { name: "일정 저장" }))
+
+    expect(callbacks.onCreate).toHaveBeenCalledWith(expect.objectContaining({
+      engineerIds: ["engineer-1", "engineer-2"],
+      parallel: true,
+    }))
   })
 
   it("blocks an incomplete schedule and links the error to its field", async () => {
@@ -157,7 +175,7 @@ describe("EvaluationCalendar", () => {
 
     await userEvent.click(within(monthlyGrid).getByRole("button", { name: /김새벽.*성장탐구 발표/ }))
 
-    expect(callbacks.onOpenEvaluation).toHaveBeenCalledWith("assignment-1")
+    expect(callbacks.onOpenEvaluation).toHaveBeenCalledWith("assignment-1", null)
     expect(screen.queryByRole("dialog", { name: "발표 일정 수정" })).not.toBeInTheDocument()
     expect(screen.queryByRole("button", { name: "일정 추가" })).not.toBeInTheDocument()
   })

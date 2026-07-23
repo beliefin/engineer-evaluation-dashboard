@@ -310,6 +310,7 @@ export type CreateScheduleEventsInput = Omit<ScheduleEventFields, "engineerId"> 
   Readonly<{
     cycleId: string
     engineerIds: ReadonlyArray<string>
+    parallel: boolean
     actor: RepositoryActor
   }>
 

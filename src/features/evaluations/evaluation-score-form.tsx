@@ -20,6 +20,7 @@ function isValidScore(value: number | null): value is number {
 
 export function EvaluationScoreForm({
   viewModel,
+  presentation = "standard",
   onScoreChange,
   onScoresChange,
   onPassResultChange,
@@ -48,10 +49,14 @@ export function EvaluationScoreForm({
       aria-labelledby={titleId}
       noValidate
       onSubmit={handleSubmit}
-      className="pb-28 md:pb-0"
+      className={presentation === "parallel" ? "pb-0" : "pb-28 md:pb-0"}
     >
       <section className="overflow-hidden rounded-md border border-border bg-card">
-        <header className="grid gap-5 border-b border-border-subtle px-4 py-5 md:grid-cols-[minmax(0,1fr)_auto] md:items-start md:px-5">
+        <header className={
+          presentation === "parallel"
+            ? "flex flex-col gap-4 border-b border-border-subtle px-4 py-5 md:px-5"
+            : "grid gap-5 border-b border-border-subtle px-4 py-5 md:grid-cols-[minmax(0,1fr)_auto] md:items-start md:px-5"
+        }>
           <div className="min-w-0">
             <div className="flex flex-wrap items-center gap-2">
               <p className="text-xs font-semibold text-primary">{viewModel.cycleLabel}</p>
@@ -77,6 +82,7 @@ export function EvaluationScoreForm({
             requirementsId={requirementsId}
             onSave={onSave}
             operatorMode={viewModel.proxyEntry}
+            embedded={presentation === "parallel"}
           />
         </header>
 

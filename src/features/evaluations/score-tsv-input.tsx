@@ -9,6 +9,8 @@ import { Textarea } from "@/components/ui/textarea"
 interface ScoreTsvInputProps {
   readonly itemCount: number
   readonly locked: boolean
+  readonly idPrefix?: string
+  readonly label?: string
   readonly onApply: (scores: readonly number[]) => void
 }
 
@@ -44,10 +46,16 @@ function parseTsvScores(rawValue: string, expectedCount: number): ParsedTsvScore
   return { valid: true, scores: cells.map(Number) }
 }
 
-export function ScoreTsvInput({ itemCount, locked, onApply }: ScoreTsvInputProps) {
+export function ScoreTsvInput({
+  itemCount,
+  locked,
+  idPrefix = "score",
+  label = "TSV 점수",
+  onApply,
+}: ScoreTsvInputProps) {
   const [rawValue, setRawValue] = useState("")
   const [error, setError] = useState<string | null>(null)
-  const inputId = "score-tsv-input"
+  const inputId = `${idPrefix}-tsv-input`
   const helpId = `${inputId}-help`
   const errorId = `${inputId}-error`
 
@@ -73,7 +81,7 @@ export function ScoreTsvInput({ itemCount, locked, onApply }: ScoreTsvInputProps
           <Textarea
             aria-describedby={error === null ? helpId : `${helpId} ${errorId}`}
             aria-invalid={error !== null}
-            aria-label="TSV 점수"
+            aria-label={label}
             className="mt-2 min-h-20 resize-y font-mono"
             disabled={locked}
             id={inputId}

@@ -105,7 +105,12 @@ export function TodayEvaluationsScreen() {
                   </dl>
 
                   <Button asChild className="mt-4 w-full sm:w-auto">
-                    <Link href={`/evaluations/detail?assignmentId=${encodeURIComponent(evaluation.assignmentId)}`}>
+                    <Link href={
+                      `/evaluations/detail?assignmentId=${encodeURIComponent(evaluation.assignmentId)}` +
+                      (evaluation.parallelAssignmentId === null
+                        ? ""
+                        : `&parallelAssignmentId=${encodeURIComponent(evaluation.parallelAssignmentId)}`)
+                    }>
                       <FileCheck2 aria-hidden="true" />
                       {evaluation.status === "not_started" ? "평가 시작" : "평가표 열기"}
                     </Link>

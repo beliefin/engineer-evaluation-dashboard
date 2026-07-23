@@ -60,4 +60,43 @@ describe("selectScheduledEvaluations", () => {
       }),
     ])
   })
+
+  it("collapses a paired presentation into one parallel evaluation entry", () => {
+    const snapshot = createSeedSnapshot()
+    const owned = snapshot.assignments.filter((entry) =>
+      entry.evaluatorId === "evaluator-01" && entry.taskId === "task-ots-scenario",
+    ).slice(0, 2)
+    const first = owned[0]
+    const second = owned[1]
+    if (first === undefined || second === undefined) {
+      throw new RangeError("paired assignment fixtures missing")
+    }
+    const scheduleEvents = [first, second].map((assignment, index) => ({
+      id: `paired-${index}`,
+      cycleId: assignment.cycleId,
+      engineerId: assignment.engineerId,
+      taskId: assignment.taskId,
+      presentationGroupId: "presentation-group-01",
+      title: "OTS 동시 발표",
+      date: "2026-07-16",
+      startTime: "09:00",
+      note: null,
+      createdAt: "2026-07-15T00:00:00.000Z",
+      updatedAt: "2026-07-15T00:00:00.000Z",
+    }))
+
+    const selected = selectScheduledEvaluations(
+      { ...snapshot, scheduleEvents },
+      first.cycleId,
+      "evaluator-01",
+      "2026-07-16",
+    )
+
+    expect(selected).toHaveLength(1)
+    expect(selected[0]).toEqual(expect.objectContaining({
+      assignmentId: first.id,
+      parallelAssignmentId: second.id,
+      presentationGroupId: "presentation-group-01",
+    }))
+  })
 })

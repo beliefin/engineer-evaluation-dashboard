@@ -148,6 +148,7 @@ describe("schedule server mutation", () => {
       baseRevision: 11,
       cycleId: "cycle-2026-h1",
       engineerIds,
+      parallel: true,
       taskId: "task-growth-plan",
       title: "성장탐구 발표",
       date: "2026-07-16",
@@ -158,5 +159,7 @@ describe("schedule server mutation", () => {
     const created = updated.scheduleEvents.slice(-engineerIds.length)
     expect(created.map((event) => event.engineerId)).toEqual(engineerIds)
     expect(created.every((event) => event.taskId === "task-growth-plan")).toBe(true)
+    expect(created[0]?.presentationGroupId).not.toBeNull()
+    expect(created[0]?.presentationGroupId).toBe(created[1]?.presentationGroupId)
   })
 })

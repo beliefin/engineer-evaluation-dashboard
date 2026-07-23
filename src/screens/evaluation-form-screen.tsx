@@ -15,7 +15,15 @@ function mapSaveState(state: string): AutosaveStatus {
   return "idle"
 }
 
-export function EvaluationFormScreen({ assignmentId }: Readonly<{ assignmentId: string }>) {
+interface EvaluationFormScreenProps {
+  readonly assignmentId: string
+  readonly presentation?: "standard" | "parallel"
+}
+
+export function EvaluationFormScreen({
+  assignmentId,
+  presentation = "standard",
+}: Readonly<EvaluationFormScreenProps>) {
   const {
     snapshot,
     activeEvaluatorId,
@@ -91,6 +99,7 @@ export function EvaluationFormScreen({ assignmentId }: Readonly<{ assignmentId: 
 
   return (
     <EvaluationScoreForm
+      presentation={presentation}
       onSave={() => commit(
         viewModel.items.map((item) => ({ itemId: item.id, score: item.value })),
         viewModel.passResult,

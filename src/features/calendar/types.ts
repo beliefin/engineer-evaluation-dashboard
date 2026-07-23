@@ -17,6 +17,8 @@ export type CalendarEventView = Readonly<{
   taskId: string | null
   taskName: string | null
   assignmentId: string | null
+  parallelAssignmentId: string | null
+  presentationGroupId: string | null
   title: string
   date: string
   startTime: string | null
@@ -34,6 +36,7 @@ export type EvaluationCalendarInput = Readonly<{
 
 export type EvaluationCalendarCreateInput = Omit<EvaluationCalendarInput, "engineerId"> & Readonly<{
   engineerIds: readonly string[]
+  parallel: boolean
 }>
 
 export type CalendarInteractionMode = "manage" | "evaluate" | "read"
@@ -48,7 +51,7 @@ export type EvaluationCalendarProps = Readonly<{
   onCreate: (input: EvaluationCalendarCreateInput) => boolean
   onUpdate: (eventId: string, input: EvaluationCalendarInput) => boolean
   onDelete: (eventId: string) => boolean
-  onOpenEvaluation: (assignmentId: string) => void
+  onOpenEvaluation: (assignmentId: string, parallelAssignmentId: string | null) => void
 }>
 
 export type CalendarDay = Readonly<{

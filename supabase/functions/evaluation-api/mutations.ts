@@ -209,8 +209,10 @@ export function mutateSchedule(snapshot: Snapshot, profile: Profile, request: Sc
   request.engineerIds.forEach((engineerId) => {
     requireScheduleLink(snapshot, request.cycleId, engineerId, request.taskId)
   })
+  const presentationGroupId = request.parallel ? crypto.randomUUID() : null
   const events = request.engineerIds.map((engineerId) => ({
     id: crypto.randomUUID(), cycleId: request.cycleId, engineerId, taskId: request.taskId,
+    presentationGroupId,
     title: request.title, date: request.date, startTime: request.startTime,
     note: request.note, createdAt: now, updatedAt: now,
   }))

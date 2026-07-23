@@ -57,6 +57,7 @@ export type RemoteEvaluationCommand =
     type: "schedule_create"
     cycleId: string
     engineerIds: ReadonlyArray<string>
+    parallel: boolean
     fields: ScheduleFields
   }>
   | Readonly<{
@@ -121,7 +122,8 @@ export function createRemoteRequest(
     case "schedule_create":
       return {
         operation: "create_schedule_events", activeRole, baseRevision,
-        cycleId: command.cycleId, engineerIds: command.engineerIds, ...command.fields,
+        cycleId: command.cycleId, engineerIds: command.engineerIds,
+        parallel: command.parallel, ...command.fields,
       }
     case "schedule_update":
       return {

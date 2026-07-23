@@ -352,7 +352,16 @@ export const createScheduleEventsInputSchema = scheduleEventFieldsSchema.omit({ 
     (engineerIds) => new Set(engineerIds).size === engineerIds.length,
     "같은 엔지니어를 중복 선택할 수 없습니다.",
   ),
+  parallel: z.boolean().default(false),
   actor: actorSchema,
+}).superRefine((input, context) => {
+  if (input.parallel && input.engineerIds.length !== 2) {
+    context.addIssue({
+      code: "custom",
+      path: ["engineerIds"],
+      message: "동시 발표 평가는 엔지니어 2명을 선택해야 합니다.",
+    })
+  }
 })
 
 export const updateScheduleEventInputSchema = scheduleEventFieldsSchema.extend({

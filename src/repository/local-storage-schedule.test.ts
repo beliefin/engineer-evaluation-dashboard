@@ -29,6 +29,7 @@ describe("LocalStorageEvaluationRepository schedule", () => {
     const created = repository.createScheduleEvents({
       cycleId: assignment.cycleId,
       engineerIds: [assignment.engineerId, sameTaskAssignment.engineerId],
+      parallel: true,
       taskId: assignment.taskId,
       title: "성장탐구 발표",
       date: "2026-05-18",
@@ -39,9 +40,20 @@ describe("LocalStorageEvaluationRepository schedule", () => {
 
     // Then
     expect(created.scheduleEvents.slice(-2)).toEqual([
-      expect.objectContaining({ engineerId: assignment.engineerId, taskId: assignment.taskId }),
-      expect.objectContaining({ engineerId: sameTaskAssignment.engineerId, taskId: assignment.taskId }),
+      expect.objectContaining({
+        engineerId: assignment.engineerId,
+        taskId: assignment.taskId,
+        presentationGroupId: expect.any(String),
+      }),
+      expect.objectContaining({
+        engineerId: sameTaskAssignment.engineerId,
+        taskId: assignment.taskId,
+        presentationGroupId: expect.any(String),
+      }),
     ])
+    expect(created.scheduleEvents.at(-1)?.presentationGroupId).toBe(
+      created.scheduleEvents.at(-2)?.presentationGroupId,
+    )
   })
 
   it("updates a presentation event", () => {

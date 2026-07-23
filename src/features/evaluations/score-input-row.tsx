@@ -1,15 +1,9 @@
-"use client"
-
-import { useState } from "react"
-import type { ChangeEvent, KeyboardEvent } from "react"
 import { ChevronDownIcon } from "lucide-react"
 
-import { Input } from "@/components/ui/input"
 import { cn } from "@/lib/utils"
 
+import { ScoreInputField } from "./score-input-field"
 import type { ScoreItemViewModel } from "./types"
-
-const scoreErrorMessage = "0에서 10 사이의 정수를 입력해 주세요."
 
 interface ScoreInputRowProps {
   readonly assignmentId: string
@@ -18,76 +12,16 @@ interface ScoreInputRowProps {
   readonly onChange: (value: number | null) => void
 }
 
-interface DraftState {
-  readonly sourceValue: number | null
-  readonly value: string
-  readonly error: string | null
-}
-
-interface ParsedScore {
-  readonly accepted: boolean
-  readonly value: number | null
-  readonly error: string | null
-}
-
-function toDraftValue(value: number | null): string {
-  return value === null ? "" : String(value)
-}
-
-function parseScore(value: string): ParsedScore {
-  if (value === "") return { accepted: true, value: null, error: null }
-
-  const score = Number(value)
-  const accepted = Number.isInteger(score) && score >= 0 && score <= 10
-  return accepted
-    ? { accepted: true, value: score, error: null }
-    : { accepted: false, value: null, error: scoreErrorMessage }
-}
-
 export function ScoreInputRow({
   assignmentId,
   item,
   locked,
   onChange,
 }: ScoreInputRowProps) {
-  const [draftState, setDraftState] = useState<DraftState>({
-    sourceValue: item.value,
-    value: toDraftValue(item.value),
-    error: null,
-  })
-  const state =
-    draftState.sourceValue === item.value
-      ? draftState
-      : { sourceValue: item.value, value: toDraftValue(item.value), error: null }
   const inputId = `score-${assignmentId}-${item.id}`
   const hintId = `${inputId}-hint`
-  const errorId = `${inputId}-error`
   const labelId = `${inputId}-label`
   const label = item.label
-
-  function updateDraft(rawValue: string) {
-    const parsed = parseScore(rawValue)
-    setDraftState({
-      sourceValue: item.value,
-      value: rawValue,
-      error: parsed.error,
-    })
-    if (parsed.accepted) onChange(parsed.value)
-  }
-
-  function handleChange(event: ChangeEvent<HTMLInputElement>) {
-    updateDraft(event.currentTarget.value)
-  }
-
-  function handleKeyDown(event: KeyboardEvent<HTMLInputElement>) {
-    if (locked || (event.key !== "ArrowUp" && event.key !== "ArrowDown")) return
-
-    event.preventDefault()
-    const parsed = parseScore(state.value)
-    const currentValue = parsed.accepted && parsed.value !== null ? parsed.value : 0
-    const delta = event.key === "ArrowUp" ? 1 : -1
-    updateDraft(String(Math.min(10, Math.max(0, currentValue + delta))))
-  }
 
   return (
     <div
@@ -146,32 +80,15 @@ export function ScoreInputRow({
         )}
       </div>
 
-      <div className="grid gap-1.5">
-        <div className="relative">
-          <Input
-            id={inputId}
-            type="text"
-            inputMode="numeric"
-            autoComplete="off"
-            value={state.value}
-            disabled={locked}
-            aria-label={`${label} 점수`}
-            aria-invalid={state.error !== null}
-            aria-describedby={state.error === null ? hintId : `${hintId} ${errorId}`}
-            onChange={handleChange}
-            onKeyDown={handleKeyDown}
-            className="numeric h-10 pr-10 text-right text-base font-semibold md:text-base"
-          />
-          <span className="pointer-events-none absolute top-1/2 right-3 -translate-y-1/2 text-xs text-muted-foreground">
-            / 10
-          </span>
-        </div>
-        {state.error === null ? null : (
-          <p id={errorId} className="text-xs font-medium text-destructive">
-            {state.error}
-          </p>
-        )}
-      </div>
+      <ScoreInputField
+        assignmentId={assignmentId}
+        describedBy={hintId}
+        itemId={item.id}
+        label={`${label} 점수`}
+        locked={locked}
+        onChange={onChange}
+        value={item.value}
+      />
     </div>
   )
 }

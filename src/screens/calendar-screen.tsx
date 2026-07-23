@@ -5,10 +5,35 @@ import { usePathname, useRouter, useSearchParams } from "next/navigation"
 import {
   EvaluationCalendar,
   parseYearMonth,
+  type CalendarEventView,
   type EvaluationCalendarCreateInput,
   type EvaluationCalendarInput,
 } from "@/features/calendar"
 import { useEvaluation } from "@/providers"
+
+function collapseEvaluatorPresentationGroups(
+  events: readonly CalendarEventView[],
+): readonly CalendarEventView[] {
+  const seenGroups = new Set<string>()
+  return events.flatMap((event) => {
+    const groupId = event.presentationGroupId
+    if (groupId === null) return [event]
+    if (seenGroups.has(groupId)) return []
+    seenGroups.add(groupId)
+    const evaluable = events.filter((candidate) =>
+      candidate.presentationGroupId === groupId && candidate.assignmentId !== null,
+    )
+    const first = evaluable[0]
+    const second = evaluable[1]
+    if (first === undefined) return [event]
+    if (second === undefined) return [first]
+    return [{
+      ...first,
+      engineerName: `${first.engineerName} · ${second.engineerName}`,
+      parallelAssignmentId: second.assignmentId,
+    }]
+  })
+}
 
 export function CalendarScreen() {
   const pathname = usePathname()
@@ -30,7 +55,7 @@ export function CalendarScreen() {
     task.cycleId === activeCycleId &&
     (task.method === "evaluator_score" || task.method === "evaluator_pass_fail"),
   )
-  const events = snapshot.scheduleEvents
+  const baseEvents = snapshot.scheduleEvents
     .filter((event) => event.cycleId === activeCycleId)
     .flatMap((event) => {
       const engineer = snapshot.engineers.find((entry) => entry.id === event.engineerId)
@@ -53,12 +78,17 @@ export function CalendarScreen() {
         taskId: event.taskId,
         taskName: task?.name ?? null,
         assignmentId: assignment?.id ?? null,
+        parallelAssignmentId: null,
+        presentationGroupId: event.presentationGroupId ?? null,
         title: event.title,
         date: event.date,
         startTime: event.startTime,
         note: event.note,
       }]
     })
+  const events = role === "evaluator"
+    ? collapseEvaluatorPresentationGroups(baseEvents)
+    : baseEvents
   const fallbackMonth =
     events[0]?.date.slice(0, 7) ?? cycle?.startsAt.slice(0, 7) ?? "2026-01"
   const requestedMonth = searchParams.get("month")
@@ -104,9 +134,11 @@ export function CalendarScreen() {
       onDelete={deleteScheduleEvent}
       onMonthChange={changeMonth}
       onUpdate={updateEvent}
-      onOpenEvaluation={(assignmentId) => router.push(
-        `/evaluations/detail?assignmentId=${encodeURIComponent(assignmentId)}`,
-      )}
+      onOpenEvaluation={(assignmentId, parallelAssignmentId) => {
+        const params = new URLSearchParams({ assignmentId })
+        if (parallelAssignmentId !== null) params.set("parallelAssignmentId", parallelAssignmentId)
+        router.push(`/evaluations/detail?${params.toString()}`)
+      }}
     />
   )
 }

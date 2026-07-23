@@ -244,6 +244,7 @@ export type EvaluationScheduleEvent = Readonly<{
   cycleId: string
   engineerId: string
   taskId: string | null
+  presentationGroupId?: string | null
   title: string
   date: string
   startTime: string | null

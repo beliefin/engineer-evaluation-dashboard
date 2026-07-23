@@ -47,7 +47,7 @@ export function EvaluationCalendar({
       return
     }
     if (mode === "evaluate" && event.assignmentId !== null) {
-      onOpenEvaluation(event.assignmentId)
+      onOpenEvaluation(event.assignmentId, event.parallelAssignmentId)
     }
   }
 

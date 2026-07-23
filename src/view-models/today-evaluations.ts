@@ -3,6 +3,8 @@ import type { EvaluationSnapshot } from "@/domain"
 export type ScheduledEvaluationView = Readonly<{
   eventId: string
   assignmentId: string
+  parallelAssignmentId: string | null
+  presentationGroupId: string | null
   engineerId: string
   engineerName: string
   team: string
@@ -32,7 +34,7 @@ export function selectScheduledEvaluations(
       ]),
   )
 
-  return snapshot.scheduleEvents
+  const evaluations: readonly ScheduledEvaluationView[] = snapshot.scheduleEvents
     .filter((event) => event.cycleId === cycleId && event.date === date && event.taskId !== null)
     .flatMap((event) => {
       if (event.taskId === null) return []
@@ -43,9 +45,11 @@ export function selectScheduledEvaluations(
       const sheet = snapshot.scoreSheets.find((entry) => entry.assignmentId === assignment.id)
       const completedItems = sheet?.scores.filter((entry) => entry.score !== null).length ?? 0
       const hasResponse = completedItems > 0 || sheet?.passResult !== null && sheet?.passResult !== undefined
-      return [{
+      const view: ScheduledEvaluationView = {
         eventId: event.id,
         assignmentId: assignment.id,
+        parallelAssignmentId: null,
+        presentationGroupId: event.presentationGroupId ?? null,
         engineerId: engineer.id,
         engineerName: engineer.displayName,
         team: engineer.team,
@@ -58,6 +62,34 @@ export function selectScheduledEvaluations(
         status: sheet?.status === "submitted" ? "submitted" : hasResponse ? "in_progress" : "not_started",
         completedItems,
         totalItems: task.items.length,
+      }
+      return [view]
+    })
+
+  const seenGroups = new Set<string>()
+  return evaluations
+    .flatMap((evaluation) => {
+      const groupId = evaluation.presentationGroupId
+      if (groupId === null) return [evaluation]
+      if (seenGroups.has(groupId)) return []
+      seenGroups.add(groupId)
+      const group = evaluations.filter((candidate) => candidate.presentationGroupId === groupId)
+      const first = group[0]
+      const second = group[1]
+      if (first === undefined) return []
+      if (second === undefined) return [first]
+      const status = group.every((candidate) => candidate.status === "submitted")
+        ? "submitted"
+        : group.some((candidate) => candidate.status !== "not_started")
+          ? "in_progress"
+          : "not_started"
+      return [{
+        ...first,
+        engineerName: `${first.engineerName} · ${second.engineerName}`,
+        parallelAssignmentId: second.assignmentId,
+        status,
+        completedItems: group.reduce((total, candidate) => total + candidate.completedItems, 0),
+        totalItems: group.reduce((total, candidate) => total + candidate.totalItems, 0),
       } satisfies ScheduledEvaluationView]
     })
     .sort((left, right) =>

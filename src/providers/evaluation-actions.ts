@@ -419,6 +419,7 @@ export function createEvaluationActions({
           type: "schedule_create",
           cycleId: activeCycleId,
           engineerIds: [input.engineerId],
+          parallel: false,
           fields: {
             taskId: input.taskId, title: input.title, date: input.date,
             startTime: input.startTime, note: input.note,
@@ -437,6 +438,7 @@ export function createEvaluationActions({
           type: "schedule_create",
           cycleId: activeCycleId,
           engineerIds: input.engineerIds,
+          parallel: input.parallel,
           fields: {
             taskId: input.taskId, title: input.title, date: input.date,
             startTime: input.startTime, note: input.note,

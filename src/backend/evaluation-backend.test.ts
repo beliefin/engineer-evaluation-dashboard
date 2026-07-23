@@ -133,6 +133,7 @@ describe("createRemoteRequest", () => {
         type: "schedule_create",
         cycleId: "cycle-2026-h1",
         engineerIds: ["engineer-01", "engineer-02"],
+        parallel: false,
         fields: {
           taskId: "task-growth-plan",
           title: "성장탐구 발표",
@@ -152,6 +153,7 @@ describe("createRemoteRequest", () => {
       baseRevision: 13,
       cycleId: "cycle-2026-h1",
       engineerIds: ["engineer-01", "engineer-02"],
+      parallel: false,
       taskId: "task-growth-plan",
       title: "성장탐구 발표",
       date: "2026-07-16",

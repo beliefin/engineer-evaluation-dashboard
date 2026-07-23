@@ -167,6 +167,7 @@ export const certificationRecordSchema = z.object({
 export type CertificationRecord = z.infer<typeof certificationRecordSchema>
 const scheduleEvent = z.object({
   id, cycleId: id, engineerId: id, taskId: id.nullable().default(null),
+  presentationGroupId: id.nullable().default(null),
   title: z.string().trim().min(1).max(100), date: z.iso.date(),
   startTime: z.string().regex(/^(?:[01]\d|2[0-3]):[0-5]\d$/).nullable(), note: nullableText(500),
   createdAt: timestamp, updatedAt: timestamp,

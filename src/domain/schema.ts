@@ -265,6 +265,7 @@ export const evaluationScheduleEventSchema = z.object({
   cycleId: idSchema,
   engineerId: idSchema,
   taskId: idSchema.nullable().default(null),
+  presentationGroupId: idSchema.nullable().default(null),
   title: z.string().trim().min(1).max(100),
   date: z.iso.date(),
   startTime: z.string().regex(/^(?:[01]\d|2[0-3]):[0-5]\d$/).nullable(),

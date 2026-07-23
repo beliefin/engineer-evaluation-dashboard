@@ -64,6 +64,7 @@ export function createScheduleEventAction(
     cycleId: parsed.cycleId,
     engineerId: parsed.engineerId,
     taskId: parsed.taskId,
+    presentationGroupId: null,
     title: parsed.title,
     date: parsed.date,
     startTime: parsed.startTime,
@@ -93,9 +94,12 @@ export function createScheduleEventsAction(
   parsed.engineerIds.forEach((engineerId) => {
     requireLinkedEvaluation(context.snapshot, parsed.cycleId, engineerId, parsed.taskId)
   })
+  const presentationGroupId = parsed.parallel
+    ? createEntityId(context, "presentation-group")
+    : null
 
-  return parsed.engineerIds.reduce<EvaluationSnapshot>((snapshot, engineerId) =>
-    createScheduleEventAction(
+  return parsed.engineerIds.reduce<EvaluationSnapshot>((snapshot, engineerId) => {
+    const created = createScheduleEventAction(
       { ...context, snapshot },
       {
         cycleId: parsed.cycleId,
@@ -107,7 +111,17 @@ export function createScheduleEventsAction(
         note: parsed.note,
         actor: parsed.actor,
       },
-    ), context.snapshot)
+    )
+    if (presentationGroupId === null) return created
+    const createdEvent = created.scheduleEvents.at(-1)
+    if (createdEvent === undefined) return created
+    return {
+      ...created,
+      scheduleEvents: created.scheduleEvents.map((event) =>
+        event.id === createdEvent.id ? { ...event, presentationGroupId } : event,
+      ),
+    }
+  }, context.snapshot)
 }
 
 export function updateScheduleEventAction(
