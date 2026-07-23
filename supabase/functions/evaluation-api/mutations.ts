@@ -206,6 +206,9 @@ export function mutateSchedule(snapshot: Snapshot, profile: Profile, request: Sc
     }
   }
   requireUnlockedCycle(snapshot, request.cycleId)
+  if (request.parallel && request.engineerIds.length !== 2) {
+    throw new ApiError(400, "INVALID_INPUT", "동시 발표 평가는 평가 대상 2명이 필요합니다.")
+  }
   request.engineerIds.forEach((engineerId) => {
     requireScheduleLink(snapshot, request.cycleId, engineerId, request.taskId)
   })

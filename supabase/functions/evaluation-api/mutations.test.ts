@@ -138,6 +138,25 @@ describe("operator sheet server mutation", () => {
 })
 
 describe("schedule server mutation", () => {
+  it("rejects parallel presentations unless exactly two engineers are selected", () => {
+    const snapshot = createSeedSnapshot()
+    const assignment = snapshot.assignments.find((entry) => entry.taskId === "task-growth-plan")
+    expect(assignment).toBeDefined()
+
+    expect(() => mutateSchedule(snapshot, OPERATOR, {
+      operation: "create_schedule_events",
+      baseRevision: 11,
+      cycleId: "cycle-2026-h1",
+      engineerIds: [assignment?.engineerId ?? ""],
+      parallel: true,
+      taskId: "task-growth-plan",
+      title: "성장탐구 발표",
+      date: "2026-07-16",
+      startTime: "09:00",
+      note: null,
+    })).toThrow("동시 발표 평가는 평가 대상 2명이 필요합니다.")
+  })
+
   it("creates one task-linked event per selected engineer", () => {
     const snapshot = createSeedSnapshot()
     const assignments = snapshot.assignments.filter((entry) => entry.taskId === "task-growth-plan")

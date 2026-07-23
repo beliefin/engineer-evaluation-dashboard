@@ -51,14 +51,6 @@ export const evaluationRequestSchema = z.discriminatedUnion("operation", [
     ),
     parallel: z.boolean().default(false),
     ...scheduleFields,
-  }).superRefine((input, context) => {
-    if (input.parallel && input.engineerIds.length !== 2) {
-      context.addIssue({
-        code: "custom",
-        path: ["engineerIds"],
-        message: "동시 발표 평가는 평가 대상 2명이 필요합니다.",
-      })
-    }
   }),
   z.object({
     operation: z.literal("update_schedule_event"), ...activeRole, baseRevision,
