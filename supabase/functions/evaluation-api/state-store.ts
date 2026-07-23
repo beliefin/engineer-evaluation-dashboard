@@ -46,3 +46,31 @@ export async function commitState(
   }
   return z.coerce.number().int().positive().parse(data)
 }
+
+export async function commitSheetState(
+  client: SupabaseClient,
+  sheet: Snapshot["scoreSheets"][number],
+  auditEvent: Snapshot["auditEvents"][number] | null,
+  profile: Profile,
+  operation: "save_draft" | "submit_sheet",
+): Promise<EvaluationState> {
+  const { data, error } = await client.rpc("commit_evaluation_sheet", {
+    p_sheet_id: sheet.id,
+    p_sheet: sheet,
+    p_audit_event: auditEvent,
+    p_actor_user_id: profile.auth_user_id,
+    p_actor_role: profile.role,
+    p_operation: operation,
+    p_metadata: { source: "evaluation-api", scope: "score-sheet" },
+  })
+  if (error !== null) {
+    if (error.message.includes("score_sheet_locked")) {
+      throw new ApiError(409, "SHEET_LOCKED", "제출한 평가지는 수정할 수 없습니다.")
+    }
+    if (error.message.includes("score_sheet_not_found")) {
+      throw new ApiError(404, "NOT_FOUND", "평가지를 찾을 수 없습니다.")
+    }
+    throw new ApiError(500, "STATE_WRITE_FAILED", "평가 데이터를 저장하지 못했습니다.")
+  }
+  return stateRowSchema.parse(data)
+}

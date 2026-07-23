@@ -18,7 +18,7 @@ import { evaluationRequestSchema } from "./request-schema.ts"
 import { expectedRevisionForRequest } from "./revision-policy.ts"
 import { projectRequestedSnapshot } from "./load-projection.ts"
 import { findMissingLinkedRosterIds } from "./roster-integrity.ts"
-import { commitState, loadState } from "./state-store.ts"
+import { commitSheetState, commitState, loadState } from "./state-store.ts"
 import { createBackup, listMaintenance, restoreBackup } from "./maintenance.ts"
 
 const supabaseUrl = Deno.env.get("SUPABASE_URL")
@@ -167,6 +167,19 @@ Deno.serve(async (request: Request) => {
           ? await createBackup(service, state, activeProfile, parsed.label)
           : await restoreBackup(service, activeProfile, parsed.backupId, parsed.baseRevision)
       return jsonResponse(request, { ...result, currentRevision: "revision" in result ? result.revision : state.revision })
+    }
+    if (parsed.operation === "save_draft" || parsed.operation === "submit_sheet") {
+      const mutation = applyMutation(state.snapshot, activeProfile, parsed, state.revision)
+      const sheet = mutation.snapshot.scoreSheets.find((entry) => entry.id === parsed.sheetId)
+      if (sheet === undefined) throw new ApiError(404, "NOT_FOUND", "평가지를 찾을 수 없습니다.")
+      const auditEvent = mutation.snapshot.auditEvents.length > state.snapshot.auditEvents.length
+        ? (mutation.snapshot.auditEvents.at(-1) ?? null)
+        : null
+      state = await commitSheetState(service, sheet, auditEvent, activeProfile, parsed.operation)
+      return jsonResponse(request, {
+        snapshot: projectSnapshot(state.snapshot, activeProfile),
+        revision: state.revision,
+      })
     }
     const strictCommit = parsed.operation === "operator_commit"
     for (let attempt = 0; attempt < 2; attempt += 1) {

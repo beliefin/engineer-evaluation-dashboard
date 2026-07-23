@@ -32,7 +32,7 @@ describe("selectPendingEvaluations", () => {
       status: "in_progress",
       submittedSheetCount: 3,
       totalSheetCount: 4,
-      enteredDirectScoreCount: 2,
+      enteredDirectScoreCount: 0,
       totalDirectScoreCount: 3,
       missingEvaluatorNames: ["샘플 평가자 3"],
       firstPendingAssignmentId:
@@ -42,7 +42,7 @@ describe("selectPendingEvaluations", () => {
       status: "direct_scores_pending",
       submittedSheetCount: 4,
       totalSheetCount: 4,
-      enteredDirectScoreCount: 2,
+      enteredDirectScoreCount: 0,
       missingEvaluatorNames: [],
       firstPendingAssignmentId: null,
     })
@@ -50,7 +50,7 @@ describe("selectPendingEvaluations", () => {
       status: "unassigned",
       submittedSheetCount: 0,
       totalSheetCount: 0,
-      enteredDirectScoreCount: 2,
+      enteredDirectScoreCount: 0,
       firstPendingAssignmentId: null,
     })
   })
@@ -117,6 +117,64 @@ describe("selectPendingEvaluations", () => {
     expect(selection.metrics.completedEngineers).toBe(13)
     expect(selection.metrics.pendingEngineers).toBe(11)
     expect(selection.metrics.byStatus.direct_scores_pending).toBe(3)
+  })
+
+  it("treats explicit no-score declarations as complete only for the declaring engineer", () => {
+    // Given
+    const seed = createSeedSnapshot()
+    const directTaskIds = ["task-language", "task-certification"]
+    const directTasks = seed.tasks
+      .filter((task) => directTaskIds.includes(task.id))
+      .map((task) => ({ ...task, weight: 50 }))
+    const snapshot = {
+      ...seed,
+      engineers: seed.engineers.filter((engineer) =>
+        engineer.id === "engineer-01" || engineer.id === "engineer-02",
+      ),
+      tasks: directTasks,
+      engineerTaskWeights: [],
+      assignments: [],
+      scoreSheets: [],
+      directScores: [],
+      directScoreRules: seed.directScoreRules.filter((rule) => directTaskIds.includes(rule.taskId)),
+      languageScoreRecords: [{
+        id: "language-none-engineer-01",
+        cycleId: CYCLE_ID,
+        engineerId: "engineer-01",
+        examName: "보유 어학성적 없음",
+        languageName: null,
+        result: "0",
+        noScore: true,
+        languageGroup: "english" as const,
+        previousResult: null,
+        newlyAcquired: false,
+        acquiredOn: null,
+        note: null,
+        updatedAt: "2026-07-23T00:00:00.000Z",
+      }],
+      certificationRecords: [{
+        id: "certification-none-engineer-01",
+        cycleId: CYCLE_ID,
+        engineerId: "engineer-01",
+        certificateName: "보유 자격증 없음",
+        noScore: true,
+        grade: null,
+        acquiredOn: null,
+        issuer: null,
+        updatedAt: "2026-07-23T00:00:00.000Z",
+      }],
+    }
+
+    // When
+    const selection = selectPendingEvaluations(snapshot, CYCLE_ID)
+
+    // Then
+    expect(selection.rows.some((row) => row.engineerId === "engineer-01")).toBe(false)
+    expect(selection.rows.find((row) => row.engineerId === "engineer-02")).toMatchObject({
+      status: "not_started",
+      enteredDirectScoreCount: 0,
+      totalDirectScoreCount: 2,
+    })
   })
 
   it("returns an empty selection when the cycle does not exist", () => {

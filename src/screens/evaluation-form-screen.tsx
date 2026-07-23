@@ -92,9 +92,11 @@ export function EvaluationFormScreen({
 
   function handleSubmit() {
     const current = viewModel.items.map((item) => ({ itemId: item.id, score: item.value }))
-    if (commit(current, viewModel.passResult) && (!viewModel.submitted || role !== "operator")) {
-      submitSheet(sheetId)
+    if (viewModel.submitted && role === "operator") {
+      commit(current, viewModel.passResult)
+      return
     }
+    submitSheet(sheetId)
   }
 
   return (

@@ -9,6 +9,7 @@ import { usePathname } from "next/navigation"
 
 import {
   loadRemoteEvaluation, persistRemoteEvaluation, type EvaluationView, type RemoteEvaluationCommand,
+  type RemoteEvaluationState,
 } from "@/backend/evaluation-backend"
 import { createSnapshotRepository } from "@/backend/snapshot-repository"
 import { isSupabaseConfigured } from "@/backend/supabase-client"
@@ -21,6 +22,7 @@ import {
   createEvaluationActions, type EvaluationActions, type MutateRepository,
 } from "./evaluation-actions"
 import { useAuth } from "./auth-provider"
+import { RemoteWriteQueue, type RemoteWriteMode } from "./remote-write-queue"
 
 export type SaveState = "idle" | "saving" | "saved" | "error" | "locked"
 export type EvaluationLoadError = Readonly<{
@@ -84,9 +86,7 @@ export function EvaluationProvider({ children }: Readonly<{ children: ReactNode 
   const sessionId = remoteMode ? (session?.id ?? null) : null
   const repositoryRef = useRef<EvaluationRepository | null>(null)
   const revisionRef = useRef(0)
-  const writeQueueRef = useRef<Promise<void>>(Promise.resolve())
-  const pendingWritesRef = useRef(0)
-  const clearTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
+  const writeFailedRef = useRef(false)
   const [snapshot, setSnapshot] = useState<EvaluationSnapshot | null>(null)
   const [loadedView, setLoadedView] = useState<EvaluationView | null>(null)
   const [activeCycleId, setActiveCycleIdState] = useState("")
@@ -98,6 +98,24 @@ export function EvaluationProvider({ children }: Readonly<{ children: ReactNode 
   const canViewInsights = session?.canViewInsights ?? false
   const requestedView = evaluationViewForPath(role, canViewInsights, pathname)
   const activeEvaluatorId = role === "evaluator" ? (session?.evaluatorId ?? "") : proxyEvaluatorId
+  const remoteWriteQueue = useMemo(() => new RemoteWriteQueue<RemoteEvaluationState>({
+    draftDelayMs: 700,
+    onPendingChange: (count) => {
+      if (count > 0) setSaveState("saving")
+    },
+    onSuccess: (saved, message, remaining) => {
+      revisionRef.current = saved.revision
+      if (message !== undefined) toast.success(message)
+      if (remaining === 0 && !writeFailedRef.current) setSaveState("saved")
+    },
+    onError: (error) => {
+      writeFailedRef.current = true
+      const text = error instanceof Error ? error.message : "서버 저장 중 오류가 발생했습니다."
+      setSaveState("error")
+      setErrorMessage(text)
+      toast.error(`${text} 입력 내용은 화면에 보존되었습니다.`)
+    },
+  }), [])
 
   const commitSnapshot = useCallback((loaded: EvaluationSnapshot) => {
     setSnapshot(loaded)
@@ -161,9 +179,7 @@ export function EvaluationProvider({ children }: Readonly<{ children: ReactNode 
     return () => { active = false }
   }, [commitSnapshot, failLoad, installRemoteState, remoteMode, requestedView, role, sessionId])
 
-  useEffect(() => () => {
-    if (clearTimerRef.current !== null) clearTimeout(clearTimerRef.current)
-  }, [])
+  useEffect(() => () => remoteWriteQueue.dispose(), [remoteWriteQueue])
 
   const actor = useMemo<RepositoryActor>(() => {
     const evaluatorId = activeEvaluatorId || snapshot?.evaluators[0]?.id || "unlinked-evaluator"
@@ -200,33 +216,28 @@ export function EvaluationProvider({ children }: Readonly<{ children: ReactNode 
   }, [commitSnapshot, failLoad, installRemoteState, remoteMode, requestedView, role])
 
   const queueRemoteWrite = useCallback((command: RemoteEvaluationCommand, next: EvaluationSnapshot, message?: string) => {
-    pendingWritesRef.current += 1
-    setSaveState("saving")
-    writeQueueRef.current = writeQueueRef.current.catch(() => undefined).then(async () => {
-      try {
-        const saved = await persistRemoteEvaluation(command, next, revisionRef.current, role)
-        revisionRef.current = saved.revision
-        pendingWritesRef.current -= 1
-        if (pendingWritesRef.current === 0) {
-          repositoryRef.current = createSnapshotRepository(saved.snapshot)
-          commitSnapshot(saved.snapshot)
-          setSaveState("saved")
-          if (message) toast.success(message)
-        }
-      } catch (error) {
-        pendingWritesRef.current = 0
-        const text = error instanceof Error ? error.message : "서버 저장 중 오류가 발생했습니다."
-        setSaveState("error")
-        setErrorMessage(text)
-        toast.error(text)
+    if (remoteWriteQueue.pendingCount === 0) writeFailedRef.current = false
+    const mode: RemoteWriteMode = command.type === "sheet"
+      ? (command.operation === "save_draft" ? "draft" : "final")
+      : "immediate"
+    const key = command.type === "sheet" ? command.sheetId : undefined
+    remoteWriteQueue.enqueue({
+      mode,
+      key,
+      message,
+      run: async () => {
         try {
-          installRemoteState(await loadRemoteEvaluation(role), "default")
-        } catch {
-          setErrorMessage(text)
+          return await persistRemoteEvaluation(command, next, revisionRef.current, role)
+        } catch (error) {
+          if (command.type !== "sheet") {
+            const refreshed = await loadRemoteEvaluation(role, requestedView).catch(() => null)
+            if (refreshed !== null) installRemoteState(refreshed, requestedView)
+          }
+          throw error
         }
-      }
+      },
     })
-  }, [commitSnapshot, installRemoteState, role])
+  }, [installRemoteState, remoteWriteQueue, requestedView, role])
 
   const mutate = useCallback<MutateRepository>((mutation, successMessage, remoteCommand) => {
     const repository = repositoryRef.current

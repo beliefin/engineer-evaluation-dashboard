@@ -101,7 +101,7 @@ export function ParallelEvaluationFormScreen({
       onPassResultChange: (passResult) => commit([], passResult),
       onSave: () => commit(currentScores(), viewModel.passResult),
       onSubmit: () => {
-        if (commit(currentScores(), viewModel.passResult) && !viewModel.submitted) submitSheet(sheetId)
+        if (!viewModel.submitted) submitSheet(sheetId)
       },
       onRequestUnlock: (reason) => requestSheetUnlock(sheetId, reason),
     }

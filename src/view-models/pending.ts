@@ -137,8 +137,12 @@ export function selectPendingEvaluations(
         directScores,
         engineerTaskWeights: snapshot.engineerTaskWeights,
         directScoreRules: snapshot.directScoreRules,
-        languageRecords: snapshot.languageScoreRecords,
-        certificationRecords: snapshot.certificationRecords,
+        languageRecords: snapshot.languageScoreRecords.filter((record) =>
+          record.cycleId === cycleId && record.engineerId === engineer.id,
+        ),
+        certificationRecords: snapshot.certificationRecords.filter((record) =>
+          record.cycleId === cycleId && record.engineerId === engineer.id,
+        ),
         scoreAdjustments: snapshot.scoreAdjustments,
       })
       if (result.status === "complete") return []
