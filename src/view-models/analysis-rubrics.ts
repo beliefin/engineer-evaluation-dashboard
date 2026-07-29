@@ -6,7 +6,10 @@ import {
 } from "@/domain"
 import type {
   AnalysisFilterState,
+  EvaluatorCalibrationDatum,
   EvaluatorDeviationDatum,
+  EvaluatorScoreComparisonDatum,
+  EvaluatorScoreObservationDatum,
   RubricItemAverageDatum,
 } from "@/features/analysis"
 
@@ -16,6 +19,8 @@ import {
   selectFilteredSummaries,
   selectedCategory,
 } from "./analysis-common"
+
+export const EVALUATOR_OUTLIER_DELTA = 10
 
 function selectedEvaluationTaskIds(
   snapshot: EvaluationSnapshot,
@@ -106,6 +111,38 @@ type ScoreObservation = Readonly<{
   score: number
 }>
 
+type SubmittedEvaluatorScoreObservation = Readonly<{
+  taskId: string
+  taskLabel: string
+  engineerId: string
+  engineerLabel: string
+  teamLabel: string
+  evaluatorId: string
+  evaluatorLabel: string
+  score: number
+}>
+
+type ComparisonAccumulator = {
+  taskId: string
+  taskLabel: string
+  engineerId: string
+  engineerLabel: string
+  teamLabel: string
+  observations: SubmittedEvaluatorScoreObservation[]
+}
+
+type CalibrationAccumulator = {
+  taskId: string
+  taskLabel: string
+  evaluatorId: string
+  evaluatorLabel: string
+  observations: EvaluatorScoreObservationDatum[]
+}
+
+function roundToTenth(value: number): number {
+  return Math.round(value * 10) / 10
+}
+
 function selectObservations(
   snapshot: EvaluationSnapshot,
   assignments: readonly EvaluatorAssignment[],
@@ -122,6 +159,186 @@ function selectObservations(
       ? []
       : [{ evaluatorId: assignment.evaluatorId, taskId: assignment.taskId, score }]
   })
+}
+
+function selectSubmittedEvaluatorScoreObservations(
+  snapshot: EvaluationSnapshot,
+  cycleId: string,
+  filters: AnalysisFilterState,
+): ReadonlyArray<SubmittedEvaluatorScoreObservation> {
+  const taskById = new Map(snapshot.tasks.map((task) => [task.id, task]))
+  const engineerById = new Map(
+    snapshot.engineers.map((engineer) => [engineer.id, engineer]),
+  )
+  const evaluatorById = new Map(
+    snapshot.evaluators.map((evaluator) => [evaluator.id, evaluator]),
+  )
+  const sheetByAssignmentId = new Map(
+    snapshot.scoreSheets.map((sheet) => [sheet.assignmentId, sheet]),
+  )
+
+  return selectAssignments(snapshot, cycleId, filters).flatMap((assignment) => {
+    const task = taskById.get(assignment.taskId)
+    const engineer = engineerById.get(assignment.engineerId)
+    const evaluator = evaluatorById.get(assignment.evaluatorId)
+    const sheet = sheetByAssignmentId.get(assignment.id)
+    if (
+      task?.method !== "evaluator_score" ||
+      engineer === undefined ||
+      evaluator === undefined ||
+      sheet?.status !== "submitted"
+    ) {
+      return []
+    }
+    const score = scoreSheetValue(task, sheet)
+    return score === null
+      ? []
+      : [{
+        taskId: task.id,
+        taskLabel: task.name,
+        engineerId: engineer.id,
+        engineerLabel: engineer.displayName,
+        teamLabel: engineer.team,
+        evaluatorId: evaluator.id,
+        evaluatorLabel: evaluator.displayName,
+        score,
+      }]
+  })
+}
+
+export function selectEvaluatorScoreComparisons(
+  snapshot: EvaluationSnapshot,
+  cycleId: string,
+  filters: AnalysisFilterState,
+): ReadonlyArray<EvaluatorScoreComparisonDatum> {
+  const groups = new Map<string, ComparisonAccumulator>()
+  for (const observation of selectSubmittedEvaluatorScoreObservations(
+    snapshot,
+    cycleId,
+    filters,
+  )) {
+    const key = `${observation.taskId}:${observation.engineerId}`
+    const group = groups.get(key)
+    if (group === undefined) {
+      groups.set(key, {
+        taskId: observation.taskId,
+        taskLabel: observation.taskLabel,
+        engineerId: observation.engineerId,
+        engineerLabel: observation.engineerLabel,
+        teamLabel: observation.teamLabel,
+        observations: [observation],
+      })
+    } else {
+      group.observations.push(observation)
+    }
+  }
+
+  const taskOrder = new Map(
+    snapshot.tasks.map((task) => [task.id, task.order]),
+  )
+  return Array.from(groups.values())
+    .map((group) => {
+      const scores = group.observations.map((observation) => observation.score)
+      const consensusScore = averageScore(scores)
+      const observations = group.observations
+        .toSorted((left, right) =>
+          left.evaluatorLabel.localeCompare(right.evaluatorLabel, "ko"),
+        )
+        .map<EvaluatorScoreObservationDatum>((observation) => {
+          const deltaFromConsensus = roundToTenth(
+            observation.score - consensusScore,
+          )
+          return {
+            evaluatorId: observation.evaluatorId,
+            evaluatorLabel: observation.evaluatorLabel,
+            score: observation.score,
+            deltaFromConsensus,
+            isOutlier: Math.abs(deltaFromConsensus) >= EVALUATOR_OUTLIER_DELTA,
+          }
+        })
+      const minimumScore = Math.min(...scores)
+      const maximumScore = Math.max(...scores)
+      return {
+        taskId: group.taskId,
+        taskLabel: group.taskLabel,
+        engineerId: group.engineerId,
+        engineerLabel: group.engineerLabel,
+        teamLabel: group.teamLabel,
+        consensusScore,
+        minimumScore,
+        maximumScore,
+        scoreRange: roundToTenth(maximumScore - minimumScore),
+        submittedCount: observations.length,
+        outlierCount: observations.filter((observation) => observation.isOutlier)
+          .length,
+        observations,
+      }
+    })
+    .toSorted((left, right) => {
+      const taskDifference =
+        (taskOrder.get(left.taskId) ?? 0) - (taskOrder.get(right.taskId) ?? 0)
+      return taskDifference !== 0
+        ? taskDifference
+        : left.engineerLabel.localeCompare(right.engineerLabel, "ko")
+    })
+}
+
+export function selectEvaluatorCalibrations(
+  snapshot: EvaluationSnapshot,
+  cycleId: string,
+  filters: AnalysisFilterState,
+): ReadonlyArray<EvaluatorCalibrationDatum> {
+  const groups = new Map<string, CalibrationAccumulator>()
+  for (const comparison of selectEvaluatorScoreComparisons(
+    snapshot,
+    cycleId,
+    filters,
+  )) {
+    if (comparison.submittedCount < 2) continue
+    for (const observation of comparison.observations) {
+      const key = `${comparison.taskId}:${observation.evaluatorId}`
+      const group = groups.get(key)
+      if (group === undefined) {
+        groups.set(key, {
+          taskId: comparison.taskId,
+          taskLabel: comparison.taskLabel,
+          evaluatorId: observation.evaluatorId,
+          evaluatorLabel: observation.evaluatorLabel,
+          observations: [observation],
+        })
+      } else {
+        group.observations.push(observation)
+      }
+    }
+  }
+
+  return Array.from(groups.values())
+    .map((group) => ({
+      taskId: group.taskId,
+      taskLabel: group.taskLabel,
+      evaluatorId: group.evaluatorId,
+      evaluatorLabel: group.evaluatorLabel,
+      averageScore: averageScore(
+        group.observations.map((observation) => observation.score),
+      ),
+      meanSignedDelta: averageScore(
+        group.observations.map((observation) => observation.deltaFromConsensus),
+      ),
+      meanAbsoluteDelta: averageScore(
+        group.observations.map((observation) =>
+          Math.abs(observation.deltaFromConsensus),
+        ),
+      ),
+      comparisonCount: group.observations.length,
+      outlierCount: group.observations.filter((observation) => observation.isOutlier)
+        .length,
+    }))
+    .toSorted((left, right) => {
+      const taskDifference = left.taskLabel.localeCompare(right.taskLabel, "ko")
+      return taskDifference !== 0
+        ? taskDifference
+        : left.evaluatorLabel.localeCompare(right.evaluatorLabel, "ko")
+    })
 }
 
 export function selectEvaluatorDeviations(

@@ -4,7 +4,12 @@ import type {
   AnalysisFilterState,
   AnalysisHighlightDatum,
   CategoryAverageDatum,
+  EvaluatorCalibrationDatum,
   EvaluatorDeviationDatum,
+  EvaluationReliabilityDatum,
+  EvaluatorExclusionSensitivityDatum,
+  EvaluatorResidualDatum,
+  EvaluatorScoreComparisonDatum,
   RubricItemAverageDatum,
   ScoreDistributionDatum,
   TaskCompletionDatum,
@@ -25,7 +30,20 @@ import {
   selectTaskScoreDistributions,
   selectTeamTaskPerformance,
 } from "./analysis-insights"
-import { selectEvaluatorDeviations, selectRubricItemAverages } from "./analysis-rubrics"
+import {
+  EVALUATOR_OUTLIER_DELTA,
+  selectEvaluatorCalibrations,
+  selectEvaluatorDeviations,
+  selectEvaluatorScoreComparisons,
+  selectRubricItemAverages,
+} from "./analysis-rubrics"
+import {
+  EVALUATOR_DISAGREEMENT_STANDARD_DEVIATION,
+  EVALUATOR_RANK_SHIFT_ALERT,
+  selectEvaluationReliability,
+  selectEvaluatorExclusionSensitivities,
+  selectEvaluatorResiduals,
+} from "./analysis-reliability"
 
 export type AnalysisViewModel = Readonly<{
   filters: AnalysisFilterState
@@ -40,6 +58,14 @@ export type AnalysisViewModel = Readonly<{
   rubricItemAverages: readonly RubricItemAverageDatum[]
   teamComparison: readonly TeamComparisonDatum[]
   evaluatorDeviations: readonly EvaluatorDeviationDatum[]
+  evaluatorScoreComparisons: readonly EvaluatorScoreComparisonDatum[]
+  evaluatorCalibrations: readonly EvaluatorCalibrationDatum[]
+  evaluationReliability: readonly EvaluationReliabilityDatum[]
+  evaluatorResiduals: readonly EvaluatorResidualDatum[]
+  evaluatorExclusionSensitivities: readonly EvaluatorExclusionSensitivityDatum[]
+  evaluatorOutlierThreshold: number
+  evaluatorDisagreementStandardDeviationThreshold: number
+  evaluatorRankShiftAlert: number
   teamComparisonCategoryLabel: string
   evaluatorDeviationDomainMax: number
 }>
@@ -65,6 +91,27 @@ export function selectAnalysisViewModel(
   const normalized = normalizeAnalysisFilters(snapshot, filters)
   const category = selectedCategory(snapshot, normalized)
   const evaluatorDeviations = selectEvaluatorDeviations(
+    snapshot,
+    cycleId,
+    normalized,
+  )
+  const evaluatorScoreComparisons = selectEvaluatorScoreComparisons(
+    snapshot,
+    cycleId,
+    normalized,
+  )
+  const evaluatorCalibrations = selectEvaluatorCalibrations(
+    snapshot,
+    cycleId,
+    normalized,
+  )
+  const evaluationReliability = selectEvaluationReliability(
+    snapshot,
+    cycleId,
+    normalized,
+  )
+  const evaluatorResiduals = selectEvaluatorResiduals(snapshot, cycleId, normalized)
+  const evaluatorExclusionSensitivities = selectEvaluatorExclusionSensitivities(
     snapshot,
     cycleId,
     normalized,
@@ -121,6 +168,15 @@ export function selectAnalysisViewModel(
     ),
     teamComparison: selectTeamComparison(snapshot, cycleId, normalized),
     evaluatorDeviations,
+    evaluatorScoreComparisons,
+    evaluatorCalibrations,
+    evaluationReliability,
+    evaluatorResiduals,
+    evaluatorExclusionSensitivities,
+    evaluatorOutlierThreshold: EVALUATOR_OUTLIER_DELTA,
+    evaluatorDisagreementStandardDeviationThreshold:
+      EVALUATOR_DISAGREEMENT_STANDARD_DEVIATION,
+    evaluatorRankShiftAlert: EVALUATOR_RANK_SHIFT_ALERT,
     teamComparisonCategoryLabel:
       category === null ? "가·감점 반영 최종 총점" : categoryLabel(snapshot, category),
     evaluatorDeviationDomainMax: Math.max(

@@ -61,8 +61,18 @@ export function AnalysisScreen() {
       />
       <AnalysisDashboard
         categoryAverages={model.categoryAverages}
+        evaluatorCalibrations={model.evaluatorCalibrations}
         evaluatorDeviationDomainMax={model.evaluatorDeviationDomainMax}
         evaluatorDeviations={model.evaluatorDeviations}
+        evaluatorDisagreementStandardDeviationThreshold={
+          model.evaluatorDisagreementStandardDeviationThreshold
+        }
+        evaluatorExclusionSensitivities={model.evaluatorExclusionSensitivities}
+        evaluatorOutlierThreshold={model.evaluatorOutlierThreshold}
+        evaluatorRankShiftAlert={model.evaluatorRankShiftAlert}
+        evaluatorResiduals={model.evaluatorResiduals}
+        evaluatorScoreComparisons={model.evaluatorScoreComparisons}
+        evaluationReliability={model.evaluationReliability}
         highlights={model.highlights}
         filters={{
           value: model.filters,

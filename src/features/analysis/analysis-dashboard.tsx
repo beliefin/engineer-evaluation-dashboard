@@ -6,6 +6,8 @@ import { AnalysisFilters } from "./analysis-filters"
 import { AnalysisInsightStrip } from "./analysis-insight-strip"
 import { CategoryAverageChart } from "./category-average-chart"
 import { EvaluatorDeviationChart } from "./evaluator-deviation-chart"
+import { EvaluationReliabilityAnalysis } from "./evaluation-reliability-analysis"
+import { EvaluatorScoreComparison } from "./evaluator-score-comparison"
 import { RubricItemChart } from "./rubric-item-chart"
 import { ScoreDistributionChart } from "./score-distribution-chart"
 import { TaskCompletionChart } from "./task-completion-chart"
@@ -15,7 +17,12 @@ import type {
   AnalysisFiltersProps,
   AnalysisHighlightDatum,
   CategoryAverageDatum,
+  EvaluatorCalibrationDatum,
   EvaluatorDeviationDatum,
+  EvaluationReliabilityDatum,
+  EvaluatorExclusionSensitivityDatum,
+  EvaluatorResidualDatum,
+  EvaluatorScoreComparisonDatum,
   RubricItemAverageDatum,
   ScoreDistributionDatum,
   TaskCompletionDatum,
@@ -33,6 +40,14 @@ export type AnalysisDashboardProps = Readonly<{
   rubricItemAverages: readonly RubricItemAverageDatum[]
   teamComparison: readonly TeamComparisonDatum[]
   evaluatorDeviations: readonly EvaluatorDeviationDatum[]
+  evaluatorScoreComparisons: readonly EvaluatorScoreComparisonDatum[]
+  evaluatorCalibrations: readonly EvaluatorCalibrationDatum[]
+  evaluationReliability: readonly EvaluationReliabilityDatum[]
+  evaluatorResiduals: readonly EvaluatorResidualDatum[]
+  evaluatorExclusionSensitivities: readonly EvaluatorExclusionSensitivityDatum[]
+  evaluatorOutlierThreshold: number
+  evaluatorDisagreementStandardDeviationThreshold: number
+  evaluatorRankShiftAlert: number
   teamComparisonCategoryLabel: string
   evaluatorDeviationDomainMax?: number
   isLoading?: boolean
@@ -49,6 +64,14 @@ export function AnalysisDashboard({
   rubricItemAverages,
   teamComparison,
   evaluatorDeviations,
+  evaluatorScoreComparisons,
+  evaluatorCalibrations,
+  evaluationReliability,
+  evaluatorResiduals,
+  evaluatorExclusionSensitivities,
+  evaluatorOutlierThreshold,
+  evaluatorDisagreementStandardDeviationThreshold,
+  evaluatorRankShiftAlert,
   teamComparisonCategoryLabel,
   evaluatorDeviationDomainMax,
   isLoading = false,
@@ -84,6 +107,23 @@ export function AnalysisDashboard({
             분야, 팀, 문항, 평가자 단위의 평균과 편차를 확인합니다.
           </p>
         </div>
+        <EvaluatorScoreComparison
+          calibrations={evaluatorCalibrations}
+          comparisons={evaluatorScoreComparisons}
+          key={`${filters.value.team}:${filters.value.category}:${filters.value.status}`}
+          outlierThreshold={evaluatorOutlierThreshold}
+          isLoading={isLoading}
+        />
+        <EvaluationReliabilityAnalysis
+          key={`reliability:${filters.value.team}:${filters.value.category}:${filters.value.status}`}
+          outlierThreshold={evaluatorOutlierThreshold}
+          rankShiftAlert={evaluatorRankShiftAlert}
+          reliability={evaluationReliability}
+          residuals={evaluatorResiduals}
+          sensitivities={evaluatorExclusionSensitivities}
+          standardDeviationThreshold={evaluatorDisagreementStandardDeviationThreshold}
+          isLoading={isLoading}
+        />
         <div className="grid min-w-0 gap-6 xl:grid-cols-2">
           <CategoryAverageChart data={categoryAverages} isLoading={isLoading} />
           <TeamComparisonChart

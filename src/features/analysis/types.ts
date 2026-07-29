@@ -55,6 +55,91 @@ export type EvaluatorDeviationDatum = Readonly<{
   sheetCount: number
 }>
 
+export type EvaluatorScoreObservationDatum = Readonly<{
+  evaluatorId: string
+  evaluatorLabel: string
+  score: number
+  deltaFromConsensus: number
+  isOutlier: boolean
+}>
+
+export type EvaluatorScoreComparisonDatum = Readonly<{
+  taskId: string
+  taskLabel: string
+  engineerId: string
+  engineerLabel: string
+  teamLabel: string
+  consensusScore: number
+  minimumScore: number
+  maximumScore: number
+  scoreRange: number
+  submittedCount: number
+  outlierCount: number
+  observations: readonly EvaluatorScoreObservationDatum[]
+}>
+
+export type EvaluatorCalibrationDatum = Readonly<{
+  taskId: string
+  taskLabel: string
+  evaluatorId: string
+  evaluatorLabel: string
+  averageScore: number
+  meanSignedDelta: number
+  meanAbsoluteDelta: number
+  comparisonCount: number
+  outlierCount: number
+}>
+
+export type EvaluationReliabilityDatum = Readonly<{
+  taskId: string
+  taskLabel: string
+  engineerId: string
+  engineerLabel: string
+  teamLabel: string
+  consensusScore: number
+  evaluatorCount: number
+  scoreRange: number
+  standardDeviation: number
+  leaveOneOutOutlierCount: number
+  isHighDisagreement: boolean
+}>
+
+export type EvaluatorResidualDatum = Readonly<{
+  taskId: string
+  taskLabel: string
+  engineerId: string
+  engineerLabel: string
+  teamLabel: string
+  evaluatorId: string
+  evaluatorLabel: string
+  score: number
+  leaveOneOutAverage: number
+  residual: number
+  isOutlier: boolean
+}>
+
+export type EvaluatorExclusionSensitivityRowDatum = Readonly<{
+  engineerId: string
+  engineerLabel: string
+  teamLabel: string
+  baselineScore: number
+  excludedScore: number
+  scoreDelta: number
+  baselineRank: number
+  excludedRank: number
+  rankDelta: number
+  isHighImpact: boolean
+}>
+
+export type EvaluatorExclusionSensitivityDatum = Readonly<{
+  taskId: string
+  taskLabel: string
+  evaluatorId: string
+  evaluatorLabel: string
+  cohortCount: number
+  rows: readonly EvaluatorExclusionSensitivityRowDatum[]
+}>
+
 export type ScoreDistributionDatum = Readonly<{
   taskId: string
   taskLabel: string
