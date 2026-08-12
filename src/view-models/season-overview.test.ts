@@ -15,11 +15,11 @@ describe("selectSeasonOverview", () => {
     expect(model?.configuredWeightTotal).toBe(135)
     expect(model?.effectiveWeightTotal).toBe(100)
     expect(model?.composition.map((entry) => entry.label)).toEqual([
-      "성장탐구계획서",
-      "선택형 심화 과제",
+      "성장·탐구 계획서",
+      "선택 과제",
       "어학",
       "자격증",
-      "고등급제안",
+      "고등급 제안",
     ])
     expect(model?.composition[1]).toMatchObject({
       kind: "alternative",
@@ -36,13 +36,44 @@ describe("selectSeasonOverview", () => {
     const ots = model?.tasks.find((task) => task.name === "OTS 시나리오 제작")
 
     expect(growth?.process.map((step) => step.title)).toEqual([
-      "목표 수립",
-      "활동 수행",
-      "발표·평가",
+      "주제와 목표 정하기",
+      "탐구하고 적용하기",
+      "결과 발표하고 보완하기",
     ])
     expect(growth?.focusItems).toContain("주제의 전략적 적합성과 집중도")
-    expect(ots?.output).toContain("시나리오 표준 기획서")
-    expect(ots?.methodLabel).toBe("평가자 점수형")
+    expect(ots?.output).toContain("그대로 실행할 수 있는 OTS 시나리오 기획서")
+    expect(ots?.methodLabel).toBe("평가자 점수 입력")
+  })
+
+  it("keeps education-only OTS work outside the general 100 percent evaluation", () => {
+    const snapshot = createSeedSnapshot()
+    const educationTask: EvaluationTask = {
+      id: "task-ots-education",
+      cycleId: "cycle-2026-h1",
+      name: "OTS 시나리오 제작 교육",
+      description: "교육 담당자가 진행하는 OTS 시나리오 제작 교육입니다.",
+      method: "derived_score",
+      weight: 70,
+      order: 7,
+      items: [],
+    }
+
+    const model = selectSeasonOverview({
+      ...snapshot,
+      tasks: [...snapshot.tasks, educationTask],
+    }, "cycle-2026-h1")
+
+    expect(model?.effectiveWeightTotal).toBe(100)
+    expect(model?.composition).toHaveLength(5)
+    expect(model?.composition.map((entry) => entry.weight)).toEqual([35, 35, 10, 10, 10])
+    expect(model?.tasks.some((task) => task.id === educationTask.id)).toBe(false)
+    expect(model?.educationTasks).toEqual([
+      expect.objectContaining({
+        id: educationTask.id,
+        name: educationTask.name,
+        weight: 70,
+      }),
+    ])
   })
 
   it("keeps newly configured tasks understandable without season-specific copy", () => {
@@ -72,7 +103,7 @@ describe("selectSeasonOverview", () => {
 
     expect(task).toMatchObject({
       purpose: customTask.description,
-      methodLabel: "운영자 P/F형",
+      methodLabel: "운영자 P/F 입력",
       focusItems: ["현장 적용 가능성"],
     })
     expect(task?.process).toHaveLength(3)

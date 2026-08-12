@@ -8,10 +8,10 @@ function formatPeriod(startsAt: string, endsAt: string): string {
 }
 
 const LOOP_STEPS = [
-  ["01", "문제 발견", "현장의 필요와 성장 목표 정의"],
-  ["02", "실행·탐구", "기술 학습과 과제 수행"],
-  ["03", "검증·공유", "근거 기반 평가와 지식 자산화"],
-  ["04", "현장 성장", "개인 역량을 조직 성과로 연결"],
+  ["01", "문제 찾기", "업무에서 개선할 문제와 성장 목표를 정합니다."],
+  ["02", "배우고 실행하기", "필요한 기술을 배우고 과제를 수행합니다."],
+  ["03", "검증하고 공유하기", "결과를 근거로 확인하고 동료와 공유합니다."],
+  ["04", "업무에 다시 적용하기", "배운 내용을 다음 업무와 개선 활동에 활용합니다."],
 ] as const
 
 export function SeasonOverviewHero({
@@ -27,7 +27,7 @@ export function SeasonOverviewHero({
         <div className="flex min-h-[27rem] flex-col justify-between border-b border-border px-5 py-7 sm:px-8 sm:py-10 lg:border-b-0 lg:border-r lg:px-10 lg:py-12">
           <div>
             <div className="flex flex-wrap items-center gap-2">
-              <span className="numeric text-xs font-bold tracking-[0.18em] text-primary">00 · SEASON GUIDE</span>
+              <span className="numeric text-xs font-bold tracking-[0.18em] text-primary">00 · 시즌 안내</span>
               <Badge variant="outline">{backendMode === "supabase" ? "운영 데이터" : "샘플 데이터"}</Badge>
             </div>
             <p className="mt-8 text-sm font-semibold text-primary">{model.cycle.name}</p>
@@ -35,7 +35,7 @@ export function SeasonOverviewHero({
               {model.cycle.name} 엔지니어 역량평가
             </h1>
             <p className="mt-5 max-w-2xl text-base leading-7 text-muted-foreground sm:text-lg sm:leading-8">
-              현장에서 문제를 발견하고, 스스로 탐구하며, 결과를 동료가 다시 활용할 수 있는 지식으로 남기는 성장 여정입니다.
+              실제 업무의 문제를 과제로 삼아 배우고 실행하며, 그 결과를 다음 업무에 활용할 수 있게 정리합니다.
             </p>
           </div>
           <div className="mt-10 flex flex-col gap-3 border-t border-border pt-5 text-sm sm:flex-row sm:items-center sm:justify-between">
@@ -50,8 +50,8 @@ export function SeasonOverviewHero({
         <div className="bg-muted/35 px-5 py-7 sm:px-8 sm:py-10 lg:px-10 lg:py-12">
           <div className="flex items-center justify-between border-b border-border pb-4">
             <div>
-              <p className="numeric text-[10px] font-bold tracking-[0.16em] text-muted-foreground">CAPABILITY LOOP</p>
-              <h2 className="mt-1 text-lg font-bold">성장을 현장 성과로 바꾸는 선순환</h2>
+              <p className="numeric text-[10px] font-bold tracking-[0.16em] text-muted-foreground">성장 과정</p>
+              <h2 className="mt-1 text-lg font-bold">배운 내용을 업무에 다시 적용하는 과정</h2>
             </div>
             <RefreshCw aria-hidden className="size-5 text-primary" />
           </div>
@@ -76,7 +76,7 @@ export function SeasonOverviewHero({
             ))}
           </ol>
           <p className="mt-5 border-l-2 border-primary pl-4 text-sm leading-6 text-muted-foreground">
-            결과는 점수에서 끝나지 않습니다. 피드백과 산출물은 다음 과제와 현장 개선의 출발점이 됩니다.
+            평가 결과와 피드백은 다음 과제와 업무 개선에 활용합니다.
           </p>
         </div>
       </div>

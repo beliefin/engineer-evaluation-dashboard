@@ -71,14 +71,56 @@ export function SeasonTaskCatalog({ tasks }: Readonly<{ tasks: ReadonlyArray<Sea
   return (
     <section className="px-5 py-9 sm:px-8 lg:px-10 lg:py-12" id="season-tasks" aria-labelledby="season-task-title">
       <div className="max-w-4xl">
-        <p className="numeric text-xs font-bold tracking-[0.16em] text-primary">02 · TASK BLUEPRINT</p>
-        <h2 className="mt-2 text-2xl font-bold tracking-tight" id="season-task-title">과제별 수행 설계도</h2>
+        <p className="numeric text-xs font-bold tracking-[0.16em] text-primary">02 · 과제 안내</p>
+        <h2 className="mt-2 text-2xl font-bold tracking-tight" id="season-task-title">과제별 목적과 수행 절차</h2>
         <p className="mt-2 text-sm leading-6 text-muted-foreground">
-          각 과제는 무엇을 만들지보다 왜 수행하는지, 어떤 과정을 거치며 무엇을 남길지를 함께 봅니다.
+          과제의 목적, 수행 순서, 제출할 결과물과 평가 기준을 한눈에 확인할 수 있습니다.
         </p>
       </div>
       <div className="mt-7 grid gap-5 xl:grid-cols-2">
         {tasks.map((task, index) => <TaskArticle index={index} key={task.id} task={task} />)}
+      </div>
+    </section>
+  )
+}
+
+export function EducationTaskCatalog({
+  tasks,
+}: Readonly<{ tasks: ReadonlyArray<SeasonTaskGuide> }>) {
+  if (tasks.length === 0) return null
+
+  return (
+    <section className="border-t border-border bg-muted/25 px-5 py-9 sm:px-8 lg:px-10" aria-labelledby="education-task-title">
+      <div className="grid gap-6 lg:grid-cols-[minmax(14rem,0.7fr)_minmax(0,1.3fr)]">
+        <div>
+          <p className="numeric text-xs font-bold tracking-[0.16em] text-primary">별도 대상 · 교육 담당자</p>
+          <h2 className="mt-2 text-xl font-bold tracking-tight" id="education-task-title">교육 담당자 전용 과제</h2>
+          <p className="mt-3 max-w-xl text-sm leading-6 text-muted-foreground">
+            아래 과제는 OTS 교육을 맡은 인원에게만 적용합니다. 일반 엔지니어의 평가 구성 100%에는 포함하지 않습니다.
+          </p>
+        </div>
+        <div className="space-y-4">
+          {tasks.map((task) => (
+            <article className="border border-border bg-card p-5" key={task.id}>
+              <div className="flex flex-wrap items-start justify-between gap-3">
+                <div>
+                  <h3 className="text-lg font-bold">{task.name}</h3>
+                  <Badge className="mt-2" variant="outline">교육 담당자 대상</Badge>
+                </div>
+                <span className="text-xs font-semibold text-primary">일반 평가 합계 제외</span>
+              </div>
+              <p className="mt-4 text-sm leading-6">{task.purpose}</p>
+              <ol className="mt-5 grid gap-3 sm:grid-cols-2" aria-label={`${task.name} 수행 절차`}>
+                {task.process.map((step, index) => (
+                  <li className="border-t border-border pt-3" key={step.title}>
+                    <p className="text-sm font-bold"><span className="numeric mr-2 text-primary">{index + 1}</span>{step.title}</p>
+                    <p className="mt-1 text-xs leading-5 text-muted-foreground">{step.description}</p>
+                  </li>
+                ))}
+              </ol>
+            </article>
+          ))}
+        </div>
       </div>
     </section>
   )
