@@ -145,6 +145,7 @@ describe("dashboard presentation", () => {
         tasks={[
           { id: "task-growth", label: "성장탐구계획서" },
           { id: "task-language", label: "어학" },
+          { id: "task-not-applicable", label: "해당 없음 과제" },
         ]}
       />
     )
@@ -153,6 +154,24 @@ describe("dashboard presentation", () => {
     expect(screen.getAllByText("평가 완료").length).toBeGreaterThan(0)
     expect(screen.getAllByText("미진행").length).toBeGreaterThan(0)
     expect(screen.getAllByText(/평가자 2\/2/).length).toBeGreaterThan(0)
+  })
+
+  it("uses dedicated, high-contrast tile surfaces for every evaluation status", () => {
+    render(
+      <EngineerEvaluationProgress
+        rows={PROGRESS_ROWS}
+        tasks={[
+          { id: "task-growth", label: "성장탐구계획서" },
+          { id: "task-language", label: "어학" },
+          { id: "task-not-applicable", label: "해당 없음 과제" },
+        ]}
+      />
+    )
+
+    expect(screen.getByText("1/2개 과제 완료").closest("td")).toHaveClass("bg-progress-in-progress")
+    expect(screen.getByText("82.4점").closest("td")).toHaveClass("bg-progress-complete")
+    expect(screen.getAllByText("점수 없음")[0]?.closest("td")).toHaveClass("bg-progress-pending")
+    expect(screen.getAllByText("해당 없음").at(-1)?.closest("td")).toHaveClass("bg-progress-not-applicable")
   })
 
   it("keeps weighted score bins inside the 0 to 100 range", () => {

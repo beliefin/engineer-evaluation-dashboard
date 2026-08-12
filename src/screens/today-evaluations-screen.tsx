@@ -9,14 +9,9 @@ import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
-import { formatCalendarDate } from "@/features/calendar"
+import { formatCalendarDate, toLocalDateValue } from "@/features/calendar"
 import { useEvaluation } from "@/providers"
 import { selectScheduledEvaluations } from "@/view-models/today-evaluations"
-
-export function toLocalDateValue(date: Date): string {
-  const local = new Date(date.getTime() - date.getTimezoneOffset() * 60_000)
-  return local.toISOString().slice(0, 10)
-}
 
 const STATUS = {
   not_started: { label: "미작성", variant: "outline" as const },

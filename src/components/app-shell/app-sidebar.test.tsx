@@ -8,10 +8,10 @@ const HOME_ROUTES: readonly Readonly<{
   role: AppShellRole
   href: string
 }>[] = [
-  { role: "operator", href: "/dashboard" },
-  { role: "approver", href: "/dashboard" },
-  { role: "evaluator", href: "/today" },
-  { role: "engineer", href: "/my" },
+  { role: "operator", href: "/overview" },
+  { role: "approver", href: "/overview" },
+  { role: "evaluator", href: "/overview" },
+  { role: "engineer", href: "/overview" },
 ]
 
 describe("AppBrand", () => {

@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest"
 
-import { toLocalDateValue } from "./today-evaluations-screen"
+import { toLocalDateValue } from "@/features/calendar"
 
 describe("toLocalDateValue", () => {
   it("uses the browser-local calendar day for the default evaluation date", () => {

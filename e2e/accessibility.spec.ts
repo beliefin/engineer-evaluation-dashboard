@@ -4,6 +4,7 @@ import { expect, test, type Page } from "@playwright/test"
 import { clearDemoStorage, loginAs, switchRole, waitForApp } from "./helpers"
 
 const ROUTES = [
+  "/overview",
   "/dashboard",
   "/engineers/detail?engineerId=engineer-01",
   "/analysis",

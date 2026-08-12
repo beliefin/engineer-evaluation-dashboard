@@ -46,19 +46,22 @@ const TASK_STATUS_CLASS: Record<DashboardEvaluationStatus, string> = {
 }
 
 const STATUS_CELL_CLASS: Record<DashboardEvaluationStatus, string> = {
-  not_started: "bg-danger-soft/60",
-  in_progress: "bg-warning-soft/70",
-  complete: "bg-success-soft/75",
+  not_started: "bg-progress-pending",
+  in_progress: "bg-progress-in-progress",
+  complete: "bg-progress-complete",
 }
+
+const NOT_APPLICABLE_CELL_CLASS = "bg-progress-not-applicable"
 
 function TaskLegend() {
   return (
-    <div className="flex flex-wrap gap-x-4 gap-y-1 text-[11px] text-muted-foreground" aria-label="평가 상태 색상 안내">
-      <span><span aria-hidden="true" className="mr-1.5 inline-block size-2.5 bg-success-soft ring-1 ring-success/25" />평가 완료</span>
-      <span><span aria-hidden="true" className="mr-1.5 inline-block size-2.5 bg-warning-soft ring-1 ring-warning/25" />진행 중</span>
-      <span><span aria-hidden="true" className="mr-1.5 inline-block size-2.5 bg-danger-soft ring-1 ring-destructive/20" />미진행</span>
-      <span><span aria-hidden="true" className="mr-1.5 inline-block size-2.5 bg-muted ring-1 ring-border" />해당 없음</span>
-    </div>
+    <fieldset className="flex flex-wrap gap-x-4 gap-y-1 border-0 p-0 text-[11px] text-muted-foreground">
+      <legend className="sr-only">평가 상태 색상 안내</legend>
+      <span><span aria-hidden="true" className="mr-1.5 inline-block size-2.5 bg-progress-complete ring-1 ring-success/35" />평가 완료</span>
+      <span><span aria-hidden="true" className="mr-1.5 inline-block size-2.5 bg-progress-in-progress ring-1 ring-warning/35" />진행 중</span>
+      <span><span aria-hidden="true" className="mr-1.5 inline-block size-2.5 bg-progress-pending ring-1 ring-destructive/30" />미진행</span>
+      <span><span aria-hidden="true" className="mr-1.5 inline-block size-2.5 bg-progress-not-applicable ring-1 ring-border" />해당 없음</span>
+    </fieldset>
   )
 }
 
@@ -174,7 +177,7 @@ export function EngineerEvaluationProgress({ tasks, rows }: EngineerEvaluationPr
                       const progress = row.tasks.find((entry) => entry.taskId === task.id)
                       return (
                       <TableCell
-                        className={`border-l border-border-subtle py-3 align-top ${progress === undefined ? "bg-muted/55" : STATUS_CELL_CLASS[progress.status]}`}
+                        className={`border-l border-border-subtle py-3 align-top ${progress === undefined ? NOT_APPLICABLE_CELL_CLASS : STATUS_CELL_CLASS[progress.status]}`}
                         key={task.id}
                       >
                         <TaskProgress task={progress} />

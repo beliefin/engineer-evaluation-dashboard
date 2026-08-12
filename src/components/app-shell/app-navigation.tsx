@@ -18,6 +18,12 @@ interface NavItem {
 
 const NAV_ITEMS: readonly NavItem[] = [
   {
+    href: "/overview",
+    label: "시즌 안내",
+    description: "목표와 과제 구성",
+    roles: ["operator", "evaluator", "approver", "engineer"],
+  },
+  {
     href: "/my",
     label: "내 평가",
     description: "본인 점수와 실적 입력",
@@ -117,7 +123,7 @@ export function AppNavigation({
     <nav aria-label="주요 메뉴" className="flex flex-col border-t border-sidebar-border/80">
       {visibleItems.map((item, index) => {
         const active = isActivePath(pathname, item.href)
-        const sequence = String(index + 1).padStart(2, "0")
+        const sequence = String(index).padStart(2, "0")
         const link = (
           <Link
             aria-current={active ? "page" : undefined}

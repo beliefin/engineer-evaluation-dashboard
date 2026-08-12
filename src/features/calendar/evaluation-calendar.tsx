@@ -11,8 +11,10 @@ import {
   buildMonthGrid,
   eventsInMonth,
   formatYearMonth,
+  formatCalendarDate,
   shiftYearMonth,
   sortCalendarEvents,
+  toLocalDateValue,
 } from "./calendar-helpers"
 import { DeleteEventDialog } from "./delete-event-dialog"
 import { EventEditorDialog } from "./event-editor-dialog"
@@ -38,6 +40,8 @@ export function EvaluationCalendar({
   const gridEvents = sortCalendarEvents(events)
   const agendaEvents = sortCalendarEvents(eventsInMonth(events, month))
   const monthLabel = formatYearMonth(month)
+  const today = toLocalDateValue(new Date())
+  const isCurrentMonth = today.startsWith(`${month}-`)
   const canNavigate = grid.length > 0
   const canManage = mode === "manage"
 
@@ -103,7 +107,13 @@ export function EvaluationCalendar({
         </Button>
         <div className="text-center">
           <h2 aria-live="polite" className="text-base font-semibold">{monthLabel}</h2>
-          <p className="mt-0.5 text-xs text-muted-foreground">등록 일정 {agendaEvents.length}건</p>
+          <p className="mt-0.5 flex flex-wrap justify-center gap-x-1 text-xs text-muted-foreground">
+            {isCurrentMonth ? (
+              <span className="font-semibold text-primary">오늘 {formatCalendarDate(today)}</span>
+            ) : null}
+            {isCurrentMonth ? <span aria-hidden="true">·</span> : null}
+            <span>등록 일정 {agendaEvents.length}건</span>
+          </p>
         </div>
         <Button
           aria-label="다음 달"

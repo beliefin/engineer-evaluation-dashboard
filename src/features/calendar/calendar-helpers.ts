@@ -17,6 +17,15 @@ function pad(value: number): string {
   return String(value).padStart(2, "0")
 }
 
+export function toLocalDateValue(date: Date): string {
+  const local = new Date(date.getTime() - date.getTimezoneOffset() * 60_000)
+  return local.toISOString().slice(0, 10)
+}
+
+export function toLocalYearMonthValue(date: Date): string {
+  return toLocalDateValue(date).slice(0, 7)
+}
+
 function formatUtcDate(date: Date): string {
   return `${date.getUTCFullYear()}-${pad(date.getUTCMonth() + 1)}-${pad(date.getUTCDate())}`
 }
@@ -34,6 +43,12 @@ export function parseYearMonth(value: string): YearMonth | null {
     return null
   }
   return { year, month: Number(monthText) }
+}
+
+export function resolveCalendarMonth(requestedMonth: string | null, today: Date): string {
+  return requestedMonth !== null && parseYearMonth(requestedMonth) !== null
+    ? requestedMonth
+    : toLocalYearMonthValue(today)
 }
 
 export function isCanonicalDate(value: string): boolean {

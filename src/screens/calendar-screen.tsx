@@ -4,7 +4,8 @@ import { usePathname, useRouter, useSearchParams } from "next/navigation"
 
 import {
   EvaluationCalendar,
-  parseYearMonth,
+  resolveCalendarMonth,
+  toLocalYearMonthValue,
   type CalendarEventView,
   type EvaluationCalendarCreateInput,
   type EvaluationCalendarInput,
@@ -50,7 +51,6 @@ export function CalendarScreen() {
   } = useEvaluation()
   if (snapshot === null) return null
 
-  const cycle = snapshot.cycles.find((entry) => entry.id === activeCycleId)
   const tasks = snapshot.tasks.filter((task) =>
     task.cycleId === activeCycleId &&
     (task.method === "evaluator_score" || task.method === "evaluator_pass_fail"),
@@ -89,17 +89,13 @@ export function CalendarScreen() {
   const events = role === "evaluator"
     ? collapseEvaluatorPresentationGroups(baseEvents)
     : baseEvents
-  const fallbackMonth =
-    events[0]?.date.slice(0, 7) ?? cycle?.startsAt.slice(0, 7) ?? "2026-01"
-  const requestedMonth = searchParams.get("month")
-  const month =
-    requestedMonth !== null && parseYearMonth(requestedMonth) !== null
-      ? requestedMonth
-      : fallbackMonth
+  const today = new Date()
+  const currentMonth = toLocalYearMonthValue(today)
+  const month = resolveCalendarMonth(searchParams.get("month"), today)
 
   function changeMonth(nextMonth: string) {
     const params = new URLSearchParams(searchParams.toString())
-    if (nextMonth === fallbackMonth) params.delete("month")
+    if (nextMonth === currentMonth) params.delete("month")
     else params.set("month", nextMonth)
     const query = params.toString()
     router.replace(query.length === 0 ? pathname : `${pathname}?${query}`, {

@@ -1,0 +1,85 @@
+import { CheckCircle2, Flag, Target } from "lucide-react"
+
+import { Badge } from "@/components/ui/badge"
+import type { SeasonTaskGuide } from "@/view-models/season-overview"
+
+function TaskArticle({ index, task }: Readonly<{ index: number; task: SeasonTaskGuide }>) {
+  return (
+    <article className="border border-border bg-card" id={`task-${task.id}`}>
+      <header className="grid grid-cols-[auto_minmax(0,1fr)_auto] items-start gap-3 border-b border-border bg-muted/35 px-5 py-4">
+        <span className="numeric mt-0.5 text-xs font-bold text-primary">{String(index + 1).padStart(2, "0")}</span>
+        <div className="min-w-0">
+          <h3 className="text-lg font-bold leading-6">{task.name}</h3>
+          <Badge className="mt-2" variant="outline">{task.methodLabel}</Badge>
+        </div>
+        <span className="numeric text-xl font-bold text-primary">{task.weight}%</span>
+      </header>
+
+      <div className="p-5">
+        <div className="grid gap-5 sm:grid-cols-2">
+          <div>
+            <p className="flex items-center gap-2 text-xs font-bold tracking-wide text-primary">
+              <Target aria-hidden className="size-4" /> 목적과 방향
+            </p>
+            <p className="mt-2 text-sm leading-6 text-foreground">{task.purpose}</p>
+          </div>
+          <div>
+            <p className="flex items-center gap-2 text-xs font-bold tracking-wide text-primary">
+              <Flag aria-hidden className="size-4" /> 기대 산출물
+            </p>
+            <p className="mt-2 text-sm leading-6 text-foreground">{task.output}</p>
+          </div>
+        </div>
+
+        <div className="mt-6 border-t border-border pt-5">
+          <p className="text-xs font-bold tracking-wide text-muted-foreground">수행 절차</p>
+          <ol className="mt-3 grid gap-0 sm:grid-cols-2">
+            {task.process.map((step, stepIndex) => (
+              <li className="relative border-l border-border pb-4 pl-5 last:pb-0 sm:odd:pr-4" key={step.title}>
+                <span className="numeric absolute -left-3 top-0 flex size-6 items-center justify-center border border-primary bg-card text-[10px] font-bold text-primary">
+                  {stepIndex + 1}
+                </span>
+                <p className="text-sm font-bold">{step.title}</p>
+                <p className="mt-1 text-xs leading-5 text-muted-foreground">{step.description}</p>
+              </li>
+            ))}
+          </ol>
+        </div>
+
+        <div className="mt-6 grid gap-4 border-t border-border pt-5 sm:grid-cols-[minmax(0,0.8fr)_minmax(0,1.2fr)]">
+          <div>
+            <p className="text-xs font-bold text-muted-foreground">성장 역량</p>
+            <p className="mt-2 text-sm font-semibold leading-6 text-primary">{task.capability}</p>
+          </div>
+          <div>
+            <p className="text-xs font-bold text-muted-foreground">평가 초점</p>
+            <ul className="mt-2 flex flex-wrap gap-2">
+              {task.focusItems.map((item) => (
+                <li className="inline-flex items-center gap-1.5 border border-border bg-muted/35 px-2 py-1 text-xs leading-5" key={item}>
+                  <CheckCircle2 aria-hidden className="size-3 text-success" /> {item}
+                </li>
+              ))}
+            </ul>
+          </div>
+        </div>
+      </div>
+    </article>
+  )
+}
+
+export function SeasonTaskCatalog({ tasks }: Readonly<{ tasks: ReadonlyArray<SeasonTaskGuide> }>) {
+  return (
+    <section className="px-5 py-9 sm:px-8 lg:px-10 lg:py-12" id="season-tasks" aria-labelledby="season-task-title">
+      <div className="max-w-4xl">
+        <p className="numeric text-xs font-bold tracking-[0.16em] text-primary">02 · TASK BLUEPRINT</p>
+        <h2 className="mt-2 text-2xl font-bold tracking-tight" id="season-task-title">과제별 수행 설계도</h2>
+        <p className="mt-2 text-sm leading-6 text-muted-foreground">
+          각 과제는 무엇을 만들지보다 왜 수행하는지, 어떤 과정을 거치며 무엇을 남길지를 함께 봅니다.
+        </p>
+      </div>
+      <div className="mt-7 grid gap-5 xl:grid-cols-2">
+        {tasks.map((task, index) => <TaskArticle index={index} key={task.id} task={task} />)}
+      </div>
+    </section>
+  )
+}

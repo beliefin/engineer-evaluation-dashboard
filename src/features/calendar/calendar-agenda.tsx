@@ -1,6 +1,10 @@
 import { CalendarX2, Clock3, MapPin } from "lucide-react"
 
-import { formatCalendarDate, groupCalendarEventsByDate } from "./calendar-helpers"
+import {
+  formatCalendarDate,
+  groupCalendarEventsByDate,
+  toLocalDateValue,
+} from "./calendar-helpers"
 import type { CalendarEventView, CalendarInteractionMode } from "./types"
 
 type CalendarAgendaProps = Readonly<{
@@ -57,6 +61,7 @@ function AgendaEvent({
 
 export function CalendarAgenda({ events, mode, onSelectEvent }: CalendarAgendaProps) {
   const groups = groupCalendarEventsByDate(events)
+  const today = toLocalDateValue(new Date())
   if (groups.length === 0) {
     return (
       <div className="flex min-h-72 flex-col items-center justify-center px-4 text-center">
@@ -71,26 +76,38 @@ export function CalendarAgenda({ events, mode, onSelectEvent }: CalendarAgendaPr
 
   return (
     <ol className="grid gap-5">
-      {groups.map((group) => (
-        <li key={group.date}>
-          <h3 className="mb-2 flex items-baseline justify-between gap-3">
-            <time className="text-sm font-semibold" dateTime={group.date}>
-              {formatCalendarDate(group.date)}
-            </time>
-            <span className="text-xs text-muted-foreground">{group.events.length}건</span>
-          </h3>
-          <div className="grid gap-2">
-            {group.events.map((event) => (
-              <AgendaEvent
-                event={event}
-                key={event.id}
-                onSelectEvent={onSelectEvent}
-                mode={mode}
-              />
-            ))}
-          </div>
-        </li>
-      ))}
+      {groups.map((group) => {
+        const isToday = group.date === today
+        return (
+          <li key={group.date}>
+            <h3 className="mb-2 flex items-baseline justify-between gap-3">
+              <time
+                aria-current={isToday ? "date" : undefined}
+                className={isToday ? "text-sm font-semibold text-primary" : "text-sm font-semibold"}
+                dateTime={group.date}
+              >
+                {formatCalendarDate(group.date)}
+              </time>
+              <span className="flex items-center gap-2 text-xs text-muted-foreground">
+                {isToday ? (
+                  <span className="rounded-sm bg-primary px-1.5 py-0.5 font-semibold text-primary-foreground">오늘</span>
+                ) : null}
+                {group.events.length}건
+              </span>
+            </h3>
+            <div className="grid gap-2">
+              {group.events.map((event) => (
+                <AgendaEvent
+                  event={event}
+                  key={event.id}
+                  onSelectEvent={onSelectEvent}
+                  mode={mode}
+                />
+              ))}
+            </div>
+          </li>
+        )
+      })}
     </ol>
   )
 }

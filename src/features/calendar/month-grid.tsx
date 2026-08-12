@@ -1,6 +1,6 @@
 import { Clock3 } from "lucide-react"
 
-import { formatCalendarDate } from "./calendar-helpers"
+import { formatCalendarDate, toLocalDateValue } from "./calendar-helpers"
 import type { CalendarDay, CalendarEventView, CalendarInteractionMode } from "./types"
 
 const WEEKDAYS = ["일", "월", "화", "수", "목", "금", "토"] as const
@@ -53,6 +53,9 @@ function CalendarEventChip({
 }
 
 export function MonthGrid({ days, events, mode, onSelectEvent }: MonthGridProps) {
+  const today = toLocalDateValue(new Date())
+  const weeks = Array.from({ length: 6 }, (_, weekIndex) =>
+    days.slice(weekIndex * 7, weekIndex * 7 + 7))
   const eventsByDate = new Map<string, CalendarEventView[]>()
   for (const event of events) {
     const dateEvents = eventsByDate.get(event.date)
@@ -73,20 +76,27 @@ export function MonthGrid({ days, events, mode, onSelectEvent }: MonthGridProps)
           </tr>
         </thead>
         <tbody>
-          {Array.from({ length: 6 }, (_, weekIndex) => (
-            <tr key={`week-${weekIndex}`}>
-              {days.slice(weekIndex * 7, weekIndex * 7 + 7).map((day) => {
+          {weeks.map((week) => (
+            <tr key={week.map((day) => day.date).join("|")}>
+              {week.map((day) => {
                 const dayEvents = eventsByDate.get(day.date) ?? []
+                const isToday = day.date === today
                 return (
                   <td
                     className="h-28 border-r border-b border-border-subtle p-2 align-top last:border-r-0"
                     key={day.date}
                   >
                     <time
-                      className={day.isCurrentMonth ? "text-xs font-semibold" : "text-xs text-muted-foreground"}
+                      aria-current={isToday ? "date" : undefined}
+                      className={isToday
+                        ? "inline-flex size-7 items-center justify-center rounded-full bg-primary text-xs font-semibold text-primary-foreground"
+                        : day.isCurrentMonth
+                          ? "text-xs font-semibold"
+                          : "text-xs text-muted-foreground"}
                       dateTime={day.date}
                     >
                       {day.day}
+                      {isToday ? <span className="sr-only">일, 오늘</span> : null}
                     </time>
                     <div className="mt-1.5 grid gap-1">
                       {dayEvents.slice(0, 2).map((event) => (

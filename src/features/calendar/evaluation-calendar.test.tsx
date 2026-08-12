@@ -29,7 +29,10 @@ const EVENTS: readonly CalendarEventView[] = [
   },
 ]
 
-afterEach(cleanup)
+afterEach(() => {
+  cleanup()
+  vi.useRealTimers()
+})
 
 function renderCalendar(overrides: { readonly mode?: "manage" | "evaluate" | "read" } = {}) {
   const callbacks = {
@@ -53,6 +56,18 @@ function renderCalendar(overrides: { readonly mode?: "manage" | "evaluate" | "re
 }
 
 describe("EvaluationCalendar", () => {
+  it("marks the browser-local current day in the monthly grid", () => {
+    vi.useFakeTimers()
+    vi.setSystemTime(new Date(2026, 6, 14, 9, 0, 0))
+
+    renderCalendar()
+
+    const monthlyGrid = screen.getByRole("table", { name: "월간 발표 일정" })
+    const currentDate = within(monthlyGrid).getByText("14", { selector: "time" })
+    expect(currentDate).toHaveAttribute("aria-current", "date")
+    expect(currentDate).toHaveTextContent("14일, 오늘")
+  })
+
   it("changes month with explicit accessible controls", async () => {
     const callbacks = renderCalendar()
 

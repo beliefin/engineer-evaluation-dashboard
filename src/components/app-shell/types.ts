@@ -45,8 +45,8 @@ export const APP_SHELL_ROLE_LABELS: Readonly<Record<AppShellRole, string>> = {
 }
 
 export const APP_SHELL_HOME_PATHS: Readonly<Record<AppShellRole, string>> = {
-  operator: "/dashboard",
-  evaluator: "/today",
-  approver: "/dashboard",
-  engineer: "/my",
+  operator: "/overview",
+  evaluator: "/overview",
+  approver: "/overview",
+  engineer: "/overview",
 }

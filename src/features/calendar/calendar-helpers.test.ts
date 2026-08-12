@@ -4,8 +4,11 @@ import {
   buildMonthGrid,
   groupCalendarEventsByDate,
   parseYearMonth,
+  resolveCalendarMonth,
   shiftYearMonth,
   sortCalendarEvents,
+  toLocalDateValue,
+  toLocalYearMonthValue,
 } from "./calendar-helpers"
 import type { CalendarEventView } from "./types"
 
@@ -55,6 +58,21 @@ const EVENTS: readonly CalendarEventView[] = [
 ]
 
 describe("calendar helpers", () => {
+  it("formats the browser-local day and month for calendar entry", () => {
+    const localTime = new Date(2026, 7, 13, 0, 5, 0)
+
+    expect(toLocalDateValue(localTime)).toBe("2026-08-13")
+    expect(toLocalYearMonthValue(localTime)).toBe("2026-08")
+  })
+
+  it("opens the requested month or falls back to the browser-local current month", () => {
+    const localTime = new Date(2026, 7, 13, 0, 5, 0)
+
+    expect(resolveCalendarMonth(null, localTime)).toBe("2026-08")
+    expect(resolveCalendarMonth("2026-07", localTime)).toBe("2026-07")
+    expect(resolveCalendarMonth("invalid", localTime)).toBe("2026-08")
+  })
+
   it("parses only canonical YYYY-MM values", () => {
     expect(parseYearMonth("2026-07")).toEqual({ year: 2026, month: 7 })
     expect(parseYearMonth("2026-7")).toBeNull()

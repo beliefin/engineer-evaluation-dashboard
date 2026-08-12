@@ -17,6 +17,7 @@ describe("AppNavigation", () => {
     expect(screen.getByRole("link", { name: /미평가 현황/ })).toBeInTheDocument()
     expect(screen.getByRole("link", { name: /평가 일정/ })).toBeInTheDocument()
     expect(screen.getByRole("link", { name: /운영 설정/ })).toBeInTheDocument()
+    expect(screen.getByRole("link", { name: /시즌 안내/ })).toHaveAttribute("href", "/overview")
   })
 
   it("uses a typographic ledger navigation instead of decorative icons", () => {
@@ -39,6 +40,7 @@ describe("AppNavigation", () => {
     expect(screen.getByRole("link", { name: /평가 일정/ })).toBeInTheDocument()
     expect(screen.queryByRole("link", { name: /전체 현황/ })).not.toBeInTheDocument()
     expect(screen.queryByRole("link", { name: /^분석/ })).not.toBeInTheDocument()
+    expect(screen.getByRole("link", { name: /시즌 안내/ })).toBeInTheDocument()
   })
 
   it("shows dashboard and analysis only to an evaluator with insight access", () => {
@@ -66,5 +68,6 @@ describe("AppNavigation", () => {
     expect(screen.getByRole("link", { name: /내 평가/ })).toHaveAttribute("href", "/my")
     expect(screen.queryByRole("link", { name: /전체 현황/ })).not.toBeInTheDocument()
     expect(screen.queryByRole("link", { name: /운영 설정/ })).not.toBeInTheDocument()
+    expect(screen.getByRole("link", { name: /시즌 안내/ })).toHaveTextContent("00")
   })
 })
