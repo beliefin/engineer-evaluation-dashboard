@@ -312,11 +312,21 @@
 - **Accessibility**: 모든 입력에 보이는 label과 오류 연결을 제공하고, 수정·삭제 행동의 접근 가능한 이름에 본인 이름과 기록명을 포함한다.
 - **Responsive**: 768px 이상은 어학과 자격증을 두 열로 비교하고, 모바일은 점수 요약 뒤 원천 실적을 한 열로 재배치하며 Dialog 입력도 단일 열로 전환한다.
 
+### Engineer Evaluation Story
+
+- **Purpose**: 개인 상세 첫 구간에서 한 엔지니어의 현재 점수, 시즌 내 위치, 상대 강점과 보완 항목을 하나의 흐름으로 읽게 한다.
+- **Summary strip**: 현재 반영 점수 또는 최종 점수, 공동순위, 상위 백분위, 전체 평균 대비 강점, 전체 평균 대비 보완 항목을 하나의 분할 패널에 배치한다. 미완료 점수는 최종 점수로 표현하지 않는다.
+- **Profile**: 이 화면에 한해 사용자가 요청한 Radar를 허용한다. 개인 점수와 시즌 전체 평균을 같은 0~100 축에서 비교하며, 동일 수치를 항상 표 또는 목록으로 함께 제공한다. 값이 세 개 미만이면 Radar 대신 안내 문구와 수치 목록만 표시한다.
+- **Task comparison**: 과제별 `내 점수 / 전체 평균 / 상위 25% 평균`을 공통 0~100 가로 막대로 비교한다. 상위 25%는 해당 과제의 확정 점수를 내림차순으로 정렬한 뒤 상위 `ceil(N × 0.25)`명의 평균으로 정의한다.
+- **Ranking population**: 순위와 백분위는 현재 시즌에서 하나 이상의 과제 점수가 반영된 인원을 대상으로 계산한다. 완료자는 최종 점수, 미완료자는 현재까지 반영된 가중 점수와 가·감점 합계를 사용하며 상태 문구로 구분한다.
+- **Responsive**: 요약 패널은 모바일 1열, 태블릿 2열, 넓은 화면 5열이다. Radar와 과제 비교는 넓은 화면에서 두 열, 1024px 미만에서 한 열로 쌓는다.
+- **Accessibility**: 차트 정보는 hover에 의존하지 않는다. Radar 범례, 과제별 직접 수치, 표 대안을 항상 표시하고 강점·보완은 색상뿐 아니라 문구와 부호로 구분한다.
+
 ### Chart Panel
 
 - **Structure**: title, explanation, directly labeled chart, table/text fallback.
 - **States**: loading, empty, filtered.
-- **Rules**: radar/pie 금지, 축 범위는 점수에서 항상 0~100.
+- **Rules**: pie 금지, 축 범위는 점수에서 항상 0~100. Radar는 `Engineer Evaluation Story`의 명시된 예외에서만 표 대안과 함께 사용한다.
 
 ### Relative Ranking Simulation
 

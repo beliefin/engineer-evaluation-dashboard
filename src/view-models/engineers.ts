@@ -12,6 +12,7 @@ import type {
 } from "@/features/engineers"
 
 import { selectEngineerResultSummaries } from "./results"
+import { createEngineerEvaluationStory } from "./engineer-story"
 import { formatTimestamp } from "./labels"
 
 function evaluatorStatus(
@@ -68,7 +69,8 @@ export function selectEngineerDetail(
   role: EngineerDetailViewerRole,
 ): EngineerDetailViewModel | null {
   const cycle = snapshot.cycles.find((entry) => entry.id === cycleId)
-  const summary = selectEngineerResultSummaries(snapshot, cycleId).find(
+  const summaries = selectEngineerResultSummaries(snapshot, cycleId)
+  const summary = summaries.find(
     (entry) => entry.engineer.id === engineerId,
   )
   if (cycle === undefined || summary === undefined) return null
@@ -153,6 +155,7 @@ export function selectEngineerDetail(
       seasonLabel: cycle.name,
     },
     result,
+    story: createEngineerEvaluationStory(summaries, engineerId, categories),
     categories,
     evaluatorScores,
   }

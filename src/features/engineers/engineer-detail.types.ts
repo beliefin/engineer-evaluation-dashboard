@@ -85,9 +85,45 @@ export type EvaluatorScoreViewModel = EvaluatorScoreBaseViewModel &
       }
   )
 
+export type EngineerStoryHighlightViewModel = Readonly<{
+  key: EngineerCategoryKey
+  label: string
+  score: number
+  differenceFromAverage: number
+}>
+
+export type EngineerStoryProfilePointViewModel = Readonly<{
+  key: EngineerCategoryKey
+  label: string
+  score: number
+  averageScore: number
+}>
+
+export type EngineerTaskComparisonViewModel = Readonly<{
+  key: EngineerCategoryKey
+  label: string
+  ownScore: number | null
+  averageScore: number
+  topQuartileAverage: number
+  sampleSize: number
+}>
+
+export type EngineerEvaluationStoryViewModel = Readonly<{
+  score: number | null
+  scoreLabel: "최종 점수" | "현재 반영 점수"
+  rank: number | null
+  cohortCount: number
+  topPercentile: number | null
+  strongestCategory: EngineerStoryHighlightViewModel | null
+  improvementCategory: EngineerStoryHighlightViewModel | null
+  profile: readonly EngineerStoryProfilePointViewModel[]
+  taskComparisons: readonly EngineerTaskComparisonViewModel[]
+}>
+
 export interface EngineerDetailViewModel {
   readonly engineer: EngineerIdentityViewModel
   readonly result: EngineerFinalResultViewModel
+  readonly story: EngineerEvaluationStoryViewModel
   readonly categories: readonly CategoryScoreViewModel[]
   readonly evaluatorScores: readonly EvaluatorScoreViewModel[]
 }

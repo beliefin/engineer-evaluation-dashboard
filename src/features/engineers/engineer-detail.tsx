@@ -1,6 +1,7 @@
 import { cn } from "@/lib/utils"
 
 import { CategoryScorePanel } from "./category-score-panel"
+import { EngineerEvaluationStory } from "./engineer-evaluation-story"
 import { EngineerSummary } from "./engineer-summary"
 import { EvaluatorDetailPanel } from "./evaluator-detail-panel"
 import type { EngineerDetailProps } from "./engineer-detail.types"
@@ -17,6 +18,7 @@ export function EngineerDetail({
         engineer={model.engineer}
         result={model.result}
       />
+      <EngineerEvaluationStory story={model.story} />
       <CategoryScorePanel categories={model.categories} />
       {role === "operator" ? (
         <EvaluatorDetailPanel evaluatorScores={model.evaluatorScores} />

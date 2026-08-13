@@ -115,6 +115,33 @@ describe("engineer detail role boundary", () => {
     expect(operator?.categories.some((category) => category.key === "task-ots-scenario")).toBe(false)
   })
 
+  it("builds an individual evaluation story from the active season cohort", () => {
+    const snapshot = createSeedSnapshot()
+    const detail = selectEngineerDetail(
+      snapshot,
+      CYCLE_ID,
+      "engineer-01",
+      "operator",
+    )
+
+    expect(detail?.story.cohortCount).toBeGreaterThan(0)
+    expect(detail?.story.rank).not.toBeNull()
+    expect(detail?.story.topPercentile).toBeGreaterThan(0)
+    expect(detail?.story.topPercentile).toBeLessThanOrEqual(100)
+    expect(detail?.story.profile).toHaveLength(
+      detail?.categories.filter((category) => category.rawScore !== null).length ?? 0,
+    )
+    expect(detail?.story.taskComparisons).toHaveLength(detail?.categories.length ?? 0)
+    expect(
+      detail?.story.taskComparisons.every((comparison) =>
+        comparison.sampleSize === 0
+        || comparison.topQuartileAverage >= comparison.averageScore,
+      ),
+    ).toBe(true)
+    expect(detail?.story.strongestCategory?.label).toBeTruthy()
+    expect(detail?.story.improvementCategory?.label).toBeTruthy()
+  })
+
   it("keeps a missing direct score distinct from a valid zero", () => {
     const snapshot = {
       ...createSeedSnapshot(),
