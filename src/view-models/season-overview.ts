@@ -49,76 +49,76 @@ const METHOD_LABELS: Readonly<Record<EvaluationMethod, string>> = {
 
 const KNOWN_GUIDES = {
   growth: {
-    purpose: "한 해 동안 집중할 성장 주제를 스스로 정하고, 배운 내용을 업무에 적용해 변화와 성과를 확인합니다.",
+    purpose: "연간 성장 주제의 자율 설정, 학습 내용의 업무 적용, 변화와 성과 확인",
     output: "서론·본론·결론이 갖춰진 성장·탐구 보고서와 발표 자료",
     capability: "목표 설정 · 기술 탐구 · 문제 해결 · 논리적 발표",
     process: [
-      { title: "주제와 목표 정하기", description: "선정 배경과 업무 연계 목표를 정리하고 리더와 방향을 맞춥니다." },
-      { title: "탐구하고 적용하기", description: "배운 내용을 업무에 적용하고, 시행착오와 해결 과정을 기록합니다." },
-      { title: "결과 발표하고 보완하기", description: "성과와 배운 점을 발표하고, 피드백을 다음 계획에 반영합니다." },
+      { title: "주제와 목표 정하기", description: "선정 배경·업무 연계 목표 정리와 리더 협의" },
+      { title: "탐구하고 적용하기", description: "학습 내용의 업무 적용과 시행착오·해결 과정 기록" },
+      { title: "결과 발표하고 보완하기", description: "성과·학습 내용 발표와 피드백의 후속 계획 반영" },
     ],
   },
   ots: {
-    purpose: "실제 공정에서 일어날 수 있는 운전 상황을 OTS로 구현하고, 원인 분석과 대응 절차를 익힙니다.",
+    purpose: "실제 공정 운전 상황의 OTS 구현과 원인 분석·대응 절차 숙달",
     output: "다른 사람이 그대로 실행할 수 있는 OTS 시나리오 기획서와 발표 자료",
     capability: "공정 이해 · 제어 논리 · 문제 대응 · 질의응답",
     process: [
-      { title: "상황과 변수 정하기", description: "공정, 시나리오 유형과 핵심 변수를 정하고 멘토와 타당성을 검토합니다." },
-      { title: "구현하고 검증하기", description: "OTS에 조건을 구현하고 반복 운전해 대응 절차를 확인합니다." },
-      { title: "실행 절차 정리하기", description: "다른 사람도 재현할 수 있도록 화면, 조작 순서와 판단 근거를 정리합니다." },
-      { title: "발표하고 질의에 답하기", description: "공정 제어 논리를 설명하고 데이터에 근거해 질문에 답합니다." },
+      { title: "상황과 변수 정하기", description: "공정·시나리오 유형·핵심 변수 설정과 멘토 타당성 검토" },
+      { title: "구현하고 검증하기", description: "OTS 조건 구현과 반복 운전을 통한 대응 절차 검증" },
+      { title: "실행 절차 정리하기", description: "재현 가능한 화면·조작 순서·판단 근거 정리" },
+      { title: "발표하고 질의에 답하기", description: "공정 제어 논리 설명과 데이터 기반 질의응답" },
     ],
   },
   dx: {
-    purpose: "디지털 도구와 데이터를 활용해 업무의 비효율이나 잠재 위험을 줄이고, 개선 효과를 확인합니다.",
+    purpose: "디지털 도구와 데이터를 활용한 업무 비효율·잠재 위험 개선과 효과 검증",
     output: "다시 사용할 수 있는 도구 또는 분석 결과와 효과 검증 자료",
     capability: "문제 정의 · 데이터 활용 · 구현 · 업무 확산",
     process: [
-      { title: "문제 정하기", description: "현장의 손실과 불편을 구체화하고 해결 목표를 정합니다." },
-      { title: "도구와 데이터 설계하기", description: "문제에 맞는 디지털 도구를 고르고 데이터 흐름을 설계합니다." },
-      { title: "구현하고 효과 확인하기", description: "결과물을 만들고 실제 업무에서 효과와 한계를 확인합니다." },
-      { title: "공유하고 확산하기", description: "성과를 발표하고 다른 공정에서도 쓸 수 있게 사용 방법을 정리합니다." },
+      { title: "문제 정하기", description: "현장 손실·불편 구체화와 해결 목표 설정" },
+      { title: "도구와 데이터 설계하기", description: "문제에 맞는 디지털 도구 선정과 데이터 흐름 설계" },
+      { title: "구현하고 효과 확인하기", description: "결과물 구현과 실제 업무 효과·한계 검증" },
+      { title: "공유하고 확산하기", description: "성과 발표와 타 공정 활용을 위한 사용 방법 정리" },
     ],
   },
   language: {
-    purpose: "업무에 필요한 말하기 역량을 공인 성적으로 확인하고, 이전 평가보다 향상된 정도를 함께 반영합니다.",
+    purpose: "공인 성적을 통한 업무 말하기 역량 확인과 이전 평가 대비 향상도 반영",
     output: "현재 시즌에 인정되는 어학 기록과 환산 점수",
     capability: "업무 소통 · 자기 개발 · 글로벌 협업",
     process: [
-      { title: "성적 등록하기", description: "시험 종류, 등급 또는 점수와 취득 연월을 입력합니다." },
-      { title: "점수 환산하기", description: "현재 시즌의 평가표와 가산점 기준으로 점수를 계산합니다." },
-      { title: "평가에 반영하기", description: "확정된 환산점수를 개인별 반영 비율에 따라 합산합니다." },
+      { title: "성적 등록하기", description: "시험 종류·등급 또는 점수·취득 연월 입력" },
+      { title: "점수 환산하기", description: "현재 시즌 평가표와 가산점 기준 적용" },
+      { title: "평가에 반영하기", description: "확정 환산점수의 개인별 반영 비율 적용" },
     ],
   },
   certification: {
-    purpose: "직무와 관련된 전문 지식과 꾸준한 학습 성과를 자격 취득 기록으로 확인합니다.",
+    purpose: "자격 취득 기록을 통한 직무 전문 지식과 지속 학습 성과 확인",
     output: "보유 자격, 취득 연월, 기본점수와 가산점이 반영된 환산 결과",
     capability: "전문 지식 · 직무 확장 · 지속 학습",
     process: [
-      { title: "자격 등록하기", description: "평가표에 있는 자격과 취득 연월을 입력합니다." },
-      { title: "반영 자격 정하기", description: "기본점수가 높은 자격과 신규 취득 가산점을 계산합니다." },
-      { title: "평가에 반영하기", description: "확정된 환산점수를 개인별 반영 비율에 따라 합산합니다." },
+      { title: "자격 등록하기", description: "평가표 등록 자격과 취득 연월 입력" },
+      { title: "반영 자격 정하기", description: "상위 기본점수 자격과 신규 취득 가산점 산정" },
+      { title: "평가에 반영하기", description: "확정 환산점수의 개인별 반영 비율 적용" },
     ],
   },
   proposal: {
-    purpose: "현장의 불합리와 잠재 위험을 직접 찾아 개선안을 제안하고, 실제 업무 개선으로 이어지게 합니다.",
+    purpose: "현장 불합리·잠재 위험 직접 발굴과 개선안 제안·실행을 통한 실무 개선",
     output: "고등급으로 인정된 제안 실적과 발표 자료",
     capability: "문제 발견 · 개선 실행 · 업무 기여",
     process: [
-      { title: "문제 찾기", description: "현장의 불합리와 잠재 위험을 구체적으로 정리합니다." },
-      { title: "개선안 제안하고 실행하기", description: "개선안을 실행해 효과와 적용 가능성을 확인합니다." },
-      { title: "평가에 반영하기", description: "고등급 판정과 발표 가산점을 시즌 기준에 따라 반영합니다." },
+      { title: "문제 찾기", description: "현장 불합리와 잠재 위험의 구체적 정리" },
+      { title: "개선안 제안하고 실행하기", description: "개선안 실행과 효과·적용 가능성 검증" },
+      { title: "평가에 반영하기", description: "고등급 판정과 발표 가산점의 시즌 기준 적용" },
     ],
   },
   education: {
-    purpose: "교육 담당자가 OTS 시나리오 제작 과정을 운영하고, 반복해서 활용할 수 있는 교육 자료를 정리합니다.",
+    purpose: "OTS 시나리오 제작 과정 운영과 반복 활용 가능한 교육 자료 구축",
     output: "OTS 시나리오 제작 안내와 교육 운영 결과",
     capability: "교육 설계 · 공정 지식 전달 · 수행 점검 · 피드백",
     process: [
-      { title: "교육 목표 정하기", description: "교육 대상과 범위, 완료 기준을 정합니다." },
-      { title: "제작 과정 지원하기", description: "시나리오 설계와 제작 과정을 안내하고 진행 상황을 점검합니다." },
-      { title: "결과 검토하기", description: "완성된 시나리오와 수행 결과를 기준에 따라 확인합니다." },
-      { title: "교육 자료 정리하기", description: "다음 교육에도 사용할 수 있도록 안내와 결과를 정리합니다." },
+      { title: "교육 목표 정하기", description: "교육 대상·범위·완료 기준 설정" },
+      { title: "제작 과정 지원하기", description: "시나리오 설계·제작 안내와 진행 상황 점검" },
+      { title: "결과 검토하기", description: "완성 시나리오와 수행 결과의 기준별 검토" },
+      { title: "교육 자료 정리하기", description: "후속 교육용 안내와 결과 정리" },
     ],
   },
 } as const
@@ -142,28 +142,33 @@ function classifyTask(task: EvaluationTask): keyof typeof KNOWN_GUIDES | null {
 
 function genericProcess(method: EvaluationMethod): ReadonlyArray<SeasonProcessStep> {
   if (method === "derived_score") return [
-    { title: "연계 대상 확정", description: "점수를 받을 대상과 원천 평가 결과를 연결합니다." },
-    { title: "원천 결과 취합", description: "연결된 인원의 확정 결과를 동일 기준으로 취합합니다." },
-    { title: "파생 점수 반영", description: "설정한 집계 방식으로 계산해 시즌 결과에 반영합니다." },
+    { title: "연계 대상 확정", description: "점수 반영 대상과 원천 평가 결과 연결" },
+    { title: "원천 결과 취합", description: "연결 인원의 확정 결과를 동일 기준으로 취합" },
+    { title: "파생 점수 반영", description: "설정 집계 방식에 따른 계산과 시즌 결과 반영" },
   ]
   if (method === "operator_score" || method === "operator_pass_fail") return [
-    { title: "실적 확인", description: "과제 완료 근거와 현재 시즌 적용 대상을 확인합니다." },
-    { title: "결과 입력", description: "운영자가 설정된 점수 또는 P/F 기준으로 결과를 기록합니다." },
-    { title: "시즌 반영", description: "확정된 결과를 개인별 가중치에 따라 반영합니다." },
+    { title: "실적 확인", description: "과제 완료 근거와 현재 시즌 적용 대상 확인" },
+    { title: "결과 입력", description: "설정 점수 또는 P/F 기준에 따른 운영자 기록" },
+    { title: "시즌 반영", description: "확정 결과의 개인별 가중치 적용" },
   ]
   return [
-    { title: "과제 준비", description: "과제 목적과 평가 기준에 맞춰 수행 범위를 정합니다." },
-    { title: "수행·정리", description: "과정을 기록하고 결과와 근거를 평가 가능한 형태로 정리합니다." },
-    { title: "발표·평가", description: "동일 기준으로 평가받고 피드백을 다음 실행에 반영합니다." },
+    { title: "과제 준비", description: "과제 목적과 평가 기준에 맞춘 수행 범위 설정" },
+    { title: "수행·정리", description: "수행 과정 기록과 평가 가능한 결과·근거 정리" },
+    { title: "발표·평가", description: "동일 기준 평가와 피드백의 후속 실행 반영" },
   ]
 }
 
 function toTaskGuide(task: EvaluationTask): SeasonTaskGuide {
   const known = classifyTask(task)
   const guide = known === null ? null : KNOWN_GUIDES[known]
+  const displayName = known === "growth"
+    ? "성장·탐구 계획서"
+    : known === "proposal"
+      ? "고등급 제안"
+      : task.name
   return {
     id: task.id,
-    name: task.name,
+    name: displayName,
     description: task.description,
     weight: task.weight,
     methodLabel: METHOD_LABELS[task.method],

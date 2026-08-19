@@ -258,6 +258,7 @@
 - **Structure**: 운영자가 엔지니어를 먼저 선택하고, 해당 엔지니어에게 0%보다 크게 적용되는 평가자 과제를 선택한 뒤 평가자와 양수 원시 가중치를 저장한다.
 - **Obligation rule**: 평가 의무와 미평가 상태는 저장된 `엔지니어 × 과제 × 평가자` 배정에서만 생성한다. 과제 생성, 평가자 명단 등록, 시즌 복사만으로 배정을 자동 생성하지 않는다.
 - **Protection**: 점수가 입력되었거나 제출된 배정은 이 화면에서 제거할 수 없으며, 미입력 초안만 안전하게 제거한다. 원시 가중치 변경은 같은 엔지니어·과제 그룹 안에서 즉시 정규화 비율로 안내한다.
+- **Bulk actions**: 하단 `고정 멤버 적용` 옆에 `전체 선택`과 `선택 해제`를 둔다. 전체 선택은 기존 가중치를 보존하면서 미선택 평가자를 기본 가중치 1로 추가하고, 선택 해제는 미입력 배정만 제거하며 입력 중이거나 제출된 보호 배정은 체크 상태로 유지한다.
 - **States**: no assignment, pending assignment, in-progress protected assignment, submitted protected assignment, saving, saved, and validation error.
 - **Responsive**: 엔지니어와 과제 선택은 모바일에서 한 열로 쌓고 평가자 행은 체크, 이름, 가중치, 실제 반영 비율을 읽는 순서로 유지한다.
 - **Fixed-member preset**: 시즌마다 자주 쓰는 평가자와 원시 가중치를 하나의 프리셋으로 저장한다. 프리셋 저장만으로 평가 의무를 만들지 않으며, 선택한 엔지니어·과제 편집기에서 `고정 멤버 적용` 후 배정 저장할 때만 실제 배정을 생성한다.
@@ -296,6 +297,7 @@
 - **Traceability**: every record shows its latest update time and input source. The operator panel exposes a text summary of pending reviews and a record-level review action; the engineer portal exposes the same read-only status without operator controls.
 - **Conversion**: certification score shows the top-three base sum, one highest current-year acquisition bonus even when outside the top three, and one current-year written-exam partial score. Language records show a converted value only when an operator-configured rule matches.
 - **Score-table settings**: `자격·어학 평가표` is a separate operation tab. Certification rows expose name, category, difficulty, work relevance, base score, new-acquisition bonus, enabled state, edit, and delete. Language rules remain operator-editable without seeded score bands until a source table is supplied.
+- **Compact rule editor**: 규칙 추가·수정 폼은 데스크톱에서 6열의 조밀한 입력 그리드를 사용해 연결 과제, 원천 종류, 기준, 점수를 한 화면에서 비교한다. 입력 레이블 간격은 4px, 필드 간격은 8px로 유지하고, 모바일에서는 1열·태블릿에서는 2열로 자연스럽게 재배치한다. 원천 종류에 필요하지 않은 필드는 숨겨 입력 부담을 줄인다.
 - **Impact preview**: 규칙 저장 전 현재 시즌 원천 기록을 새 규칙 집합으로 재계산해 영향을 받는 인원, 과제 환산점수 전후, 최종점수 전후를 표로 비교한다. 미확정 점수는 0점으로 대체하지 않는다.
 - **Accessibility**: every input has a visible label; delete actions include the engineer and record names in their accessible labels.
 - **Responsive**: desktop compares language and certification in two columns; mobile uses one column and full-width Dialog fields.
@@ -340,6 +342,16 @@
 - **Structure**: title, explanation, directly labeled chart, table/text fallback.
 - **States**: loading, empty, filtered.
 - **Rules**: pie 금지, 축 범위는 점수에서 항상 0~100. Radar는 `Engineer Evaluation Story`의 명시된 예외에서만 표 대안과 함께 사용한다.
+
+### Qualification & Language Source Analysis
+
+- **Purpose**: 환산점수가 아니라 현재 시즌에 입력된 자격증명, 취득 연도, 어학 시험과 실제 성적 분포를 분석한다. 보유 자격증 상위 항목, 평가연도 신규 취득 인원, 어학 시험·언어별 성적 구성을 직접 확인한다.
+- **Population**: 분석 화면의 팀·진행 상태 필터에 포함된 엔지니어를 분모로 사용한다. 과제 필터는 원천 기록 집계에 적용하지 않으며 이 차이를 화면에 명시한다.
+- **Counting**: 동일 자격증 또는 동일 시험·성적의 보유 인원은 중복 기록 수가 아니라 고유 엔지니어 수로 집계한다. `보유 성적 없음`과 `보유 자격증 없음` 선언은 실제 보유 분포에서 제외하고 별도 응답 수로 표시하며, 미입력과 구분한다.
+- **Current year**: `EvaluationCycle.startsAt`의 연도를 평가연도로 사용한다. 취득일이 해당 연도인 자격증과 어학 기록의 고유 엔지니어 수를 `평가연도 신규 취득` 또는 `평가연도 성적 취득`으로 표시한다.
+- **Encoding**: 자격증과 어학을 두 개의 장부형 패널로 비교한다. 행마다 실제 명칭, 고유 보유 인원, 기록자 중 비율을 직접 표시하고 낮은 채도의 가로 막대를 보조로 사용한다. 핵심 값은 hover에 숨기지 않는다.
+- **Responsive**: 1024px 이상에서 자격증과 어학을 두 열로, 그 아래에서는 한 열로 쌓는다. 행의 명칭은 줄바꿈을 허용하되 인원과 비율은 고정 폭 숫자 열로 유지하고 문서 가로 스크롤을 만들지 않는다.
+- **Accessibility**: 색상만으로 수량을 전달하지 않고 모든 막대에 이름·인원·비율 텍스트를 함께 제공한다. 원천 기록이 없는 경우와 없음 선언, 미입력을 서로 다른 문구로 설명한다.
 
 ### Relative Ranking Simulation
 

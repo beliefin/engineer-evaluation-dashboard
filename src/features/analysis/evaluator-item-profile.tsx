@@ -46,7 +46,7 @@ export function EvaluatorItemProfile({
   return (
     <AnalysisPanel
       title="평가 항목별 경향"
-      description="어떤 평가 항목에서 점수를 높거나 낮게 주는지 다른 평가자의 평균과 비교합니다."
+      description="평가 항목별 점수 수준과 다른 평가자 평균 비교"
       isEmpty={data.length === 0}
     >
       <div className="mb-5 max-w-sm">

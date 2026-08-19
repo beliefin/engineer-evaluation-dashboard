@@ -61,10 +61,18 @@ describe("EvaluationProvider shell selections", () => {
 })
 
 describe("evaluationViewForPath", () => {
-  it("requests aggregate insights only on granted evaluator insight routes", () => {
+  it("requests insights only on granted evaluator insight routes", () => {
     expect(evaluationViewForPath("evaluator", true, "/dashboard")).toBe("insights")
     expect(evaluationViewForPath("evaluator", true, "/analysis/")).toBe("insights")
+    expect(evaluationViewForPath("evaluator", true, "/analysis/evaluators/detail")).toBe("insights")
+    expect(evaluationViewForPath(
+      "evaluator",
+      true,
+      "/engineer-evaluation-dashboard/analysis/evaluators/detail",
+    )).toBe("insights")
+    expect(evaluationViewForPath("evaluator", true, "/engineers/detail")).toBe("insights")
     expect(evaluationViewForPath("evaluator", true, "/evaluations")).toBe("default")
+    expect(evaluationViewForPath("evaluator", true, "/evaluations/detail")).toBe("default")
     expect(evaluationViewForPath("evaluator", false, "/dashboard")).toBe("default")
     expect(evaluationViewForPath("engineer", true, "/analysis")).toBe("default")
   })

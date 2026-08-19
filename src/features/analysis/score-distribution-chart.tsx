@@ -69,9 +69,12 @@ function DistributionMark({ datum }: Readonly<{ datum: ScoreDistributionDatum }>
             strokeWidth="8"
             vectorEffect="non-scaling-stroke"
           />
-          {[datum.minimum, datum.maximum].map((value, index) => (
+          {([
+            ["minimum", datum.minimum],
+            ["maximum", datum.maximum],
+          ] as const).map(([kind, value]) => (
             <line
-              key={`${datum.taskId}-end-${index}`}
+              key={`${datum.taskId}-end-${kind}`}
               x1={value}
               x2={value}
               y1="9"
@@ -109,7 +112,7 @@ export function ScoreDistributionChart({
   return (
     <AnalysisPanel
       title="과제별 점수 분포와 변별 폭"
-      description="평균에 가려지는 분산을 최소·사분위·중앙값·최대로 확인합니다. 사분위는 선형 보간값입니다."
+      description="최소·사분위·중앙값·최대 기준 점수 분산 확인. 사분위는 선형 보간값"
       isLoading={isLoading}
       isEmpty={data.length === 0}
     >

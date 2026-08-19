@@ -109,7 +109,7 @@ export function DashboardScreen() {
         asOfLabel={cycle === undefined ? "평가 시즌 기준" : `${cycle.startsAt} ~ ${cycle.endsAt}`}
         contextLabel="평가 운영"
         cycleLabel={cycle?.name ?? "평가 시즌"}
-        description="과제 평균과 현재 점수로 순위를 확인합니다. 완료 후 결과를 확정합니다."
+        description="과제 평균과 현재 점수 기준 순위 확인. 모든 평가 완료 후 최종 결과 확정"
         sampleLabel={backendMode === "supabase" ? "운영 데이터" : "샘플 데이터"}
         title="엔지니어 역량평가 전체 현황"
       />
@@ -120,10 +120,11 @@ export function DashboardScreen() {
         <div>
           <h2 className="text-sm font-semibold" id="dashboard-scope-title">현황 범위</h2>
           <p className="mt-1 text-xs text-muted-foreground">
-            팀 선택은 대상, 평가 현황, 과제 평균과 종합 순위에 적용됩니다.
+            팀 선택 범위를 대상·평가 현황·과제 평균·종합 순위에 동일 적용
           </p>
         </div>
-        <div className="inline-flex self-start overflow-hidden rounded-[3px] border border-border bg-card" role="group" aria-label="현황 팀 범위">
+        <fieldset className="inline-flex self-start overflow-hidden rounded-[3px] border border-border bg-card">
+          <legend className="sr-only">현황 팀 범위</legend>
           {["all", ...teams].map((team) => {
             const label = team === "all" ? "전체" : team
             const selected = selectedTeam === team
@@ -142,7 +143,7 @@ export function DashboardScreen() {
               </Button>
             )
           })}
-        </div>
+        </fieldset>
       </section>
       <MetricStrip metrics={model.metrics} />
       <EngineerEvaluationProgress
@@ -151,18 +152,18 @@ export function DashboardScreen() {
       />
       <div className="grid gap-6 xl:grid-cols-2">
         <TaskRankingPanel
-          description="과제가 완료된 엔지니어는 평가자 가중 평균으로 순위를 매기고, 진행 중·미진행 대상은 순위 아래에 구분해 표시합니다."
+          description="평가 완료자는 평가자 가중 평균 기준 순위 산정. 진행 중·미진행 대상은 순위 하단 분리"
           rankings={model.taskRankings}
           title={`${scopeLabel} 과제별 순위`}
         />
         <CategoryAverageChart
           data={model.categoryAverages}
-          description={`${scopeLabel}에서 과제가 완료된 엔지니어의 평가자 가중 평균과 단순 평균을 비교합니다.`}
+          description={`${scopeLabel} 평가 완료자의 평가자 가중 평균과 단순 평균 비교`}
           title={`${scopeLabel} 과제별 평균`}
         />
       </div>
       <CompletedRanking
-        description="완료된 과제의 개인별 가중 환산점수를 합산한 현재 점수로 임시 순위를 표시합니다. 모든 적용 과제가 완료되면 최종 확정으로 전환하며, 표시 점수 소수 둘째 자리 기준 공동순위(1, 2, 2, 4)를 적용합니다."
+        description="완료 과제의 개인별 가중 환산점수 합산 기준 임시 순위. 모든 적용 과제 완료 시 최종 확정, 표시 점수 소수 둘째 자리 기준 공동순위(1, 2, 2, 4) 적용"
         filters={visibleFilters}
         onFiltersChange={updateFilters}
         sorting={sorting}

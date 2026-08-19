@@ -116,7 +116,7 @@ export function EvaluatorParallelWorkspace({
             두 발표자 동시 평가
           </h2>
           <p className="mt-1 text-sm leading-6 text-muted-foreground">
-            공통 문항의 좌우 점수 열에 두 발표자를 함께 입력합니다. 저장과 제출은 발표자별로 분리됩니다.
+            공통 문항의 좌우 열에 두 발표자 점수 동시 입력. 발표자별 독립 저장·제출
           </p>
         </div>
         <Button

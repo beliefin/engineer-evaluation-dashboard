@@ -27,12 +27,12 @@ const TRACK_OPTIONS: readonly {
   {
     value: "ots",
     label: "OTS 시나리오 제작",
-    description: "두 번째 35% 분야를 OTS로 설정합니다.",
+    description: "두 번째 35% 분야의 OTS 적용",
   },
   {
     value: "dx",
     label: "DX 툴 활용",
-    description: "두 번째 35% 분야를 DX로 설정합니다.",
+    description: "두 번째 35% 분야의 DX 적용",
   },
 ]
 
@@ -45,7 +45,7 @@ export function CycleTrackPanel({
   return (
     <OperationPanel
       aside={<Badge variant="secondary">시즌 전체 적용</Badge>}
-      description="선택값은 모든 엔지니어와 평가자 배정에 공통 적용됩니다."
+      description="선택값의 전체 엔지니어·평가자 배정 공통 적용"
       title="OTS / DX 평가 분야 설정"
     >
       <fieldset disabled={disabled}>

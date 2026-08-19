@@ -19,7 +19,7 @@ export function AnalysisScreen() {
   const pathname = usePathname()
   const router = useRouter()
   const searchParams = useSearchParams()
-  const { snapshot, activeCycleId, backendMode, role } = useEvaluation()
+  const { snapshot, activeCycleId, backendMode, role, canViewInsights } = useEvaluation()
   if (snapshot === null) return null
 
   const requestedFilters: AnalysisFilterState = {
@@ -52,12 +52,13 @@ export function AnalysisScreen() {
   return (
     <div className="space-y-6">
       <PageHeader
-        actions={role === "operator" || role === "approver" ? (
+        actions={role === "operator" || role === "approver" ||
+          (role === "evaluator" && canViewInsights) ? (
           <Button asChild variant="outline">
             <Link href="/analysis/evaluators/detail">평가자 상세</Link>
           </Button>
         ) : undefined}
-        description="상대 서열, 점수 분포, 완료 병목과 평가 편차를 비교합니다."
+        description="상대 서열·점수 분포·자격·어학 원천 내역·평가 편차 비교"
         context={`평가 인사이트 · ${backendMode === "supabase" ? "운영 데이터" : "샘플 데이터"}`}
         title="평가 항목 분석"
       />
@@ -67,6 +68,7 @@ export function AnalysisScreen() {
         seasonLabel={activeCycle?.name ?? "선택 평가 시즌"}
       />
       <AnalysisDashboard
+        achievementSources={model.achievementSources}
         categoryAverages={model.categoryAverages}
         evaluatorCalibrations={model.evaluatorCalibrations}
         evaluatorDeviationDomainMax={model.evaluatorDeviationDomainMax}

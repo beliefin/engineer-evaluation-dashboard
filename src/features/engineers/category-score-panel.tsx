@@ -40,7 +40,7 @@ export function CategoryScorePanel({ categories }: CategoryScorePanelProps) {
           분야별 점수
         </h2>
         <p className="mt-1 text-pretty text-sm leading-6 text-muted-foreground">
-          원점수·반영 비율·환산점수를 표시합니다. 미완료는 미확정입니다.
+          원점수·반영 비율·환산점수 표시. 미완료 과제는 미확정 처리
         </p>
       </div>
 

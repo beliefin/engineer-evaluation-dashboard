@@ -73,7 +73,7 @@ export function OperatorEvaluationWorkspace({
     <section className="overflow-hidden rounded-lg border bg-card" aria-labelledby="operator-entry-title">
       <header className="border-b px-4 py-4 sm:px-5">
         <h2 className="text-lg font-semibold" id="operator-entry-title">엔지니어별 평가 입력</h2>
-        <p className="mt-1 text-sm text-muted-foreground">엔지니어를 선택한 뒤 실제 배정된 과제와 평가자를 골라 점수를 바로 입력합니다.</p>
+        <p className="mt-1 text-sm text-muted-foreground">엔지니어 선택 후 배정 과제·평가자별 점수 대리 입력</p>
       </header>
       <div className="grid lg:grid-cols-[18rem_minmax(0,1fr)]">
         <aside className="border-b lg:border-r lg:border-b-0" aria-label="엔지니어 목록">

@@ -102,7 +102,7 @@ export function DirectScoreEditor({
 
   return (
     <OperationPanel
-      description="환산 규칙이 연결되지 않은 운영자 과제의 0~100점 또는 P/F 결과를 입력합니다. 환산식이 연결된 과제는 원천 실적에서 자동 계산됩니다."
+      description="환산 규칙 미연결 운영자 과제의 0~100점·P/F 직접 입력. 환산식 연결 과제는 원천 실적 기준 자동 계산"
       title="직접 점수 확인"
     >
       <div className="mb-4 flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">

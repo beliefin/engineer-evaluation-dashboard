@@ -20,7 +20,7 @@ export function EngineerDetail({
       />
       <EngineerEvaluationStory story={model.story} />
       <CategoryScorePanel categories={model.categories} />
-      {role === "operator" ? (
+      {role === "operator" || role === "evaluator" ? (
         <EvaluatorDetailPanel evaluatorScores={model.evaluatorScores} />
       ) : null}
     </div>

@@ -139,15 +139,12 @@ export function EventEditorDialog({
           <DialogHeader className="shrink-0">
             <DialogTitle>{isEditing ? "발표 일정 수정" : "발표 일정 추가"}</DialogTitle>
             <DialogDescription>
-              엔지니어의 평가 발표일과 필요한 안내를 기록합니다.
+              평가 발표일·대상 과제·준비 안내 등록
             </DialogDescription>
           </DialogHeader>
 
-          <div
-            aria-label="일정 입력 항목"
-            className="my-5 grid min-h-0 flex-1 gap-4 overflow-y-auto pr-1 sm:grid-cols-2"
-            role="group"
-          >
+          <fieldset className="my-5 grid min-h-0 flex-1 gap-4 overflow-y-auto pr-1 sm:grid-cols-2">
+            <legend className="sr-only">일정 입력 항목</legend>
             <div className="grid gap-2 sm:col-span-2">
               <Label htmlFor={`${id}-task`}>평가 과제</Label>
               <select
@@ -210,7 +207,7 @@ export function EventEditorDialog({
                   </div>
                 </div>
                 <p className="text-xs text-muted-foreground">
-                  이 과제에 평가자가 배정된 엔지니어만 표시됩니다. {engineerIds.length}명 선택
+                  평가자가 배정된 엔지니어만 표시 · {engineerIds.length}명 선택
                 </p>
                 <div className="grid max-h-48 gap-1 overflow-y-auto rounded-lg border border-border p-2 sm:grid-cols-2">
                   {eligibleEngineers.length === 0 ? (
@@ -251,7 +248,7 @@ export function EventEditorDialog({
                     <span className="block font-medium">두 발표자를 한 화면에서 평가</span>
                     <span className="mt-0.5 block text-xs leading-5 text-muted-foreground">
                       엔지니어 2명을 선택하면 하나의 동시 발표로 묶여 한 화면에 함께 표시되고,
-                      넓은 화면에서는 좌우로 배치됩니다.
+                      넓은 화면에서 두 발표자 좌우 배치
                     </span>
                   </span>
                 </label>
@@ -309,7 +306,7 @@ export function EventEditorDialog({
                 value={note}
               />
             </div>
-          </div>
+          </fieldset>
 
           {error === null ? null : (
             <p className="mb-4 text-sm text-destructive" id={errorId} role="alert">

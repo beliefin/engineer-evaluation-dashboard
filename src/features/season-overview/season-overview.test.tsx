@@ -18,7 +18,7 @@ describe("SeasonOverview", () => {
     expect(screen.getByText("선택 과제")) .toBeInTheDocument()
     expect(screen.getByText("OTS 시나리오 제작", { selector: "span" })).toBeInTheDocument()
     expect(screen.getByText("DX 툴 활용", { selector: "span" })).toBeInTheDocument()
-    expect(screen.getByRole("heading", { name: "성장탐구계획서" })).toBeInTheDocument()
+    expect(screen.getByRole("heading", { name: "성장·탐구 계획서" })).toBeInTheDocument()
     expect(screen.getByText("그대로 실행할 수 있는 OTS 시나리오 기획서", { exact: false })).toBeInTheDocument()
     expect(screen.getByRole("heading", { name: "수행자" })).toBeInTheDocument()
     expect(screen.getByRole("heading", { name: "평가자" })).toBeInTheDocument()

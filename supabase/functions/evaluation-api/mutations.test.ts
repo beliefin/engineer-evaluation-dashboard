@@ -115,6 +115,29 @@ describe("sheet unlock request server mutation", () => {
 })
 
 describe("operator sheet server mutation", () => {
+  it("does not let an insight-enabled evaluator edit another evaluator's sheet", () => {
+    const snapshot = createSeedSnapshot()
+    const sheet = snapshot.scoreSheets.find((entry) => {
+      const assignment = snapshot.assignments.find((candidate) => candidate.id === entry.assignmentId)
+      return entry.status !== "submitted" && assignment?.evaluatorId !== "evaluator-01"
+    })
+    if (sheet === undefined) throw new RangeError("other evaluator score sheet missing")
+    const evaluator: Profile = {
+      ...OPERATOR,
+      role: "evaluator",
+      evaluator_id: "evaluator-01",
+      can_view_insights: true,
+    }
+
+    expect(() => mutateSheet(snapshot, evaluator, {
+      operation: "save_draft",
+      baseRevision: 10,
+      sheetId: sheet.id,
+      scores: sheet.scores,
+      passResult: sheet.passResult,
+    })).toThrow("배정된 평가지만 수정할 수 있습니다.")
+  })
+
   it("persists an operator score edit without replacing the whole snapshot", () => {
     const snapshot = createSeedSnapshot()
     const sheet = snapshot.scoreSheets[0]

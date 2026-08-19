@@ -28,7 +28,7 @@ export function AccountInsightsPermissionField({
         <span>
           <span className="block text-sm font-medium">전체 현황·분석 열람</span>
           <span className="mt-0.5 block break-keep text-[13px] leading-5 font-normal text-muted-foreground">
-            집계 점수와 순위만 조회합니다. 개별 평가 결과·가중치는 공개하지 않습니다.
+            집계 점수·순위만 조회. 개별 평가 결과·가중치는 비공개
           </span>
         </span>
       </Label>

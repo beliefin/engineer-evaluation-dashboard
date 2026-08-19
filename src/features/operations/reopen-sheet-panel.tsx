@@ -43,7 +43,7 @@ export function ReopenSheetPanel({
   return (
     <OperationPanel
       aside={<Badge variant="outline">요청 {sheets.length}건</Badge>}
-      description="평가자가 보낸 수정 사유를 확인한 뒤 잠금을 해제합니다. 운영자 입력 평가는 처음부터 잠기지 않습니다."
+      description="평가자 수정 사유 확인 후 제출 잠금 해제. 운영자 입력 평가는 잠금 제외"
       title="평가 잠금 해제 요청"
     >
       {sheets.length === 0 ? (

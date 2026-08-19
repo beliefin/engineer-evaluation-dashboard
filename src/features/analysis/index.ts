@@ -2,6 +2,7 @@ export { AnalysisDashboard } from "./analysis-dashboard"
 export type { AnalysisDashboardProps } from "./analysis-dashboard"
 export { AnalysisFilters } from "./analysis-filters"
 export { AnalysisInsightStrip } from "./analysis-insight-strip"
+export { QualificationLanguageAnalysis } from "./qualification-language-analysis"
 export { CategoryAverageChart } from "./category-average-chart"
 export { EvaluatorDeviationChart } from "./evaluator-deviation-chart"
 export { EvaluatorProfile } from "./evaluator-profile"
@@ -17,10 +18,12 @@ export type {
   AnalysisChartProps,
   AnalysisHighlightDatum,
   AnalysisHighlightKind,
+  AchievementSourceAnalysisDatum,
   AnalysisFilterKey,
   AnalysisFilterOption,
   AnalysisFiltersProps,
   AnalysisFilterState,
+  CertificationHoldingDatum,
   CategoryAverageDatum,
   EvaluatorCalibrationDatum,
   EvaluatorDeviationDatum,
@@ -30,6 +33,7 @@ export type {
   EvaluatorResidualDatum,
   EvaluatorScoreComparisonDatum,
   EvaluatorScoreObservationDatum,
+  LanguageResultDatum,
   RubricItemAverageDatum,
   ScoreDistributionDatum,
   TaskCompletionDatum,

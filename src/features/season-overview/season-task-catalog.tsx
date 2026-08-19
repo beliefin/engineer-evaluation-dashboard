@@ -74,7 +74,7 @@ export function SeasonTaskCatalog({ tasks }: Readonly<{ tasks: ReadonlyArray<Sea
         <p className="numeric text-xs font-bold tracking-[0.16em] text-primary">02 · 과제 안내</p>
         <h2 className="mt-2 text-2xl font-bold tracking-tight" id="season-task-title">과제별 목적과 수행 절차</h2>
         <p className="mt-2 text-sm leading-6 text-muted-foreground">
-          과제의 목적, 수행 순서, 제출할 결과물과 평가 기준을 한눈에 확인할 수 있습니다.
+          목적·수행 순서·산출물·평가 기준 통합 안내
         </p>
       </div>
       <div className="mt-7 grid gap-5 xl:grid-cols-2">
@@ -96,7 +96,7 @@ export function EducationTaskCatalog({
           <p className="numeric text-xs font-bold tracking-[0.16em] text-primary">별도 대상 · 교육 담당자</p>
           <h2 className="mt-2 text-xl font-bold tracking-tight" id="education-task-title">교육 담당자 전용 과제</h2>
           <p className="mt-3 max-w-xl text-sm leading-6 text-muted-foreground">
-            아래 과제는 OTS 교육을 맡은 인원에게만 적용합니다. 일반 엔지니어의 평가 구성 100%에는 포함하지 않습니다.
+            OTS 교육 담당자에게만 적용되는 별도 과제. 일반 엔지니어 평가 구성 100%에서 제외
           </p>
         </div>
         <div className="space-y-4">

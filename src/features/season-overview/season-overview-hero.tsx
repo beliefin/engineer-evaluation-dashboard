@@ -8,10 +8,10 @@ function formatPeriod(startsAt: string, endsAt: string): string {
 }
 
 const LOOP_STEPS = [
-  ["01", "문제 찾기", "업무에서 개선할 문제와 성장 목표를 정합니다."],
-  ["02", "배우고 실행하기", "필요한 기술을 배우고 과제를 수행합니다."],
-  ["03", "검증하고 공유하기", "결과를 근거로 확인하고 동료와 공유합니다."],
-  ["04", "업무에 다시 적용하기", "배운 내용을 다음 업무와 개선 활동에 활용합니다."],
+  ["01", "문제 찾기", "업무 개선 과제와 성장 목표 설정"],
+  ["02", "배우고 실행하기", "필요 기술 학습과 과제 수행"],
+  ["03", "검증하고 공유하기", "근거 기반 결과 검증과 동료 공유"],
+  ["04", "업무에 다시 적용하기", "학습 결과를 후속 업무·개선 활동에 재적용"],
 ] as const
 
 export function SeasonOverviewHero({
@@ -35,7 +35,7 @@ export function SeasonOverviewHero({
               {model.cycle.name} 엔지니어 역량평가
             </h1>
             <p className="mt-5 max-w-2xl text-base leading-7 text-muted-foreground sm:text-lg sm:leading-8">
-              실제 업무의 문제를 과제로 삼아 배우고 실행하며, 그 결과를 다음 업무에 활용할 수 있게 정리합니다.
+              실제 업무 문제를 과제로 전환하고, 학습·실행 결과를 다음 업무에 다시 쓰는 성장 체계
             </p>
           </div>
           <div className="mt-10 flex flex-col gap-3 border-t border-border pt-5 text-sm sm:flex-row sm:items-center sm:justify-between">
@@ -76,7 +76,7 @@ export function SeasonOverviewHero({
             ))}
           </ol>
           <p className="mt-5 border-l-2 border-primary pl-4 text-sm leading-6 text-muted-foreground">
-            평가 결과와 피드백은 다음 과제와 업무 개선에 활용합니다.
+            평가 결과·피드백을 후속 과제·업무 개선에 연계
           </p>
         </div>
       </div>

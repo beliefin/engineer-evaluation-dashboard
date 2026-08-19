@@ -147,6 +147,14 @@ export function projectInsightsSnapshot(snapshot: Snapshot): Snapshot {
   return aggregateProjection(snapshot, new Set(snapshot.engineers.map((entry) => entry.id)))
 }
 
+export function projectPrivilegedEvaluatorInsightsSnapshot(snapshot: Snapshot): Snapshot {
+  return {
+    ...snapshot,
+    unlockRequests: [],
+    auditEvents: [],
+  }
+}
+
 function evaluatorProjection(snapshot: Snapshot, evaluatorId: string): Snapshot {
   const sourceAssignments = snapshot.assignments
     .filter((entry) => entry.evaluatorId === evaluatorId)

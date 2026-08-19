@@ -18,7 +18,7 @@ function CompositionSegment({ item }: Readonly<{ item: SeasonCompositionItem }>)
           {item.options.map((option) => <span className="block" key={option}>{option}</span>)}
         </div>
       ) : (
-        <p className="mt-3 text-xs leading-5 text-muted-foreground">모든 평가 대상에게 반영</p>
+        <p className="mt-3 text-xs leading-5 text-muted-foreground">모든 평가 대상에게 공통 반영</p>
       )}
     </li>
   )
@@ -37,9 +37,10 @@ export function SeasonComposition({
         <div className="flex flex-col gap-5 lg:flex-row lg:items-end lg:justify-between">
           <div>
             <p className="numeric text-xs font-bold tracking-[0.16em] text-primary">01 · 평가 구성</p>
-            <h2 className="mt-2 text-2xl font-bold tracking-tight" id="season-composition-title">개인별 평가 결과는 100점 기준으로 산정합니다</h2>
+            <h2 className="mt-2 text-2xl font-bold tracking-tight" id="season-composition-title">개인별 최종 점수 산정</h2>
             <p className="mt-2 max-w-3xl text-sm leading-6 text-muted-foreground">
-              성장·탐구 계획서 35%, 선택 과제 35%, 어학·자격증·고등급 제안 각 10%를 반영합니다.
+              <span className="block">100점 기준: 성장·탐구 35% · 선택 과제 35%</span>
+              <span className="block">어학·자격증·고등급 제안 각 10%</span>
             </p>
           </div>
           <div className="border-l-2 border-primary pl-4">
@@ -52,7 +53,7 @@ export function SeasonComposition({
           {items.map((item) => <CompositionSegment item={item} key={item.id} />)}
         </ol>
         <div className="mt-5 flex flex-col gap-3 border-t border-border pt-4 text-xs leading-5 text-muted-foreground sm:flex-row sm:items-center sm:justify-between">
-          <p>OTS 시나리오 제작과 DX 툴 활용 중 개인에게 지정된 과제 하나만 반영합니다.</p>
+          <p>OTS 시나리오 제작·DX 툴 활용 중 개인 지정 과제 1개만 반영</p>
           <p className="inline-flex shrink-0 items-center gap-2 font-semibold text-foreground">
             35 + 35 + 10 + 10 + 10 <ArrowRight aria-hidden className="size-3.5" /> {effectiveWeightTotal}%
           </p>

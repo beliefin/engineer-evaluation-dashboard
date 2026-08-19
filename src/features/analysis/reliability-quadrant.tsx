@@ -62,7 +62,7 @@ export function ReliabilityQuadrant({
   return (
     <AnalysisPanel
       title="평가 신뢰도 사분면"
-      description={`${taskLabel}의 합의 평균과 평가자 간 점수 이견을 함께 봅니다. 오른쪽 위일수록 점수는 높지만 추가 확인이 필요한 대상입니다.`}
+      description={`${taskLabel}의 합의 평균과 평가자 간 점수 이견 비교. 오른쪽 위는 고득점·추가 확인 대상`}
       isEmpty={data.length === 0}
       isLoading={isLoading}
     >
@@ -110,7 +110,7 @@ export function ReliabilityQuadrant({
           </Scatter>
         </ScatterChart>
       </ChartContainer>
-      <div aria-label="사분면 점 범례" className="mt-3 flex flex-wrap gap-x-4 gap-y-1 text-xs text-muted-foreground">
+      <section aria-label="사분면 점 범례" className="mt-3 flex flex-wrap gap-x-4 gap-y-1 text-xs text-muted-foreground">
         <span className="inline-flex items-center gap-1.5">
           <span aria-hidden="true" className="size-2 rounded-full bg-primary" />
           의견 유사
@@ -119,7 +119,7 @@ export function ReliabilityQuadrant({
           <span aria-hidden="true" className="size-2 rounded-full bg-warning" />
           이견 확인
         </span>
-      </div>
+      </section>
       <p className="mt-3 text-xs leading-5 text-muted-foreground">
         이견 확인은 최고·최저 차, 표준편차, 다른 평가자 평균 대비 큰 편차를 함께 반영한 검토 신호입니다. 확정 판정이 아닙니다.
       </p>

@@ -43,7 +43,7 @@ export function RosterManagementPanel({
             평가 명단 관리
           </h2>
           <p className="mt-1 max-w-3xl text-sm text-muted-foreground">
-            1부문 아래 팀·담당 기준으로 엔지니어와 평가자를 <span className="whitespace-nowrap">평가 시작 전</span> 등록합니다.
+            1부문 아래 팀·담당 기준의 엔지니어·평가자 <span className="whitespace-nowrap">사전 등록</span>
           </p>
         </div>
         <Badge className="shrink-0" variant="outline">

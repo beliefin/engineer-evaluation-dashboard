@@ -97,7 +97,7 @@ export function EngineerTaskWeightPanel({ rows, disabled, onSave }: Props) {
   return (
     <OperationPanel
       aside={<Badge variant={validTotal ? "secondary" : "destructive"}>합계 {total}%</Badge>}
-      description="엔지니어마다 적용할 과제와 최종 반영 비율을 설정합니다. 0% 과제는 평가와 순위 계산에서 제외됩니다."
+      description="엔지니어별 적용 과제와 최종 반영 비율 설정. 0% 과제는 평가·순위 계산에서 제외"
       title="개인별 과제 가중치"
     >
       {selected === undefined ? (

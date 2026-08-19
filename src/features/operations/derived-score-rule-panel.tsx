@@ -112,7 +112,7 @@ export function DerivedScoreRulePanel({
 
   return (
     <OperationPanel
-      description="선택한 인원들의 확정된 평가 점수를 평균해 다른 엔지니어의 과제 점수로 연결합니다. 한 명이라도 미확정이면 파생 점수도 미확정입니다."
+      description="선택 인원의 확정 평가점수 평균을 다른 엔지니어 과제 점수로 연결. 원천 점수 1건 이상 미확정 시 파생 점수도 미확정"
       title="연계·파생 점수"
     >
       {derivedTasks.length === 0 ? (

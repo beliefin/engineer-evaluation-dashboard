@@ -42,7 +42,7 @@ export function LoginScreen() {
               역량평가 시스템 로그인
             </h1>
             <p className="mt-2 mb-7 text-sm leading-6 text-muted-foreground">
-              발급받은 아이디와 비밀번호로 로그인하면 권한별 화면으로 이동합니다. 복합 권한 계정은 로그인 후 사용 모드를 전환할 수 있습니다.
+              발급 계정 로그인 후 권한별 화면 이동. 복합 권한 계정은 로그인 후 사용 모드 전환 가능
             </p>
             <LoginForm disabled={loadState !== "ready" || pending} onLogin={handleLogin} />
           </section>
@@ -58,8 +58,8 @@ export function LoginScreen() {
                 </h2>
                 <p className="mt-1 text-sm leading-6 text-muted-foreground">
                   {remoteMode
-                    ? "로그인 계정에 연결된 역할과 대상 범위만 조회할 수 있습니다."
-                    : "역할별 화면을 확인할 수 있는 초기 계정입니다."}
+                    ? "로그인 계정에 연결된 역할과 대상 범위만 조회 가능"
+                    : "역할별 화면 확인용 초기 계정"}
                 </p>
               </div>
             </div>
@@ -90,8 +90,8 @@ export function LoginScreen() {
             )}
             <p className="mt-5 border-t border-border pt-4 text-xs leading-5 text-muted-foreground">
               {remoteMode
-                ? "인증 세션과 평가 데이터는 Supabase에 저장되며 서버에서 역할별 접근 범위를 검증합니다."
-                : "이 버전은 브라우저 LocalStorage 기반 샘플 인증입니다."}
+                ? "Supabase 인증 세션·평가 데이터 저장과 서버의 역할별 접근 범위 검증"
+                : "브라우저 LocalStorage 기반 샘플 인증"}
             </p>
           </aside>
         </div>

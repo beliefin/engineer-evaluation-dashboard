@@ -20,7 +20,7 @@ export function PendingScreen() {
     <div className="space-y-6">
       <PageHeader
         context={`평가 운영 · ${backendMode === "supabase" ? "운영 데이터" : "샘플 데이터"}`}
-        description={"평가자 미배정, 미제출, 직접점수 누락을 구분해 후속\u00A0작업을 찾습니다."}
+        description={"평가자 미배정·미제출·직접점수 누락 구분과 후속\u00A0작업 안내"}
         title="미평가 현황"
       />
       <section

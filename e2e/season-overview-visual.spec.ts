@@ -47,7 +47,7 @@ test("season cover remains readable at desktop tablet and mobile widths", async 
     await page.setViewportSize({ width: viewport.width, height: viewport.height })
     await expect(page.getByText("최종 반영 비율 100%")) .toBeVisible()
     await expect(page.getByRole("heading", { name: "과제별 목적과 수행 절차" })).toBeVisible()
-    await expect(page.getByRole("heading", { name: "평가가 끝난 뒤에도 활용할 결과를 남깁니다" })).toBeVisible()
+    await expect(page.locator("#season-outcome-title")).toBeVisible()
     await expect(page.getByText(/35 \+ 35 \+ 10 \+ 10 \+ 10/)).toBeVisible()
     await expect(
       page.evaluate(() => document.documentElement.scrollWidth > document.documentElement.clientWidth),

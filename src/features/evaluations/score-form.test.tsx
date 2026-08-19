@@ -256,7 +256,7 @@ describe("EvaluationScoreForm", () => {
 
     expect(screen.getByText("운영자 대리 입력 · 박평가")).toBeInTheDocument()
     expect(
-      screen.getByText(/운영자 입력은 저장 후에도 잠기지 않아 계속 수정할 수 있습니다/),
+      screen.getByText(/운영자 입력은 저장 후에도 수정 가능/),
     ).toBeInTheDocument()
   })
 })

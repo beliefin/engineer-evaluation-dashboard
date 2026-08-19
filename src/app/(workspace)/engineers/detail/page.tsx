@@ -5,7 +5,7 @@ import { EngineerDetailQueryScreen } from "@/screens/engineer-detail-query-scree
 
 export default function EngineerDetailPage() {
   return (
-    <RoleGate allowed={["operator", "approver"]}>
+    <RoleGate allowEvaluatorInsights allowed={["operator", "approver"]}>
       <Suspense fallback={null}>
         <EngineerDetailQueryScreen />
       </Suspense>

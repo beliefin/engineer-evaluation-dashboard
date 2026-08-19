@@ -109,7 +109,7 @@ export function selectEngineerDetail(
       entry.engineerId === engineerId &&
       categories.some((category) => category.key === entry.taskId),
   )
-  const evaluatorScores = role === "operator"
+  const evaluatorScores = role === "operator" || role === "evaluator"
     ? assignments.flatMap((assignment) => {
         const score = createEvaluatorScore(snapshot, assignment, summary.result)
         return score === null ? [] : [score]

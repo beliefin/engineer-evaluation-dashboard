@@ -47,7 +47,7 @@ export function EvaluatorDetailQueryScreen() {
           </Button>
         )}
         context={`평가 인사이트 · ${backendMode === "supabase" ? "운영 데이터" : "샘플 데이터"}`}
-        description="평가자의 점수 수준, 과제와 문항별 경향, 동료 대비 편차와 최근 평가 이력을 확인합니다."
+        description="평가자별 점수 수준·과제 및 문항 경향·동료 대비 편차·최근 평가 이력"
         title="평가자 평가 프로필"
       />
       <section className="rounded-md border border-border bg-card p-4 sm:p-5" aria-labelledby="evaluator-selector-title">

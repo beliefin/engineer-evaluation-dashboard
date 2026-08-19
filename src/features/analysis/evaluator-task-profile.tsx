@@ -39,7 +39,7 @@ export function EvaluatorTaskProfile({
   return (
     <AnalysisPanel
       title="과제별 평가 성향"
-      description="과제별 평균 원점수와 같은 대상을 평가한 동료 평균을 비교합니다."
+      description="과제별 평균 원점수와 동일 대상 동료 평균 비교"
       isEmpty={data.length === 0}
     >
       <ChartContainer

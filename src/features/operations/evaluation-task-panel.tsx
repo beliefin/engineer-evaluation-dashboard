@@ -25,7 +25,7 @@ export function EvaluationTaskPanel({ tasks, weightTotal, disabled, onSave, onDe
   return (
     <OperationPanel
       aside={<div className="flex items-center gap-2"><Badge variant={seasonTotalIs100 ? "secondary" : "outline"}>합계 {weightTotal}%</Badge><EvaluationTaskDialog disabled={disabled} onSave={onSave} /></div>}
-      description={<>과제별 평가방식, 세부 문항과 <span className="whitespace-nowrap">시즌 기본 가중치</span>를 설정합니다. 평가자는 과제에 고정하지 않고 엔지니어별 배정 탭에서 지정합니다.</>}
+      description={<>과제별 평가 방식·세부 문항·<span className="whitespace-nowrap">시즌 기본 가중치</span> 설정. 평가자는 엔지니어별 배정 탭에서 지정</>}
       title="시즌 과제 구성"
     >
       {tasks.length === 0 ? (
@@ -47,7 +47,7 @@ export function EvaluationTaskPanel({ tasks, weightTotal, disabled, onSave, onDe
           ))}
         </div>
       )}
-      {!seasonTotalIs100 ? <p className="mt-3 text-sm text-muted-foreground">현재 가중치 합계는 {weightTotal}%입니다. 택1 과제 구성에서는 100%를 초과할 수 있습니다. 최종 순위에 반영하려면 엔지니어별 적용 가중치 합계를 100%로 맞춰 주세요.</p> : null}
+      {!seasonTotalIs100 ? <p className="mt-3 text-sm text-muted-foreground">현재 시즌 과제 가중치 합계 {weightTotal}%. 택1 과제 구성은 100% 초과 가능. 최종 순위 반영을 위한 엔지니어별 적용 가중치 합계는 100%</p> : null}
     </OperationPanel>
   )
 }

@@ -62,7 +62,7 @@ export function PersonalSourceRecordEditor({
       <div className="border-b px-5 py-4 sm:px-6">
         <h2 className="text-base font-semibold" id="personal-records-title">내 어학·자격증 실적</h2>
         <p className="mt-1 text-sm leading-6 text-muted-foreground">
-          취득한 결과를 원문 그대로 등록하고 관리합니다.
+          취득 결과 원문 등록·관리
         </p>
       </div>
 
@@ -71,9 +71,9 @@ export function PersonalSourceRecordEditor({
           <Info aria-hidden="true" className="text-primary" />
           <AlertTitle>자동 환산 적용</AlertTitle>
           <AlertDescription>
-            <span className="block">자격증은 상위 3개 기본점수와 {cycleStartsAt?.slice(0, 4) ?? "당해"}년 신규취득 가산점 1건을 자동 계산합니다.</span>
+            <span className="block">자격증 상위 3개 기본점수와 {cycleStartsAt?.slice(0, 4) ?? "당해"}년 신규취득 가산점 1건 자동 계산</span>
             <span className="block">현재 자격증 환산 {certificationScore?.score ?? "미입력"}점{certificationScore === undefined ? "" : ` (기본 ${certificationScore.baseScore} + 신규 ${certificationScore.bonusScore} + 필기 ${certificationScore.partialScore})`}</span>
-            <span className="block">어학은 영어·제2외국어 중 높은 점수를 기준으로 등급 상향과 제2외국어 신규취득 가점을 계산합니다.</span>
+            <span className="block">영어·제2외국어 중 높은 점수를 기준으로 등급 상향·제2외국어 신규취득 가점 계산</span>
             <span className="block">현재 어학 환산 {languageScore?.score ?? "미입력"}점{languageScore === undefined ? "" : ` (기본 ${languageScore.baseScore} + 상향 ${languageScore.gradeUpgradeBonus} + 제2외국어 신규 ${languageScore.secondLanguageNewBonus})`}</span>
           </AlertDescription>
         </Alert>

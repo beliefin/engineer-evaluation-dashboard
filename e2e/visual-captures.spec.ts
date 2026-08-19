@@ -116,9 +116,9 @@ test("로그인과 계정 관리 화면을 1280, 768, 375 폭에서 캡처한다
     await page.getByRole("button", { name: /비밀번호 재설정$/ }).first().click()
     await page.getByRole("dialog", { name: "비밀번호 재설정" }).waitFor()
     await capture(page, "account-password-dialog", viewport.name)
-    await page.getByLabel("새 비밀번호", { exact: true }).fill("short")
+    await page.getByLabel("새 비밀번호", { exact: true }).fill("abc")
     await page.getByRole("button", { name: "비밀번호 저장" }).click()
-    await page.getByText("비밀번호는 8자 이상 입력해 주세요.", { exact: true }).waitFor()
+    await page.getByText("비밀번호는 4자 이상 입력해 주세요.", { exact: true }).waitFor()
     await capture(page, "account-password-error-dialog", viewport.name)
     await page.keyboard.press("Escape")
 
@@ -263,6 +263,7 @@ test("추가 운영 화면과 입력 대화상자를 1280, 768, 375 폭에서 �
     await page.keyboard.press("Escape")
 
     await page.goto("/operations?tab=cycle")
+    await waitForApp(page)
     await waitForRouteContent(page)
     await capture(page, "cycle-review", viewport.name)
     await page.getByRole("button", { name: "평가 시즌 만들기" }).click()
@@ -270,6 +271,7 @@ test("추가 운영 화면과 입력 대화상자를 1280, 768, 375 폭에서 �
     await page.keyboard.press("Escape")
 
     await page.goto("/operations?tab=scores")
+    await waitForApp(page)
     await waitForRouteContent(page)
     await capture(page, "source-record-review", viewport.name)
     await captureFullPage(page, "source-record-review", viewport.name)

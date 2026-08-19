@@ -30,7 +30,7 @@ export function EvaluatorDetailPanel({
             평가자별 상세
           </h2>
           <span className="text-xs font-medium text-muted-foreground">
-            운영자 전용 · {isSupabaseConfigured() ? "운영 데이터" : "샘플 데이터"}
+            상세 열람 권한 · {isSupabaseConfigured() ? "운영 데이터" : "샘플 데이터"}
           </span>
         </div>
         <p className="mt-1 text-sm leading-6 text-muted-foreground">

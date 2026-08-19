@@ -27,7 +27,7 @@ export function EvaluatorHistory({
   return (
     <AnalysisPanel
       title="최근 평가 이력"
-      description="제출한 평가의 원점수와 같은 대상에 대한 동료 평균 차이를 최신순으로 확인합니다."
+      description="제출 원점수와 동일 대상 동료 평균의 차이, 최신순 확인"
       isEmpty={data.length === 0}
     >
       <div className="hidden overflow-x-auto md:block">

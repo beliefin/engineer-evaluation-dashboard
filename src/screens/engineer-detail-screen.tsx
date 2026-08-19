@@ -10,9 +10,10 @@ import { useEvaluation } from "@/providers"
 import { selectEngineerDetail } from "@/view-models/engineers"
 
 export function EngineerDetailScreen({ engineerId }: Readonly<{ engineerId: string }>) {
-  const { snapshot, activeCycleId, role } = useEvaluation()
+  const { snapshot, activeCycleId, role, canViewInsights } = useEvaluation()
   if (snapshot === null) return null
-  if (role !== "operator" && role !== "approver") {
+  const evaluatorInsightAccess = role === "evaluator" && canViewInsights
+  if (role !== "operator" && role !== "approver" && !evaluatorInsightAccess) {
     return <AccessDenied allowedRoles={["operator", "approver"]} currentRole={role} />
   }
 

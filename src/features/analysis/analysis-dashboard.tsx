@@ -8,12 +8,14 @@ import { CategoryAverageChart } from "./category-average-chart"
 import { EvaluatorDeviationChart } from "./evaluator-deviation-chart"
 import { EvaluationReliabilityAnalysis } from "./evaluation-reliability-analysis"
 import { EvaluatorScoreComparison } from "./evaluator-score-comparison"
+import { QualificationLanguageAnalysis } from "./qualification-language-analysis"
 import { RubricItemChart } from "./rubric-item-chart"
 import { ScoreDistributionChart } from "./score-distribution-chart"
 import { TaskCompletionChart } from "./task-completion-chart"
 import { TeamComparisonChart } from "./team-comparison-chart"
 import { TeamTaskPerformanceMatrix } from "./team-task-performance-matrix"
 import type {
+  AchievementSourceAnalysisDatum,
   AnalysisFiltersProps,
   AnalysisHighlightDatum,
   CategoryAverageDatum,
@@ -32,6 +34,7 @@ import type {
 
 export type AnalysisDashboardProps = Readonly<{
   filters: AnalysisFiltersProps
+  achievementSources: AchievementSourceAnalysisDatum
   highlights: readonly AnalysisHighlightDatum[]
   scoreDistributions: readonly ScoreDistributionDatum[]
   taskCompletionRates: readonly TaskCompletionDatum[]
@@ -56,6 +59,7 @@ export type AnalysisDashboardProps = Readonly<{
 
 export function AnalysisDashboard({
   filters,
+  achievementSources,
   highlights,
   scoreDistributions,
   taskCompletionRates,
@@ -81,6 +85,7 @@ export function AnalysisDashboard({
     <div className={cn("space-y-6", className)}>
       <AnalysisFilters {...filters} />
       <AnalysisInsightStrip data={highlights} />
+      <QualificationLanguageAnalysis data={achievementSources} />
 
       <section aria-labelledby="decision-analysis-heading" className="space-y-4">
         <div>
@@ -88,7 +93,7 @@ export function AnalysisDashboard({
             의사결정 진단
           </h2>
           <p className="mt-1 text-sm text-muted-foreground">
-            점수의 분포, 진행 병목, 팀별 상대 성과를 함께 비교합니다.
+            점수 분포·진행 병목·팀별 상대 성과 비교
           </p>
         </div>
         <div className="grid min-w-0 gap-6 xl:grid-cols-2">
@@ -104,7 +109,7 @@ export function AnalysisDashboard({
             상세 분석
           </h2>
           <p className="mt-1 text-sm text-muted-foreground">
-            분야, 팀, 문항, 평가자 단위의 평균과 편차를 확인합니다.
+            분야·팀·문항·평가자 단위 평균과 편차 확인
           </p>
         </div>
         <EvaluatorScoreComparison

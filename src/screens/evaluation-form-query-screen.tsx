@@ -36,7 +36,7 @@ export function EvaluationFormQueryScreen() {
           <p className="text-xs font-semibold text-primary">동시 발표 평가</p>
           <h1 className="mt-1 text-2xl font-bold tracking-tight">두 발표자 평가 입력</h1>
           <p className="mt-1 text-sm text-muted-foreground">
-            공통 평가항목 오른쪽에 두 발표자의 점수 열을 나란히 표시합니다. 저장·제출 상태는 서로 독립적입니다.
+            공통 평가항목 오른쪽에 두 발표자의 점수 열 병렬 표시. 발표자별 독립 저장·제출 상태
           </p>
         </div>
         <ParallelEvaluationFormScreen

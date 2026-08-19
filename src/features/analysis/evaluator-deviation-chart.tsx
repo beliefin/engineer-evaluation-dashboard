@@ -168,7 +168,7 @@ export function EvaluatorDeviationChart({
   return (
     <AnalysisPanel
       title="평가자 간 점수 편차"
-      description="평가자 원점수와 동일 과제 전체 평균 간 절대 차이의 평균입니다."
+      description="평가자 원점수와 동일 과제 전체 평균 간 절대 차이의 평균"
       isLoading={isLoading}
       isEmpty={data.length === 0}
     >

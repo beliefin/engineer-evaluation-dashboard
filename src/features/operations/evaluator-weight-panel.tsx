@@ -60,7 +60,7 @@ export function EvaluatorWeightPanel({
   return (
     <OperationPanel
       aside={<Badge variant="outline">자동 정규화</Badge>}
-      description="각 엔지니어·평가 분야의 배정별 원시 가중치를 입력하면 같은 배정 그룹 안에서 실제 반영 비율을 자동 계산합니다."
+      description="엔지니어·평가 분야별 원시 가중치 입력과 동일 배정 그룹 내 실제 반영 비율 자동 계산"
       title="평가 배정별 가중치"
     >
       <div className="mb-4 flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
@@ -86,11 +86,9 @@ export function EvaluatorWeightPanel({
         </p>
       </div>
 
-      <div
+      <section
         aria-label="평가 배정별 가중치 목록"
         className="max-h-[42rem] divide-y overflow-y-auto rounded-md border focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring md:hidden"
-        role="region"
-        tabIndex={0}
       >
         {filteredRows.map((row) => (
           <div
@@ -124,12 +122,10 @@ export function EvaluatorWeightPanel({
             />
           </div>
         ))}
-      </div>
-      <div
+      </section>
+      <section
         aria-label="평가 배정별 가중치 표"
         className="hidden max-h-[42rem] overflow-auto rounded-md border focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring md:block"
-        role="region"
-        tabIndex={0}
       >
         <Table className="min-w-[56rem]">
           <TableHeader>
@@ -175,7 +171,7 @@ export function EvaluatorWeightPanel({
             ))}
           </TableBody>
         </Table>
-      </div>
+      </section>
       {filteredRows.length === 0 ? (
         <p className="py-10 text-center text-sm text-muted-foreground">
           검색 조건에 맞는 평가 배정이 없습니다.

@@ -47,7 +47,7 @@ export function RosterSection({
         <div>
           <h3 className="text-base font-semibold" id={`${kind}-roster-title`}>{label} 명단</h3>
           <p className="mt-1 text-sm text-muted-foreground">
-            개별 추가하거나 스프레드시트 목록을 붙여넣어 일괄 등록합니다.
+            개별 추가 또는 스프레드시트 목록 붙여넣기 일괄 등록
           </p>
         </div>
         <div className="flex flex-wrap gap-2">

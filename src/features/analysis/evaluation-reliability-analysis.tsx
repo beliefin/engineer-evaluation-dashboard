@@ -72,7 +72,7 @@ export function EvaluationReliabilityAnalysis({
         <div>
           <h2 id={`${id}-heading`} className="text-xl font-semibold tracking-tight">평가 신뢰도 진단</h2>
           <p className="mt-1 max-w-3xl text-sm text-muted-foreground">
-            제출된 원점수만 사용해 평가자 간 이견, 특정 평가자 영향, 과제 내 순위 변동 가능성을 확인합니다. 공식 점수는 바꾸지 않습니다.
+            제출 원점수 기준의 평가자 간 이견·특정 평가자 영향·과제 내 순위 변동 가능성 확인. 공식 점수는 변경 없음
           </p>
         </div>
         <div className="grid gap-1.5 lg:min-w-72">

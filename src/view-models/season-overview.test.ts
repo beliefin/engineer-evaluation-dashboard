@@ -32,7 +32,7 @@ describe("selectSeasonOverview", () => {
     const snapshot = createSeedSnapshot()
 
     const model = selectSeasonOverview(snapshot, "cycle-2026-h1")
-    const growth = model?.tasks.find((task) => task.name === "성장탐구계획서")
+    const growth = model?.tasks.find((task) => task.name === "성장·탐구 계획서")
     const ots = model?.tasks.find((task) => task.name === "OTS 시나리오 제작")
 
     expect(growth?.process.map((step) => step.title)).toEqual([

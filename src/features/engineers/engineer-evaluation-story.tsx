@@ -95,7 +95,7 @@ export function EngineerEvaluationStory({
         <p className="text-xs font-semibold tracking-[0.12em] text-primary">INDIVIDUAL STORY</p>
         <h2 id="engineer-story-title" className="mt-1 text-xl font-semibold tracking-tight">한 명의 평가 스토리</h2>
         <p className="mt-1 text-sm leading-6 text-muted-foreground">
-          현재 점수의 구성과 시즌 내 위치, 과제별 강점과 보완 지점을 함께 보여줍니다.
+          현재 점수 구성, 시즌 내 위치, 과제별 강점·보완 지점 통합 확인
         </p>
       </div>
 
@@ -139,7 +139,7 @@ export function EngineerEvaluationStory({
           <div className="flex flex-wrap items-start justify-between gap-3">
             <div>
               <h3 id="competency-profile-title" className="text-base font-semibold">개인 역량 프로필</h3>
-              <p className="mt-1 text-sm leading-6 text-muted-foreground">과제별 점수를 전체 평균과 비교합니다.</p>
+              <p className="mt-1 text-sm leading-6 text-muted-foreground">과제별 점수와 전체 평균 비교</p>
             </div>
             <fieldset className="flex flex-wrap gap-3 text-xs">
               <legend className="sr-only">역량 프로필 범례</legend>
@@ -165,7 +165,7 @@ export function EngineerEvaluationStory({
             </ChartContainer>
           ) : (
             <p className="mt-5 border border-dashed px-4 py-10 text-center text-sm text-muted-foreground">
-              점수가 확정된 과제가 3개 이상이면 역량 프로필을 표시합니다.
+              확정 과제 3개 이상부터 역량 프로필 표시
             </p>
           )}
 
@@ -186,7 +186,7 @@ export function EngineerEvaluationStory({
 
         <section aria-labelledby="task-comparison-title" className="p-5 sm:p-6">
           <h3 id="task-comparison-title" className="text-base font-semibold">과제별 상세 비교</h3>
-          <p className="mt-1 text-sm leading-6 text-muted-foreground">내 점수를 전체 평균과 상위 25% 평균에 나란히 비교합니다.</p>
+          <p className="mt-1 text-sm leading-6 text-muted-foreground">개인 점수·전체 평균·상위 25% 평균 비교</p>
           <div className="mt-5 space-y-5">
             {story.taskComparisons.map((comparison) => (
               <article

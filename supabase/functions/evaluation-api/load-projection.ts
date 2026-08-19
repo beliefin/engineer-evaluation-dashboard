@@ -1,6 +1,10 @@
 import { ApiError } from "./api-error.ts"
 import type { Profile, Snapshot } from "./model.ts"
-import { projectInsightsSnapshot, projectSnapshot } from "./projection.ts"
+import {
+  projectInsightsSnapshot,
+  projectPrivilegedEvaluatorInsightsSnapshot,
+  projectSnapshot,
+} from "./projection.ts"
 
 export type EvaluationView = "default" | "insights"
 
@@ -14,6 +18,9 @@ export function projectRequestedSnapshot(
     (profile.role === "evaluator" && profile.can_view_insights)
   if (!allowed) {
     throw new ApiError(403, "FORBIDDEN", "현황·분석 열람 권한이 필요합니다.")
+  }
+  if (profile.role === "evaluator") {
+    return projectPrivilegedEvaluatorInsightsSnapshot(snapshot)
   }
   return projectInsightsSnapshot(snapshot)
 }

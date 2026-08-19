@@ -57,9 +57,11 @@ const LOAD_ERROR_MESSAGE = "운영 데이터를 불러오지 못했습니다. �
 export function evaluationViewForPath(
   role: Role,
   canViewInsights: boolean,
-  pathname: string,
+  pathname: string | null,
 ): EvaluationView {
-  const insightsRoute = /\/(dashboard|analysis)\/?$/.test(pathname)
+  const currentPath = pathname ?? ""
+  const insightsRoute = /\/(?:dashboard|analysis)(?:\/|$)/.test(currentPath) ||
+    /\/engineers\/detail(?:\/|$)/.test(currentPath)
   return role === "evaluator" && canViewInsights && insightsRoute ? "insights" : "default"
 }
 

@@ -1,4 +1,4 @@
-import { cleanup, render, screen } from "@testing-library/react"
+import { cleanup, render, screen, waitFor } from "@testing-library/react"
 import userEvent from "@testing-library/user-event"
 import { afterEach, describe, expect, it, vi } from "vitest"
 
@@ -48,5 +48,42 @@ describe("DirectScoreRulePanel", () => {
       difficulty: "상",
       workRelevance: "매우높음",
     })
+  })
+
+  it("reloads the saved values when the same rule is selected again", async () => {
+    const user = userEvent.setup()
+    render(
+      <DirectScoreRulePanel
+        disabled={false}
+        operatorTasks={[{ taskId: "task-certification", taskName: "자격증" }]}
+        rules={[{
+          id: "rule-certification",
+          cycleId: "cycle-1",
+          taskId: "task-certification",
+          kind: "certification",
+          label: "산업안전기사",
+          field: "certificateName",
+          operator: "equals",
+          value: "산업안전기사",
+          ruleType: "base",
+          score: 22,
+          bonus: 15,
+          enabled: true,
+          order: 0,
+          category: "안전",
+          difficulty: "상",
+          workRelevance: "매우높음",
+        }]}
+      />,
+    )
+
+    await user.click(screen.getByRole("button", { name: "산업안전기사 수정" }))
+    const ruleName = screen.getByLabelText("규칙 이름")
+    await user.clear(ruleName)
+    await user.type(ruleName, "저장하지 않은 이름")
+
+    await user.click(screen.getByRole("button", { name: "산업안전기사 수정" }))
+
+    await waitFor(() => expect(screen.getByLabelText("규칙 이름")).toHaveValue("산업안전기사"))
   })
 })

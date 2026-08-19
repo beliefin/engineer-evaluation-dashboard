@@ -183,6 +183,39 @@ export type AnalysisHighlightDatum = Readonly<{
   detail: string
 }>
 
+export type CertificationHoldingDatum = Readonly<{
+  certificateName: string
+  holderCount: number
+  acquiredThisYearCount: number
+  shareOfRecordedEngineers: number
+}>
+
+export type LanguageResultDatum = Readonly<{
+  key: string
+  scopeLabel: string
+  examName: string
+  result: string
+  holderCount: number
+  shareOfRecordedEngineers: number
+}>
+
+export type AchievementSourceAnalysisDatum = Readonly<{
+  evaluationYear: string
+  eligibleEngineerCount: number
+  certificationRecordedEngineerCount: number
+  certificationNoScoreEngineerCount: number
+  certificationUnreportedEngineerCount: number
+  certificationTypeCount: number
+  certificationAcquiredThisYearEngineerCount: number
+  certificationHoldings: readonly CertificationHoldingDatum[]
+  languageRecordedEngineerCount: number
+  languageNoScoreEngineerCount: number
+  languageUnreportedEngineerCount: number
+  languageExamCount: number
+  languageAcquiredThisYearEngineerCount: number
+  languageResults: readonly LanguageResultDatum[]
+}>
+
 export type AnalysisChartProps<Data> = Readonly<{
   data: readonly Data[]
   isLoading?: boolean

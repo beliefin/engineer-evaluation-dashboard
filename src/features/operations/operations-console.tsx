@@ -68,7 +68,7 @@ export function OperationsConsole({
             평가 운영 관리
           </h1>
           <p className="mt-2 max-w-2xl text-sm text-muted-foreground">
-            평가 시즌, 과제별 평가방식과 결과 입력을 한 곳에서 관리합니다.
+            평가 시즌·과제별 평가 방식·결과 입력 통합 관리
           </p>
         </div>
         <Badge className="w-fit" variant="secondary">

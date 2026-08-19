@@ -41,7 +41,7 @@ export function TodayEvaluationsScreen() {
           </div>
         )}
         context={`평가자 작업 공간 · ${backendMode === "supabase" ? "운영 데이터" : "샘플 데이터"}`}
-        description="날짜를 선택해 예정된 발표를 확인하고, 평가표를 바로 엽니다. 기본 날짜는 오늘입니다."
+        description="선택 날짜의 발표 일정 확인과 평가표 바로 열기. 기본값은 오늘 날짜"
         title="오늘의 평가"
       />
 

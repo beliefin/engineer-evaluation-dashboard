@@ -83,7 +83,7 @@ export function EvaluationCalendar({
             {mode === "read" ? <Badge variant="secondary">읽기 전용</Badge> : null}
           </div>
           <p className="mt-2 text-sm text-muted-foreground">
-            평가 발표일과 장소, 준비사항을 월별로 확인합니다.
+            평가 발표일·장소·준비사항 월별 확인
           </p>
         </div>
         {canManage ? (

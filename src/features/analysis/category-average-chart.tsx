@@ -51,7 +51,7 @@ export function CategoryAverageChart({
   return (
     <AnalysisPanel
       title="분야별 평균"
-      description="확정 점수의 분야별 평균입니다. 모든 축은 0~100점입니다."
+      description="확정 점수 기준 분야별 평균. 모든 축은 0~100점"
       isLoading={isLoading}
       isEmpty={data.length === 0}
     >

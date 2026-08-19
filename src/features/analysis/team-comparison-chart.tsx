@@ -55,7 +55,7 @@ export function TeamComparisonChart({
   return (
     <AnalysisPanel
       title="팀별 비교"
-      description={`${categoryLabel} 기준 팀 평균입니다. 확정된 결과만 포함하며 점수 축은 0~100점입니다.`}
+      description={`${categoryLabel} 기준 팀 평균. 확정 결과만 포함하며 점수 축은 0~100점`}
       isLoading={isLoading}
       isEmpty={data.length === 0}
     >

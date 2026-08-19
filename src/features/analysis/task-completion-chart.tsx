@@ -48,7 +48,7 @@ export function TaskCompletionChart({
   return (
     <AnalysisPanel
       title="과제별 완료율 병목"
-      description="현재 필터 대상자 중 과제 점수가 확정된 비율입니다. 완료율이 낮은 과제부터 입력·제출 병목을 점검합니다."
+      description="현재 필터 대상자의 과제 점수 확정 비율과 저완료 과제의 입력·제출 병목 점검"
       isLoading={isLoading}
       isEmpty={data.length === 0}
     >

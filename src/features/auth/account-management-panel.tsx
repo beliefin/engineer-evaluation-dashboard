@@ -124,7 +124,7 @@ export function AccountManagementPanel({
         <div>
           <p className="mb-2 text-xs font-semibold tracking-[0.08em] text-primary uppercase">접근 제어</p>
           <h1 className="text-[26px] leading-tight font-bold tracking-[-0.02em] sm:text-3xl">계정 관리</h1>
-          <p className="mt-2 max-w-2xl text-sm text-muted-foreground">로그인 계정, 역할, 명단 연결과 사용 상태를 관리합니다.</p>
+          <p className="mt-2 max-w-2xl text-sm text-muted-foreground">로그인 계정·역할·명단 연결·사용 상태 통합 관리</p>
         </div>
         <Button disabled={pending} onClick={() => setEditor({ kind: "create" })} type="button"><PlusIcon aria-hidden="true" />계정 추가</Button>
       </header>
@@ -136,7 +136,7 @@ export function AccountManagementPanel({
       </section>
 
       <section className="overflow-hidden rounded-lg border border-border bg-card" aria-labelledby="account-list-heading">
-        <div className="border-b border-border px-4 py-4 sm:px-5"><h2 className="text-base font-semibold" id="account-list-heading">로그인 계정</h2><p className="mt-1 text-sm text-muted-foreground">현재 로그인 계정은 잠금과 삭제가 제한됩니다.</p></div>
+        <div className="border-b border-border px-4 py-4 sm:px-5"><h2 className="text-base font-semibold" id="account-list-heading">로그인 계정</h2><p className="mt-1 text-sm text-muted-foreground">현재 로그인 계정의 잠금·삭제 제한</p></div>
         {isMobile ? (
           <ul className="divide-y divide-border">
             {accounts.map((account) => (

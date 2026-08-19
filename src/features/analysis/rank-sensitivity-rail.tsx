@@ -49,7 +49,7 @@ export function RankSensitivityRail({
   return (
     <AnalysisPanel
       title="평가자 제외 시 순위 안정성"
-      description={`${taskLabel}에서 특정 평가자의 원점수를 제외했을 때, 같은 평가자에게 점수를 받은 공통 대상 안에서 과제 순위가 얼마나 달라지는지 확인합니다.`}
+      description={`${taskLabel}에서 특정 평가자 원점수 제외 시 공통 평가 대상의 과제 순위 변화`}
       isEmpty={scenarios.length === 0}
       isLoading={isLoading}
     >
@@ -123,7 +123,7 @@ export function RankSensitivityRail({
             })}
           </ol>
           <p className="text-xs leading-5 text-muted-foreground">
-            이 시뮬레이션은 해당 과제의 제출 원점수 단순평균만 사용합니다. 공식 가중 점수와 최종 순위는 변경하지 않습니다.
+            해당 과제의 제출 원점수 단순평균만 사용한 시뮬레이션. 공식 가중 점수·최종 순위는 변경 없음
           </p>
         </div>
       )}

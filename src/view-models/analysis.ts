@@ -1,5 +1,6 @@
 import type { EvaluationSnapshot } from "@/domain"
 import type {
+  AchievementSourceAnalysisDatum,
   AnalysisFilterOption,
   AnalysisFilterState,
   AnalysisHighlightDatum,
@@ -17,6 +18,7 @@ import type {
   TeamTaskPerformanceDatum,
 } from "@/features/analysis"
 
+import { selectAchievementSourceAnalysis } from "./analysis-achievements"
 import { selectAnalysisCategoryAverages, selectTeamComparison } from "./analysis-categories"
 import {
   categoryLabel,
@@ -50,6 +52,7 @@ export type AnalysisViewModel = Readonly<{
   teamOptions: readonly AnalysisFilterOption[]
   categoryOptions: readonly AnalysisFilterOption[]
   statusOptions: readonly AnalysisFilterOption[]
+  achievementSources: AchievementSourceAnalysisDatum
   highlights: readonly AnalysisHighlightDatum[]
   scoreDistributions: readonly ScoreDistributionDatum[]
   taskCompletionRates: readonly TaskCompletionDatum[]
@@ -148,6 +151,11 @@ export function selectAnalysisViewModel(
       { value: "in_progress", label: "진행 중" },
       { value: "unconfirmed", label: "미확정" },
     ],
+    achievementSources: selectAchievementSourceAnalysis(
+      snapshot,
+      cycleId,
+      normalized,
+    ),
     highlights: selectAnalysisHighlights(
       scoreDistributions,
       taskCompletionRates,

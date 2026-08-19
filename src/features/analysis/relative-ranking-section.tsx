@@ -129,7 +129,7 @@ export function RelativeRankingSection({
               선택 집단 상대 서열 분석
             </h2>
             <p className="mt-1 max-w-3xl text-sm text-muted-foreground">
-              체크된 인원만으로 순위와 등급을 다시 계산합니다. 미완료자는 현재 부분점수로 포함합니다.
+              체크 인원 기준 순위·등급 재계산. 미완료자는 현재 부분점수로 포함
             </p>
           </div>
           <Sheet>
@@ -142,7 +142,7 @@ export function RelativeRankingSection({
             <SheetContent className="overflow-y-auto" side="right">
               <SheetHeader>
                 <SheetTitle>분석 대상 선택</SheetTitle>
-                <SheetDescription>체크 변경 즉시 상대 순위와 구간이 다시 계산됩니다.</SheetDescription>
+                <SheetDescription>체크 변경 즉시 상대 순위·등급 구간 재계산</SheetDescription>
               </SheetHeader>
               <div className="px-4 pb-6">{selector}</div>
             </SheetContent>

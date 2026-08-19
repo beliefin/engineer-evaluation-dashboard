@@ -1,4 +1,4 @@
-export type EngineerDetailViewerRole = "operator" | "approver" | "engineer"
+export type EngineerDetailViewerRole = "operator" | "approver" | "evaluator" | "engineer"
 
 export type EngineerResultStatus =
   | "complete"

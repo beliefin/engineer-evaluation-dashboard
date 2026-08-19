@@ -139,7 +139,7 @@ export function AnalysisFilters({
               분석 필터
             </h2>
             <p className="mt-1 text-xs text-muted-foreground">
-              팀, 평가 분야, 진행 상태를 기준으로 모든 분석을 갱신합니다.
+              팀·평가 분야·진행 상태 기준 전체 분석 갱신
             </p>
           </div>
           <Button
@@ -183,7 +183,7 @@ export function AnalysisFilters({
             <SheetHeader>
               <SheetTitle>분석 필터</SheetTitle>
               <SheetDescription>
-                팀, 평가 분야, 진행 상태를 기준으로 모든 분석을 갱신합니다.
+                팀·평가 분야·진행 상태 기준 전체 분석 갱신
               </SheetDescription>
             </SheetHeader>
             <FilterGrid

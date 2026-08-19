@@ -82,7 +82,10 @@ async function dismissInitialPasswordChange(page: Page): Promise<void> {
     .waitFor({ state: "visible", timeout: 3_000 })
     .then(() => true)
     .catch(() => false)
-  if (passwordDialogOpened) await postponePasswordChange.click()
+  if (passwordDialogOpened) {
+    await postponePasswordChange.evaluate((button) => (button as HTMLButtonElement).click())
+    await expect(postponePasswordChange).toBeHidden()
+  }
 }
 
 export async function loginAs(

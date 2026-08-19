@@ -60,7 +60,7 @@ export function PendingEvaluationPanel({
             미평가 엔지니어
           </h2>
           <p className="mt-1 text-sm leading-6 text-muted-foreground">
-            평가자 미배정, 미제출, 직접점수 누락을 한곳에서 확인합니다.
+            평가자 미배정·미제출·직접점수 누락 통합 확인
           </p>
         </div>
       </header>

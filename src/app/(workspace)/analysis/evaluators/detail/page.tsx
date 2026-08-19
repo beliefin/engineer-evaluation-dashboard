@@ -5,7 +5,7 @@ import { EvaluatorDetailQueryScreen } from "@/screens/evaluator-detail-query-scr
 
 export default function EvaluatorDetailPage() {
   return (
-    <RoleGate allowed={["operator", "approver"]}>
+    <RoleGate allowEvaluatorInsights allowed={["operator", "approver"]}>
       <Suspense fallback={<LoadingPageSkeleton />}>
         <EvaluatorDetailQueryScreen />
       </Suspense>

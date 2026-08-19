@@ -92,7 +92,7 @@ export function EvaluationScoreForm({
               <UserRoundCogIcon aria-hidden="true" />
               <AlertTitle>운영자 대리 입력 · {viewModel.evaluatorName}</AlertTitle>
               <AlertDescription className="text-primary">
-                이 평가자의 평가지에 대신 점수를 입력합니다. 운영자 입력은 저장 후에도 잠기지 않아 계속 수정할 수 있습니다.
+                선택 평가자 명의의 점수 대리 입력. 운영자 입력은 저장 후에도 수정 가능
               </AlertDescription>
             </Alert>
           </div>
@@ -137,7 +137,7 @@ export function EvaluationScoreForm({
           <div className="border-b border-border-subtle px-4 py-3 md:px-5">
             <p className="flex items-start gap-2 text-pretty text-xs leading-relaxed text-muted-foreground">
               <InfoIcon className="mt-0.5 size-3.5 shrink-0" aria-hidden="true" />
-              점수 변경은 자동 임시저장됩니다. 다른 평가자의 점수·가중치는 표시하지 않습니다.
+              점수 변경 자동 임시저장. 다른 평가자의 점수·가중치는 비공개
             </p>
           </div>
         )}
@@ -151,7 +151,7 @@ export function EvaluationScoreForm({
               onApply={onScoresChange}
             />
             <ScoreSummary total={total} answeredCount={answeredCount} remainingCount={remainingCount} requirementsId={requirementsId} totalItems={viewModel.items.length} operatorMode={viewModel.proxyEntry} />
-            <div aria-label="평가 점수 입력 항목">{viewModel.items.map((item) => <ScoreInputRow key={`${viewModel.assignmentId}:${item.id}`} assignmentId={viewModel.assignmentId} item={item} locked={viewModel.locked} onChange={(value) => onScoreChange(item.id, value)} />)}</div>
+            <fieldset><legend className="sr-only">평가 점수 입력 항목</legend>{viewModel.items.map((item) => <ScoreInputRow key={`${viewModel.assignmentId}:${item.id}`} assignmentId={viewModel.assignmentId} item={item} locked={viewModel.locked} onChange={(value) => onScoreChange(item.id, value)} />)}</fieldset>
           </>
         ) : (
           <section className="border-b border-border-subtle bg-muted/25 px-4 py-8 md:px-5" aria-labelledby="pass-fail-title">

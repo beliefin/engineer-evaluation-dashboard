@@ -62,7 +62,7 @@ export function DirectScoreSourceEditor({
 
   return (
     <OperationPanel
-      description="엔지니어별 어학 성적과 자격증을 원문대로 저장합니다."
+      description="엔지니어별 어학 성적·자격증 원천 기록 관리"
       title="어학·자격증 원천 실적"
     >
       <Alert className="mb-5 border-primary/20 bg-accent/70">
@@ -344,7 +344,7 @@ function NoScoreDeclaration({
     <div className="flex items-center justify-between gap-3 rounded-md border border-success/30 bg-success-soft px-3 py-4">
       <div>
         <p className="font-medium text-success">{label}</p>
-        <p className="mt-1 text-xs text-muted-foreground">미입력이 아닌 확정 0점으로 집계됩니다.</p>
+        <p className="mt-1 text-xs text-muted-foreground">미입력과 구분되는 확정 0점 처리</p>
       </div>
       <Button disabled={disabled} onClick={onClear} size="sm" variant="outline">
         선택 해제

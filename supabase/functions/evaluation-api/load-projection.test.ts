@@ -22,14 +22,15 @@ function evaluatorProfile(canViewInsights: boolean) {
 }
 
 describe("projectRequestedSnapshot", () => {
-  it("returns aggregate-only insight data to a granted evaluator", () => {
+  it("returns complete read-only insight data to a granted evaluator", () => {
     const projected = projectRequestedSnapshot(SNAPSHOT, evaluatorProfile(true), "insights")
 
     expect(projected.engineers).toHaveLength(SNAPSHOT.engineers.length)
     expect(projected.directScores.length).toBeGreaterThan(0)
-    expect(projected.evaluators).toEqual([])
-    expect(projected.assignments).toEqual([])
-    expect(projected.scoreSheets).toEqual([])
+    expect(projected.evaluators).toEqual(SNAPSHOT.evaluators)
+    expect(projected.assignments).toEqual(SNAPSHOT.assignments)
+    expect(projected.scoreSheets).toEqual(SNAPSHOT.scoreSheets)
+    expect(projected.unlockRequests).toEqual([])
     expect(projected.auditEvents).toEqual([])
   })
 
