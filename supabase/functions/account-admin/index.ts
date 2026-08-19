@@ -76,16 +76,26 @@ async function listAccounts() {
 
 async function recordAudit(actor: Profile, operation: string, targetId: string | null): Promise<void> {
   const state = await service.from("evaluation_state").select("revision").eq("id", "primary").single()
-  if (state.error !== null) return console.error("account audit revision read failed", state.error)
+  if (state.error !== null) {
+    console.error("account audit revision read failed", state.error)
+    throw new HttpError(503, "AUDIT_UNAVAILABLE", "변경 이력을 기록할 수 없어 계정 작업을 중단했습니다.")
+  }
   const audit = await service.from("audit_log").insert({
     actor_user_id: actor.auth_user_id,
     actor_role: actor.role,
     operation,
     target_id: targetId,
     revision: Number(state.data.revision),
-    metadata: { source: "account-admin" },
+    metadata: {
+      source: "account-admin",
+      actorUsername: actor.username,
+      actorDisplayName: actor.display_name,
+    },
   })
-  if (audit.error !== null) console.error("account audit insert failed", audit.error)
+  if (audit.error !== null) {
+    console.error("account audit insert failed", audit.error)
+    throw new HttpError(503, "AUDIT_UNAVAILABLE", "변경 이력을 기록할 수 없어 계정 작업을 중단했습니다.")
+  }
 }
 
 async function findProfile(accountId: string): Promise<Profile> {
@@ -241,13 +251,16 @@ Deno.serve(async (request: Request) => {
       await recordAudit(actor, "roster_passwords_reset", null)
       return jsonResponse(request, { accounts: await listAccounts(), resetCount })
     }
-    await applyOperation(actor, parsed)
     const operation = parsed.operation === "create" ? "account_created"
       : parsed.operation === "update" ? "account_updated"
         : parsed.operation === "reset_password" ? "password_reset"
           : parsed.operation === "delete" ? "account_deleted" : null
     if (operation !== null) {
-      await recordAudit(actor, operation, "accountId" in parsed ? parsed.accountId : null)
+      await recordAudit(actor, `${operation}_requested`, "accountId" in parsed ? parsed.accountId : null)
+    }
+    await applyOperation(actor, parsed)
+    if (operation !== null) {
+      await recordAudit(actor, `${operation}_completed`, "accountId" in parsed ? parsed.accountId : null)
     }
     return jsonResponse(request, { accounts: await listAccounts() })
   } catch (error) {

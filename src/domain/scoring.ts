@@ -1,4 +1,5 @@
 import { highestConvertedDirectScore } from "./direct-score-rules"
+import { isVerifiedSourceRecord } from "./source-record-verification"
 import type {
   CertificationRecord,
   DirectScore,
@@ -288,9 +289,13 @@ export function calculateSeasonResults(
     engineerTaskWeights: snapshot.engineerTaskWeights,
     directScoreRules: snapshot.directScoreRules,
     languageRecords: snapshot.languageScoreRecords.filter((entry) =>
-      entry.cycleId === cycleId && entry.engineerId === engineerId),
+      entry.cycleId === cycleId &&
+      entry.engineerId === engineerId &&
+      isVerifiedSourceRecord(snapshot, entry)),
     certificationRecords: snapshot.certificationRecords.filter((entry) =>
-      entry.cycleId === cycleId && entry.engineerId === engineerId),
+      entry.cycleId === cycleId &&
+      entry.engineerId === engineerId &&
+      isVerifiedSourceRecord(snapshot, entry)),
     scoreAdjustments: snapshot.scoreAdjustments,
     ...(derivedScores === undefined ? {} : { derivedScores }),
   })

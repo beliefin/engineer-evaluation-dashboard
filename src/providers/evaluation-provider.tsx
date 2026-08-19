@@ -88,6 +88,7 @@ export function EvaluationProvider({ children }: Readonly<{ children: ReactNode 
   const sessionId = remoteMode ? (session?.id ?? null) : null
   const repositoryRef = useRef<EvaluationRepository | null>(null)
   const revisionRef = useRef(0)
+  const writeGenerationRef = useRef(0)
   const writeFailedRef = useRef(false)
   const [snapshot, setSnapshot] = useState<EvaluationSnapshot | null>(null)
   const [loadedView, setLoadedView] = useState<EvaluationView | null>(null)
@@ -223,17 +224,22 @@ export function EvaluationProvider({ children }: Readonly<{ children: ReactNode 
       ? (command.operation === "save_draft" ? "draft" : "final")
       : "immediate"
     const key = command.type === "sheet" ? command.sheetId : undefined
+    const generation = writeGenerationRef.current
     remoteWriteQueue.enqueue({
       mode,
       key,
       message,
       run: async () => {
+        if (generation !== writeGenerationRef.current) {
+          throw new Error("앞선 저장 충돌로 대기 중이던 변경을 취소했습니다. 최신 화면에서 다시 저장해 주세요.")
+        }
         try {
           return await persistRemoteEvaluation(command, next, revisionRef.current, role)
         } catch (error) {
           if (command.type !== "sheet") {
             const refreshed = await loadRemoteEvaluation(role, requestedView).catch(() => null)
             if (refreshed !== null) installRemoteState(refreshed, requestedView)
+            writeGenerationRef.current += 1
           }
           throw error
         }

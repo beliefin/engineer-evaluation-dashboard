@@ -45,6 +45,52 @@ describe("score adjustment server mutations", () => {
     expect(mergeOperatorSnapshot(current, requested).scoreAdjustments).toEqual(current.scoreAdjustments)
   })
 
+  it("rejects removal of existing audit history during an operator commit", () => {
+    const seed = createSeedSnapshot()
+    const current = {
+      ...seed,
+      auditEvents: [{
+        id: "existing-audit",
+        cycleId: seed.cycles[0]?.id ?? "cycle-2026-h1",
+        type: "task_saved" as const,
+        actorId: OPERATOR.auth_user_id,
+        actorRole: OPERATOR.role,
+        targetId: "task-growth-plan",
+        reason: null,
+        createdAt: "2026-08-18T00:00:00.000Z",
+      }],
+    }
+    const requested = { ...current, auditEvents: current.auditEvents.slice(1) }
+
+    expect(() => mergeOperatorSnapshot(current, requested, OPERATOR, "task_saved"))
+      .toThrow("기존 변경 이력은 수정하거나 삭제할 수 없습니다.")
+  })
+
+  it("replaces client audit identity and timestamp with server values", () => {
+    const current = createSeedSnapshot()
+    const clientEvent = {
+      id: "client-event",
+      cycleId: current.cycles[0]?.id ?? "cycle-2026-h1",
+      type: "task_saved" as const,
+      actorId: "spoofed-actor",
+      actorRole: "approver" as const,
+      targetId: "task-growth-plan",
+      reason: null,
+      createdAt: "2000-01-01T00:00:00.000Z",
+    }
+    const requested = { ...current, auditEvents: [...current.auditEvents, clientEvent] }
+
+    const merged = mergeOperatorSnapshot(current, requested, OPERATOR, "task_saved")
+    expect(merged.auditEvents.at(-1)).toMatchObject({
+      actorId: OPERATOR.auth_user_id,
+      actorRole: OPERATOR.role,
+      type: "task_saved",
+      targetId: "task-growth-plan",
+    })
+    expect(merged.auditEvents.at(-1)?.id).not.toBe("client-event")
+    expect(merged.auditEvents.at(-1)?.createdAt).not.toBe("2000-01-01T00:00:00.000Z")
+  })
+
   it("saves an adjustment and records its reason in the audit log", () => {
     const updated = mutateScoreAdjustment(createSeedSnapshot(), OPERATOR, {
       operation: "save_score_adjustment",

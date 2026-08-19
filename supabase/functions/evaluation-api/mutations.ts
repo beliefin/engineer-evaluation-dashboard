@@ -15,6 +15,10 @@ type ScheduleRequest = Extract<EvaluationRequest, {
   operation: "create_schedule_events" | "update_schedule_event" | "delete_schedule_event"
 }>
 
+const MAX_LANGUAGE_RECORDS_PER_CYCLE = 10
+const MAX_CERTIFICATION_RECORDS_PER_CYCLE = 30
+const MAX_ENGINEER_SOURCE_MUTATIONS_PER_CYCLE = 200
+
 function audit(snapshot: Snapshot, profile: Profile, type: string, cycleId: string, targetId: string): Snapshot["auditEvents"][number] {
   return {
     id: crypto.randomUUID(), cycleId, type, actorId: profile.auth_user_id,
@@ -32,8 +36,41 @@ function requireUnlockedCycle(snapshot: Snapshot, cycleId: string): void {
   }
 }
 
-export function mergeOperatorSnapshot(current: Snapshot, requested: Snapshot): Snapshot {
-  return { ...requested, scoreAdjustments: current.scoreAdjustments }
+export function mergeOperatorSnapshot(
+  current: Snapshot,
+  requested: Snapshot,
+  profile?: Profile,
+  action?: string,
+): Snapshot {
+  const retainedAudit = requested.auditEvents.slice(0, current.auditEvents.length)
+  if (JSON.stringify(retainedAudit) !== JSON.stringify(current.auditEvents)) {
+    throw new ApiError(400, "INVALID_INPUT", "기존 변경 이력은 수정하거나 삭제할 수 없습니다.")
+  }
+  if (profile === undefined || action === undefined) {
+    return { ...requested, scoreAdjustments: current.scoreAdjustments }
+  }
+  const requestedEvent = requested.auditEvents.at(current.auditEvents.length)
+  if (requestedEvent === undefined || requested.auditEvents.length !== current.auditEvents.length + 1) {
+    throw new ApiError(400, "INVALID_INPUT", "변경 내용과 변경 이력이 일치하지 않습니다.")
+  }
+  const expectedType = action === "direct_score_rule_saved" || action === "direct_score_rule_deleted"
+    ? "direct_score_updated"
+    : action
+  if (requestedEvent.type !== expectedType) {
+    throw new ApiError(400, "INVALID_INPUT", "변경 작업과 변경 이력이 일치하지 않습니다.")
+  }
+  const serverEvent = {
+    ...requestedEvent,
+    id: crypto.randomUUID(),
+    actorId: profile.auth_user_id,
+    actorRole: profile.role,
+    createdAt: new Date().toISOString(),
+  }
+  return {
+    ...requested,
+    scoreAdjustments: current.scoreAdjustments,
+    auditEvents: [...current.auditEvents, serverEvent],
+  }
 }
 
 export function mutateScoreAdjustment(
@@ -284,10 +321,25 @@ function requireEngineer(snapshot: Snapshot, profile: Profile, engineerId: strin
   requireUnlockedCycle(snapshot, cycleId)
 }
 
+function requireSourceMutationQuota(snapshot: Snapshot, profile: Profile, cycleId: string): void {
+  const count = snapshot.auditEvents.filter((event) =>
+    event.cycleId === cycleId &&
+    event.actorId === profile.auth_user_id &&
+    (event.type === "language_record_saved" ||
+      event.type === "language_record_deleted" ||
+      event.type === "certification_record_saved" ||
+      event.type === "certification_record_deleted")
+  ).length
+  if (count >= MAX_ENGINEER_SOURCE_MUTATIONS_PER_CYCLE) {
+    throw new ApiError(429, "SOURCE_MUTATION_LIMIT", "이번 평가 시즌의 실적 수정 한도를 초과했습니다. 운영자에게 문의해 주세요.")
+  }
+}
+
 export function mutateSource(snapshot: Snapshot, profile: Profile, request: SourceRequest): Snapshot {
   const now = new Date().toISOString()
   if (request.operation === "save_language_record") {
     requireEngineer(snapshot, profile, request.record.engineerId, request.record.cycleId)
+    requireSourceMutationQuota(snapshot, profile, request.record.cycleId)
     const existing = request.record.recordId === null ? undefined : snapshot.languageScoreRecords.find((entry) => entry.id === request.record.recordId)
     if (request.record.recordId !== null && (existing === undefined || existing.engineerId !== profile.engineer_id)) {
       throw new ApiError(404, "NOT_FOUND", "어학 기록을 찾을 수 없습니다.")
@@ -298,6 +350,9 @@ export function mutateSource(snapshot: Snapshot, profile: Profile, request: Sour
       entry.cycleId === request.record.cycleId &&
       entry.engineerId === request.record.engineerId
     )
+    if (request.record.noScore !== true && otherLanguageRecords.length >= MAX_LANGUAGE_RECORDS_PER_CYCLE) {
+      throw new ApiError(400, "INVALID_INPUT", `어학 성적은 평가 시즌별 최대 ${MAX_LANGUAGE_RECORDS_PER_CYCLE}건까지 등록할 수 있습니다.`)
+    }
     if (request.record.noScore === true && otherLanguageRecords.some((entry) => entry.noScore !== true)) {
       throw new ApiError(400, "INVALID_INPUT", "등록된 어학 성적을 먼저 삭제해 주세요.")
     }
@@ -334,6 +389,7 @@ export function mutateSource(snapshot: Snapshot, profile: Profile, request: Sour
   }
   if (request.operation === "save_certification_record") {
     requireEngineer(snapshot, profile, request.record.engineerId, request.record.cycleId)
+    requireSourceMutationQuota(snapshot, profile, request.record.cycleId)
     const existing = request.record.recordId === null ? undefined : snapshot.certificationRecords.find((entry) => entry.id === request.record.recordId)
     if (request.record.recordId !== null && (existing === undefined || existing.engineerId !== profile.engineer_id)) {
       throw new ApiError(404, "NOT_FOUND", "자격증 기록을 찾을 수 없습니다.")
@@ -358,6 +414,9 @@ export function mutateSource(snapshot: Snapshot, profile: Profile, request: Sour
       entry.cycleId === request.record.cycleId &&
       entry.engineerId === request.record.engineerId
     )
+    if (request.record.noScore !== true && otherCertificationRecords.length >= MAX_CERTIFICATION_RECORDS_PER_CYCLE) {
+      throw new ApiError(400, "INVALID_INPUT", `자격증은 평가 시즌별 최대 ${MAX_CERTIFICATION_RECORDS_PER_CYCLE}건까지 등록할 수 있습니다.`)
+    }
     if (request.record.noScore === true && otherCertificationRecords.some((entry) => entry.noScore !== true)) {
       throw new ApiError(400, "INVALID_INPUT", "등록된 자격증을 먼저 삭제해 주세요.")
     }
@@ -403,6 +462,7 @@ export function mutateSource(snapshot: Snapshot, profile: Profile, request: Sour
   const existing = records.find((entry) => entry.id === request.recordId)
   if (existing === undefined) throw new ApiError(404, "NOT_FOUND", "증빙 기록을 찾을 수 없습니다.")
   requireEngineer(snapshot, profile, existing.engineerId, existing.cycleId)
+  requireSourceMutationQuota(snapshot, profile, existing.cycleId)
   return {
     ...snapshot,
     languageScoreRecords: language

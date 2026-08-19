@@ -62,7 +62,12 @@ function applyMutation(
     if (profile.role !== "operator") throw new ApiError(403, "FORBIDDEN", "운영자 권한이 필요합니다.")
     if (request.action === "demo_reset") throw new ApiError(403, "FORBIDDEN", "운영 데이터 초기화는 허용되지 않습니다.")
     return {
-      snapshot: snapshotSchema.parse(mergeOperatorSnapshot(snapshot, request.snapshot)),
+      snapshot: snapshotSchema.parse(mergeOperatorSnapshot(
+        snapshot,
+        request.snapshot,
+        profile,
+        request.action,
+      )),
       operation: request.action,
       targetId: request.targetId,
       revision: expectedRevisionForRequest(request, currentRevision),

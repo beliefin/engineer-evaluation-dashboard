@@ -149,8 +149,24 @@ export function projectInsightsSnapshot(snapshot: Snapshot): Snapshot {
 
 export function projectPrivilegedEvaluatorInsightsSnapshot(snapshot: Snapshot): Snapshot {
   return {
-    ...snapshot,
+    schemaVersion: snapshot.schemaVersion,
+    cycles: snapshot.cycles,
+    tasks: snapshot.tasks,
+    engineers: snapshot.engineers,
+    evaluators: snapshot.evaluators,
+    assignments: snapshot.assignments,
+    scoreSheets: snapshot.scoreSheets,
+    directScores: snapshot.directScores,
+    languageScoreRecords: snapshot.languageScoreRecords,
+    certificationRecords: snapshot.certificationRecords,
+    engineerTaskWeights: snapshot.engineerTaskWeights,
+    directScoreRules: snapshot.directScoreRules,
+    derivedScoreRules: snapshot.derivedScoreRules,
+    scoreAdjustments: snapshot.scoreAdjustments,
     unlockRequests: [],
+    evaluationBenchmarks: [],
+    departmentCatalog: [],
+    scheduleEvents: [],
     auditEvents: [],
   }
 }

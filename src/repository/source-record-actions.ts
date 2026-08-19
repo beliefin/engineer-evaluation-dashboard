@@ -34,12 +34,31 @@ function nullableText(value: string | null): string | null {
   return value === null ? null : value.trim()
 }
 
+const MAX_LANGUAGE_RECORDS_PER_CYCLE = 10
+const MAX_CERTIFICATION_RECORDS_PER_CYCLE = 30
+const MAX_ENGINEER_SOURCE_MUTATIONS_PER_CYCLE = 200
+
+function requireSourceMutationQuota(context: MutationContext, actorId: string, cycleId: string): void {
+  const count = context.snapshot.auditEvents.filter((event) =>
+    event.cycleId === cycleId &&
+    event.actorId === actorId &&
+    (event.type === "language_record_saved" ||
+      event.type === "language_record_deleted" ||
+      event.type === "certification_record_saved" ||
+      event.type === "certification_record_deleted")
+  ).length
+  if (count >= MAX_ENGINEER_SOURCE_MUTATIONS_PER_CYCLE) {
+    throw new RepositoryError("INVALID_INPUT", "이번 평가 시즌의 실적 수정 한도를 초과했습니다. 운영자에게 문의해 주세요.")
+  }
+}
+
 export function saveLanguageScoreRecordAction(
   context: MutationContext,
   input: SaveLanguageScoreRecordInput,
 ): EvaluationSnapshot {
   const parsed = parseRepositoryInput(saveLanguageScoreRecordInputSchema, input)
   requireSourceRecordActor(parsed.actor, parsed.engineerId)
+  if (parsed.actor.role === "engineer") requireSourceMutationQuota(context, parsed.actor.id, parsed.cycleId)
   requireCycleUnlocked(context.snapshot, parsed.cycleId)
   requireEngineer(context.snapshot, parsed.engineerId)
   const existing = parsed.recordId === null
@@ -59,6 +78,9 @@ export function saveLanguageScoreRecordAction(
     candidate.cycleId === parsed.cycleId &&
     candidate.engineerId === parsed.engineerId
   )
+  if (!parsed.noScore && otherLanguageRecords.length >= MAX_LANGUAGE_RECORDS_PER_CYCLE) {
+    throw new RepositoryError("INVALID_INPUT", `어학 성적은 평가 시즌별 최대 ${MAX_LANGUAGE_RECORDS_PER_CYCLE}건까지 등록할 수 있습니다.`)
+  }
   if (parsed.noScore && otherLanguageRecords.some((candidate) => candidate.noScore !== true)) {
     throw new RepositoryError("INVALID_INPUT", "등록된 어학 성적을 먼저 삭제해 주세요.")
   }
@@ -107,6 +129,7 @@ export function deleteLanguageScoreRecordAction(
     throw new RepositoryError("NOT_FOUND", "어학 성적 기록을 찾을 수 없습니다.")
   }
   requireSourceRecordActor(parsed.actor, record.engineerId)
+  if (parsed.actor.role === "engineer") requireSourceMutationQuota(context, parsed.actor.id, record.cycleId)
   requireCycleUnlocked(context.snapshot, record.cycleId)
   return appendAuditEvent(context, {
     ...context.snapshot,
@@ -127,6 +150,7 @@ export function saveCertificationRecordAction(
 ): EvaluationSnapshot {
   const parsed = parseRepositoryInput(saveCertificationRecordInputSchema, input)
   requireSourceRecordActor(parsed.actor, parsed.engineerId)
+  if (parsed.actor.role === "engineer") requireSourceMutationQuota(context, parsed.actor.id, parsed.cycleId)
   requireCycleUnlocked(context.snapshot, parsed.cycleId)
   requireEngineer(context.snapshot, parsed.engineerId)
   const existing = parsed.recordId === null
@@ -166,6 +190,9 @@ export function saveCertificationRecordAction(
     candidate.cycleId === parsed.cycleId &&
     candidate.engineerId === parsed.engineerId
   )
+  if (!parsed.noScore && otherCertificationRecords.length >= MAX_CERTIFICATION_RECORDS_PER_CYCLE) {
+    throw new RepositoryError("INVALID_INPUT", `자격증은 평가 시즌별 최대 ${MAX_CERTIFICATION_RECORDS_PER_CYCLE}건까지 등록할 수 있습니다.`)
+  }
   if (parsed.noScore && otherCertificationRecords.some((candidate) => candidate.noScore !== true)) {
     throw new RepositoryError("INVALID_INPUT", "등록된 자격증을 먼저 삭제해 주세요.")
   }
@@ -219,6 +246,7 @@ export function deleteCertificationRecordAction(
     throw new RepositoryError("NOT_FOUND", "자격증 기록을 찾을 수 없습니다.")
   }
   requireSourceRecordActor(parsed.actor, record.engineerId)
+  if (parsed.actor.role === "engineer") requireSourceMutationQuota(context, parsed.actor.id, record.cycleId)
   requireCycleUnlocked(context.snapshot, record.cycleId)
   return appendAuditEvent(context, {
     ...context.snapshot,

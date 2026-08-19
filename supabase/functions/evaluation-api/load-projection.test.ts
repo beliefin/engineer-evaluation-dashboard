@@ -31,6 +31,9 @@ describe("projectRequestedSnapshot", () => {
     expect(projected.assignments).toEqual(SNAPSHOT.assignments)
     expect(projected.scoreSheets).toEqual(SNAPSHOT.scoreSheets)
     expect(projected.unlockRequests).toEqual([])
+    expect(projected.scheduleEvents).toEqual([])
+    expect(projected.departmentCatalog).toEqual([])
+    expect(projected.evaluationBenchmarks).toEqual([])
     expect(projected.auditEvents).toEqual([])
   })
 

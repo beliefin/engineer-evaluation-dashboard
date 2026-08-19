@@ -70,6 +70,18 @@ export async function commitSheetState(
     if (error.message.includes("score_sheet_not_found")) {
       throw new ApiError(404, "NOT_FOUND", "평가지를 찾을 수 없습니다.")
     }
+    if (error.message.includes("evaluation_cycle_locked")) {
+      throw new ApiError(409, "TASK_LOCKED", "잠긴 평가 시즌에는 점수를 저장할 수 없습니다.")
+    }
+    if (error.message.includes("score_sheet_forbidden")) {
+      throw new ApiError(403, "FORBIDDEN", "현재 배정된 평가지만 수정할 수 있습니다.")
+    }
+    if (
+      error.message.includes("score_sheet_assignment_changed") ||
+      error.message.includes("score_sheet_assignment_missing")
+    ) {
+      throw new ApiError(409, "ASSIGNMENT_CHANGED", "평가자 배정이 변경되었습니다. 화면을 새로고침해 주세요.")
+    }
     throw new ApiError(500, "STATE_WRITE_FAILED", "평가 데이터를 저장하지 못했습니다.")
   }
   return stateRowSchema.parse(data)
