@@ -1,8 +1,10 @@
 "use client"
 
+import Link from "next/link"
 import { usePathname, useRouter, useSearchParams } from "next/navigation"
 
 import { ErrorState, PageHeader } from "@/components/shared"
+import { Button } from "@/components/ui/button"
 import {
   AnalysisDashboard,
   RelativeRankingSection,
@@ -17,7 +19,7 @@ export function AnalysisScreen() {
   const pathname = usePathname()
   const router = useRouter()
   const searchParams = useSearchParams()
-  const { snapshot, activeCycleId, backendMode } = useEvaluation()
+  const { snapshot, activeCycleId, backendMode, role } = useEvaluation()
   if (snapshot === null) return null
 
   const requestedFilters: AnalysisFilterState = {
@@ -50,6 +52,11 @@ export function AnalysisScreen() {
   return (
     <div className="space-y-6">
       <PageHeader
+        actions={role === "operator" || role === "approver" ? (
+          <Button asChild variant="outline">
+            <Link href="/analysis/evaluators/detail">평가자 상세</Link>
+          </Button>
+        ) : undefined}
         description="상대 서열, 점수 분포, 완료 병목과 평가 편차를 비교합니다."
         context={`평가 인사이트 · ${backendMode === "supabase" ? "운영 데이터" : "샘플 데이터"}`}
         title="평가 항목 분석"
