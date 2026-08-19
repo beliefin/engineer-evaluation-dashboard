@@ -27,6 +27,7 @@ type EngineerRow = Readonly<{
   engineerId: string
   engineerLabel: string
   teamLabel: string
+  averageScore: number
   cells: ReadonlyMap<string, EvaluatorResidualDatum>
 }>
 
@@ -34,12 +35,24 @@ function signed(value: number): string {
   return `${value > 0 ? "+" : ""}${formatDecimal(value)}점`
 }
 
+function evaluatorPriority(label: string): number {
+  if (label === "박경철") return 0
+  if (label === "박상홍") return 1
+  if (label === "박주현") return 2
+  return 3
+}
+
 function evaluators(data: readonly EvaluatorResidualDatum[]): readonly Readonly<{ id: string; label: string }>[] {
   const entries = new Map<string, string>()
   for (const entry of data) entries.set(entry.evaluatorId, entry.evaluatorLabel)
   return Array.from(entries.entries())
     .map(([id, label]) => ({ id, label }))
-    .toSorted((left, right) => left.label.localeCompare(right.label, "ko"))
+    .toSorted((left, right) => {
+      const priorityDifference = evaluatorPriority(left.label) - evaluatorPriority(right.label)
+      if (priorityDifference !== 0) return priorityDifference
+      const labelDifference = left.label.localeCompare(right.label, "ko")
+      return labelDifference !== 0 ? labelDifference : left.id.localeCompare(right.id)
+    })
 }
 
 function engineers(data: readonly EvaluatorResidualDatum[]): readonly EngineerRow[] {
@@ -61,7 +74,11 @@ function engineers(data: readonly EvaluatorResidualDatum[]): readonly EngineerRo
     }
   }
   return Array.from(rows.entries())
-    .map(([engineerId, row]) => ({ engineerId, ...row }))
+    .map(([engineerId, row]) => {
+      const scores = Array.from(row.cells.values(), (entry) => entry.score)
+      const averageScore = scores.reduce((total, score) => total + score, 0) / scores.length
+      return { engineerId, ...row, averageScore }
+    })
     .toSorted((left, right) => left.engineerLabel.localeCompare(right.engineerLabel, "ko"))
 }
 
@@ -87,7 +104,7 @@ export function EvaluatorResidualMatrix({
   return (
     <AnalysisPanel
       title="평가자×엔지니어 편차 매트릭스"
-      description={`${taskLabel}에서 각 셀은 해당 평가자의 점수에서 다른 평가자 평균을 뺀 값입니다. 본인의 점수는 비교 평균에서 제외합니다.`}
+      description={`${taskLabel}의 엔지니어 평균과 평가자별 편차를 함께 보여줍니다. 편차는 해당 평가자의 점수에서 다른 평가자 평균을 뺀 값입니다.`}
       isEmpty={data.length === 0}
       isLoading={isLoading}
     >
@@ -101,11 +118,14 @@ export function EvaluatorResidualMatrix({
       <div className="mt-4 overflow-x-auto rounded-md border border-border-subtle">
         <Table className="min-w-max text-xs">
           <TableCaption className="sr-only">
-            {taskLabel} 평가자별 다른 평가자 평균 대비 편차 매트릭스
+            {taskLabel} 엔지니어 평균과 평가자별 다른 평가자 평균 대비 편차 매트릭스
           </TableCaption>
           <TableHeader>
             <TableRow className="hover:bg-transparent">
               <TableHead className="sticky left-0 z-10 min-w-32 bg-card">엔지니어</TableHead>
+              <TableHead className="min-w-24 border-r border-border-subtle bg-accent text-right">
+                엔지니어 평균
+              </TableHead>
               {evaluatorColumns.map((evaluator) => (
                 <TableHead key={evaluator.id} className="min-w-24 text-right">
                   {evaluator.label}
@@ -119,6 +139,12 @@ export function EvaluatorResidualMatrix({
                 <TableCell className="sticky left-0 z-10 bg-card">
                   <span className="block font-medium">{row.engineerLabel}</span>
                   <span className="block text-xs text-muted-foreground">{row.teamLabel}</span>
+                </TableCell>
+                <TableCell
+                  aria-label={`${row.engineerLabel} 평균 점수 ${formatScore(row.averageScore)}`}
+                  className="numeric border-r border-border-subtle bg-accent text-right font-semibold text-primary"
+                >
+                  {formatScore(row.averageScore)}
                 </TableCell>
                 {evaluatorColumns.map((evaluator) => {
                   const entry = row.cells.get(evaluator.id)
@@ -142,7 +168,7 @@ export function EvaluatorResidualMatrix({
         </Table>
       </div>
       <p className="mt-3 text-xs leading-5 text-muted-foreground">
-        표본이 한 명뿐인 평가는 비교 대상이 없으므로 표시하지 않습니다. 셀의 원점수와 비교 평균은 접근 가능한 이름으로 함께 제공됩니다.
+        엔지니어 평균은 제출된 평가자 원점수의 단순 평균입니다. 표본이 한 명뿐인 평가는 비교 대상이 없으므로 표시하지 않습니다. 셀의 원점수와 비교 평균은 접근 가능한 이름으로 함께 제공됩니다.
       </p>
     </AnalysisPanel>
   )
