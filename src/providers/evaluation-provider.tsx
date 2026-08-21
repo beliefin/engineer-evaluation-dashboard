@@ -60,6 +60,7 @@ export function evaluationViewForPath(
   pathname: string | null,
 ): EvaluationView {
   const currentPath = pathname ?? ""
+  if (/\/overview(?:\/|$)/.test(currentPath)) return "overview"
   const insightsRoute = /\/(?:dashboard|analysis)(?:\/|$)/.test(currentPath) ||
     /\/engineers\/detail(?:\/|$)/.test(currentPath)
   return role === "evaluator" && canViewInsights && insightsRoute ? "insights" : "default"

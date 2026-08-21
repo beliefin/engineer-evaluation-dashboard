@@ -5,8 +5,9 @@ import {
   projectPrivilegedEvaluatorInsightsSnapshot,
   projectSnapshot,
 } from "./projection.ts"
+import { projectSeasonOverviewSnapshot } from "./season-overview-projection.ts"
 
-export type EvaluationView = "default" | "insights"
+export type EvaluationView = "default" | "insights" | "overview"
 
 export function projectRequestedSnapshot(
   snapshot: Snapshot,
@@ -14,6 +15,9 @@ export function projectRequestedSnapshot(
   view: EvaluationView,
 ): Snapshot {
   if (view === "default") return projectSnapshot(snapshot, profile)
+  if (view === "overview") {
+    return profile.role === "operator" ? snapshot : projectSeasonOverviewSnapshot(snapshot)
+  }
   const allowed = profile.role === "operator" || profile.role === "approver" ||
     (profile.role === "evaluator" && profile.can_view_insights)
   if (!allowed) {

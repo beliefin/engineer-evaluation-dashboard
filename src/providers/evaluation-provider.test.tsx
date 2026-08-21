@@ -61,6 +61,18 @@ describe("EvaluationProvider shell selections", () => {
 })
 
 describe("evaluationViewForPath", () => {
+  it("requests the shared season overview for every account role", () => {
+    expect(evaluationViewForPath("operator", false, "/overview")).toBe("overview")
+    expect(evaluationViewForPath("approver", false, "/overview")).toBe("overview")
+    expect(evaluationViewForPath("evaluator", false, "/overview")).toBe("overview")
+    expect(evaluationViewForPath("engineer", false, "/overview")).toBe("overview")
+    expect(evaluationViewForPath(
+      "engineer",
+      false,
+      "/engineer-evaluation-dashboard/overview",
+    )).toBe("overview")
+  })
+
   it("requests insights only on granted evaluator insight routes", () => {
     expect(evaluationViewForPath("evaluator", true, "/dashboard")).toBe("insights")
     expect(evaluationViewForPath("evaluator", true, "/analysis/")).toBe("insights")

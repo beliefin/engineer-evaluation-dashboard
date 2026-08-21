@@ -21,7 +21,49 @@ function evaluatorProfile(canViewInsights: boolean) {
   })
 }
 
+const SHARED_OVERVIEW_PROFILES = [
+  evaluatorProfile(false),
+  profileSchema.parse({
+    auth_user_id: "00000000-0000-4000-8000-000000000002",
+    username: "engineer-user",
+    display_name: "엔지니어 사용자",
+    role: "engineer",
+    roles: ["engineer"],
+    evaluator_id: null,
+    engineer_id: "engineer-01",
+    can_view_insights: false,
+    active: true,
+  }),
+  profileSchema.parse({
+    auth_user_id: "00000000-0000-4000-8000-000000000003",
+    username: "approver-user",
+    display_name: "승인자 사용자",
+    role: "approver",
+    roles: ["approver"],
+    evaluator_id: null,
+    engineer_id: null,
+    can_view_insights: false,
+    active: true,
+  }),
+] as const
+
 describe("projectRequestedSnapshot", () => {
+  it.each(SHARED_OVERVIEW_PROFILES)(
+    "returns the same guide-safe season data to $role accounts",
+    (profile) => {
+      const projected = projectRequestedSnapshot(SNAPSHOT, profile, "overview")
+
+      expect(projected.cycles).toEqual(SNAPSHOT.cycles)
+      expect(projected.tasks).toEqual(SNAPSHOT.tasks)
+      expect(projected.engineers).toEqual([])
+      expect(projected.evaluators).toEqual([])
+      expect(projected.assignments).toEqual([])
+      expect(projected.scoreSheets).toEqual([])
+      expect(projected.directScores).toEqual([])
+      expect(projected.auditEvents).toEqual([])
+    },
+  )
+
   it("returns complete read-only insight data to a granted evaluator", () => {
     const projected = projectRequestedSnapshot(SNAPSHOT, evaluatorProfile(true), "insights")
 

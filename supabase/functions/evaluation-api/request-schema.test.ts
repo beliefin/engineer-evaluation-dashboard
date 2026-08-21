@@ -15,6 +15,18 @@ describe("evaluation request schema", () => {
     })
   })
 
+  it("parses the shared season overview load view", () => {
+    expect(evaluationRequestSchema.parse({
+      operation: "load",
+      activeRole: "engineer",
+      view: "overview",
+    })).toEqual({
+      operation: "load",
+      activeRole: "engineer",
+      view: "overview",
+    })
+  })
+
   it("defaults single-person schedule requests to non-parallel", () => {
     expect(evaluationRequestSchema.parse({
       operation: "create_schedule_events",

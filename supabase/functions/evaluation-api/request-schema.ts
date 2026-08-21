@@ -10,7 +10,7 @@ import {
 
 const baseRevision = z.number().int().nonnegative()
 const activeRole = { activeRole: roleSchema.optional() }
-const evaluationView = z.enum(["default", "insights"])
+const evaluationView = z.enum(["default", "insights", "overview"])
 const scoreEntry = z.object({
   itemId: z.string().trim().min(1), score: z.number().int().min(0).max(10).nullable(),
 })

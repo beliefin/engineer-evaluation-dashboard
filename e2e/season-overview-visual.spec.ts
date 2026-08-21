@@ -30,10 +30,14 @@ test.beforeEach(async ({ page }) => {
 
 test("all roles start on the season cover", async ({ page }) => {
   await page.goto("/login")
+  let operatorGuide = ""
   for (const role of ["운영자", "평가자", "승인자", "엔지니어"] as const) {
     await loginAs(page, role)
     await expect(page).toHaveURL(/\/overview$/)
     await expect(page.getByRole("heading", { level: 1, name: /엔지니어 역량평가/ })).toBeVisible()
+    const currentGuide = await page.locator("#main-content").innerText()
+    if (role === "운영자") operatorGuide = currentGuide
+    else expect(currentGuide).toBe(operatorGuide)
   }
 })
 

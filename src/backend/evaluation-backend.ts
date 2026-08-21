@@ -73,7 +73,7 @@ const responseSchema = z.object({
   revision: z.number().int().nonnegative(),
 })
 export type RemoteEvaluationState = z.infer<typeof responseSchema>
-export type EvaluationView = "default" | "insights"
+export type EvaluationView = "default" | "insights" | "overview"
 
 export function createRemoteLoadRequest(activeRole: Role, view: EvaluationView): unknown {
   return { operation: "load", activeRole, view }
