@@ -20,7 +20,7 @@ function sheetValue(task: Task, sheet: ScoreSheet): number | null {
   return expected.size === 0 ? null : (sum / (expected.size * 10)) * 100
 }
 
-function aggregateEvaluatorScore(snapshot: Snapshot, task: Task, engineerId: string): number | null {
+export function aggregateEvaluatorScore(snapshot: Snapshot, task: Task, engineerId: string): number | null {
   const assignments = snapshot.assignments.filter((entry) =>
     entry.taskId === task.id && entry.engineerId === engineerId)
   const totalWeight = assignments.reduce((total, entry) => total + entry.weight, 0)
@@ -80,7 +80,7 @@ function benchmarkForAssignment(
   }
 }
 
-function derivedScore(snapshot: Snapshot, taskId: string, targetEngineerId: string): number | null {
+export function derivedScore(snapshot: Snapshot, taskId: string, targetEngineerId: string): number | null {
   const rule = snapshot.derivedScoreRules.find((entry) =>
     entry.taskId === taskId && entry.targetEngineerId === targetEngineerId)
   if (rule === undefined) return null
@@ -219,6 +219,10 @@ export function projectSnapshot(snapshot: Snapshot, profile: Profile): Snapshot 
   if (profile.role === "engineer" && profile.engineer_id !== null) {
     const engineerIds = new Set([profile.engineer_id])
     const projected = aggregateProjection(snapshot, engineerIds)
+    const sourceRecordIds = new Set([
+      ...projected.languageScoreRecords,
+      ...projected.certificationRecords,
+    ].filter((entry) => entry.engineerId === profile.engineer_id).map((entry) => entry.id))
     return {
       ...projected,
       engineerTaskWeights: projected.engineerTaskWeights.filter((entry) =>
@@ -231,6 +235,10 @@ export function projectSnapshot(snapshot: Snapshot, profile: Profile): Snapshot 
       certificationRecords: projected.certificationRecords.filter((entry) =>
         entry.engineerId === profile.engineer_id),
       scheduleEvents: projected.scheduleEvents.filter((entry) => entry.engineerId === profile.engineer_id),
+      auditEvents: snapshot.auditEvents.filter((entry) => sourceRecordIds.has(entry.targetId) && (
+        entry.type === "language_record_saved" || entry.type === "certification_record_saved" ||
+        entry.type === "source_record_verified"
+      )).map((entry) => ({ ...entry, actorId: "redacted", reason: null })),
     }
   }
   throw new Error("profile_role_link_invalid")

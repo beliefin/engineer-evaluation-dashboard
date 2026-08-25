@@ -15,6 +15,7 @@ export function EngineerPortalScreen() {
     deleteLanguageScoreRecord,
     saveCertificationRecord,
     deleteCertificationRecord,
+    viewerRankings,
   } = useEvaluation()
 
   if (session === null || snapshot === null) return null
@@ -27,7 +28,13 @@ export function EngineerPortalScreen() {
     )
   }
 
-  const model = selectEngineerPortal(snapshot, activeCycleId, session.engineerId)
+  const model = selectEngineerPortal(
+    snapshot,
+    activeCycleId,
+    session.engineerId,
+    viewerRankings.find((entry) =>
+      entry.cycleId === activeCycleId && entry.engineerId === session.engineerId),
+  )
   if (model === null) {
     return (
       <EmptyState

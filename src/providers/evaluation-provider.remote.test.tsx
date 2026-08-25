@@ -70,10 +70,11 @@ describe("EvaluationProvider remote draft persistence", () => {
     backend.load.mockReset()
     backend.persist.mockReset()
     const snapshot = createSeedSnapshot()
-    backend.load.mockResolvedValue({ snapshot, revision: 10 })
+    backend.load.mockResolvedValue({ snapshot, revision: 10, viewerRankings: [] })
     backend.persist.mockImplementation(async (_command, nextSnapshot) => ({
       snapshot: nextSnapshot,
       revision: 11,
+      viewerRankings: [],
     }))
   })
 

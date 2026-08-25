@@ -20,6 +20,7 @@ import { projectRequestedSnapshot } from "./load-projection.ts"
 import { findMissingLinkedRosterIds } from "./roster-integrity.ts"
 import { commitSheetState, commitState, loadState } from "./state-store.ts"
 import { createBackup, listMaintenance, restoreBackup } from "./maintenance.ts"
+import { projectViewerRankings } from "./viewer-ranking.ts"
 
 const supabaseUrl = Deno.env.get("SUPABASE_URL")
 const serviceRoleKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")
@@ -156,6 +157,7 @@ Deno.serve(async (request: Request) => {
       return jsonResponse(request, {
         snapshot: projectRequestedSnapshot(state.snapshot, activeProfile, parsed.view),
         revision: state.revision,
+        viewerRankings: projectViewerRankings(state.snapshot, activeProfile),
       })
     }
     if (
@@ -184,6 +186,7 @@ Deno.serve(async (request: Request) => {
       return jsonResponse(request, {
         snapshot: projectSnapshot(state.snapshot, activeProfile),
         revision: state.revision,
+        viewerRankings: projectViewerRankings(state.snapshot, activeProfile),
       })
     }
     const strictCommit = parsed.operation === "operator_commit"
@@ -194,7 +197,11 @@ Deno.serve(async (request: Request) => {
         const revision = await commitState(
           service, mutation.revision, mutation.snapshot, activeProfile, mutation.operation, mutation.targetId,
         )
-        return jsonResponse(request, { snapshot: projectSnapshot(mutation.snapshot, activeProfile), revision })
+        return jsonResponse(request, {
+          snapshot: projectSnapshot(mutation.snapshot, activeProfile),
+          revision,
+          viewerRankings: projectViewerRankings(mutation.snapshot, activeProfile),
+        })
       } catch (error) {
         const retryable = !strictCommit && error instanceof ApiError && error.code === "REVISION_CONFLICT"
         if (!retryable || attempt === 1) throw error

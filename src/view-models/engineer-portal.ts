@@ -5,6 +5,7 @@ import {
   type EvaluationSnapshot,
 } from "@/domain"
 import type { EngineerPortalViewModel } from "@/features/engineer-portal/types"
+import type { ViewerRanking } from "@/backend/evaluation-backend"
 
 import { selectEngineerDetail } from "./engineers"
 import { selectSourceRecordReview } from "./source-record-review"
@@ -13,8 +14,9 @@ export function selectEngineerPortal(
   snapshot: EvaluationSnapshot,
   cycleId: string,
   engineerId: string,
+  viewerRanking?: ViewerRanking,
 ): EngineerPortalViewModel | null {
-  const detail = selectEngineerDetail(snapshot, cycleId, engineerId, "engineer")
+  const detail = selectEngineerDetail(snapshot, cycleId, engineerId, "engineer", viewerRanking)
   if (detail === null) return null
   const cycle = snapshot.cycles.find((entry) => entry.id === cycleId)
   if (cycle === undefined) return null

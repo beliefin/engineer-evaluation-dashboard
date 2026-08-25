@@ -50,6 +50,51 @@ describe("projectSnapshot score adjustment boundary", () => {
     expect(projected.scoreAdjustments.map((entry) => entry.id)).toEqual(["adjustment-1"])
   })
 
+  it("keeps only redacted review events needed to calculate the engineer's own source scores", () => {
+    const snapshot = createSeedSnapshot()
+    const ownRecord = snapshot.languageScoreRecords.find((entry) => entry.engineerId === "engineer-01")
+    const peerRecord = snapshot.languageScoreRecords.find((entry) => entry.engineerId !== "engineer-01")
+    if (ownRecord === undefined || peerRecord === undefined) throw new RangeError("source record fixture missing")
+    const projected = projectSnapshot(snapshotSchema.parse({
+      ...snapshot,
+      auditEvents: [
+        ...snapshot.auditEvents,
+        {
+          id: "audit-own-source",
+          cycleId: ownRecord.cycleId,
+          type: "language_record_saved",
+          actorId: "private-auth-user-id",
+          actorRole: "engineer",
+          targetId: ownRecord.id,
+          reason: null,
+          createdAt: "2026-07-16T00:00:00.000Z",
+        },
+        {
+          id: "audit-peer-source",
+          cycleId: peerRecord.cycleId,
+          type: "language_record_saved",
+          actorId: "peer-auth-user-id",
+          actorRole: "engineer",
+          targetId: peerRecord.id,
+          reason: null,
+          createdAt: "2026-07-16T00:00:00.000Z",
+        },
+      ],
+    }), {
+      ...PROFILE_BASE,
+      role: "engineer",
+      engineer_id: "engineer-01",
+      evaluator_id: null,
+    })
+
+    expect(projected.auditEvents).toContainEqual(expect.objectContaining({
+      id: "audit-own-source",
+      actorId: "redacted",
+      targetId: ownRecord.id,
+    }))
+    expect(projected.auditEvents.some((entry) => entry.targetId === peerRecord.id)).toBe(false)
+  })
+
   it("hides all score adjustments from evaluators", () => {
     const projected = projectSnapshot(snapshotWithAdjustments(), {
       ...PROFILE_BASE,

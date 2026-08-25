@@ -6,6 +6,7 @@ import type {
 } from "@/features/engineers"
 
 import type { EngineerResultSummary } from "./results"
+import type { ViewerRanking } from "@/backend/evaluation-backend"
 
 const roundToOne = (value: number): number => Math.round(value * 10) / 10
 const roundToTwo = (value: number): number => Math.round(value * 100) / 100
@@ -66,10 +67,11 @@ export function createEngineerEvaluationStory(
   summaries: readonly EngineerResultSummary[],
   engineerId: string,
   categories: readonly CategoryScoreViewModel[],
+  viewerRanking?: Pick<ViewerRanking, "rank" | "cohortCount">,
 ): EngineerEvaluationStoryViewModel {
   const summary = summaries.find((entry) => entry.engineer.id === engineerId)
   const score = summary === undefined ? null : currentScore(summary.result)
-  const ranking = rankForEngineer(summaries, engineerId)
+  const ranking = viewerRanking ?? rankForEngineer(summaries, engineerId)
   const taskComparisons = categories.map((category) => {
     const scores = taskScores(summaries, category.key)
     const topCount = Math.max(1, Math.ceil(scores.length * 0.25))

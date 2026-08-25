@@ -14,6 +14,7 @@ import type {
 import { selectEngineerResultSummaries } from "./results"
 import { createEngineerEvaluationStory } from "./engineer-story"
 import { formatTimestamp } from "./labels"
+import type { ViewerRanking } from "@/backend/evaluation-backend"
 
 function evaluatorStatus(
   snapshot: EvaluationSnapshot,
@@ -67,6 +68,7 @@ export function selectEngineerDetail(
   cycleId: string,
   engineerId: string,
   role: EngineerDetailViewerRole,
+  viewerRanking?: ViewerRanking,
 ): EngineerDetailViewModel | null {
   const cycle = snapshot.cycles.find((entry) => entry.id === cycleId)
   const summaries = selectEngineerResultSummaries(snapshot, cycleId)
@@ -155,7 +157,7 @@ export function selectEngineerDetail(
       seasonLabel: cycle.name,
     },
     result,
-    story: createEngineerEvaluationStory(summaries, engineerId, categories),
+    story: createEngineerEvaluationStory(summaries, engineerId, categories, viewerRanking),
     categories,
     evaluatorScores,
   }

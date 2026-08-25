@@ -159,4 +159,19 @@ describe("createEngineerEvaluationStory", () => {
       sampleSize: 5,
     })
   })
+
+  it("uses the server-projected full-cohort rank for an engineer-only snapshot", () => {
+    const story = createEngineerEvaluationStory(
+      [summary("target", 72, { taskA: 72 })],
+      "target",
+      [category("taskA", "과제 A", 72)],
+      { rank: 7, cohortCount: 24 },
+    )
+
+    expect(story).toMatchObject({
+      rank: 7,
+      cohortCount: 24,
+      topPercentile: 29.2,
+    })
+  })
 })

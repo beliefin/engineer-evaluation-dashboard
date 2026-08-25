@@ -9,7 +9,7 @@ import { usePathname } from "next/navigation"
 
 import {
   loadRemoteEvaluation, persistRemoteEvaluation, type EvaluationView, type RemoteEvaluationCommand,
-  type RemoteEvaluationState,
+  type RemoteEvaluationState, type ViewerRanking,
 } from "@/backend/evaluation-backend"
 import { createSnapshotRepository } from "@/backend/snapshot-repository"
 import { isSupabaseConfigured } from "@/backend/supabase-client"
@@ -44,6 +44,7 @@ type EvaluationContextValue = Readonly<{
   saveState: SaveState
   loadState: EvaluationLoadState
   errorMessage: string | null
+  viewerRankings: readonly ViewerRanking[]
   setActiveCycleId: (cycleId: string) => void
   setActiveEvaluatorId: (evaluatorId: string) => void
   retryLoad: () => void
@@ -98,6 +99,7 @@ export function EvaluationProvider({ children }: Readonly<{ children: ReactNode 
   const [saveState, setSaveState] = useState<SaveState>("idle")
   const [loadState, setLoadState] = useState<EvaluationLoadState>({ status: "loading" })
   const [errorMessage, setErrorMessage] = useState<string | null>(null)
+  const [viewerRankings, setViewerRankings] = useState<readonly ViewerRanking[]>([])
   const role = session?.role ?? "operator"
   const canViewInsights = session?.canViewInsights ?? false
   const requestedView = evaluationViewForPath(role, canViewInsights, pathname)
@@ -109,6 +111,7 @@ export function EvaluationProvider({ children }: Readonly<{ children: ReactNode 
     },
     onSuccess: (saved, message, remaining) => {
       revisionRef.current = saved.revision
+      setViewerRankings(saved.viewerRankings)
       if (message !== undefined) toast.success(message)
       if (remaining === 0 && !writeFailedRef.current) setSaveState("saved")
     },
@@ -149,6 +152,7 @@ export function EvaluationProvider({ children }: Readonly<{ children: ReactNode 
     view: EvaluationView,
   ) => {
     revisionRef.current = state.revision
+    setViewerRankings(state.viewerRankings)
     repositoryRef.current = createSnapshotRepository(state.snapshot)
     setLoadedView(view)
     commitSnapshot(state.snapshot)
@@ -287,13 +291,14 @@ export function EvaluationProvider({ children }: Readonly<{ children: ReactNode 
       saveState,
       loadState: projectionMatches ? loadState : { status: "loading" },
       errorMessage,
+      viewerRankings,
       setActiveCycleId,
       setActiveEvaluatorId,
       retryLoad,
       ...actions,
     }
   }, [remoteMode, loadedView, requestedView, snapshot, role, canViewInsights, activeCycleId,
-    activeEvaluatorId, saveState, loadState, errorMessage, setActiveCycleId,
+    activeEvaluatorId, saveState, loadState, errorMessage, viewerRankings, setActiveCycleId,
     setActiveEvaluatorId, retryLoad, actions])
 
   return <EvaluationContext value={value}>{children}</EvaluationContext>

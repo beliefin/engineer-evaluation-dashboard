@@ -71,8 +71,15 @@ export type RemoteEvaluationCommand =
 const responseSchema = z.object({
   snapshot: evaluationSnapshotSchema,
   revision: z.number().int().nonnegative(),
+  viewerRankings: z.array(z.object({
+    cycleId: z.string().trim().min(1),
+    engineerId: z.string().trim().min(1),
+    rank: z.number().int().positive().nullable(),
+    cohortCount: z.number().int().nonnegative(),
+  })).default([]),
 })
 export type RemoteEvaluationState = z.infer<typeof responseSchema>
+export type ViewerRanking = RemoteEvaluationState["viewerRankings"][number]
 export type EvaluationView = "default" | "insights" | "overview"
 
 export function createRemoteLoadRequest(activeRole: Role, view: EvaluationView): unknown {
