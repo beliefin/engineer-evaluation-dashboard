@@ -32,7 +32,7 @@ test("평가 제출부터 직접점수 확정, 순위 반영, 새로고침과 �
   await expect(page.getByRole("link", { name: /샘플 엔지니어 16/ })).toHaveCount(0)
 
   await switchRole(page, "평가자")
-  await expect(page).toHaveURL(/\/today$/)
+  await expect(page).toHaveURL(/\/overview$/)
   await clickShellLink(page, /평가하기/)
   await page
     .getByRole("button", { name: "샘플 엔지니어 16 평가 열기, 작성 중" })
@@ -51,28 +51,48 @@ test("평가 제출부터 직접점수 확정, 순위 반영, 새로고침과 �
 
   await switchRole(page, "운영자")
   await clickShellLink(page, /운영 설정/)
-  await page.getByRole("tab", { name: "자격, 어학 입력" }).click()
+  await page.getByRole("tab", { name: "자격·어학·고등급 제안 입력" }).click()
   await page.getByLabel("엔지니어 선택").click()
   await page.getByRole("option", { name: /샘플 엔지니어 16/ }).click()
   await page.getByRole("button", { name: "자격증 추가" }).click()
   await page.getByLabel("자격증명").selectOption("산업안전기사")
   await page.getByRole("button", { name: "저장" }).click()
   await expect(page.getByText("산업안전기사", { exact: true })).toBeVisible()
-  await page.getByLabel("엔지니어 검색").fill("샘플 엔지니어 16")
+  const proposalInput = page.getByRole("region", { name: "고등급 제안 점수 입력" })
+    .getByRole("spinbutton", { name: "샘플 엔지니어 16 고등급제안 점수" })
+  await proposalInput.fill("91")
+  await expect(proposalInput).toHaveValue("91")
+
+  const directScorePanel = page.getByRole("heading", { name: "직접 점수 확인" })
+    .locator("xpath=ancestor::section[1]")
+  await directScorePanel.getByLabel("엔지니어 검색").fill("샘플 엔지니어 16")
   await expect(
-    page.getByRole("spinbutton", { name: "샘플 엔지니어 16 자격증 점수" }),
+    directScorePanel.getByRole("spinbutton", { name: "샘플 엔지니어 16 자격증 점수" }),
   ).toHaveValue("22")
-  await page.getByRole("spinbutton", { name: "샘플 엔지니어 16 고등급제안 점수" }).fill("91")
+  await expect(
+    directScorePanel.getByRole("spinbutton", { name: "샘플 엔지니어 16 고등급제안 점수" }),
+  ).toHaveValue("91")
 
   await page.reload()
-  await page.getByRole("tab", { name: "자격, 어학 입력" }).click()
-  await page.getByLabel("엔지니어 검색").fill("샘플 엔지니어 16")
+  await waitForApp(page)
+  await page.getByRole("tab", { name: "자격·어학·고등급 제안 입력" }).click()
+  const restoredDirectScorePanel = page.getByRole("heading", { name: "직접 점수 확인" })
+    .locator("xpath=ancestor::section[1]")
+  await restoredDirectScorePanel.getByLabel("엔지니어 검색").fill("샘플 엔지니어 16")
   await expect(
-    page.getByRole("spinbutton", { name: "샘플 엔지니어 16 자격증 점수" }),
+    restoredDirectScorePanel.getByRole("spinbutton", { name: "샘플 엔지니어 16 자격증 점수" }),
   ).toHaveValue("22")
+  await expect(
+    restoredDirectScorePanel.getByRole("spinbutton", {
+      name: "샘플 엔지니어 16 고등급제안 점수",
+    }),
+  ).toHaveValue("91")
 
   await clickShellLink(page, /전체 현황/)
-  const rankedEngineer = page.getByRole("link", { name: "샘플 엔지니어 16", exact: true })
+  const rankedEngineer = page
+    .getByRole("link", { name: "샘플 엔지니어 16", exact: true })
+    .filter({ visible: true })
+    .first()
   await expect(rankedEngineer).toBeVisible()
   await rankedEngineer.click()
   await expect(page.getByRole("heading", { name: "샘플 엔지니어 16" })).toBeVisible()

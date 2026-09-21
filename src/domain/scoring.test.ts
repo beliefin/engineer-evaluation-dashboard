@@ -225,6 +225,32 @@ describe("calculateEngineerResult", () => {
     expect(result.roundedFinalScore).toBe(87)
   })
 
+  it("applies a high-grade proposal score at ten percent of the final score", () => {
+    const mainTask: EvaluationTask = {
+      ...scoreTask("main", 90, 0),
+      method: "operator_score",
+      items: [],
+    }
+    const proposalTask: EvaluationTask = {
+      ...scoreTask("proposal", 10, 1),
+      name: "고등급제안",
+      method: "operator_score",
+      items: [],
+    }
+
+    const result = calculateEngineerResult({
+      cycleId: "cycle-1",
+      engineerId: "engineer-1",
+      tasks: [mainTask, proposalTask],
+      assignments: [],
+      sheets: [],
+      directScores: [operatorResult(mainTask.id, 80), operatorResult(proposalTask.id, 75)],
+    })
+
+    expect(result.contributions[proposalTask.id]).toBe(7.5)
+    expect(result.finalScore).toBe(79.5)
+  })
+
   it("Given task weights not totaling 100% When every response exists Then ranking remains unconfirmed", () => {
     const operator: EvaluationTask = {
       ...scoreTask("language", 90, 0),

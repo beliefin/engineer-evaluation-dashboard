@@ -16,6 +16,7 @@ import {
 } from "@/components/ui/select"
 
 import { CertificationRecordDialog } from "./certification-record-dialog"
+import { HighGradeProposalInput } from "./high-grade-proposal-input"
 import { LanguageRecordDialog } from "./language-record-dialog"
 import { OperationPanel } from "./operation-panel"
 import { SourceRecordDeleteDialog } from "./source-record-delete-dialog"
@@ -39,6 +40,12 @@ interface DirectScoreSourceEditorProps {
   readonly onSaveCertificationRecord: (record: CertificationRecordDraft) => boolean
   readonly onDeleteCertificationRecord: (recordId: string) => boolean
   readonly onVerifySourceRecord: (recordId: string, recordKind: "language" | "certification") => boolean
+  readonly onDirectScoreChange: (
+    engineerId: string,
+    taskId: string,
+    score: number | null,
+    passResult: boolean | null,
+  ) => void
 }
 
 export function DirectScoreSourceEditor({
@@ -52,6 +59,7 @@ export function DirectScoreSourceEditor({
   onSaveCertificationRecord,
   onDeleteCertificationRecord,
   onVerifySourceRecord,
+  onDirectScoreChange,
 }: DirectScoreSourceEditorProps) {
   const [selectedEngineerId, setSelectedEngineerId] = useState(rows[0]?.engineerId ?? "")
   const selected = rows.find((row) => row.engineerId === selectedEngineerId) ?? rows[0]
@@ -62,8 +70,8 @@ export function DirectScoreSourceEditor({
 
   return (
     <OperationPanel
-      description="엔지니어별 어학 성적·자격증 원천 기록 관리"
-      title="어학·자격증 원천 실적"
+      description="엔지니어별 자격증·어학 원천 실적과 고등급 제안 점수 통합 입력"
+      title="자격·어학·고등급 제안 입력"
     >
       <Alert className="mb-5 border-primary/20 bg-accent/70">
         <Info aria-hidden="true" className="text-primary" />
@@ -298,6 +306,11 @@ export function DirectScoreSourceEditor({
               ))}
             </SourceColumn>
           </div>
+          <HighGradeProposalInput
+            disabled={disabled}
+            onScoreChange={onDirectScoreChange}
+            row={selected}
+          />
         </>
       )}
     </OperationPanel>

@@ -13,7 +13,14 @@ const ROW: EngineerDirectScoreViewModel = {
   engineerName: "샘플 엔지니어 01",
   employeeLabel: "SAMPLE-001",
   teamName: "생산 1팀",
-  directTasks: [],
+  directTasks: [{
+    taskId: "task-proposal",
+    taskName: "고등급제안",
+    method: "operator_score",
+    weight: 10,
+    score: null,
+    passResult: null,
+  }],
   languageRecords: [],
   certificationRecords: [],
 }
@@ -29,6 +36,7 @@ function renderEditor(
     onSaveCertificationRecord: vi.fn(() => true),
     onDeleteCertificationRecord: vi.fn(() => true),
     onVerifySourceRecord: vi.fn(() => true),
+    onDirectScoreChange: vi.fn(),
   }
   render(
     <DirectScoreSourceEditor
@@ -60,6 +68,23 @@ describe("DirectScoreSourceEditor", () => {
       engineerId: "engineer-01",
       noScore: true,
     }))
+  })
+
+  it("enters the selected engineer high-grade proposal score beside source records", async () => {
+    const user = userEvent.setup()
+    const callbacks = renderEditor()
+
+    expect(screen.getByText("100점 만점 · 최종 점수 10% 반영")).toBeInTheDocument()
+    await user.type(screen.getByRole("spinbutton", {
+      name: "샘플 엔지니어 01 고등급제안 점수",
+    }), "84.5")
+
+    expect(callbacks.onDirectScoreChange).toHaveBeenLastCalledWith(
+      "engineer-01",
+      "task-proposal",
+      84.5,
+      null,
+    )
   })
 
   it("stores a language result and explains automatic conversion", async () => {

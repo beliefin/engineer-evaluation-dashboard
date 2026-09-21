@@ -45,7 +45,7 @@ test("엔지니어 입력 검토 대기 흐름을 두 역할과 세 가지 폭�
     await loginAs(page, "운영자")
     await page.goto("/operations?tab=scores")
     await waitForApp(page)
-    const sourceRecords = page.getByRole("heading", { name: "어학·자격증 원천 실적" })
+    const sourceRecords = page.getByRole("heading", { name: "자격·어학·고등급 제안 입력" })
     await sourceRecords.scrollIntoViewIfNeeded()
     await expect(page.getByText("검토 대기 1건")).toBeVisible()
     await page.getByText("운영자 검토 대기", { exact: true }).last().scrollIntoViewIfNeeded()

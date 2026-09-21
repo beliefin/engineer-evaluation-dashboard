@@ -104,7 +104,7 @@ export function OperationsConsole({
             <TabsTrigger value="assignments">평가자 배정</TabsTrigger>
             <TabsTrigger value="weights">개인별 가중치</TabsTrigger>
             <TabsTrigger value="derived">연계·파생 점수</TabsTrigger>
-            <TabsTrigger value="scores">자격, 어학 입력</TabsTrigger>
+            <TabsTrigger value="scores">자격·어학·고등급 제안 입력</TabsTrigger>
             <TabsTrigger value="scoreTables">자격·어학 평가표</TabsTrigger>
             <TabsTrigger value="adjustments">개인 총점 가·감점</TabsTrigger>
             <TabsTrigger value="unlocks">평가 잠금 해제</TabsTrigger>
@@ -191,6 +191,7 @@ export function OperationsConsole({
               onDeleteLanguageRecord={onDeleteLanguageRecord}
               onSaveCertificationRecord={onSaveCertificationRecord}
               onSaveLanguageRecord={onSaveLanguageRecord}
+              onDirectScoreChange={onDirectScoreChange}
               onVerifySourceRecord={onVerifySourceRecord}
               rows={viewModel.directScores}
             />

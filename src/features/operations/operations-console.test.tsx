@@ -58,6 +58,7 @@ describe("OperationsConsole", () => {
 
     expect(screen.getByRole("tab", { name: "평가 잠금 해제" })).toBeInTheDocument()
     expect(screen.getByRole("tab", { name: "자격·어학 평가표" })).toBeInTheDocument()
+    expect(screen.getByRole("tab", { name: "자격·어학·고등급 제안 입력" })).toBeInTheDocument()
     expect(screen.getByText("평가 잠금 해제 요청")).toBeInTheDocument()
   })
 })
