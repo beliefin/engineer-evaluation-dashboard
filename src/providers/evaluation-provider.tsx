@@ -8,8 +8,7 @@ import { toast } from "sonner"
 import { usePathname } from "next/navigation"
 
 import {
-  loadRemoteEvaluation, persistRemoteEvaluation, type EvaluationView, type RemoteEvaluationCommand,
-  type RemoteEvaluationState, type ViewerRanking,
+  loadRemoteEvaluation, type EvaluationView, type ViewerRanking,
 } from "@/backend/evaluation-backend"
 import { createSnapshotRepository } from "@/backend/snapshot-repository"
 import { isSupabaseConfigured } from "@/backend/supabase-client"
@@ -22,9 +21,9 @@ import {
   createEvaluationActions, type EvaluationActions, type MutateRepository,
 } from "./evaluation-actions"
 import { useAuth } from "./auth-provider"
-import { RemoteWriteQueue, type RemoteWriteMode } from "./remote-write-queue"
+import { useRemoteEvaluationPersistence, type SaveState } from "./use-remote-evaluation-persistence"
 
-export type SaveState = "idle" | "saving" | "saved" | "error" | "locked"
+export type { SaveState } from "./use-remote-evaluation-persistence"
 export type EvaluationLoadError = Readonly<{
   kind: "repository_load_failed" | "storage_unavailable"
   message: string
@@ -89,9 +88,6 @@ export function EvaluationProvider({ children }: Readonly<{ children: ReactNode 
   const remoteMode = isSupabaseConfigured()
   const sessionId = remoteMode ? (session?.id ?? null) : null
   const repositoryRef = useRef<EvaluationRepository | null>(null)
-  const revisionRef = useRef(0)
-  const writeGenerationRef = useRef(0)
-  const writeFailedRef = useRef(false)
   const [snapshot, setSnapshot] = useState<EvaluationSnapshot | null>(null)
   const [loadedView, setLoadedView] = useState<EvaluationView | null>(null)
   const [activeCycleId, setActiveCycleIdState] = useState("")
@@ -104,27 +100,18 @@ export function EvaluationProvider({ children }: Readonly<{ children: ReactNode 
   const canViewInsights = session?.canViewInsights ?? false
   const requestedView = evaluationViewForPath(role, canViewInsights, pathname)
   const activeEvaluatorId = role === "evaluator" ? (session?.evaluatorId ?? "") : proxyEvaluatorId
-  const remoteWriteQueue = useMemo(() => new RemoteWriteQueue<RemoteEvaluationState>({
-    draftDelayMs: 700,
-    onPendingChange: (count) => {
-      if (count > 0) setSaveState("saving")
-    },
-    onSuccess: (saved, message, remaining) => {
-      revisionRef.current = saved.revision
-      setViewerRankings(saved.viewerRankings)
-      if (message !== undefined) toast.success(message)
-      if (remaining === 0 && !writeFailedRef.current) setSaveState("saved")
-    },
-    onError: (error) => {
-      writeFailedRef.current = true
-      const text = error instanceof Error ? error.message : "서버 저장 중 오류가 발생했습니다."
-      setSaveState("error")
-      setErrorMessage(text)
-      toast.error(`${text} 입력 내용은 화면에 보존되었습니다.`)
-    },
-  }), [])
+  const remotePersistence = useRemoteEvaluationPersistence({
+    repositoryRef,
+    requestedView,
+    role,
+    setErrorMessage,
+    setSaveState,
+    setSnapshot,
+    setViewerRankings,
+  })
 
   const commitSnapshot = useCallback((loaded: EvaluationSnapshot) => {
+    remotePersistence.rememberSnapshot(loaded)
     setSnapshot(loaded)
     setActiveCycleIdState((current) => {
       const preferred = current || readSessionSelection(CYCLE_KEY) || ""
@@ -138,7 +125,7 @@ export function EvaluationProvider({ children }: Readonly<{ children: ReactNode 
     })
     setLoadState({ status: "ready" })
     setErrorMessage(null)
-  }, [])
+  }, [remotePersistence])
 
   const failLoad = useCallback((error: unknown) => {
     const kind = error instanceof DOMException && error.name === "SecurityError"
@@ -151,12 +138,12 @@ export function EvaluationProvider({ children }: Readonly<{ children: ReactNode 
     state: Awaited<ReturnType<typeof loadRemoteEvaluation>>,
     view: EvaluationView,
   ) => {
-    revisionRef.current = state.revision
+    remotePersistence.rememberRemoteState(state)
     setViewerRankings(state.viewerRankings)
     repositoryRef.current = createSnapshotRepository(state.snapshot)
     setLoadedView(view)
     commitSnapshot(state.snapshot)
-  }, [commitSnapshot])
+  }, [commitSnapshot, remotePersistence])
 
   useEffect(() => {
     let active = true
@@ -186,8 +173,6 @@ export function EvaluationProvider({ children }: Readonly<{ children: ReactNode 
     }
     return () => { active = false }
   }, [commitSnapshot, failLoad, installRemoteState, remoteMode, requestedView, role, sessionId])
-
-  useEffect(() => () => remoteWriteQueue.dispose(), [remoteWriteQueue])
 
   const actor = useMemo<RepositoryActor>(() => {
     const evaluatorId = activeEvaluatorId || snapshot?.evaluators[0]?.id || "unlinked-evaluator"
@@ -223,35 +208,6 @@ export function EvaluationProvider({ children }: Readonly<{ children: ReactNode 
     } catch (error) { failLoad(error) }
   }, [commitSnapshot, failLoad, installRemoteState, remoteMode, requestedView, role])
 
-  const queueRemoteWrite = useCallback((command: RemoteEvaluationCommand, next: EvaluationSnapshot, message?: string) => {
-    if (remoteWriteQueue.pendingCount === 0) writeFailedRef.current = false
-    const mode: RemoteWriteMode = command.type === "sheet"
-      ? (command.operation === "save_draft" ? "draft" : "final")
-      : "immediate"
-    const key = command.type === "sheet" ? command.sheetId : undefined
-    const generation = writeGenerationRef.current
-    remoteWriteQueue.enqueue({
-      mode,
-      key,
-      message,
-      run: async () => {
-        if (generation !== writeGenerationRef.current) {
-          throw new Error("앞선 저장 충돌로 대기 중이던 변경을 취소했습니다. 최신 화면에서 다시 저장해 주세요.")
-        }
-        try {
-          return await persistRemoteEvaluation(command, next, revisionRef.current, role)
-        } catch (error) {
-          if (command.type !== "sheet") {
-            const refreshed = await loadRemoteEvaluation(role, requestedView).catch(() => null)
-            if (refreshed !== null) installRemoteState(refreshed, requestedView)
-            writeGenerationRef.current += 1
-          }
-          throw error
-        }
-      },
-    })
-  }, [installRemoteState, remoteWriteQueue, requestedView, role])
-
   const mutate = useCallback<MutateRepository>((mutation, successMessage, remoteCommand) => {
     const repository = repositoryRef.current
     if (repository === null || (remoteMode && remoteCommand === undefined)) return false
@@ -260,7 +216,7 @@ export function EvaluationProvider({ children }: Readonly<{ children: ReactNode 
     try {
       const next = mutation(repository)
       commitSnapshot(next)
-      if (remoteMode && remoteCommand !== undefined) queueRemoteWrite(remoteCommand, next, successMessage)
+      if (remoteMode && remoteCommand !== undefined) remotePersistence.enqueue(remoteCommand, next, successMessage)
       else {
         setSaveState("saved")
         if (successMessage) toast.success(successMessage)
@@ -273,7 +229,7 @@ export function EvaluationProvider({ children }: Readonly<{ children: ReactNode 
       toast.error(message)
       return false
     }
-  }, [commitSnapshot, queueRemoteWrite, remoteMode])
+  }, [commitSnapshot, remoteMode, remotePersistence])
 
   const actions = useMemo(() => createEvaluationActions({
     activeCycleId, actor, mutate, selectCycle: setActiveCycleId, snapshot,

@@ -1,4 +1,4 @@
-import { act, cleanup, fireEvent, render, screen } from "@testing-library/react"
+import { act, cleanup, fireEvent, render, screen, waitFor } from "@testing-library/react"
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest"
 
 import { createSeedSnapshot } from "@/data/seed"
@@ -65,6 +65,30 @@ function RemoteSaveProbe() {
   )
 }
 
+function RemoteOperatorSaveProbe() {
+  const { snapshot, updateEvaluatorPreset, saveState, errorMessage } = useEvaluation()
+  const evaluatorId = snapshot?.evaluators[0]?.id
+  const presetCount = snapshot?.cycles[0]?.evaluatorPreset?.length ?? 0
+
+  return (
+    <div>
+      <output aria-label="운영 저장 상태">{saveState}</output>
+      <output aria-label="고정 평가자 수">{presetCount}</output>
+      <output aria-label="운영 저장 오류">{errorMessage ?? ""}</output>
+      <button
+        disabled={evaluatorId === undefined}
+        onClick={() => {
+          if (evaluatorId === undefined) return
+          updateEvaluatorPreset([{ evaluatorId, weight: 1 }])
+        }}
+        type="button"
+      >
+        고정 평가자 저장
+      </button>
+    </div>
+  )
+}
+
 describe("EvaluationProvider remote draft persistence", () => {
   beforeEach(() => {
     backend.load.mockReset()
@@ -124,5 +148,56 @@ describe("EvaluationProvider remote draft persistence", () => {
     expect(screen.getByLabelText("저장 상태")).toHaveTextContent("error")
     expect(screen.getByLabelText("저장 오류")).toHaveTextContent("동시 저장 실패")
     expect(backend.load).toHaveBeenCalledTimes(1)
+  })
+
+  it("uses the server-canonical audit history for consecutive operator saves", async () => {
+    let revision = 10
+    backend.persist.mockImplementation(async (_command, nextSnapshot) => {
+      revision += 1
+      const lastEvent = nextSnapshot.auditEvents.at(-1)
+      return {
+        snapshot: {
+          ...nextSnapshot,
+          auditEvents: lastEvent === undefined ? [] : [
+            ...nextSnapshot.auditEvents.slice(0, -1),
+            { ...lastEvent, id: `server-audit-${revision}` },
+          ],
+        },
+        revision,
+        viewerRankings: [],
+      }
+    })
+    render(
+      <EvaluationProvider>
+        <RemoteOperatorSaveProbe />
+      </EvaluationProvider>,
+    )
+    const button = await screen.findByRole("button", { name: "고정 평가자 저장" })
+
+    fireEvent.click(button)
+    await waitFor(() => expect(backend.persist).toHaveBeenCalledTimes(1))
+    await waitFor(() => expect(screen.getByLabelText("운영 저장 상태")).toHaveTextContent("saved"))
+    fireEvent.click(button)
+    await waitFor(() => expect(backend.persist).toHaveBeenCalledTimes(2))
+
+    const secondSnapshot = backend.persist.mock.calls[1]?.[1]
+    expect(secondSnapshot?.auditEvents[0]?.id).toBe("server-audit-11")
+  })
+
+  it("preserves operator input when a remote save fails", async () => {
+    backend.persist.mockRejectedValueOnce(new Error("운영 저장 실패"))
+    render(
+      <EvaluationProvider>
+        <RemoteOperatorSaveProbe />
+      </EvaluationProvider>,
+    )
+    const button = await screen.findByRole("button", { name: "고정 평가자 저장" })
+
+    fireEvent.click(button)
+    await waitFor(() => expect(screen.getByLabelText("운영 저장 상태")).toHaveTextContent("error"))
+
+    expect(screen.getByLabelText("고정 평가자 수")).toHaveTextContent("1")
+    expect(screen.getByLabelText("운영 저장 오류")).toHaveTextContent("운영 저장 실패")
+    expect(backend.load).toHaveBeenCalledTimes(2)
   })
 })
