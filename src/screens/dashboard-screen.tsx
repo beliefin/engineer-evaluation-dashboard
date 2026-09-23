@@ -9,6 +9,8 @@ import {
   CategoryAverageChart,
   CompletedRanking,
   DashboardHeader,
+  downloadOverallRankingExcel,
+  downloadTaskRankingsExcel,
   EngineerEvaluationProgress,
   MetricStrip,
   TaskRankingPanel,
@@ -153,6 +155,11 @@ export function DashboardScreen() {
       <div className="grid gap-6 xl:grid-cols-2">
         <TaskRankingPanel
           description="평가 완료자는 평가자 가중 평균 기준 순위 산정. 진행 중·미진행 대상은 순위 하단 분리"
+          onDownload={() => downloadTaskRankingsExcel(
+            cycle?.name ?? "평가 시즌",
+            scopeLabel,
+            model.taskRankings,
+          )}
           rankings={model.taskRankings}
           title={`${scopeLabel} 과제별 순위`}
         />
@@ -168,6 +175,11 @@ export function DashboardScreen() {
         onFiltersChange={updateFilters}
         sorting={sorting}
         onSortingChange={updateSorting}
+        onDownload={(rows) => downloadOverallRankingExcel(
+          cycle?.name ?? "평가 시즌",
+          scopeLabel,
+          rows,
+        )}
         rows={model.rankingRows}
         scoreLabel="현재 종합 점수"
         title={`${scopeLabel} 종합 순위`}

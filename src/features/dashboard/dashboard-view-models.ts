@@ -181,10 +181,12 @@ export interface CompletedRankingProps {
   readonly populationSelectable?: boolean
   readonly populationRows?: readonly CompletedRankingRow[]
   readonly populationResetKey?: string
+  readonly onDownload?: (rows: readonly CompletedRankingRow[]) => Promise<void>
 }
 
 export interface TaskRankingPanelProps {
   readonly title: string
   readonly description: string
   readonly rankings: readonly TaskRankingSection[]
+  readonly onDownload?: () => Promise<void>
 }

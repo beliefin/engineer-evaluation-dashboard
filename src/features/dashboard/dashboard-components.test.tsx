@@ -1,6 +1,6 @@
 import { cleanup, render, screen } from "@testing-library/react"
 import userEvent from "@testing-library/user-event"
-import { afterEach, describe, expect, it } from "vitest"
+import { afterEach, describe, expect, it, vi } from "vitest"
 
 import { CompletedRanking } from "./completed-ranking"
 import { CategoryAverageChart } from "./category-average-chart"
@@ -204,6 +204,22 @@ describe("dashboard presentation", () => {
     expect(screen.getByText("완료 1/2명")).toBeInTheDocument()
   })
 
+  it("offers an Excel download containing every task ranking", async () => {
+    const user = userEvent.setup()
+    const onDownload = vi.fn(async () => undefined)
+    render(
+      <TaskRankingPanel
+        title="과제별 순위"
+        description="완료 평균 기준"
+        rankings={TASK_RANKINGS}
+        onDownload={onDownload}
+      />
+    )
+
+    await user.click(screen.getByRole("button", { name: "전체 과제 순위 Excel" }))
+    expect(onDownload).toHaveBeenCalledOnce()
+  })
+
   it("filters the completed ranking by engineer name", async () => {
     const user = userEvent.setup()
     render(
@@ -227,5 +243,21 @@ describe("dashboard presentation", () => {
     expect(screen.queryByText("가상 엔지니어 1")).not.toBeInTheDocument()
     expect(screen.getAllByText("가상 엔지니어 2")).toHaveLength(2)
     expect(screen.getAllByText("검색 결과 1명")).toHaveLength(2)
+  })
+
+  it("passes the full ranking population to the overall Excel download", async () => {
+    const user = userEvent.setup()
+    const onDownload = vi.fn(async () => undefined)
+    render(
+      <CompletedRanking
+        title="종합 순위"
+        description="현재 반영 점수 기준"
+        rows={ROWS}
+        onDownload={onDownload}
+      />
+    )
+
+    await user.click(screen.getByRole("button", { name: "종합 순위 Excel" }))
+    expect(onDownload).toHaveBeenCalledWith(ROWS)
   })
 })

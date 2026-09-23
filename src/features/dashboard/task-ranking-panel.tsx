@@ -22,6 +22,7 @@ import {
 } from "@/components/ui/table"
 
 import type { TaskRankingPanelProps, TaskRankingRow } from "./dashboard-view-models"
+import { RankingExportButton } from "./ranking-export-button"
 
 function RankingState({ row }: Readonly<{ row: TaskRankingRow }>) {
   if (row.status === "complete") {
@@ -41,7 +42,7 @@ function RankingState({ row }: Readonly<{ row: TaskRankingRow }>) {
   )
 }
 
-export function TaskRankingPanel({ title, description, rankings }: TaskRankingPanelProps) {
+export function TaskRankingPanel({ title, description, rankings, onDownload }: TaskRankingPanelProps) {
   const [selectedTaskId, setSelectedTaskId] = useState(rankings[0]?.taskId ?? "")
   const activeRanking = rankings.find((ranking) => ranking.taskId === selectedTaskId)
     ?? rankings[0]
@@ -53,11 +54,20 @@ export function TaskRankingPanel({ title, description, rankings }: TaskRankingPa
           <h2 className="text-base font-semibold">{title}</h2>
           <p className="mt-1 max-w-2xl text-xs leading-5 text-muted-foreground">{description}</p>
         </div>
-        {activeRanking ? (
-          <Badge variant="outline" className="numeric w-fit">
-            완료 {activeRanking.completedCount}/{activeRanking.targetCount}명
-          </Badge>
-        ) : null}
+        <div className="flex shrink-0 flex-col items-end gap-2">
+          {activeRanking ? (
+            <Badge variant="outline" className="numeric w-fit">
+              완료 {activeRanking.completedCount}/{activeRanking.targetCount}명
+            </Badge>
+          ) : null}
+          {onDownload === undefined ? null : (
+            <RankingExportButton
+              label="전체 과제 순위 Excel"
+              pendingLabel="파일 생성 중"
+              onDownload={onDownload}
+            />
+          )}
+        </div>
       </div>
 
       {activeRanking ? (

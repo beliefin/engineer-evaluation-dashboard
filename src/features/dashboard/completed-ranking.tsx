@@ -15,6 +15,7 @@ import { RankingDesktopTable } from "./ranking-desktop-table"
 import { RankingFilters } from "./ranking-filters"
 import { RankingMobileList } from "./ranking-mobile-list"
 import { RankingPopulationDialog } from "./ranking-population-dialog"
+import { RankingExportButton } from "./ranking-export-button"
 import {
   DEFAULT_RANKING_SORT,
   parseRankingSortState,
@@ -64,6 +65,7 @@ export function CompletedRanking({
   populationSelectable = false,
   populationRows: populationCandidates = rows,
   populationResetKey,
+  onDownload,
 }: CompletedRankingProps) {
   const [internalFilters, setInternalFilters] =
     useState<RankingFilterState>(DEFAULT_FILTERS)
@@ -174,6 +176,13 @@ export function CompletedRanking({
               selectedIds={selectedIds}
             />
           ) : null}
+          {onDownload === undefined ? null : (
+            <RankingExportButton
+              label="종합 순위 Excel"
+              pendingLabel="파일 생성 중"
+              onDownload={() => onDownload(populationRows)}
+            />
+          )}
         </div>
       </div>
 
