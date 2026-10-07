@@ -54,7 +54,7 @@ export type RelativeRankingAnalysis = Readonly<{
 
 const roundToOne = (value: number): number => Math.round(value * 10) / 10
 const roundToTwo = (value: number): number => Math.round(value * 100) / 100
-const clampScore = (value: number): number => Math.min(100, Math.max(0, value))
+const clampScore = (value: number, limit = 100): number => Math.min(limit, Math.max(0, value))
 
 export function selectRelativeRankingCandidates(
   snapshot: EvaluationSnapshot,
@@ -70,7 +70,7 @@ export function selectRelativeRankingCandidates(
     const score = result.roundedFinalScore ?? (
       completedTaskCount === 0
         ? null
-        : roundToTwo(clampScore(earnedScore + result.adjustmentTotal))
+        : roundToTwo(clampScore(earnedScore + result.adjustmentTotal, result.totalScoreLimit ?? 100))
     )
     const scoreStatus: RelativeScoreStatus = result.roundedFinalScore !== null
       ? "confirmed"

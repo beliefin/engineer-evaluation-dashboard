@@ -189,7 +189,7 @@ function createRankingRows(
     const totalScore = result.roundedFinalScore ?? (
       completedTaskCount === 0
         ? null
-        : roundToTwo(Math.min(100, Math.max(0, earnedScore + result.adjustmentTotal)))
+        : roundToTwo(Math.min(result.totalScoreLimit ?? 100, Math.max(0, earnedScore + result.adjustmentTotal)))
     )
     const status = result.roundedFinalScore !== null
       ? "confirmed" as const

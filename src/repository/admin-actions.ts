@@ -1,3 +1,5 @@
+import { directScoreLimit } from "@/domain/direct-score-limit"
+
 import type { DirectScore, EvaluationSnapshot } from "@/domain"
 
 import { parseRepositoryInput, updateDirectScoreInputSchema } from "./input-schemas"
@@ -19,6 +21,9 @@ export function updateDirectScoreAction(
   requireCycleUnlocked(context.snapshot, parsed.cycleId)
   requireEngineer(context.snapshot, parsed.engineerId)
   const task = requireTask(context.snapshot, parsed.taskId)
+  if (parsed.score !== null && parsed.score > directScoreLimit(task)) {
+    throw new RepositoryError("INVALID_INPUT", "과제의 점수 상한을 초과했습니다.")
+  }
   if (task.cycleId !== parsed.cycleId) {
     throw new RepositoryError("INVALID_INPUT", "과제와 평가 시즌이 일치하지 않습니다.")
   }

@@ -1,3 +1,4 @@
+import { directScoreLimit } from "./direct-score-limit"
 import { z } from "zod"
 
 import {
@@ -227,7 +228,7 @@ export const directScoreSchema = z.object({
   cycleId: idSchema,
   engineerId: idSchema,
   taskId: idSchema,
-  score: z.number().finite().min(0).max(100).nullable(),
+  score: z.number().finite().min(0).max(120).nullable(),
   passResult: z.boolean().nullable(),
   updatedAt: timestampSchema,
 })
@@ -403,4 +404,11 @@ export const evaluationSnapshotSchema = z.object({
   evaluationBenchmarks: z.array(evaluationBenchmarkSchema).default([]),
   departmentCatalog: z.array(departmentCatalogEntrySchema).default([]),
   scoreAdjustments: z.array(engineerScoreAdjustmentSchema).default([]),
+}).superRefine((snapshot, context) => {
+  snapshot.directScores.forEach((score, index) => {
+    const task = snapshot.tasks.find((entry) => entry.id === score.taskId && entry.cycleId === score.cycleId)
+    if (score.score !== null && score.score > (task === undefined ? 100 : directScoreLimit(task))) {
+      context.addIssue({ code: "custom", path: ["directScores", index, "score"], message: "과제의 점수 상한을 초과했습니다." })
+    }
+  })
 })

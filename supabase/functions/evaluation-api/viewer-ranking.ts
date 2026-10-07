@@ -1,3 +1,4 @@
+import { directScoreLimit } from "./direct-score-limit.ts"
 import type { Profile, Snapshot, Task } from "./model.ts"
 import { aggregateEvaluatorScore, derivedScore } from "./projection.ts"
 
@@ -135,18 +136,20 @@ function taskScore(snapshot: Snapshot, task: Task, engineerId: string, startsAt:
 function currentScore(snapshot: Snapshot, cycleId: string, engineerId: string): number | null {
   const cycle = snapshot.cycles.find((entry) => entry.id === cycleId)
   if (cycle === undefined) return null
+  let totalScoreLimit = 100
   const contributions = snapshot.tasks.filter((task) => task.cycleId === cycleId).flatMap((task) => {
     const weight = snapshot.engineerTaskWeights.find((entry) =>
       entry.cycleId === cycleId && entry.engineerId === engineerId && entry.taskId === task.id)?.weight ?? task.weight
     if (weight <= 0) return []
     const score = taskScore(snapshot, task, engineerId, cycle.startsAt)
+    if (score !== null && directScoreLimit(task) === 120) totalScoreLimit += Math.max(0, score - 100) * weight / 100
     return score === null ? [] : [score * (weight / 100)]
   })
   if (contributions.length === 0) return null
   const adjustment = snapshot.scoreAdjustments.filter((entry) =>
     entry.cycleId === cycleId && entry.engineerId === engineerId
   ).reduce((total, entry) => total + entry.amount, 0)
-  const score = Math.min(100, Math.max(0, contributions.reduce((total, value) => total + value, 0) + adjustment))
+  const score = Math.min(totalScoreLimit, Math.max(0, contributions.reduce((total, value) => total + value, 0) + adjustment))
   return Math.round((score + Number.EPSILON) * 100) / 100
 }
 

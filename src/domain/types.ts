@@ -355,6 +355,7 @@ export type EngineerResult = Readonly<{
   contributions: Readonly<Record<string, number | null>>
   baseScore: number | null
   adjustmentTotal: number
+  totalScoreLimit?: number
   finalScore: number | null
   roundedFinalScore: number | null
 }>

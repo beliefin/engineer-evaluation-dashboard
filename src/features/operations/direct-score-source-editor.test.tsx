@@ -74,7 +74,7 @@ describe("DirectScoreSourceEditor", () => {
     const user = userEvent.setup()
     const callbacks = renderEditor()
 
-    expect(screen.getByText("100점 만점 · 최종 점수 10% 반영")).toBeInTheDocument()
+    expect(screen.getByText("입력 상한 120점 · 최종 점수 10% 반영")).toBeInTheDocument()
     await user.type(screen.getByRole("spinbutton", {
       name: "샘플 엔지니어 01 고등급제안 점수",
     }), "84.5")

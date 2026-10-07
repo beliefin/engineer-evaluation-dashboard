@@ -1,3 +1,4 @@
+import { directScoreLimit } from "./direct-score-limit.ts"
 import { z } from "zod"
 
 const id = z.string().trim().min(1)
@@ -135,7 +136,7 @@ const unlockRequestSchema = z.object({
   createdAt: timestamp, resolvedAt: timestamp.nullable(),
 })
 export const directScoreSchema = z.object({
-  id, cycleId: id, engineerId: id, taskId: id, score: z.number().min(0).max(100).nullable(),
+  id, cycleId: id, engineerId: id, taskId: id, score: z.number().finite().min(0).max(120).nullable(),
   passResult: z.boolean().nullable(), updatedAt: timestamp,
 })
 export type DirectScore = z.infer<typeof directScoreSchema>
@@ -204,6 +205,13 @@ export const snapshotSchema = z.object({
   ...snapshotFields,
   derivedScoreRules: z.array(derivedScoreRule).default([]),
   evaluationBenchmarks: z.array(evaluationBenchmark).default([]),
+}).superRefine((snapshot, context) => {
+  snapshot.directScores.forEach((score, index) => {
+    const task = snapshot.tasks.find((entry) => entry.id === score.taskId && entry.cycleId === score.cycleId)
+    if (score.score !== null && score.score > (task === undefined ? 100 : directScoreLimit(task))) {
+      context.addIssue({ code: "custom", path: ["directScores", index, "score"], message: "과제의 점수 상한을 초과했습니다." })
+    }
+  })
 })
 export type Snapshot = z.infer<typeof snapshotSchema>
 

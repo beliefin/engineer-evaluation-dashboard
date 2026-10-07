@@ -23,7 +23,7 @@ function currentScore(result: EngineerResult): number | null {
   )
   if (contributions.length === 0) return null
   const earnedScore = contributions.reduce((total, value) => total + value, 0)
-  return roundToTwo(Math.min(100, Math.max(0, earnedScore + result.adjustmentTotal)))
+  return roundToTwo(Math.min(result.totalScoreLimit ?? 100, Math.max(0, earnedScore + result.adjustmentTotal)))
 }
 
 function rankForEngineer(

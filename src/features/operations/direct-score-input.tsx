@@ -10,17 +10,18 @@ interface DirectScoreInputProps {
   readonly value: number | null
   readonly disabled: boolean
   readonly onChange: (value: number | null) => void
+  readonly maxScore?: number
 }
 
-const SCORE_PATTERN = /^(?:100(?:\.0)?|\d{1,2}(?:\.\d)?)$/
+const SCORE_PATTERN = /^\d{1,3}(?:\.\d)?$/
 
-function parseScore(value: string): number | null {
+function parseScore(value: string, maxScore: number): number | null {
   if (!SCORE_PATTERN.test(value)) {
     return null
   }
 
   const parsed = Number(value)
-  return Number.isFinite(parsed) && parsed >= 0 && parsed <= 100 ? parsed : null
+  return Number.isFinite(parsed) && parsed >= 0 && parsed <= maxScore ? parsed : null
 }
 
 export function DirectScoreInput({
@@ -29,6 +30,7 @@ export function DirectScoreInput({
   value,
   disabled,
   onChange,
+  maxScore = 100,
 }: DirectScoreInputProps) {
   const inputId = useId()
   const errorId = `${inputId}-error`
@@ -43,7 +45,7 @@ export function DirectScoreInput({
       return
     }
 
-    const parsed = parseScore(nextValue)
+    const parsed = parseScore(nextValue, maxScore)
     if (parsed === null) {
       setInvalid(true)
       return
@@ -70,7 +72,7 @@ export function DirectScoreInput({
         disabled={disabled}
         id={inputId}
         inputMode="decimal"
-        max="100"
+        max={maxScore}
         min="0"
         onBlur={handleBlur}
         onChange={(event) => handleChange(event.currentTarget.value)}
@@ -81,7 +83,7 @@ export function DirectScoreInput({
       />
       {invalid ? (
         <span className="sr-only" id={errorId}>
-          0부터 100 사이의 점수를 소수 첫째 자리까지 입력해 주세요.
+          0부터 {maxScore} 사이의 점수를 소수 첫째 자리까지 입력해 주세요.
         </span>
       ) : null}
     </div>

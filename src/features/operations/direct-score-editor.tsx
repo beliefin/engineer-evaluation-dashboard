@@ -20,6 +20,8 @@ import {
   TableRow,
 } from "@/components/ui/table"
 
+import { directScoreLimit } from "@/domain/direct-score-limit"
+
 import { DirectScoreInput } from "./direct-score-input"
 import { OperationPanel } from "./operation-panel"
 import type {
@@ -56,6 +58,7 @@ function DirectResultInput({
         disabled={disabled || task.formulaDriven === true}
         engineerName={engineerName}
         fieldLabel={task.taskName}
+        maxScore={directScoreLimit({ name: task.taskName, method: task.method })}
         onChange={(score) => onChange(score, null)}
         value={task.score}
       />
@@ -102,7 +105,7 @@ export function DirectScoreEditor({
 
   return (
     <OperationPanel
-      description="환산 규칙 미연결 운영자 과제의 0~100점·P/F 직접 입력. 환산식 연결 과제는 원천 실적 기준 자동 계산"
+      description="고등급 제안 0~120점, 다른 운영자 과제 0~100점·P/F 직접 입력. 환산식 연결 과제는 원천 실적 기준 자동 계산"
       title="직접 점수 확인"
     >
       <div className="mb-4 flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">

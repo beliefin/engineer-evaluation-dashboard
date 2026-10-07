@@ -1,3 +1,4 @@
+import { directScoreLimit } from "./direct-score-limit"
 import { highestConvertedDirectScore } from "./direct-score-rules"
 import { isVerifiedSourceRecord } from "./source-record-verification"
 import type {
@@ -236,9 +237,13 @@ export function calculateEngineerResult(input: EngineerResultInput): EngineerRes
       adjustment.cycleId === input.cycleId && adjustment.engineerId === input.engineerId,
     )
     .reduce((total, adjustment) => total + adjustment.amount, 0)
+  const totalScoreLimit = 100 + weightedTasks.reduce((total, { task, weight }) => {
+    const score = taskResults.find((entry) => entry.taskId === task.id)?.score ?? 0
+    return total + (directScoreLimit(task) === 120 ? Math.max(0, score - 100) * weight / 100 : 0)
+  }, 0)
   const finalScore = baseScore === null
     ? null
-    : Math.min(100, Math.max(0, baseScore + adjustmentTotal))
+    : Math.min(totalScoreLimit, Math.max(0, baseScore + adjustmentTotal))
 
   return {
     cycleId: input.cycleId,
@@ -248,6 +253,7 @@ export function calculateEngineerResult(input: EngineerResultInput): EngineerRes
     contributions,
     baseScore,
     adjustmentTotal,
+    totalScoreLimit,
     finalScore,
     roundedFinalScore: finalScore === null ? null : roundToTwo(finalScore),
   }

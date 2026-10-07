@@ -41,10 +41,10 @@ export function HighGradeProposalInput({
             <Badge variant="outline">직접 입력</Badge>
           </div>
           <p className="mt-1 text-sm text-muted-foreground">
-            운영자가 산정한 점수를 0~100점으로 입력
+            운영자가 산정한 점수를 0~120점으로 입력
           </p>
           <p className="mt-1 text-xs font-medium text-primary">
-            100점 만점 · 최종 점수 {task?.weight ?? 10}% 반영
+            입력 상한 120점 · 최종 점수 {task?.weight ?? 10}% 반영
           </p>
         </div>
 
@@ -56,6 +56,7 @@ export function HighGradeProposalInput({
               disabled={disabled || task.formulaDriven === true}
               engineerName={row.engineerName}
               fieldLabel={task.taskName}
+              maxScore={120}
               onChange={(score) => onScoreChange(row.engineerId, task.taskId, score, null)}
               value={task.score}
             />
