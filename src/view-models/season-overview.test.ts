@@ -24,7 +24,7 @@ describe("selectSeasonOverview", () => {
     expect(model?.composition[1]).toMatchObject({
       kind: "alternative",
       weight: 35,
-      options: ["OTS 시나리오 제작", "DX 툴 활용"],
+      options: ["OTS 시나리오 제작", "AX 전환"],
     })
   })
 

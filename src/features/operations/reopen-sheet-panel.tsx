@@ -2,6 +2,7 @@
 
 import { LockKeyhole, SearchIcon } from "lucide-react"
 import { useMemo, useState } from "react"
+import "./adjustment-unlock-signal.css"
 
 import { Badge } from "@/components/ui/badge"
 import { Input } from "@/components/ui/input"
@@ -41,14 +42,14 @@ export function ReopenSheetPanel({
   }, [query, sheets])
 
   return (
-    <OperationPanel
+    <div className="signal-reopen-panel"><OperationPanel
       aside={<Badge variant="outline">요청 {sheets.length}건</Badge>}
       description="평가자 수정 사유 확인 후 제출 잠금 해제. 운영자 입력 평가는 잠금 제외"
       title="평가 잠금 해제 요청"
     >
       {sheets.length === 0 ? (
-        <div className="flex flex-col items-center py-12 text-center">
-          <LockKeyhole className="mb-3 size-7 text-muted-foreground" />
+        <div className="signal-reopen-empty flex flex-col items-center py-12 text-center">
+          <LockKeyhole aria-hidden="true" className="mb-3 size-7 text-muted-foreground" />
           <p className="font-medium">대기 중인 잠금 해제 요청이 없습니다.</p>
           <p className="mt-1 text-sm text-muted-foreground">
             평가자가 제출 후 수정 요청을 보내면 여기에 표시됩니다.
@@ -83,7 +84,7 @@ export function ReopenSheetPanel({
             </div>
           ) : (
             <>
-          <div className="divide-y rounded-md border md:hidden">
+          <div className="signal-reopen-cards divide-y rounded-md border md:hidden">
             {filteredSheets.map((sheet) => (
               <div
                 className="flex items-center justify-between gap-4 p-4"
@@ -107,7 +108,7 @@ export function ReopenSheetPanel({
               </div>
             ))}
           </div>
-          <div className="hidden md:block">
+          <div className="signal-reopen-table hidden md:block">
             <Table>
               <TableHeader>
                 <TableRow>
@@ -149,6 +150,6 @@ export function ReopenSheetPanel({
           )}
         </>
       )}
-    </OperationPanel>
+    </OperationPanel></div>
   )
 }

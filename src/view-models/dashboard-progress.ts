@@ -14,6 +14,7 @@ import type {
 } from "@/features/dashboard"
 
 import type { EngineerResultSummary } from "./results"
+import { displayEvaluationTaskName } from "./labels"
 
 type TaskProgressInput = Readonly<{
   snapshot: EvaluationSnapshot
@@ -73,7 +74,7 @@ function createTaskProgress(input: TaskProgressInput): EngineerTaskProgress {
 
   return {
     taskId: input.task.id,
-    label: input.task.name,
+    label: displayEvaluationTaskName(input.task.name),
     weight: resolveEngineerTaskWeight(
       input.task,
       input.engineerId,
@@ -126,7 +127,7 @@ export function selectDashboardProgress(
   const tasks = snapshot.tasks
     .filter((task) => visibleTaskIds.has(task.id))
     .toSorted((left, right) => left.order - right.order)
-    .map((task) => ({ id: task.id, label: task.name }))
+    .map((task) => ({ id: task.id, label: displayEvaluationTaskName(task.name) }))
 
   return { tasks, rows }
 }

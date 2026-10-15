@@ -1,0 +1,35 @@
+/* Shared analysis entry/navigation for the reviewed AN01/AN04 scenes. */
+.signal-analysis-page { min-width: 0; color: #1a1a18; }
+.signal-analysis-page-heading { gap: 24px; padding-bottom: 0; }
+.signal-analysis-page-heading h1 { font-size: clamp(36px,4.1vw,64px); font-weight: 900; line-height: 1.12; letter-spacing: -.045em; }
+.signal-analysis-page-heading > div:first-child > div { font-size: 16px; letter-spacing: 0; color: #555552; }
+.signal-analysis-page-heading p { max-width: none; font-size: 20px; line-height: 1.5; }
+.signal-analysis-page-heading a { display: inline-flex; align-items: center; justify-content: center; min-height: 50px; border: 1px solid #1a1a18; border-radius: 0; padding: 10px 24px; background: #fff; color: #1a1a18; font-size: 18px; font-weight: 750; }
+.signal-analysis-filters { border: 1px solid #b5b5b2; padding: 18px; background: #fff; }
+.signal-analysis-filters h2 { font-size: 20px; font-weight: 800; }
+.signal-analysis-filters p, .signal-analysis-filters label { font-size: 16px; line-height: 1.5; }
+.signal-analysis-filters label { color: #1a1a18; font-weight: 700; }
+.signal-analysis-filters button { min-height: 44px; border-radius: 0; font-size: 16px; }
+.signal-analysis-filters [data-slot="select-trigger"] { min-height: 50px; background: #fff; border: 1px solid #969691; font-size: 18px; box-shadow: none; }
+.signal-analysis-filter-options { border-radius: 0; border: 1px solid #1a1a18; background: #fff; }
+.signal-analysis-filter-options [data-slot="select-item"] { min-height: 44px; padding-block: 10px; border-radius: 0; font-size: 16px; }
+.signal-analysis-filter-options [data-slot="select-item"][data-highlighted] { background: #e8cf4a; color: #1a1a18; }
+.signal-analysis-filter-mobile > div { border: 1px solid #b5b5b2; background: #fff; }
+.signal-analysis-filter-mobile p { font-size: 16px; line-height: 1.5; }
+.signal-analysis-filter-mobile button { min-height: 44px; border-radius: 0; font-size: 16px; }
+.signal-analysis-filter-sheet { gap: 22px; color: #1a1a18; background: #fff; }
+.signal-analysis-filter-sheet [data-slot="sheet-title"] { font-size: 28px; font-weight: 850; }
+.signal-analysis-filter-sheet [data-slot="sheet-description"], .signal-analysis-filter-sheet label { font-size: 16px; line-height: 1.5; }
+.signal-analysis-filter-sheet [data-slot="select-trigger"], .signal-analysis-filter-sheet button { min-height: 44px; border-radius: 0; font-size: 16px; }
+.signal-analysis-filter-sheet > button { min-width: 44px; }
+.signal-analysis-filter-sheet [data-slot="select-trigger"] { min-width: 0; border-color: #969691; }
+.signal-analysis-filter-sheet [data-slot="sheet-footer"] button { background: #e8cf4a; color: #1a1a18; }
+.signal-analysis-filters :focus-visible, .signal-analysis-filter-mobile :focus-visible, .signal-analysis-filter-sheet :focus-visible { outline: 2px solid #1a1a18; outline-offset: 3px; box-shadow: 0 0 0 5px #e8cf4a; }
+@media (max-width: 768px) {
+  .signal-analysis-page-heading h1 { font-size: 38px; }
+  .signal-analysis-page-heading p { font-size: 16px; }
+  .signal-analysis-page-heading a { min-height: 44px; font-size: 16px; padding: 10px 16px; }
+  .signal-analysis-filters { padding: 16px; }
+  .signal-analysis-filters > div:last-child { gap: 12px; }
+  .signal-analysis-filters [data-slot="select-trigger"] { font-size: 16px; min-height: 44px; }
+}

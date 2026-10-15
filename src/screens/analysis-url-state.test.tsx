@@ -140,7 +140,7 @@ describe("analysis URL filter state", () => {
 
     const { teamFilter, categoryFilter, statusFilter } = getAnalysisFilters()
     expect(teamFilter).toHaveTextContent("생산 2팀")
-    expect(categoryFilter).toHaveTextContent("DX 툴 활용")
+    expect(categoryFilter).toHaveTextContent("AX 전환")
     expect(statusFilter).toHaveTextContent("진행 중")
   })
 

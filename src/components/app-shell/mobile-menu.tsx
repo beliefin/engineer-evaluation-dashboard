@@ -18,6 +18,7 @@ import {
 import { AppNavigation } from "./app-navigation"
 import { AppBrand } from "./app-sidebar"
 import { ShellControls } from "./shell-controls"
+import "./shell-signal.css"
 import {
   APP_SHELL_HOME_PATHS,
   APP_SHELL_ROLE_LABELS,
@@ -62,17 +63,17 @@ export function MobileMenu({
   return (
     <Sheet onOpenChange={setOpen} open={open}>
       <SheetTrigger asChild>
-        <Button aria-label="메뉴 열기" size="icon" variant="ghost">
+        <Button aria-label="메뉴 열기" className="signal-shell-menu-trigger" size="icon" variant="ghost">
           <MenuIcon aria-hidden="true" />
         </Button>
       </SheetTrigger>
       <SheetContent
-        className="w-[min(88vw,320px)] gap-0 p-0"
+        className="signal-shell-sheet"
         showCloseButton={false}
         side="left"
       >
-        <SheetHeader className="relative border-b border-sidebar-border px-4 py-3 text-left">
-          <SheetTitle className="pr-10">
+        <SheetHeader className="signal-shell-menu-header">
+          <SheetTitle className="signal-shell-menu-title">
             <span className="sr-only">엔지니어 역량평가 메뉴</span>
             <AppBrand
               href={APP_SHELL_HOME_PATHS[role]}
@@ -85,7 +86,7 @@ export function MobileMenu({
           <SheetClose asChild>
             <Button
               aria-label="메뉴 닫기"
-              className="absolute top-3 right-3"
+              className="signal-shell-menu-close"
               size="icon"
               variant="ghost"
             >
@@ -94,52 +95,54 @@ export function MobileMenu({
           </SheetClose>
         </SheetHeader>
 
-        <div className="border-b border-sidebar-border p-4">
-          <ShellControls
-            activeCycleId={activeCycleId}
-            availableRoles={availableRoles}
-            activeEvaluatorId={activeEvaluatorId}
-            cycles={cycles}
-            evaluatorOptions={evaluatorOptions}
-            idPrefix="mobile-shell"
-            onCycleChange={onCycleChange}
-            onEvaluatorChange={onEvaluatorChange}
-            onRoleChange={(nextRole) => {
-              setOpen(false)
-              onRoleChange(nextRole)
-            }}
-            orientation="vertical"
-            role={role}
-          />
-        </div>
+        <div className="signal-shell-menu-body">
+          <div className="signal-shell-menu-controls">
+            <ShellControls
+              activeCycleId={activeCycleId}
+              availableRoles={availableRoles}
+              activeEvaluatorId={activeEvaluatorId}
+              cycles={cycles}
+              evaluatorOptions={evaluatorOptions}
+              idPrefix="mobile-shell"
+              onCycleChange={onCycleChange}
+              onEvaluatorChange={onEvaluatorChange}
+              onRoleChange={(nextRole) => {
+                setOpen(false)
+                onRoleChange(nextRole)
+              }}
+              orientation="vertical"
+              role={role}
+            />
+          </div>
 
-        <div className="flex-1 overflow-y-auto px-3 py-5 scrollbar-thin">
-          <p className="mb-2 px-3 text-xs font-medium text-muted-foreground">
-            평가 운영
-          </p>
-          <AppNavigation canViewInsights={canViewInsights} closeOnNavigate role={role} />
-        </div>
+          <div className="signal-shell-menu-navigation">
+            <p className="signal-shell-menu-section-label">
+              평가 운영
+            </p>
+            <AppNavigation canViewInsights={canViewInsights} closeOnNavigate role={role} />
+          </div>
 
-        <div className="border-t border-sidebar-border px-4 py-4">
-          <p className="truncate text-xs font-semibold text-foreground">
-            {currentActor}
-          </p>
-          <p className="mt-0.5 text-xs text-muted-foreground">
-            {APP_SHELL_ROLE_LABELS[role]} · {authLabel}
-          </p>
-          <Button
-            className="mt-3 w-full justify-start"
-            onClick={() => {
-              setOpen(false)
-              onLogout()
-            }}
-            size="sm"
-            type="button"
-            variant="outline"
-          >
-            <LogOutIcon aria-hidden="true" />
-            로그아웃
-          </Button>
+          <div className="signal-shell-menu-footer">
+            <p className="signal-shell-actor">
+              {currentActor}
+            </p>
+            <p className="signal-shell-auth">
+              {APP_SHELL_ROLE_LABELS[role]} · {authLabel}
+            </p>
+            <Button
+              className="signal-shell-logout"
+              onClick={() => {
+                setOpen(false)
+                onLogout()
+              }}
+              size="sm"
+              type="button"
+              variant="outline"
+            >
+              <LogOutIcon aria-hidden="true" />
+              로그아웃
+            </Button>
+          </div>
         </div>
       </SheetContent>
     </Sheet>

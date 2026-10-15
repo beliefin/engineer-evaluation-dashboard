@@ -36,7 +36,7 @@ export function LoginForm({ onLogin, disabled = false }: LoginFormProps) {
   const busy = disabled || submitting
 
   return (
-    <form className="space-y-5" onSubmit={handleSubmit}>
+    <form className="signal-login-form space-y-5" onSubmit={handleSubmit}>
       <div className="space-y-2">
         <Label htmlFor="login-username">아이디</Label>
         <Input

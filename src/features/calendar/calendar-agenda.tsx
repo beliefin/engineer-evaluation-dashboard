@@ -1,4 +1,4 @@
-import { CalendarX2, Clock3, MapPin } from "lucide-react"
+import { CalendarX2 } from "lucide-react"
 
 import {
   formatCalendarDate,
@@ -24,33 +24,21 @@ function AgendaEvent({
 }>) {
   const content = (
     <>
-      <div className="flex items-start justify-between gap-3">
-        <div className="min-w-0">
-          <p className="break-words text-sm leading-snug font-semibold">{event.title}</p>
-          <p className="mt-1 text-xs text-muted-foreground">{event.engineerName}</p>
-        </div>
-        <span className="flex shrink-0 items-center gap-1 text-xs font-medium tabular-nums">
-          <Clock3 aria-hidden="true" className="size-3.5 text-primary" />
-          {event.startTime ?? "시간 미정"}
-        </span>
-      </div>
-      {event.note === null ? null : (
-        <p className="mt-2 flex items-start gap-1.5 text-xs leading-relaxed text-muted-foreground">
-          <MapPin aria-hidden="true" className="mt-0.5 size-3.5 shrink-0" />
-          <span>{event.note}</span>
-        </p>
-      )}
+      <p className="signal-calendar-agenda-title break-words">{event.title}</p>
+      <p className="signal-calendar-agenda-engineer">{event.engineerName}</p>
+      <p className="numeric signal-calendar-agenda-time">{event.startTime ?? "시간 미정"}</p>
+      {event.note === null ? null : <p className="signal-calendar-agenda-note">{event.note}</p>}
     </>
   )
 
   const actionable = mode === "manage" || mode === "evaluate" && event.assignmentId !== null
   if (!actionable) {
-    return <div className="border-l-2 border-l-primary bg-accent/55 p-3">{content}</div>
+    return <div className="signal-calendar-agenda-event">{content}</div>
   }
   return (
     <button
       aria-label={`${event.engineerName} ${event.title}, ${formatCalendarDate(event.date)} ${event.startTime ?? "시간 미정"}`}
-      className="w-full border-l-2 border-l-primary bg-accent/55 p-3 text-left transition-colors hover:bg-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+      className="signal-calendar-agenda-event"
       onClick={() => onSelectEvent(event)}
       type="button"
     >
@@ -64,38 +52,37 @@ export function CalendarAgenda({ events, mode, onSelectEvent }: CalendarAgendaPr
   const today = toLocalDateValue(new Date())
   if (groups.length === 0) {
     return (
-      <div className="flex min-h-72 flex-col items-center justify-center px-4 text-center">
-        <span className="flex size-10 items-center justify-center rounded-lg bg-muted text-muted-foreground">
+      <div className="signal-calendar-empty">
+        <span className="signal-calendar-empty-icon">
           <CalendarX2 aria-hidden="true" className="size-5" />
         </span>
-        <p className="mt-3 text-sm font-semibold">이달에 등록된 일정이 없습니다</p>
-        <p className="mt-1 text-sm text-muted-foreground">새 일정을 추가하면 날짜순으로 표시됩니다.</p>
+        <p className="signal-calendar-empty-title">이달에 등록된 일정이 없습니다</p>
+        <p>{mode === "manage" ? "새 일정을 추가하면 날짜순으로 표시됩니다." : "등록된 일정이 있으면 날짜순으로 표시됩니다."}</p>
       </div>
     )
   }
 
   return (
-    <ol className="grid gap-5">
+    <ol className="signal-calendar-agenda-groups">
       {groups.map((group) => {
         const isToday = group.date === today
         return (
-          <li key={group.date}>
-            <h3 className="mb-2 flex items-baseline justify-between gap-3">
+          <li key={group.date} id={`calendar-date-${group.date}`}>
+            <h3 className="signal-calendar-agenda-date">
               <time
                 aria-current={isToday ? "date" : undefined}
-                className={isToday ? "text-sm font-semibold text-primary" : "text-sm font-semibold"}
                 dateTime={group.date}
               >
                 {formatCalendarDate(group.date)}
               </time>
-              <span className="flex items-center gap-2 text-xs text-muted-foreground">
+              <span className="signal-calendar-agenda-count">
                 {isToday ? (
-                  <span className="rounded-sm bg-primary px-1.5 py-0.5 font-semibold text-primary-foreground">오늘</span>
+                  <span className="signal-calendar-today-label">오늘</span>
                 ) : null}
                 {group.events.length}건
               </span>
             </h3>
-            <div className="grid gap-2">
+            <div className="signal-calendar-agenda-events">
               {group.events.map((event) => (
                 <AgendaEvent
                   event={event}

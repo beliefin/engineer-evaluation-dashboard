@@ -38,24 +38,25 @@ export function ShellControls({
 }: ShellControlsProps) {
   return (
     <div
+      data-orientation={orientation}
       className={cn(
-        "flex gap-3",
+        "signal-shell-controls flex gap-3",
         orientation === "vertical" ? "flex-col" : "items-center"
       )}
     >
       {availableRoles.length > 1 ? (
         <div
           className={cn(
-            "flex gap-2",
+            "signal-shell-control flex gap-2",
             orientation === "vertical" ? "flex-col" : "items-center"
           )}
         >
-          <label className="shrink-0 text-xs font-medium text-muted-foreground" htmlFor={`${idPrefix}-role`}>
+          <label className="signal-shell-control-label shrink-0 text-xs font-medium text-muted-foreground" htmlFor={`${idPrefix}-role`}>
             사용 모드
           </label>
           <select
             className={cn(
-              "h-9 rounded-md border border-input bg-card px-2.5 text-sm font-medium",
+              "signal-shell-select h-9 rounded-md border border-input bg-card px-2.5 text-sm font-medium",
               orientation === "vertical" ? "w-full" : "w-32"
             )}
             id={`${idPrefix}-role`}
@@ -75,12 +76,12 @@ export function ShellControls({
       ) : null}
       <div
         className={cn(
-          "flex gap-2",
+          "signal-shell-control flex gap-2",
           orientation === "vertical" ? "flex-col" : "items-center"
         )}
       >
         <span
-          className="shrink-0 text-xs font-medium text-muted-foreground"
+          className="signal-shell-control-label shrink-0 text-xs font-medium text-muted-foreground"
           id={`${idPrefix}-cycle-label`}
         >
           평가 시즌
@@ -88,7 +89,7 @@ export function ShellControls({
         <select
           aria-labelledby={`${idPrefix}-cycle-label`}
           className={cn(
-            "h-9 rounded-md border border-input bg-card px-2.5 text-sm font-medium",
+            "signal-shell-select h-9 rounded-md border border-input bg-card px-2.5 text-sm font-medium",
             orientation === "vertical" ? "w-full" : "w-44"
           )}
           onChange={(event) => onCycleChange(event.currentTarget.value)}
@@ -105,19 +106,19 @@ export function ShellControls({
       {role === "operator" ? (
         <div
           className={cn(
-            "flex gap-2",
+            "signal-shell-control flex gap-2",
             orientation === "vertical" ? "flex-col" : "items-center"
           )}
         >
           <label
-            className="shrink-0 text-xs font-medium text-muted-foreground"
+            className="signal-shell-control-label shrink-0 text-xs font-medium text-muted-foreground"
             htmlFor={`${idPrefix}-evaluator`}
           >
             대리 입력 평가자
           </label>
           <select
             className={cn(
-              "h-9 rounded-md border border-input bg-card px-2.5 text-sm font-medium",
+              "signal-shell-select h-9 rounded-md border border-input bg-card px-2.5 text-sm font-medium",
               orientation === "vertical" ? "w-full" : "w-40"
             )}
             disabled={evaluatorOptions.length === 0}

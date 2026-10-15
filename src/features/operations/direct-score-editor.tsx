@@ -23,6 +23,7 @@ import {
 import { directScoreLimit } from "@/domain/direct-score-limit"
 
 import { DirectScoreInput } from "./direct-score-input"
+import styles from "./direct-score-signal.module.css"
 import { OperationPanel } from "./operation-panel"
 import type {
   DirectTaskScoreViewModel,
@@ -71,8 +72,8 @@ function DirectResultInput({
       onValueChange={(next) => onChange(null, next === "unset" ? null : next === "pass")}
       value={value}
     >
-      <SelectTrigger aria-label={`${engineerName} ${task.taskName} 결과`} className="w-24"><SelectValue /></SelectTrigger>
-      <SelectContent><SelectItem value="unset">미입력</SelectItem><SelectItem value="pass">P</SelectItem><SelectItem value="fail">F</SelectItem></SelectContent>
+      <SelectTrigger aria-label={`${engineerName} ${task.taskName} 결과`} className={styles.passFail}><SelectValue /></SelectTrigger>
+      <SelectContent className={styles.passFailMenu}><SelectItem value="unset">미입력</SelectItem><SelectItem value="pass">P</SelectItem><SelectItem value="fail">F</SelectItem></SelectContent>
     </Select>
   )
 }
@@ -104,106 +105,108 @@ export function DirectScoreEditor({
   }, [query, rows])
 
   return (
-    <OperationPanel
-      description="고등급 제안 0~120점, 다른 운영자 과제 0~100점·P/F 직접 입력. 환산식 연결 과제는 원천 실적 기준 자동 계산"
-      title="직접 점수 확인"
-    >
-      <div className="mb-4 flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
-        <div className="relative w-full sm:max-w-sm">
-          <Search
-            aria-hidden="true"
-            className="absolute top-1/2 left-3 size-4 -translate-y-1/2 text-muted-foreground"
-          />
-          <label className="sr-only" htmlFor="direct-score-search">
-            엔지니어 검색
-          </label>
-          <Input
-            className="pl-9"
-            id="direct-score-search"
-            onChange={(event) => setQuery(event.currentTarget.value)}
-            placeholder="이름, 사번 또는 팀 검색"
-            type="search"
-            value={query}
-          />
-        </div>
-        <p aria-live="polite" className="text-xs text-muted-foreground">
-          {filteredRows.length}명 표시
-        </p>
-      </div>
-
-      <div className="divide-y rounded-md border md:hidden">
-        {filteredRows.map((row) => (
-          <div className="p-4" key={`${row.engineerId}-mobile`}>
-            <div className="mb-4 flex items-start justify-between gap-3">
-              <div>
-                <p className="font-medium">{row.engineerName}</p>
-                <p className="mt-0.5 text-xs text-muted-foreground">
-                  {row.employeeLabel}
-                </p>
-              </div>
-              <p className="text-xs text-muted-foreground">{row.teamName}</p>
-            </div>
-            <div className="grid gap-3 sm:grid-cols-2">
-              {row.directTasks.map((task) => (
-                <div key={task.taskId}>
-                  <p className="mb-1.5 text-xs font-medium">{task.taskName} <span className="text-muted-foreground">{task.weight}%</span>{task.formulaDriven ? <span className="ml-2 text-primary">환산식 적용</span> : null}</p>
-                  <DirectResultInput disabled={disabled} engineerName={row.engineerName} onChange={(score, passResult) => onScoreChange(row.engineerId, task.taskId, score, passResult)} task={task} />
-                </div>
-              ))}
-            </div>
+    <div className={styles.editor}>
+      <OperationPanel
+        description="고등급 제안 0~120점, 다른 운영자 과제 0~100점·P/F 직접 입력. 환산식 연결 과제는 원천 실적 기준 자동 계산"
+        title="직접 점수 확인"
+      >
+        <div className={styles.toolbar}>
+          <div className={styles.searchField}>
+            <Search
+              aria-hidden="true"
+              className={styles.searchIcon}
+            />
+            <label className="sr-only" htmlFor="direct-score-search">
+              엔지니어 검색
+            </label>
+            <Input
+              className={styles.searchInput}
+              id="direct-score-search"
+              onChange={(event) => setQuery(event.currentTarget.value)}
+              placeholder="이름, 사번 또는 팀 검색"
+              type="search"
+              value={query}
+            />
           </div>
-        ))}
-      </div>
+          <p aria-live="polite" className={styles.secondary}>
+            {filteredRows.length}명 표시
+          </p>
+        </div>
 
-      <div className="hidden md:block">
-        <Table>
-          <TableHeader>
-            <TableRow>
-              <TableHead>엔지니어</TableHead>
-              <TableHead>팀</TableHead>
-              {taskDefinitions.map((task) => (
-                <TableHead className="min-w-32 text-right" key={task.taskId}>
-                  {task.taskName}
-                </TableHead>
-              ))}
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {filteredRows.map((row) => (
-              <TableRow key={row.engineerId}>
-                <TableCell>
-                  <span className="block font-medium">{row.engineerName}</span>
-                  <span className="text-xs text-muted-foreground">
+        <div className={styles.mobileCards}>
+          {filteredRows.map((row) => (
+            <div className={styles.mobileCard} key={`${row.engineerId}-mobile`}>
+              <div className={styles.mobileHeading}>
+                <div>
+                  <p className={styles.engineerName}>{row.engineerName}</p>
+                  <p className={styles.secondary}>
                     {row.employeeLabel}
-                  </span>
-                </TableCell>
-                <TableCell>{row.teamName}</TableCell>
-                {taskDefinitions.map((definition) => {
-                  const task = row.directTasks.find((entry) => entry.taskId === definition.taskId)
-                  return (
-                    <TableCell className="text-right" key={definition.taskId}>
-                      {task === undefined ? (
-                        <span className="text-xs text-muted-foreground">평가 제외</span>
-                      ) : (
-                        <div className="flex items-center justify-end gap-2">
-                          <span className="numeric text-xs text-muted-foreground">{task.weight}%</span>{task.formulaDriven ? <span className="text-xs text-primary">환산식</span> : null}
-                          <DirectResultInput disabled={disabled} engineerName={row.engineerName} onChange={(score, passResult) => onScoreChange(row.engineerId, task.taskId, score, passResult)} task={task} />
-                        </div>
-                      )}
-                    </TableCell>
-                  )
-                })}
-              </TableRow>
-            ))}
-          </TableBody>
-        </Table>
-      </div>
+                  </p>
+                </div>
+                <p className={styles.secondary}>{row.teamName}</p>
+              </div>
+              <div className={styles.mobileTasks}>
+                {row.directTasks.map((task) => (
+                  <div className={styles.mobileTask} key={task.taskId}>
+                    <p className={styles.taskLabel}>{task.taskName} <span className={styles.weight}>{task.weight}%</span>{task.formulaDriven ? <span className={styles.formula}>환산식 적용</span> : null}</p>
+                    <DirectResultInput disabled={disabled} engineerName={row.engineerName} onChange={(score, passResult) => onScoreChange(row.engineerId, task.taskId, score, passResult)} task={task} />
+                  </div>
+                ))}
+              </div>
+            </div>
+          ))}
+        </div>
 
-      {filteredRows.length === 0 ? (
-        <p className="py-10 text-center text-sm text-muted-foreground">
-          검색 조건에 맞는 엔지니어가 없습니다.
-        </p>
-      ) : null}
-    </OperationPanel>
+        <div className={styles.desktopTable}>
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHead>엔지니어</TableHead>
+                <TableHead>팀</TableHead>
+                {taskDefinitions.map((task) => (
+                  <TableHead className={styles.taskHeading} key={task.taskId}>
+                    {task.taskName}
+                  </TableHead>
+                ))}
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {filteredRows.map((row) => (
+                <TableRow key={row.engineerId}>
+                  <TableCell>
+                    <span className={styles.engineerName}>{row.engineerName}</span>
+                    <span className={styles.secondary}>
+                      {row.employeeLabel}
+                    </span>
+                  </TableCell>
+                  <TableCell>{row.teamName}</TableCell>
+                  {taskDefinitions.map((definition) => {
+                    const task = row.directTasks.find((entry) => entry.taskId === definition.taskId)
+                    return (
+                      <TableCell className={styles.resultCell} key={definition.taskId}>
+                        {task === undefined ? (
+                          <span className={styles.excluded}>평가 제외</span>
+                        ) : (
+                          <div className={styles.resultGroup}>
+                            <span className={styles.weight}>{task.weight}%</span>{task.formulaDriven ? <span className={styles.formula}>환산식</span> : null}
+                            <DirectResultInput disabled={disabled} engineerName={row.engineerName} onChange={(score, passResult) => onScoreChange(row.engineerId, task.taskId, score, passResult)} task={task} />
+                          </div>
+                        )}
+                      </TableCell>
+                    )
+                  })}
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
+        </div>
+
+        {filteredRows.length === 0 ? (
+          <p className={styles.empty}>
+            검색 조건에 맞는 엔지니어가 없습니다.
+          </p>
+        ) : null}
+      </OperationPanel>
+    </div>
   )
 }

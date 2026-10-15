@@ -30,7 +30,7 @@ describe("ranking population persistence", () => {
 
     await user.click(within(view.container).getByRole("button", { name: "순위 대상 관리" }))
     await user.click(within(document.body).getByRole("checkbox", { name: "생산2 엔지니어 순위 포함" }))
-    await user.click(within(document.body).getByRole("button", { name: "확인" }))
+    await user.click(within(document.body).getByRole("button", { name: "선택 저장" }))
 
     view.rerender(
       <CompletedRanking

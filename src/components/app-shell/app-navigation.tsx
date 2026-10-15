@@ -106,6 +106,7 @@ function isActivePath(pathname: string, href: string) {
 interface AppNavigationProps {
   readonly role: AppShellRole
   readonly canViewInsights?: boolean
+  readonly layout?: "vertical" | "horizontal" | "secondary"
   readonly closeOnNavigate?: boolean
 }
 
@@ -113,22 +114,25 @@ export function AppNavigation({
   role,
   canViewInsights = false,
   closeOnNavigate = false,
+  layout = "vertical",
 }: AppNavigationProps) {
   const pathname = usePathname()
+  const primaryPaths = role === "evaluator" ? ["/overview", "/today", "/evaluations", "/calendar"] : role === "engineer" ? ["/overview", "/my"] : ["/dashboard", "/evaluations", "/pending", "/calendar", "/analysis", "/reports/season"]
   const visibleItems = NAV_ITEMS.filter((item) =>
     item.roles.includes(role) ||
     (role === "evaluator" && canViewInsights && item.evaluatorInsights === true))
+    .filter((item) => layout === "vertical" || (layout === "horizontal" ? primaryPaths.includes(item.href) : !primaryPaths.includes(item.href)))
 
   return (
-    <nav aria-label="주요 메뉴" className="flex flex-col border-t border-sidebar-border/80">
+    <nav aria-label="주요 메뉴" className={layout === "horizontal" ? "signal-navigation" : "signal-shell-navigation flex flex-col border-t border-sidebar-border/80"}>
       {visibleItems.map((item, index) => {
-        const active = isActivePath(pathname, item.href)
+        const active = isActivePath(pathname, item.href) || (item.href === "/analysis" && pathname.startsWith("/engineers"))
         const sequence = String(index).padStart(2, "0")
         const link = (
           <Link
             aria-current={active ? "page" : undefined}
             className={cn(
-              "group grid min-h-12 grid-cols-[1.75rem_minmax(0,1fr)_0.5rem] items-center gap-2 border-b border-sidebar-border/80 px-2 py-2 text-sm transition-colors",
+              layout === "horizontal" ? "signal-nav-link" : "signal-shell-nav-link group grid min-h-12 grid-cols-[1.75rem_minmax(0,1fr)_0.5rem] items-center gap-2 border-b border-sidebar-border/80 px-2 py-2 text-sm transition-colors",
               active
                 ? "font-semibold text-primary"
                 : "text-sidebar-foreground hover:bg-card/70 hover:text-foreground"
@@ -138,22 +142,22 @@ export function AppNavigation({
             <span
               aria-hidden
               className={cn(
-                "numeric text-[10px] font-semibold tracking-[0.12em]",
+                layout === "horizontal" ? "hidden" : "signal-shell-nav-sequence numeric text-[10px] font-semibold tracking-[0.12em]",
                 active ? "text-primary" : "text-muted-foreground"
               )}
             >
               {sequence}
             </span>
             <span className="min-w-0">
-              <span className="block leading-5">{item.label}</span>
-              <span className="block truncate text-xs font-normal text-muted-foreground">
+              <span className="signal-shell-nav-label block leading-5">{item.label}</span>
+              <span className={layout === "horizontal" ? "sr-only" : "signal-shell-nav-description block truncate text-xs font-normal text-muted-foreground"}>
                 {item.description}
               </span>
             </span>
             <span
               aria-hidden
               className={cn(
-                "size-1.5 justify-self-end bg-transparent",
+                layout === "horizontal" ? "hidden" : "signal-shell-nav-marker size-1.5 justify-self-end bg-transparent",
                 active && "bg-primary"
               )}
             />

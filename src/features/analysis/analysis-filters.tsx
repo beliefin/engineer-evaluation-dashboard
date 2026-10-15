@@ -2,6 +2,7 @@
 
 import { SlidersHorizontal } from "lucide-react"
 import { useId } from "react"
+import "./analysis-navigation-signal.css"
 
 import { Button } from "@/components/ui/button"
 import {
@@ -53,7 +54,7 @@ function FilterSelect({
         <SelectTrigger id={id} className="h-9 w-full bg-card">
           <SelectValue />
         </SelectTrigger>
-        <SelectContent position="popper" align="start">
+        <SelectContent className="signal-analysis-filter-options" position="popper" align="start">
           {options.map((option) => (
             <SelectItem key={option.value} value={option.value}>
               {option.label}
@@ -129,7 +130,7 @@ export function AnalysisFilters({
       <section
         aria-labelledby={`${id}-desktop-heading`}
         className={cn(
-          "hidden border-y border-border bg-muted/45 px-5 py-4 sm:block",
+          "signal-analysis-filters hidden border-y border-border bg-muted/45 px-5 py-4 sm:block",
           className,
         )}
       >
@@ -163,7 +164,7 @@ export function AnalysisFilters({
         />
       </section>
 
-      <div className={cn("sm:hidden", className)}>
+      <div className={cn("signal-analysis-filter-mobile sm:hidden", className)}>
         <Sheet>
           <div className="flex items-center justify-between gap-3 border-y border-border bg-muted/45 px-4 py-3">
             <div>
@@ -179,7 +180,7 @@ export function AnalysisFilters({
               </Button>
             </SheetTrigger>
           </div>
-          <SheetContent className="w-full" side="right">
+          <SheetContent className="signal-analysis-filter-sheet w-full" side="right">
             <SheetHeader>
               <SheetTitle>분석 필터</SheetTitle>
               <SheetDescription>

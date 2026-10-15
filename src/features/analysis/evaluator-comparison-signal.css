@@ -1,0 +1,73 @@
+/* AN-03 only. Score positions and range widths are runtime source values. */
+.signal-comparison { min-width: 0; color: #1a1a18; font-family: var(--font-pretendard), Pretendard, sans-serif; }
+.signal-comparison > section { border: 0; border-radius: 0; background: #fff; }
+.signal-comparison > section > header { border: 0; padding: 8px 0 18px; }
+.signal-comparison > section > header h2 { font-size: clamp(34px,3.6vw,52px); font-weight: 900; line-height: 1.15; letter-spacing: -.04em; }
+.signal-comparison > section > header p { max-width: none; font-size: 18px; line-height: 1.5; color: #454543; }
+.signal-comparison > section > div { padding: 0; }
+.signal-comparison .text-muted-foreground { color: #555552; }
+.signal-comparison-controls { padding: 16px; background: #ededeb; border: 1px solid #c9c9c6; }
+.signal-comparison-controls label { font-size: 16px; font-weight: 750; color: #1a1a18; }
+.signal-comparison-controls > p { font-size: 20px; font-weight: 800; color: #1a1a18; }
+.signal-comparison button, .signal-comparison-popup [data-slot="select-item"] { min-height: 44px; border-radius: 0; font-size: 16px; }
+.signal-comparison [data-slot="select-trigger"] { min-height: 50px; border: 1px solid #969691; border-radius: 0; background: #fff; color: #1a1a18; font-size: 18px; font-weight: 750; box-shadow: none; }
+.signal-comparison-popup { border-radius: 0; background: #fff; color: #1a1a18; }
+.signal-comparison-popup [data-slot="select-item"][data-highlighted] { background: #e8cf4a; }
+.signal-comparison-workspace { gap: 18px; align-items: start; }
+.signal-comparison-roster { background: #fff; border-color: #b5b5b2; }
+.signal-comparison-roster > div:first-child, .signal-comparison-results-heading { padding: 14px 16px; background: #1a1a18; color: #fff; }
+.signal-comparison-roster h3, .signal-comparison-results-heading h3 { font-size: 24px; font-weight: 850; line-height: 1.3; }
+.signal-comparison-roster > div:first-child p, .signal-comparison-results-heading p, .signal-comparison-results-heading > span { font-size: 16px; line-height: 1.5; color: #eee; }
+.signal-comparison .signal-comparison-results-heading :is(p, span) { color: #eee; }
+.signal-comparison-roster > div:nth-child(2) { padding: 12px; }
+.signal-comparison-roster button:first-child { background: #e8cf4a; border: 1px solid #c5ac26; color: #1a1a18; }
+.signal-comparison-roster button:last-child { border: 1px solid #b5b5b2; background: #ededeb; }
+.signal-comparison-roster ul { max-height: 580px; padding: 0; }
+.signal-comparison-roster li { border-color: #c9c9c6; }
+.signal-comparison-roster label { min-height: 66px; align-items: center; padding: 12px; }
+.signal-comparison-roster label[data-selected="true"] { background: #faf5d8; }
+.signal-comparison-roster input { width: 22px; height: 22px; accent-color: #e8cf4a; flex-shrink: 0; }
+.signal-comparison-roster label span { font-size: 16px; line-height: 1.5; }
+.signal-comparison-roster label .truncate { white-space: normal; overflow: visible; }
+.signal-comparison-card { border-color: #b5b5b2; background: #fff; padding: 16px 20px; }
+.signal-comparison-card h4 { font-size: 23px; font-weight: 850; line-height: 1.3; }
+.signal-comparison-card p, .signal-comparison-card span { font-size: 16px; line-height: 1.5; }
+.signal-comparison-card .bg-success-soft { background: #ededeb; border-color: #b5b5b2; color: #1a1a18; }
+.signal-comparison-card .bg-warning-soft { background: #faf5d8; border-color: #c5ac26; color: #1a1a18; }
+.signal-comparison-rail { margin: 16px 12px 0; height: 28px; border: 0; border-radius: 0; background: transparent; }
+.signal-comparison-rail::before { content: ""; position: absolute; top: 50%; left: 0; width: 100%; height: 1px; background: #969691; }
+.signal-comparison-range { height: 4px; background: #1a1a18; }
+.signal-comparison-rail [role="img"] { width: 13px; height: 13px; border: 2px solid #1a1a18; background: #e8cf4a; box-shadow: none; }
+.signal-comparison-rail [data-outlier="true"] { width: 17px; height: 17px; border-style: dashed; }
+.signal-comparison-consensus { width: 15px; height: 15px; background: #e8cf4a; border: 2px solid #1a1a18; box-shadow: none; }
+.signal-comparison-axis { position: relative; height: 25px; margin: 0 12px; font-size: 14px; }
+.signal-comparison-axis span { position: absolute; transform: translateX(-50%); font-size: 14px; }
+.signal-comparison-axis span::before { content: ""; position: absolute; top: -19px; left: 50%; height: 8px; width: 1px; background: #969691; }
+.signal-comparison-rail-caption { gap: 24px; margin-top: 8px; }
+.signal-comparison-rail-caption > span { font-weight: 750; color: #1a1a18; }
+.signal-comparison-observation-scroll { max-width: 100%; overflow-x: auto; overscroll-behavior-x: contain; }
+.signal-comparison-observations { width: 100%; min-width: 440px; border-collapse: collapse; font-size: 16px; }
+.signal-comparison-observations :is(th,td) { border: 1px solid #c9c9c6; padding: 10px 14px; line-height: 1.4; }
+.signal-comparison-observations thead th { background: #ededeb; font-weight: 750; }
+.signal-comparison-observations th:first-child { text-align: left; }
+.signal-comparison-observations tbody th { font-weight: 500; }
+.signal-comparison-observations td { text-align: right; }
+.signal-comparison-observations tr[data-outlier="true"] { background: #faf5d8; }
+.signal-comparison-explanation { border: 1px solid #c9c9c6; background: #ededeb; }
+.signal-comparison-explanation p { font-size: 16px; }
+.signal-comparison-calibration { border-color: #b5b5b2; }
+.signal-comparison-calibration h3 { font-size: 24px; font-weight: 850; }
+.signal-comparison-calibration p, .signal-comparison-calibration span, .signal-comparison-calibration dt, .signal-comparison-calibration dd { font-size: 16px; line-height: 1.5; }
+.signal-comparison-calibration li { border-color: #b5b5b2; background: #fff; }
+.signal-comparison-calibration li[data-calibration-marked="true"] { background: #faf5d8; border-color: #c5ac26; }
+.signal-comparison-calibration .text-warning { color: #1a1a18; }
+.signal-comparison :focus-visible, .signal-comparison-popup :focus-visible { outline: 2px solid #1a1a18; outline-offset: 3px; box-shadow: 0 0 0 5px #e8cf4a; }
+@media (min-width: 1280px) { .signal-comparison-workspace { grid-template-columns: minmax(280px,.75fr) minmax(0,1.7fr); } }
+@media (max-width: 768px) {
+ .signal-comparison > section > header h2 { font-size: 34px; }
+ .signal-comparison > section > header p, .signal-comparison-axis span { font-size: 16px; }
+ .signal-comparison-roster ul { max-height: 340px; }
+ .signal-comparison-card { padding: 14px; }
+ .signal-comparison-card h4 { font-size: 21px; }
+ .signal-comparison-calibration li > div { flex-wrap: wrap; }
+}

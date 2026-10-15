@@ -1,0 +1,324 @@
+/* Shell-only Signal 15 styling. The mobile Sheet is a body portal, so it owns
+   its tokens instead of depending on the .signal-shell ancestor. */
+.signal-shell-sheet.signal-sheet,
+.signal-shell-sheet {
+  --background: #fff;
+  --foreground: #1a1a18;
+  --card: #fff;
+  --card-foreground: #1a1a18;
+  --popover: #fff;
+  --popover-foreground: #1a1a18;
+  --primary: #1a1a18;
+  --primary-foreground: #fff;
+  --primary-hover: #333;
+  --muted: #f3f3f3;
+  --muted-foreground: #666;
+  --accent: #f5edc1;
+  --accent-foreground: #1a1a18;
+  --border: #c8c8c8;
+  --input: #999;
+  --ring: #1a1a18;
+  --sidebar: #fff;
+  --sidebar-foreground: #1a1a18;
+  --sidebar-primary: #1a1a18;
+  --sidebar-primary-foreground: #fff;
+  --sidebar-accent: #f5edc1;
+  --sidebar-accent-foreground: #1a1a18;
+  --sidebar-border: #c8c8c8;
+  --sidebar-ring: #1a1a18;
+  --radius: 0;
+  --radius-sm: 0;
+  --radius-md: 0;
+  --radius-lg: 0;
+  --radius-xl: 0;
+  --signal-ink: #1a1a18;
+  --signal-yellow: #e8cf4a;
+  color-scheme: light;
+  color: var(--signal-ink);
+  background: #fff;
+  font-family: var(--font-pretendard, Pretendard), sans-serif;
+  font-size: 16px;
+  font-synthesis: none;
+  line-height: 1.5;
+  letter-spacing: -.02em;
+}
+
+.signal-shell-sheet[data-slot="sheet-content"] {
+  width: min(88vw, 320px);
+  max-width: 320px;
+  height: 100dvh;
+  max-height: 100dvh;
+  gap: 0;
+  padding: 0;
+  border: 0;
+  border-right: 2px solid var(--signal-ink);
+  border-radius: 0;
+  box-shadow: none;
+  overflow: hidden;
+}
+
+.signal-shell-sheet *,
+.signal-shell-sheet *::before,
+.signal-shell-sheet *::after { box-sizing: border-box; }
+
+.signal-shell-sheet :is(button, a, select):focus-visible,
+.signal-shell-topbar :is(button, a, summary, select):focus-visible {
+  outline: 2px solid #1a1a18;
+  outline-offset: 3px;
+  box-shadow: 0 0 0 5px #e8cf4a;
+}
+
+.signal-shell-menu-trigger,
+.signal-shell-menu-close {
+  width: 44px;
+  min-width: 44px;
+  height: 44px;
+  min-height: 44px;
+  border-radius: 0;
+  color: #1a1a18;
+  background: #fff;
+}
+
+.signal-shell-menu-trigger svg,
+.signal-shell-menu-close svg { width: 24px; height: 24px; }
+
+.signal-shell-sheet .signal-shell-menu-header {
+  position: relative;
+  flex-shrink: 0;
+  min-height: 88px;
+  padding: 16px;
+  border-bottom: 4px solid var(--signal-ink);
+  text-align: left;
+}
+
+.signal-shell-sheet .signal-shell-menu-title {
+  padding-right: 52px;
+  font-family: inherit;
+}
+
+.signal-shell-menu-title > a {
+  min-height: 44px;
+  color: var(--signal-ink);
+}
+
+.signal-shell-menu-title > a > span:first-child {
+  color: var(--signal-ink);
+  border-color: var(--signal-ink);
+}
+
+.signal-shell-menu-title > a > span:last-child > span {
+  overflow: visible;
+  white-space: normal;
+  overflow-wrap: anywhere;
+  text-overflow: clip;
+  color: var(--signal-ink);
+}
+
+.signal-shell-menu-title > a > span:last-child > span:first-child {
+  font-size: 20px;
+  font-weight: 900;
+  line-height: 1.15;
+  letter-spacing: -.04em;
+}
+
+.signal-shell-menu-title > a > span:last-child > span:last-child {
+  margin-top: 4px;
+  font-size: 16px;
+  line-height: 1.3;
+  color: #666;
+}
+
+.signal-shell-sheet .signal-shell-menu-close {
+  position: absolute;
+  top: 16px;
+  right: 12px;
+  border: 1px solid #999;
+}
+
+/* One scroll region contains controls, all role-filtered routes, and logout.
+   A short viewport never traps the footer below a fixed control stack. */
+.signal-shell-menu-body {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  min-height: 0;
+  overflow-y: auto;
+  overflow-x: hidden;
+  overscroll-behavior-y: contain;
+  scrollbar-gutter: stable;
+  padding-bottom: env(safe-area-inset-bottom, 0px);
+}
+
+.signal-shell-menu-controls { flex-shrink: 0; padding: 20px 16px; }
+.signal-shell-menu-navigation { flex: 1 0 auto; min-width: 0; }
+.signal-shell-menu-section-label {
+  margin: 0;
+  padding: 12px 16px;
+  color: #fff;
+  background: var(--signal-ink);
+  font-size: 18px;
+  font-weight: 800;
+  line-height: 1.4;
+}
+.signal-shell-menu-footer {
+  flex-shrink: 0;
+  margin-top: auto;
+  padding: 20px 16px;
+  border-top: 1px solid #c8c8c8;
+}
+
+.signal-shell-controls { min-width: 0; gap: 16px; }
+.signal-shell-controls .signal-shell-control { min-width: 0; gap: 8px; }
+.signal-shell-controls .signal-shell-control-label {
+  color: #1a1a18;
+  font-size: 16px;
+  font-weight: 700;
+  line-height: 1.4;
+  overflow-wrap: anywhere;
+}
+.signal-shell-controls .signal-shell-select {
+  min-width: 0;
+  max-width: 100%;
+  min-height: 44px;
+  height: 44px;
+  padding: 8px 10px;
+  border: 1px solid #999;
+  border-radius: 0;
+  background: #fff;
+  color: #1a1a18;
+  font-family: var(--font-pretendard, Pretendard), sans-serif;
+  font-size: 16px;
+  font-weight: 600;
+  line-height: 1.5;
+  box-shadow: none;
+  color-scheme: light;
+}
+.signal-shell-controls .signal-shell-select:disabled {
+  cursor: not-allowed;
+  color: #666;
+  background: #f3f3f3;
+}
+.signal-shell-controls .signal-shell-select option:checked { background: #e8cf4a; color: #1a1a18; }
+
+:is(.signal-shell-sheet, .signal-account-panel) .signal-shell-navigation { border-top: 0; }
+:is(.signal-shell-sheet, .signal-account-panel) .signal-shell-nav-link {
+  position: relative;
+  min-height: 76px;
+  grid-template-columns: 1.75rem minmax(0, 1fr) .5rem;
+  gap: 8px;
+  padding: 12px 14px;
+  border: 2px solid transparent;
+  border-bottom-color: #dedede;
+  background: #fff;
+  color: #1a1a18;
+  font-size: 16px;
+}
+:is(.signal-shell-sheet, .signal-account-panel) .signal-shell-nav-label {
+  font-size: 18px;
+  font-weight: 800;
+  line-height: 1.4;
+  overflow-wrap: anywhere;
+}
+:is(.signal-shell-sheet, .signal-account-panel) .signal-shell-nav-description {
+  margin-top: 2px;
+  overflow: visible;
+  white-space: normal;
+  text-overflow: clip;
+  overflow-wrap: anywhere;
+  color: #666;
+  font-size: 16px;
+  line-height: 1.4;
+}
+:is(.signal-shell-sheet, .signal-account-panel) .signal-shell-nav-sequence {
+  color: #666;
+  font-size: 14px;
+  letter-spacing: 0;
+}
+:is(.signal-shell-sheet, .signal-account-panel) .signal-shell-nav-link:hover { background: #f3f3f3; }
+:is(.signal-shell-sheet, .signal-account-panel) .signal-shell-nav-link[aria-current="page"] {
+  border-color: #1a1a18;
+  color: #1a1a18;
+}
+:is(.signal-shell-sheet, .signal-account-panel) .signal-shell-nav-link[aria-current="page"]::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  width: 6px;
+  background: #e8cf4a;
+}
+:is(.signal-shell-sheet, .signal-account-panel) .signal-shell-nav-link[aria-current="page"] .signal-shell-nav-marker { background: #1a1a18; }
+
+.signal-shell-actor,
+.signal-shell-auth {
+  min-width: 0;
+  overflow-wrap: anywhere;
+  white-space: normal;
+  font-size: 16px;
+  line-height: 1.5;
+}
+.signal-shell-actor { color: #1a1a18; font-weight: 800; }
+.signal-shell-auth { margin-top: 2px; color: #666; }
+:is(.signal-shell-sheet, .signal-account-panel) .signal-shell-logout {
+  width: 100%;
+  min-height: 44px;
+  height: auto;
+  margin-top: 12px;
+  padding: 10px 12px;
+  gap: 8px;
+  border: 1px solid #1a1a18;
+  border-radius: 0;
+  color: #1a1a18;
+  background: #fff;
+  font-size: 16px;
+  white-space: normal;
+  box-shadow: none;
+}
+:is(.signal-shell-sheet, .signal-account-panel) .signal-shell-logout:hover { background: #f3f3f3; }
+
+.signal-shell-topbar .signal-cycle { min-height: 44px; font-size: 16px; }
+.signal-shell-topbar .signal-account-menu > summary { width: 44px; min-width: 44px; height: 44px; }
+.signal-shell-topbar .signal-account-menu > summary::-webkit-details-marker { display: none; }
+.signal-shell-topbar .signal-account-panel {
+  max-width: calc(100vw - 32px);
+  max-height: calc(100dvh - 100px);
+  padding: 20px;
+  border: 2px solid #1a1a18;
+  border-radius: 0;
+  background: #fff;
+  color: #1a1a18;
+  font-family: var(--font-pretendard, Pretendard), sans-serif;
+  font-size: 16px;
+  box-shadow: none;
+  overscroll-behavior-y: contain;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .signal-shell-sheet[data-slot="sheet-content"],
+  [data-slot="sheet-overlay"]:has(+ .signal-shell-sheet),
+  .signal-shell-sheet *,
+  .signal-shell-topbar * {
+    animation: none !important;
+    transition: none !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* Global persistence status must remain readable on non-score pages too. */
+.signal-shell .signal-footer .signal-footer-status { min-width: 0; flex-wrap: wrap; }
+.signal-shell:not(:has(.signal-evaluation)) .signal-footer .signal-footer-status [data-save-state] { display: flex; height: auto; min-height: 24px; font-size: 16px; line-height: 1.5; white-space: normal; }
+.signal-shell .signal-footer .signal-footer-status [data-save-state] span { font-size: 16px; line-height: 1.5; }
+.signal-shell .signal-footer .signal-footer-status [data-save-state="error"],
+.signal-shell .signal-footer .signal-footer-status [data-save-state="error"] span { color: #ffb7b2; }
+@media (max-width: 900px) {
+ .signal-shell .signal-footer { flex-wrap: wrap; align-items: flex-start; }
+ .signal-shell .signal-footer .signal-footer-status { width: 100%; gap: 12px; }
+ .signal-shell:has(.signal-evaluation) .signal-footer .signal-footer-status [data-save-state] { display: flex; height: auto; min-height: 24px; color: #555552; }
+ .signal-shell:has(.signal-evaluation) .signal-footer .signal-footer-status [data-save-state] span { color: #555552; }
+ .signal-shell:has(.signal-evaluation) .signal-footer .signal-footer-status [data-save-state="error"],
+ .signal-shell:has(.signal-evaluation) .signal-footer .signal-footer-status [data-save-state="error"] span { color: #b42318; }
+}
+@media (prefers-reduced-motion: reduce) {
+ .signal-footer [data-save-state] svg { animation: none; }
+}

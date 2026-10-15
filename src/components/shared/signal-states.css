@@ -1,0 +1,38 @@
+/* Shared state board STATE-01. Existing messages, roles and actions are unchanged. */
+.signal-empty-state {background:#fff;color:#1a1a18;border:1px solid #bfc1c5;border-radius:0;min-height:280px;padding:36px 28px;box-shadow:none}
+.signal-empty-state [data-slot=empty-header] {max-width:780px;gap:16px}
+.signal-empty-state [data-slot=empty-icon] {width:72px;height:72px;background:transparent;color:#6b6b68;border-radius:0;margin-bottom:4px}
+.signal-empty-state [data-slot=empty-icon] svg {width:60px;height:60px}
+.signal-empty-state [data-slot=empty-title] {font-size:30px;font-weight:900;line-height:1.25;letter-spacing:-.035em;word-break:keep-all}
+.signal-empty-state [data-slot=empty-description] {font-size:18px;color:#1a1a18;line-height:1.5;word-break:keep-all}
+.signal-empty-state [data-slot=empty-content] {max-width:780px}
+.signal-empty-state :is(button,a) {border-radius:0;min-height:44px;font-size:16px}
+.signal-error-state {background:#fff4f4;color:#1a1a18;border:1px solid #c13a36;border-radius:0;padding:30px 28px;box-shadow:none;gap:16px;min-height:200px}
+.signal-error-state>svg {width:26px;height:26px;color:#a72f2b;margin-top:4px}
+.signal-error-state [data-slot=alert-title] {font-size:30px;font-weight:900;line-height:1.25;letter-spacing:-.035em;word-break:keep-all}
+.signal-error-state [data-slot=alert-description] {font-size:18px;line-height:1.5;color:#1a1a18;margin-top:14px;word-break:keep-all}
+.signal-error-state :is(button,a) {min-height:44px;padding:10px 20px;border:1px solid #1a1a18;border-radius:0;background:#e8cf4a;color:#1a1a18;font-size:17px;font-weight:800}
+.signal-loading-state {color:#1a1a18;min-width:0}
+.signal-loading-state>div {border-radius:0}
+.signal-loading-state [data-slot=skeleton] {border-radius:0;background:#dededb;max-width:100%}
+.signal-empty-state :focus-visible,.signal-error-state :focus-visible {outline:2px solid #1a1a18;outline-offset:3px;box-shadow:0 0 0 5px #e8cf4a}
+@media(max-width:767px) {
+ .signal-empty-state {padding:28px 18px;min-height:240px}
+ .signal-empty-state [data-slot=empty-title],.signal-error-state [data-slot=alert-title] {font-size:26px;line-height:1.3}
+ .signal-empty-state [data-slot=empty-description],.signal-error-state [data-slot=alert-description] {font-size:16px;line-height:1.5}
+ .signal-error-state {padding:24px 18px;gap:12px}
+ .signal-error-state>svg {width:22px;height:22px}
+}
+@media(prefers-reduced-motion:reduce) {
+ .signal-loading-state [data-slot=skeleton] {animation:none}
+}
+/* Standalone 404/load-error branches render before the workspace theme exists. */
+.signal-empty-state [data-slot="button"][data-variant="default"] { background: #e8cf4a; color: #1a1a18; border: 1px solid #1a1a18; }
+.signal-empty-state [data-slot="button"][data-variant="outline"] { background: #fff; color: #1a1a18; border: 1px solid #1a1a18; }
+.signal-error-state [data-variant="destructive"] { background: #b42318; color: #fff; border-color: #b42318; }
+.signal-error-state [data-variant="outline"] { background: #fff; color: #1a1a18; border-color: #1a1a18; }
+.signal-empty-state [data-slot="button"]:disabled,
+.signal-error-state [data-slot="button"]:disabled { background: #efefed; color: #73736e; border-color: #b5b5b2; }
+/* SH13 root redirect: only typography/framing, original polite text and route unchanged. */
+.signal-redirect-state { display: flex; align-items: center; justify-content: center; min-height: 100dvh; padding: 24px 16px; color: #1a1a18; background: #fff; }
+.signal-redirect-message { max-width: 100%; margin: 0; padding: 18px 22px; border: 1px solid #bfc1c5; border-left: 5px solid #e8cf4a; font-size: 16px; font-weight: 650; line-height: 1.6; word-break: keep-all; overflow-wrap: anywhere; }

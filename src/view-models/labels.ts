@@ -14,3 +14,11 @@ export function formatTimestamp(timestamp: string | null): string | null {
   const date = new Date(timestamp)
   return Number.isNaN(date.getTime()) ? timestamp : timestampFormatter.format(date)
 }
+
+/**
+ * Keeps the legacy task identifier and persisted task data intact while using
+ * the approved AX terminology wherever the task is presented to a person.
+ */
+export function displayEvaluationTaskName(name: string): string {
+  return name.replace("DX 툴 활용", "AX 전환")
+}

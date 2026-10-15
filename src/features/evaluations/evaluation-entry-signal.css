@@ -1,0 +1,76 @@
+/* EV-03: the same continuous score form, with readable compact states. */
+.signal-evaluation .signal-evaluator-identity { margin-top: 8px; font-size: 16px; color: #555552; }
+.signal-evaluation .signal-form-bottom [role="status"].text-destructive,
+.signal-evaluation .signal-form-bottom [role="status"].text-destructive span { color: #ffb7b2; }
+.signal-evaluation .signal-form-bottom > p > svg { width: 18px; height: 18px; flex: none; }
+.signal-evaluation .signal-criteria[open] > summary > span { transform: rotate(90deg); }
+.signal-evaluation .signal-evaluation-tools > details,
+.signal-evaluation .signal-evaluation-tools > section { border: 1px solid #aaa9a5; border-radius: 0; background: #fff; padding: 18px 20px; }
+.signal-evaluation .signal-evaluation-tools > details { margin-bottom: 16px; }
+.signal-evaluation .signal-evaluation-tools summary,
+.signal-evaluation .signal-evaluation-tools label { font-size: 20px; font-weight: 800; line-height: 1.4; }
+.signal-evaluation .signal-evaluation-tools textarea { border-radius: 0; font-size: 16px; }
+.signal-evaluation .signal-evaluation-tools p { font-size: 16px; line-height: 1.55; }
+.signal-evaluation .signal-evaluation-tools button { min-height: 44px; border-radius: 0; font-size: 16px; }
+.signal-evaluation .signal-criteria-content > p,
+.signal-evaluation .signal-criteria-content dl > div { font-size: 16px; line-height: 1.5; }
+
+@media (max-width: 900px) {
+  .signal-evaluation .signal-evaluation-header { margin-bottom: 24px; }
+  .signal-evaluation .signal-score-table .signal-score-section { color: #e8cf4a; font-size: 22px; padding: 12px; }
+  .signal-evaluation .signal-score-table tbody tr { grid-template-columns: 28px minmax(0, 1fr) 98px; }
+  .signal-evaluation .signal-score-number { font-size: 16px; border-right: 1px solid #d5d5d5; }
+  .signal-evaluation .signal-score-label { font-size: 16px; border-right: 1px solid #d5d5d5; }
+  .signal-evaluation .signal-score-cell { padding: 10px 6px; }
+  .signal-evaluation .signal-score-cell input { min-height: 44px; height: 44px; font-size: 20px; padding-right: 34px; border-radius: 0; }
+  .signal-evaluation .signal-score-cell input + span { font-size: 16px; right: 5px; }
+  .signal-evaluation .signal-score-cell [id$="-error"] { font-size: 16px; line-height: 1.4; }
+  .signal-evaluation .signal-criteria > summary { min-height: 44px; font-size: 18px; }
+  .signal-evaluation .signal-form-bottom { position: static; display: flex; flex-direction: column; align-items: stretch; min-height: 0; gap: 12px; padding: 16px; margin-top: 20px; }
+  .signal-evaluation .signal-form-bottom [data-testid="score-form-actions"] { order: 1; width: 100%; display: flex !important; flex-wrap: wrap !important; gap: 12px; }
+  .signal-evaluation .signal-form-bottom [data-testid="score-form-actions"] > div:first-child { display: flex; width: 100%; max-width: none; margin: 0; justify-content: flex-start; }
+  .signal-evaluation .signal-form-bottom [data-testid="score-form-actions"] > div:last-child { display: flex; width: 100%; gap: 10px; }
+  .signal-evaluation .signal-form-bottom [role="status"],
+  .signal-evaluation .signal-form-bottom [role="status"] span { font-size: 16px; line-height: 1.4; }
+  .signal-evaluation .signal-form-bottom [data-slot="button"] { min-height: 50px; height: auto; flex: 1; font-size: 18px; padding: 10px; }
+  .signal-evaluation .signal-form-bottom > p { display: flex; order: 2; flex: none; font-size: 16px; line-height: 1.4; gap: 8px; white-space: normal; }
+  .signal-evaluation .signal-form-bottom > p:last-child { order: 3; }
+  .signal-evaluation .signal-form-bottom > p > svg { width: 18px; height: 18px; }
+  .signal-evaluation .signal-evaluation-tools { margin-top: 24px; padding-top: 0; border-top: 0; }
+  .signal-evaluation .signal-evaluation-tools > details,
+  .signal-evaluation .signal-evaluation-tools > section { padding: 16px 12px; }
+  .signal-evaluation .signal-evaluation-tools summary { min-height: 44px; display: list-item; align-content: center; }
+  .signal-evaluation .signal-evaluation-tools textarea { min-height: 132px; }
+  .signal-evaluation .signal-evaluation-tools > section > div { display: grid; grid-template-columns: minmax(0, 1fr); gap: 14px; }
+  .signal-evaluation .signal-evaluation-tools button { min-height: 44px; justify-self: stretch; }
+  .signal-evaluation .signal-locked-notice,
+  .signal-evaluation .signal-proxy-notice { font-size: 16px; line-height: 1.5; }
+  .signal-evaluation .signal-locked-notice p,
+  .signal-evaluation .signal-proxy-notice span { font-size: 16px; }
+}
+
+/* EV05: a criterion opens beside its original, stable input. */
+.signal-evaluation .signal-item-criteria-toggle { display: flex; align-items: center; gap: 8px; min-height: 44px; border: 0; background: transparent; padding: 6px 0; color: #555552; font-size: 16px; font-weight: 650; line-height: 1.4; text-align: left; cursor: pointer; }
+.signal-evaluation .signal-item-criteria-toggle svg { width: 18px; height: 18px; flex: none; }
+.signal-evaluation .signal-item-criteria-toggle[aria-expanded="true"] svg { transform: rotate(180deg); }
+.signal-evaluation .signal-item-criteria-toggle:focus-visible { outline: 2px solid #1a1a18; outline-offset: 3px; }
+.signal-evaluation .signal-score-table .signal-item-criteria-row > td { height: auto; padding: 0; background: #f5f5f2; border-top: 1px solid #b5b5b2; }
+.signal-evaluation .signal-item-criteria-content { padding: 18px 24px; font-size: 16px; line-height: 1.55; }
+.signal-evaluation .signal-item-criteria-content > p { margin: 0 0 12px; color: #555552; }
+.signal-evaluation .signal-item-criteria-content dl { display: grid; gap: 8px; }
+.signal-evaluation .signal-item-criteria-content dl > div { display: grid; grid-template-columns: 44px minmax(0,1fr); gap: 12px; }
+.signal-evaluation .signal-item-criteria-content dt { font-weight: 800; }
+.signal-evaluation .signal-item-criteria-content dd { margin: 0; overflow-wrap: anywhere; }
+.signal-evaluation .signal-rubric-guidance { padding: 18px 0; color: #555552; font-size: 16px; line-height: 1.5; }
+.signal-evaluation .signal-rubric-guidance p + p { margin-top: 6px; }
+@media (max-width: 900px) {
+  .signal-evaluation .signal-score-table .signal-item-criteria-row { display: block; }
+  .signal-evaluation .signal-score-table .signal-item-criteria-row > td { display: block; width: 100%; }
+  .signal-evaluation .signal-item-criteria-content { padding: 16px 12px; }
+  .signal-evaluation .signal-item-criteria-toggle { font-size: 16px; }
+}
+.signal-evaluation .signal-entry-progress { height: 8px; margin: -8px 0 20px; background: #e7e7e3; overflow: hidden; }
+.signal-evaluation .signal-entry-progress > span { display: block; height: 100%; background: #e8cf4a; }
+@media (prefers-reduced-motion: reduce) {
+  .signal-evaluation .signal-item-criteria-toggle svg { transition: none; }
+}

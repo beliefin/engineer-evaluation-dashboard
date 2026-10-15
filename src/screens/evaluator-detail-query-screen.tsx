@@ -3,6 +3,8 @@
 import Link from "next/link"
 import { usePathname, useRouter, useSearchParams } from "next/navigation"
 
+import "@/features/analysis/evaluator-signal.css"
+
 import { EmptyState, ErrorState, PageHeader } from "@/components/shared"
 import { Button } from "@/components/ui/button"
 import { EvaluatorProfile } from "@/features/analysis"
@@ -39,8 +41,9 @@ export function EvaluatorDetailQueryScreen() {
   }
 
   return (
-    <div className="space-y-6">
+    <div className="signal-evaluator-page">
       <PageHeader
+        className="signal-evaluator-heading"
         actions={(
           <Button asChild variant="outline">
             <Link href="/analysis">분석으로 돌아가기</Link>
@@ -50,15 +53,15 @@ export function EvaluatorDetailQueryScreen() {
         description="평가자별 점수 수준·과제 및 문항 경향·동료 대비 편차·최근 평가 이력"
         title="평가자 평가 프로필"
       />
-      <section className="rounded-md border border-border bg-card p-4 sm:p-5" aria-labelledby="evaluator-selector-title">
-        <div className="max-w-lg">
-          <h2 id="evaluator-selector-title" className="text-sm font-semibold">평가자 선택</h2>
-          <p className="mt-1 text-xs leading-5 text-muted-foreground">
+      <section className="signal-evaluator-selector" aria-labelledby="evaluator-selector-title">
+        <div className="signal-evaluator-selector-content">
+          <h2 id="evaluator-selector-title" className="signal-evaluator-selector-label">평가자 선택</h2>
+          <p className="signal-evaluator-selector-help">
             현재 평가 시즌에 등록된 평가자를 선택하면 아래 분석이 즉시 바뀝니다.
           </p>
           <select
             aria-label="평가자 선택"
-            className="mt-3 h-11 w-full rounded-md border border-input bg-background px-3 text-sm outline-none focus-visible:ring-2 focus-visible:ring-ring"
+            className="signal-evaluator-select"
             onChange={(event) => changeEvaluator(event.target.value)}
             value={evaluatorId}
           >

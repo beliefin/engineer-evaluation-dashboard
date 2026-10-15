@@ -1,0 +1,121 @@
+/* AC-01/AU-01: presentation only. Original accounts, permissions and auth handlers remain authoritative. */
+.signal-accounts {min-width:0;color:#1a1a18;background:white}
+.signal-account-heading>div>p:first-child {font-size:16px;font-weight:750;color:#1a1a18;letter-spacing:0;margin:0 0 8px}
+.signal-account-heading h1 {font-size:clamp(38px,4.2vw,64px);line-height:1.12;letter-spacing:-.045em;font-weight:900;margin:0}
+.signal-account-heading>div>p:last-child {font-size:20px;line-height:1.5;max-width:none;color:#1a1a18;margin-top:10px}
+.signal-account-overview {display:grid;grid-template-columns:minmax(0,1fr) 250px;align-items:center;gap:36px;margin:26px 0}
+.signal-account-overview>section {border:0;border-radius:0;background:white;min-width:0;display:grid;grid-template-columns:repeat(3,minmax(0,1fr))}
+.signal-account-overview>section>div {padding:0 32px;border-color:#9a9a9a}
+.signal-account-overview>section>div:first-child {padding-left:8px}
+.signal-account-overview>section p:first-child {font-size:22px;font-weight:800;line-height:1.4;color:#1a1a18;margin:0 0 4px}
+.signal-account-overview>section p:last-child {font-size:80px;font-weight:900;line-height:1;letter-spacing:-.05em;color:#1a1a18;margin:0}
+.signal-account-overview>button {min-height:66px;background:#e8cf4a;color:#1a1a18;border:1px solid #1a1a18;border-radius:0;font-size:25px;font-weight:850;padding:14px 22px;box-shadow:none}
+.signal-account-list {min-width:0;border:0;border-radius:0;background:white;overflow:hidden}
+.signal-account-list-heading {display:flex;align-items:center;justify-content:space-between;gap:24px;background:#1a1a18;color:white;padding:12px 18px;border:0}
+.signal-account-list-heading h2 {font-size:28px;font-weight:850;line-height:1.35;margin:0}
+.signal-account-list-heading p {font-size:17px;line-height:1.5;color:white;margin:0}
+.signal-account-list [data-slot=table-container] {margin-top:8px;border:1px solid #9a9a9a;max-width:100%;overscroll-behavior-inline:contain}
+.signal-account-list table {min-width:1120px;width:100%;border-collapse:collapse;font-size:18px}
+.signal-account-list th {height:auto;padding:16px 18px;border-right:1px solid #bfc1c5;background:#ededeb;color:#1a1a18;font-size:20px;font-weight:800;line-height:1.4;text-align:center}
+.signal-account-list th:first-child {text-align:left}
+.signal-account-list td {padding:16px 18px;border-top:1px solid #bfc1c5;border-right:1px solid #bfc1c5;color:#1a1a18;background:white;font-size:18px;line-height:1.5;white-space:normal}
+.signal-account-list td:first-child {min-width:210px}
+.signal-account-list td:first-child>span:first-child {font-size:21px;font-weight:800}
+.signal-account-list td:first-child>span:last-child {font-size:18px;color:#1a1a18;margin-top:4px}
+.signal-account-list td:nth-child(2) {min-width:140px;text-align:center}
+.signal-account-list td:nth-child(3) {min-width:210px;text-align:center}
+.signal-account-list td:nth-child(4) {min-width:96px;text-align:center}
+.signal-account-list td:last-child {min-width:440px;border-right:0}
+.signal-account-list [data-slot=badge] {height:auto;min-height:36px;min-width:76px;border:1px solid #1a1a18;border-radius:0;padding:6px 12px;color:#1a1a18;background:#f1f1ee;font-size:17px;line-height:1.3;font-weight:750}
+.signal-account-list [data-slot=badge][data-variant=destructive] {background:white;border-color:#8e8e89;color:#5d5d58}
+.signal-account-actions {display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;min-width:0}
+.signal-account-actions button {min-height:48px;height:auto;border:1px solid #1a1a18;border-radius:0;padding:10px 12px;background:white;color:#1a1a18;font-size:17px;font-weight:750;line-height:1.4;box-shadow:none;gap:6px}
+.signal-account-actions button svg {width:16px;height:16px}
+.signal-account-actions button:last-child:not(:disabled) {color:#b42318;border-color:#b42318}
+.signal-account-actions button:disabled,.signal-account-overview>button:disabled {background:#ededeb;color:#6b6b65;border-color:#c9c9c3;opacity:1;cursor:not-allowed}
+.signal-account-actions button:hover:not(:disabled) {background:#f6f2d9}
+.signal-account-cards {border:1px solid #9a9a9a;margin:8px 0 0;padding:0;list-style:none}
+.signal-account-cards>li {padding:20px 16px;border-color:#bfc1c5}
+.signal-account-cards>li>div:first-child>div {min-width:0}
+.signal-account-cards>li>div:first-child p:first-child {font-size:22px;font-weight:850;line-height:1.4}
+.signal-account-cards>li>div:first-child p:last-child {font-size:17px;line-height:1.5;color:#1a1a18;overflow-wrap:anywhere}
+.signal-account-cards>li>p {font-size:16px;line-height:1.6;color:#1a1a18}
+.signal-login {min-width:0;background:#f5f5f2;color:#1a1a18;padding:36px 24px;align-items:flex-start}
+.signal-login-panel {max-width:960px;border:1px solid #9a9a9a;border-radius:0;background:white;margin:auto}
+.signal-login-brand {display:flex;flex-wrap:wrap;gap:18px;align-items:center;justify-content:space-between;padding:24px 30px;background:#1a1a18;color:white;border:0}
+.signal-login-brand>a {min-height:44px;max-width:100%;color:white;margin:0;padding:0}
+.signal-login-brand>a>span:first-child {display:none}
+.signal-login-brand>a>span:last-child>span:first-child {font-size:34px;font-weight:900;line-height:1.2;color:white;letter-spacing:-.04em;white-space:normal}
+.signal-login-brand>a>span:last-child>span:last-child {display:none}
+.signal-login-brand>[data-slot=badge] {height:auto;border:0;border-left:2px solid white;border-radius:0;background:#1a1a18;color:white;font-size:28px;font-weight:800;line-height:1.3;padding:0 0 0 22px}
+.signal-login-body {display:block}
+.signal-login-entry {padding:30px 34px 24px}
+.signal-login-entry h1 {font-size:42px;line-height:1.2;font-weight:900;letter-spacing:-.045em;color:#1a1a18;margin:0}
+.signal-login-entry h1+p {font-size:19px;line-height:1.6;color:#1a1a18;margin:12px 0 28px;max-width:none}
+.signal-login-form label {font-size:19px;font-weight:750;line-height:1.4;color:#1a1a18}
+.signal-login-form input {height:58px;border:1px solid #9a9a9a;border-radius:0;background:white;color:#1a1a18;font-size:20px;line-height:1.4;padding:12px 16px;box-shadow:none}
+.signal-login-form>button {height:auto;min-height:60px;font-size:27px;font-weight:850;border:1px solid #1a1a18;border-radius:0;background:#e8cf4a;color:#1a1a18;padding:12px 20px;box-shadow:none}
+.signal-login-form>button:disabled {background:#ededeb;color:#6b6b65;border-color:#bfc1c5;opacity:1}
+.signal-login-form [role=alert] {border:1px solid #b42318;border-radius:0;background:#fff4f4;color:#7a231c;font-size:17px;line-height:1.5}
+.signal-login-guide {padding:0 34px 26px;border:0;background:white;color:#1a1a18}
+.signal-login-guide>div:first-child {display:block}
+.signal-login-guide>div:first-child>span {display:none}
+.signal-login-guide h2 {background:#1a1a18;color:white;padding:10px 16px;font-size:28px;font-weight:850;line-height:1.35;margin:0}
+.signal-login-guide h2+p {font-size:18px;color:#1a1a18;line-height:1.6;margin:12px 4px}
+.signal-login-guide dl {border:1px solid #9a9a9a;border-radius:0;background:white;margin-top:14px}
+.signal-login-guide dl>div {display:grid;grid-template-columns:120px minmax(0,1fr);gap:0;padding:0;border-color:#bfc1c5}
+.signal-login-guide dt {background:#ededeb;color:#1a1a18;padding:12px;font-size:19px;font-weight:800;line-height:1.5;text-align:center;border-right:1px solid #bfc1c5;display:flex;align-items:center;justify-content:center}
+.signal-login-guide dd {display:grid;grid-template-columns:1fr 1fr;gap:0;min-width:0;font-size:18px;line-height:1.5}
+.signal-login-guide dd>span {margin:0;padding:12px 16px;font-size:18px;line-height:1.5;color:#1a1a18;overflow-wrap:anywhere;font-weight:500}
+.signal-login-guide dd>span:first-child {border-right:1px solid #bfc1c5}
+.signal-login-guide ul {list-style:none;margin:14px 0;padding:0;border:1px solid #9a9a9a;border-radius:0;background:white;font-size:18px;line-height:1.5}
+.signal-login-guide li {margin:0;padding:14px 16px;border-bottom:1px solid #bfc1c5}
+.signal-login-guide li:last-child {border:0}
+.signal-login-guide>p {font-size:17px;line-height:1.6;color:#1a1a18}
+.signal-login-guide>p:has(code) {display:flex;flex-wrap:wrap;align-items:center;gap:16px;border:1px solid #9a9a9a;padding:10px 14px;font-size:18px;font-weight:750}
+.signal-login-guide code {font-size:17px;color:#1a1a18;background:#f1f1ee;border-radius:0;overflow-wrap:anywhere}
+.signal-login :is(input,button,a):focus-visible,.signal-accounts :is(button,a):focus-visible {outline:2px solid #1a1a18;outline-offset:3px;box-shadow:0 0 0 5px #e8cf4a}
+.signal-login-brand>a:focus-visible {outline-color:white}
+@media(max-width:1100px) {
+ .signal-account-overview {grid-template-columns:minmax(0,1fr) 200px;gap:24px}
+ .signal-account-overview>section>div {padding:0 22px}
+ .signal-account-overview>section p:last-child {font-size:64px}
+ .signal-account-overview>button {font-size:22px;min-height:58px}
+}
+@media(max-width:767px) {
+ .signal-account-heading h1 {font-size:42px}
+ .signal-account-heading>div>p:last-child {font-size:17px;line-height:1.6}
+ .signal-account-overview {display:block}
+ .signal-account-overview>section>div {padding:0 14px}
+ .signal-account-overview>section p:first-child {font-size:18px}
+ .signal-account-overview>section p:last-child {font-size:54px}
+ .signal-account-overview>button {width:100%;min-height:54px;margin-top:24px;font-size:22px}
+ .signal-account-list-heading {display:block;padding:14px 16px}
+ .signal-account-list-heading h2 {font-size:26px}
+ .signal-account-list-heading p {font-size:16px;line-height:1.6;margin-top:8px}
+ .signal-account-actions {grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+ .signal-account-actions button {min-height:48px;font-size:17px}
+ .signal-login {padding:16px 12px}
+ .signal-login-brand {padding:18px 16px;gap:12px}
+ .signal-login-brand>a>span:last-child>span:first-child {font-size:27px}
+ .signal-login-brand>[data-slot=badge] {font-size:20px;padding-left:14px}
+ .signal-login-entry {padding:24px 18px}
+ .signal-login-entry h1 {font-size:35px;line-height:1.25}
+ .signal-login-entry h1+p {font-size:16px;line-height:1.6;margin-bottom:24px}
+ .signal-login-form label {font-size:18px}
+ .signal-login-form input {height:54px;font-size:18px}
+ .signal-login-form>button {min-height:56px;font-size:23px}
+ .signal-login-guide {padding:0 18px 24px}
+ .signal-login-guide h2 {font-size:25px;padding:10px 14px}
+ .signal-login-guide h2+p {font-size:16px;line-height:1.6}
+ .signal-login-guide dl>div {grid-template-columns:85px minmax(0,1fr)}
+ .signal-login-guide dt {padding:12px 6px;font-size:16px}
+ .signal-login-guide dd {display:block}
+ .signal-login-guide dd>span {padding:3px 12px;font-size:16px;line-height:1.5}
+ .signal-login-guide dd>span:first-child {padding-top:10px;border:0;font-weight:750}
+ .signal-login-guide dd>span:last-child {padding-bottom:10px}
+ .signal-login-guide ul {font-size:16px}
+ .signal-login-guide li {padding:14px 12px}
+ .signal-login-guide>p,.signal-login-guide>p:has(code),.signal-login-guide code {font-size:16px}
+}
+.signal-login-form [data-slot=alert-description] {font-size:17px;line-height:1.5;color:#7a231c}

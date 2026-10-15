@@ -20,6 +20,8 @@ import type {
   EvaluatorResidualDatum,
 } from "./types"
 
+import "./analysis-summary-signal.css"
+
 type EvaluationReliabilityAnalysisProps = Readonly<{
   reliability: readonly EvaluationReliabilityDatum[]
   residuals: readonly EvaluatorResidualDatum[]
@@ -67,21 +69,21 @@ export function EvaluationReliabilityAnalysis({
     : taskReliability.reduce((total, entry) => total + entry.standardDeviation, 0) / taskReliability.length
 
   return (
-    <section aria-labelledby={`${id}-heading`} className="scroll-mt-24 space-y-5">
-      <div className="flex flex-col gap-4 border-y border-border-subtle py-5 lg:flex-row lg:items-end lg:justify-between">
+    <section aria-labelledby={`${id}-heading`} className="signal-analysis-reliability scroll-mt-24 space-y-5">
+      <div className="signal-analysis-reliability-heading">
         <div>
           <h2 id={`${id}-heading`} className="text-xl font-semibold tracking-tight">평가 신뢰도 진단</h2>
           <p className="mt-1 max-w-3xl text-sm text-muted-foreground">
             제출 원점수 기준의 평가자 간 이견·특정 평가자 영향·과제 내 순위 변동 가능성 확인. 공식 점수는 변경 없음
           </p>
         </div>
-        <div className="grid gap-1.5 lg:min-w-72">
+        <div className="signal-analysis-task-selector">
           <label htmlFor={`${id}-task`} className="text-xs font-medium text-muted-foreground">분석할 평가 과제</label>
           <Select value={activeTaskId} onValueChange={setSelectedTaskId}>
             <SelectTrigger id={`${id}-task`} className="w-full bg-card">
               <SelectValue placeholder="평가 과제를 선택하세요" />
             </SelectTrigger>
-            <SelectContent>
+            <SelectContent className="signal-analysis-select-popup">
               {tasks.map((task) => (
                 <SelectItem key={task.id} value={task.id}>{task.label}</SelectItem>
               ))}
@@ -89,7 +91,7 @@ export function EvaluationReliabilityAnalysis({
           </Select>
         </div>
       </div>
-      <dl className="grid border-y border-border-subtle sm:grid-cols-3">
+      <dl className="signal-analysis-reliability-metrics grid border-y border-border-subtle sm:grid-cols-3">
         <div className="px-3 py-3 sm:border-r sm:border-border-subtle">
           <dt className="text-xs text-muted-foreground">비교 가능 대상</dt>
           <dd className="numeric mt-1 text-lg font-semibold">{formatCount(taskReliability.length, "명")}</dd>
@@ -103,18 +105,20 @@ export function EvaluationReliabilityAnalysis({
           <dd className="numeric mt-1 text-lg font-semibold">{formatScore(averageDeviation)}</dd>
         </div>
       </dl>
-      <ReliabilityQuadrant
-        data={taskReliability}
-        isLoading={isLoading}
-        standardDeviationThreshold={standardDeviationThreshold}
-        taskLabel={selectedTaskLabel}
-      />
-      <EvaluatorResidualMatrix
-        data={taskResiduals}
-        isLoading={isLoading}
-        outlierThreshold={outlierThreshold}
-        taskLabel={selectedTaskLabel}
-      />
+      <div className="signal-analysis-reliability-charts">
+        <ReliabilityQuadrant
+          data={taskReliability}
+          isLoading={isLoading}
+          standardDeviationThreshold={standardDeviationThreshold}
+          taskLabel={selectedTaskLabel}
+        />
+        <EvaluatorResidualMatrix
+          data={taskResiduals}
+          isLoading={isLoading}
+          outlierThreshold={outlierThreshold}
+          taskLabel={selectedTaskLabel}
+        />
+      </div>
       <RankSensitivityRail
         key={activeTaskId}
         isLoading={isLoading}

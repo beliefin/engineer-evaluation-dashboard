@@ -51,15 +51,15 @@ export function PendingEvaluationPanel({
   return (
     <section
       aria-labelledby="pending-evaluations-title"
-      className="overflow-hidden rounded-md border border-border bg-card"
+      className="signal-pending-panel"
     >
-      <header className="border-b border-border-subtle p-5">
-        <p className="mb-1 text-[10px] font-semibold tracking-[0.14em] text-primary uppercase">Exception register</p>
+      <header className="signal-pending-panel-heading">
+        <p className="signal-pending-eyebrow">Exception register</p>
         <div>
-          <h2 id="pending-evaluations-title" className="text-xl font-semibold tracking-tight">
+          <h2 id="pending-evaluations-title">
             미평가 엔지니어
           </h2>
-          <p className="mt-1 text-sm leading-6 text-muted-foreground">
+          <p className="signal-pending-panel-description">
             평가자 미배정·미제출·직접점수 누락 통합 확인
           </p>
         </div>
@@ -72,9 +72,9 @@ export function PendingEvaluationPanel({
       />
 
       {filteredRows.length === 0 ? (
-        <div className="px-5 py-16 text-center">
-          <p className="font-semibold text-foreground">조건에 맞는 미평가 대상이 없습니다.</p>
-          <p className="mt-1 text-sm text-muted-foreground">
+        <div className="signal-pending-empty">
+          <p>조건에 맞는 미평가 대상이 없습니다.</p>
+          <p>
             검색어 또는 필터 조건을 변경해 보세요.
           </p>
         </div>

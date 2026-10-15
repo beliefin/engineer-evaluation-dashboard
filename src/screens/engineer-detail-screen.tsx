@@ -1,7 +1,6 @@
 "use client"
 
 import Link from "next/link"
-import { ArrowLeftIcon } from "lucide-react"
 
 import { AccessDenied, EmptyState } from "@/components/shared"
 import { Button } from "@/components/ui/button"
@@ -33,13 +32,8 @@ export function EngineerDetailScreen({ engineerId }: Readonly<{ engineerId: stri
   }
 
   return (
-    <div className="space-y-5">
-      <Button asChild className="-ml-2" size="sm" variant="ghost">
-        <Link href="/dashboard">
-          <ArrowLeftIcon aria-hidden="true" />
-          전체 순위로 돌아가기
-        </Link>
-      </Button>
+    <div className="signal-detail-screen">
+      <Link className="signal-detail-return" href="/dashboard">‹ 전체 현황으로 돌아가기</Link>
       <EngineerDetail model={model} role={role} />
     </div>
   )

@@ -1,6 +1,7 @@
 "use client"
 
-import { AppSidebar } from "./app-sidebar"
+import { SampleDataBadge } from "./sample-data-badge"
+import { SaveStateIndicator } from "./save-state-indicator"
 import { AppTopbar } from "./app-topbar"
 import type { AppShellProps } from "./types"
 
@@ -21,15 +22,14 @@ export function AppShell({
   actorLabel,
 }: AppShellProps) {
   return (
-    <div className="flex min-h-dvh w-full bg-background">
+    <div className="signal-shell min-h-dvh w-full bg-background">
       <a
         className="fixed top-2 left-2 z-[100] -translate-y-16 rounded-md bg-primary px-3 py-2 text-sm font-semibold text-primary-foreground focus:translate-y-0"
         href="#main-content"
       >
         본문으로 건너뛰기
       </a>
-      <AppSidebar actorLabel={actorLabel} canViewInsights={canViewInsights} role={role} />
-      <div className="min-w-0 flex-1">
+      <div className="signal-shell-inner">
         <AppTopbar
           activeCycleId={activeCycleId}
           activeEvaluatorId={activeEvaluatorId}
@@ -46,11 +46,12 @@ export function AppShell({
           saveState={saveState}
         />
         <main
-          className="mx-auto w-full max-w-[1440px] px-4 py-6 print:max-w-none print:p-0 sm:px-5 lg:px-6 lg:py-8"
+          className="signal-main print:max-w-none print:p-0"
           id="main-content"
         >
           {children}
         </main>
+        <footer className="signal-footer print:hidden"><span>엔지니어 역량평가 <span aria-hidden="true">│</span> {cycles.find((cycle) => cycle.id === activeCycleId)?.label}</span><span className="signal-footer-status"><SaveStateIndicator compact={false} state={saveState} /><SampleDataBadge /></span></footer>
       </div>
     </div>
   )

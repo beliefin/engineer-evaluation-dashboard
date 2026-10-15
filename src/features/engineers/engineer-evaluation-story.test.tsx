@@ -35,6 +35,13 @@ const STORY: EngineerEvaluationStoryViewModel = {
       averageScore: 82.5,
       topQuartileAverage: 92.4,
       sampleSize: 20,
+      distribution: {
+        minimum: 50,
+        firstQuartile: 75,
+        median: 83,
+        thirdQuartile: 90,
+        maximum: 100,
+      },
     },
   ],
 }

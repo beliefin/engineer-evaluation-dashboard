@@ -1,21 +1,15 @@
 "use client"
 
-import { Bar, BarChart, CartesianGrid, LabelList, XAxis, YAxis } from "recharts"
-
-import { ChartContainer, type ChartConfig } from "@/components/ui/chart"
-import { useIsMobile } from "@/hooks/use-mobile"
+import { HorizontalScroll } from "@/components/ui/horizontal-scroll"
 
 import { AnalysisPanel } from "./analysis-panel"
 import { AnalysisTable, type AnalysisTableColumn } from "./analysis-table"
 import { formatCount } from "./format"
 import type { AnalysisChartProps, TaskCompletionDatum } from "./types"
 
-const chartConfig = {
-  completionRate: {
-    label: "완료율",
-    color: "var(--chart-4)",
-  },
-} satisfies ChartConfig
+import "./analysis-summary-signal.css"
+
+const AXIS_TICKS = [0, 20, 40, 60, 80, 100] as const
 
 const columns: readonly AnalysisTableColumn<TaskCompletionDatum>[] = [
   { key: "task", header: "과제", render: (row) => row.taskLabel },
@@ -37,95 +31,55 @@ export function TaskCompletionChart({
   data,
   isLoading = false,
 }: AnalysisChartProps<TaskCompletionDatum>) {
-  const isMobile = useIsMobile()
   const chartData = data.map((datum) => ({
     ...datum,
     displayRate: `${datum.completionRate.toFixed(1)}% · ${datum.completedCount}/${datum.eligibleCount}명`,
   }))
   const sortedData = chartData.toSorted((left, right) => left.completionRate - right.completionRate)
-  const chartHeight = Math.max(288, data.length * 44 + 56)
 
   return (
-    <AnalysisPanel
-      title="과제별 완료율 병목"
-      description="현재 필터 대상자의 과제 점수 확정 비율과 저완료 과제의 입력·제출 병목 점검"
-      isLoading={isLoading}
-      isEmpty={data.length === 0}
-    >
-      {isMobile ? (
-        <div
-          className="space-y-4"
-          role="img"
-          aria-label="과제별 완료율과 완료 인원 가로 막대 목록"
-        >
-          {sortedData.map((datum) => (
-            <div key={datum.taskId}>
-              <div className="flex items-baseline justify-between gap-3 text-xs">
-                <span className="min-w-0 font-medium text-foreground">{datum.taskLabel}</span>
-                <span className="numeric shrink-0 text-muted-foreground">{datum.displayRate}</span>
+    <div className="signal-analysis-panel signal-analysis-completion">
+      <AnalysisPanel
+        title="과제별 완료율 병목"
+        description="현재 필터 대상자의 과제 점수 확정 비율과 저완료 과제의 입력·제출 병목 점검"
+        isLoading={isLoading}
+        isEmpty={data.length === 0}
+      >
+        <HorizontalScroll className="signal-analysis-scroll" role="region" aria-label="과제별 완료율 가로 스크롤 영역" tabIndex={0}>
+          <div className="signal-analysis-completion-rows">
+            <div className="signal-analysis-completion-axis-row" aria-hidden="true">
+              <span>과제</span>
+              <div className="signal-analysis-completion-axis numeric">
+                {AXIS_TICKS.map((tick) => <span key={tick} style={{ left: `${tick}%` }}>{tick}%</span>)}
               </div>
-              <div className="mt-2 h-2 overflow-hidden rounded-sm bg-muted">
-                <div
-                  className="h-full rounded-sm bg-[var(--chart-4)]"
-                  style={{ width: `${datum.completionRate}%` }}
-                />
-              </div>
+              <span>완료율</span>
+              <span>완료/대상</span>
             </div>
-          ))}
-        </div>
-      ) : (
-        <ChartContainer
-          config={chartConfig}
-          className="w-full aspect-auto"
-          style={{ height: chartHeight }}
-          role="img"
-          aria-label="과제별 완료율과 완료 인원 가로 막대 차트"
-        >
-          <BarChart
-            accessibilityLayer
-            data={sortedData}
-            layout="vertical"
-            margin={{ top: 8, right: 108, bottom: 8, left: 8 }}
-          >
-            <CartesianGrid horizontal={false} strokeDasharray="3 3" />
-            <XAxis
-              type="number"
-              domain={[0, 100]}
-              ticks={[0, 20, 40, 60, 80, 100]}
-              tickLine={false}
-              axisLine={false}
-              unit="%"
-            />
-            <YAxis
-              type="category"
-              dataKey="taskLabel"
-              width={112}
-              tickLine={false}
-              axisLine={false}
-            />
-            <Bar
-              dataKey="completionRate"
-              fill="var(--color-completionRate)"
-              background={{ fill: "var(--muted)" }}
-              isAnimationActive={false}
-              radius={3}
-            >
-              <LabelList
-                dataKey="displayRate"
-                position="right"
-                fill="var(--foreground)"
-                fontSize={12}
-              />
-            </Bar>
-          </BarChart>
-        </ChartContainer>
-      )}
-      <AnalysisTable
-        caption="과제별 완료율과 완료 및 대상 인원"
-        rows={data}
-        columns={columns}
-        getRowKey={(row) => row.taskId}
-      />
-    </AnalysisPanel>
+            {sortedData.map((datum) => (
+              <div
+                key={datum.taskId}
+                className="signal-analysis-completion-row"
+                data-completion-id={datum.taskId}
+                role="img"
+                aria-label={`${datum.taskLabel}: ${datum.displayRate}`}
+              >
+                <span className="signal-analysis-completion-name">{datum.taskLabel}</span>
+                <div className="signal-analysis-completion-track" aria-hidden="true">
+                  <span className="signal-analysis-completion-bar" style={{ width: `${datum.completionRate}%` }} />
+                </div>
+                <span className="numeric">{datum.completionRate.toFixed(1)}%</span>
+                <span className="numeric">{datum.completedCount}/{datum.eligibleCount}명</span>
+              </div>
+            ))}
+          </div>
+        </HorizontalScroll>
+        <AnalysisTable
+          caption="과제별 완료율과 완료 및 대상 인원"
+          rows={data}
+          columns={columns}
+          getRowKey={(row) => row.taskId}
+        />
+      </AnalysisPanel>
+    </div>
   )
 }

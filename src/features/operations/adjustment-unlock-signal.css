@@ -1,0 +1,92 @@
+/* OP-09/10. Source form, confirmation and request contracts are unchanged. */
+.signal-adjustment-panel, .signal-reopen-panel { min-width: 0; color: #1a1a18; background: #fff; border: 0; border-radius: 0; }
+.signal-adjustment-heading { display: grid; grid-template-columns: minmax(0,1fr) auto; padding: 0; border: 0; }
+.signal-adjustment-heading > div,
+.signal-adjustment-heading > div > div { display: contents; }
+.signal-adjustment-heading h2 { grid-column: 1; grid-row: 1; display: flex; align-items: center; min-height: 50px; padding: 10px 18px; font-size: 26px; font-weight: 850; background: #1a1a18; color: #fff; }
+.signal-adjustment-heading p { grid-column: 1 / -1; grid-row: 2; max-width: none; margin: 0; padding: 14px 8px; font-size: 18px; line-height: 1.5; }
+.signal-adjustment-heading [data-slot="badge"] { grid-column: 2; grid-row: 1; height: 100%; width: auto; margin: 0; padding: 10px 18px; border: 0; border-radius: 0; background: #1a1a18; color: #e8cf4a; font-size: 22px; font-weight: 800; }
+.signal-adjustment-body { display: grid; grid-template-columns: minmax(0, .8fr) minmax(0, 1.2fr); gap: 0; padding: 0; }
+.signal-adjustment-body > * { margin-block: 0; }
+.signal-adjustment-engineer { display: flex; align-items: center; gap: 16px; max-width: none; padding: 24px; border: 1px solid #bbbcb8; border-right: 0; }
+.signal-adjustment-engineer label { flex: none; font-size: 20px; font-weight: 750; }
+.signal-adjustment-engineer [data-slot="select-trigger"] { min-width: 0; min-height: 52px; margin: 0; border-radius: 0; font-size: 17px; }
+.signal-adjustment-metrics { display: grid; grid-template-columns: repeat(3,minmax(0,1fr)); min-width: 0; border: 1px solid #bbbcb8; border-left: 0; border-radius: 0; padding-block: 20px; }
+.signal-adjustment-metrics > div { min-width: 0; padding: 0 24px; border: 0; border-left: 1px solid #bbbcb8; }
+.signal-adjustment-metrics dt { font-size: 18px; color: #1a1a18; font-weight: 700; }
+.signal-adjustment-metrics dd { margin-top: 4px; font-size: clamp(32px,3.3vw,54px); font-weight: 900; line-height: 1.1; letter-spacing: -.04em; }
+.signal-adjustment-form { grid-column: 1 / -1; display: grid; grid-template-columns: minmax(0,.9fr) minmax(0,1.3fr) auto; gap: 18px; align-items: center; margin: 0; padding: 20px 24px; border: 1px solid #bbbcb8; border-top: 0; border-radius: 0; background: #fff; }
+.signal-adjustment-form > div { min-width: 0; }
+.signal-adjustment-form label { font-size: 20px; font-weight: 750; }
+.signal-adjustment-form input, .signal-adjustment-form textarea { min-height: 52px; font-size: 18px; border-radius: 0; }
+.signal-adjustment-form textarea { min-height: 100px; }
+.signal-adjustment-form > p { grid-column: 1 / -1; }
+.signal-adjustment-select [data-slot="select-item"] { min-height: 44px; font-size: 16px; }
+.signal-adjustment-form p { font-size: 16px; line-height: 1.5; }
+.signal-adjustment-form > button { min-height: 56px; padding: 12px 24px; border-radius: 0; background: #e8cf4a; color: #1a1a18; font-size: 18px; font-weight: 800; }
+.signal-adjustment-form > button svg { display: none; }
+.signal-adjustment-history { grid-column: 1 / -1; margin-top: 22px; }
+.signal-adjustment-history > div:first-child { margin: 0 0 8px; padding: 10px 18px; min-height: 46px; background: #1a1a18; color: #fff; }
+.signal-adjustment-history h3 { font-size: 23px; font-weight: 800; }
+.signal-adjustment-history > div:first-child span { color: #fff; font-size: 18px; }
+.signal-adjustment-history > div:nth-child(2) { display: flex; align-items: center; justify-content: center; min-height: 170px; border: 1px solid #bbbcb8; border-radius: 0; font-size: 20px; }
+.signal-adjustment-history ul { border-radius: 0; }
+.signal-adjustment-history li p, .signal-adjustment-history li span { font-size: 16px; }
+.signal-adjustment-history li button { min-width: 44px; min-height: 44px; border-radius: 0; }
+.signal-adjustment-history [data-slot="badge"] { border-radius: 0; }
+.signal-adjustment-empty { border-radius: 0; }
+.signal-adjustment-empty p { font-size: 16px; }
+.signal-reopen-panel .signal-operation-panel-heading { display: grid; grid-template-columns: minmax(0,1fr) auto; }
+.signal-reopen-panel .signal-operation-heading-copy { display: contents; }
+.signal-reopen-panel .signal-operation-heading-copy h2 { grid-column: 1; grid-row: 1; }
+.signal-reopen-panel .signal-operation-heading-copy p { grid-column: 1 / -1; grid-row: 2; }
+.signal-reopen-panel .signal-operation-panel-heading > [data-slot="badge"] { grid-column: 2; grid-row: 1; margin: 0; border: 0; border-radius: 0; padding: 10px 18px; background: #1a1a18; color: #e8cf4a; font-size: 22px; font-weight: 800; }
+.signal-reopen-empty { justify-content: center; min-height: 510px; padding: 40px 24px; border: 1px solid #bbbcb8; }
+.signal-reopen-empty > svg { width: 72px; height: 72px; margin-bottom: 26px; color: #92928f; }
+.signal-reopen-empty > p:first-of-type { font-size: 30px; font-weight: 850; line-height: 1.4; }
+.signal-reopen-empty > p:last-child { margin-top: 12px; font-size: 20px; line-height: 1.5; }
+.signal-reopen-panel input { min-height: 48px; font-size: 16px; border-radius: 0; }
+.signal-reopen-panel button { min-height: 44px; border-radius: 0; font-size: 16px; }
+.signal-reopen-table { max-width: 100%; overflow-x: auto; }
+.signal-reopen-table table { min-width: 850px; border-collapse: collapse; font-size: 16px; }
+.signal-reopen-table th { background: #ededeb; color: #1a1a18; font-size: 17px; font-weight: 750; }
+.signal-reopen-table :is(th,td) { border: 1px solid #bbbcb8; padding: 14px; }
+.signal-reopen-cards { border-radius: 0; }
+.signal-reopen-cards p { font-size: 16px; line-height: 1.5; overflow-wrap: anywhere; }
+.signal-reopen-dialog label, .signal-reopen-dialog p, .signal-reopen-dialog textarea,
+.signal-adjustment-dialog p { font-size: 16px; }
+@media (max-width: 1100px) {
+  .signal-adjustment-body { grid-template-columns: minmax(0,1fr); }
+  .signal-adjustment-engineer { border-right: 1px solid #bbbcb8; padding: 18px; }
+  .signal-adjustment-metrics { border: 1px solid #bbbcb8; border-top: 0; }
+  .signal-adjustment-metrics > div:first-child { border-left: 0; }
+  .signal-adjustment-metrics dd { font-size: 42px; }
+  .signal-adjustment-form { grid-template-columns: minmax(0,1fr) minmax(0,1.5fr); }
+  .signal-adjustment-form > button { grid-column: 1 / -1; }
+}
+@media (max-width: 767px) {
+  .signal-adjustment-heading h2 { font-size: 22px; padding: 12px; }
+  .signal-adjustment-heading [data-slot="badge"] { font-size: 16px; padding: 8px 10px; white-space: normal; max-width: 130px; }
+  .signal-adjustment-heading p { font-size: 16px; padding-inline: 4px; }
+  .signal-adjustment-engineer { flex-direction: column; align-items: stretch; gap: 10px; padding: 16px; }
+  .signal-adjustment-engineer label { font-size: 16px; }
+  .signal-adjustment-engineer [data-slot="select-trigger"] { min-height: 44px; font-size: 16px; }
+  .signal-adjustment-metrics { padding-block: 16px; }
+  .signal-adjustment-metrics > div { padding: 0 10px; }
+  .signal-adjustment-metrics dt { font-size: 16px; line-height: 1.4; }
+  .signal-adjustment-metrics dd { font-size: clamp(27px,7.6vw,36px); }
+  .signal-adjustment-form { grid-template-columns: minmax(0,1fr); padding: 16px; }
+  .signal-adjustment-form label { font-size: 16px; }
+  .signal-adjustment-form input, .signal-adjustment-form textarea { min-height: 44px; font-size: 16px; }
+  .signal-adjustment-form > p { grid-column: 1 / -1; }
+  .signal-adjustment-form > button { min-height: 48px; }
+  .signal-adjustment-history h3 { font-size: 20px; }
+  .signal-adjustment-history > div:nth-child(2) { min-height: 150px; padding: 24px 16px; font-size: 16px; }
+  .signal-reopen-panel .signal-operation-panel-heading > [data-slot="badge"] { padding: 10px; font-size: 16px; }
+  .signal-reopen-empty { min-height: 320px; padding: 32px 16px; }
+  .signal-reopen-empty > svg { width: 56px; height: 56px; margin-bottom: 20px; }
+  .signal-reopen-empty > p:first-of-type { font-size: 24px; }
+  .signal-reopen-empty > p:last-child { font-size: 16px; }
+  .signal-reopen-cards > div { flex-direction: column; align-items: stretch; }
+  .signal-reopen-panel [aria-live="polite"] { font-size: 16px; }
+}

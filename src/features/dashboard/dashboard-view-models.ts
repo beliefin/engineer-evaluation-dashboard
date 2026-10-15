@@ -181,6 +181,7 @@ export interface CompletedRankingProps {
   readonly populationSelectable?: boolean
   readonly populationRows?: readonly CompletedRankingRow[]
   readonly populationResetKey?: string
+  readonly populationStorageKey?: string
   readonly onDownload?: (rows: readonly CompletedRankingRow[]) => Promise<void>
 }
 

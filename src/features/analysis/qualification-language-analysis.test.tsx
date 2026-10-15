@@ -1,4 +1,5 @@
 import { render, screen } from "@testing-library/react"
+import userEvent from "@testing-library/user-event"
 import { describe, expect, it } from "vitest"
 
 import { QualificationLanguageAnalysis } from "./qualification-language-analysis"
@@ -64,5 +65,46 @@ describe("qualification and language source analysis", () => {
     )
     expect(screen.getByText("현재 필터에 실제 자격증 기록이 없습니다.")).toBeVisible()
     expect(screen.getByText("현재 필터에 실제 어학 성적 기록이 없습니다.")).toBeVisible()
+  })
+})
+
+describe("qualification and language source analysis expansion", () => {
+  it("keeps long lists compact until the user asks to see more", async () => {
+    const user = userEvent.setup()
+    const certificationHoldings = Array.from({ length: 5 }, (_, index) => ({
+      certificateName: `cert-${index + 1}`,
+      holderCount: 5 - index,
+      acquiredThisYearCount: 0,
+      shareOfRecordedEngineers: 20,
+    }))
+    const languageResults = Array.from({ length: 5 }, (_, index) => ({
+      key: `english:exam:${index + 1}`,
+      scopeLabel: "English",
+      examName: "Exam",
+      result: String(index + 1),
+      holderCount: 5 - index,
+      shareOfRecordedEngineers: 20,
+    }))
+    render(<QualificationLanguageAnalysis data={{
+      evaluationYear: "2026",
+      eligibleEngineerCount: 5,
+      certificationRecordedEngineerCount: 5,
+      certificationNoScoreEngineerCount: 0,
+      certificationUnreportedEngineerCount: 0,
+      certificationTypeCount: 5,
+      certificationAcquiredThisYearEngineerCount: 0,
+      certificationHoldings,
+      languageRecordedEngineerCount: 5,
+      languageNoScoreEngineerCount: 0,
+      languageUnreportedEngineerCount: 0,
+      languageExamCount: 5,
+      languageAcquiredThisYearEngineerCount: 0,
+      languageResults,
+    }} />)
+
+    expect(screen.queryByText("cert-5")).not.toBeInTheDocument()
+    await user.click(screen.getByRole("button", { name: "더 보기" }))
+    expect(screen.getByText("cert-5")).toBeVisible()
+    expect(screen.getByRole("button", { name: "접기" })).toHaveAttribute("aria-expanded", "true")
   })
 })

@@ -1,11 +1,5 @@
-import { CircleAlert } from "lucide-react"
-
-import { Badge } from "@/components/ui/badge"
-import { Progress } from "@/components/ui/progress"
-import { isSupabaseConfigured } from "@/backend/supabase-client"
-
-import { DetailStatusBadge } from "./detail-status-badge"
 import type {
+  EngineerEvaluationStoryViewModel,
   EngineerFinalResultViewModel,
   EngineerIdentityViewModel,
 } from "./engineer-detail.types"
@@ -13,134 +7,77 @@ import type {
 interface EngineerSummaryProps {
   readonly engineer: EngineerIdentityViewModel
   readonly result: EngineerFinalResultViewModel
+  readonly story: EngineerEvaluationStoryViewModel
   readonly contextLabel?: string | undefined
 }
 
-export function EngineerSummary({ engineer, result, contextLabel = "엔지니어 상세" }: EngineerSummaryProps) {
-  const completionPercent = Math.min(
-    100,
-    Math.max(0, result.totalCategoryCount === 0 ? 0 : (result.completedCategoryCount / result.totalCategoryCount) * 100)
-  )
+function scoreLabel(value: number): string {
+  return value.toLocaleString("ko-KR", { minimumFractionDigits: 1, maximumFractionDigits: 2 })
+}
 
+export function EngineerSummary({ engineer, result, story, contextLabel = "엔지니어 상세" }: EngineerSummaryProps) {
   return (
-    <section
-      aria-labelledby="engineer-detail-title"
-      className="overflow-hidden rounded-lg border bg-card"
-    >
-      <div className="grid lg:grid-cols-[minmax(0,1fr)_18rem]">
-        <div className="p-5 sm:p-6">
-          <div className="mb-4 flex flex-wrap items-center gap-2">
-            <span className="text-xs font-semibold text-muted-foreground">
-              {contextLabel}
-            </span>
-            <Badge variant="outline" className="bg-muted text-muted-foreground">
-              {isSupabaseConfigured() ? "운영 데이터" : "샘플 데이터"}
-            </Badge>
-            <DetailStatusBadge status={result.status} />
-          </div>
-
-          <h1
-            id="engineer-detail-title"
-            className="text-[1.625rem] leading-[1.3] font-bold tracking-[-0.02em]"
-          >
-            {engineer.displayName}
-          </h1>
-
-          <dl className="mt-5 grid gap-4 sm:grid-cols-3">
-            <div>
-              <dt className="text-xs font-medium text-muted-foreground">
-                엔지니어 코드
-              </dt>
-              <dd className="numeric mt-1 text-sm font-semibold">
-                {engineer.engineerCode}
-              </dd>
-            </div>
-            <div>
-              <dt className="text-xs font-medium text-muted-foreground">
-                소속 팀
-              </dt>
-              <dd className="mt-1 text-sm font-semibold">
-                {engineer.teamName}
-              </dd>
-            </div>
-            <div>
-              <dt className="text-xs font-medium text-muted-foreground">
-                평가 시즌
-              </dt>
-              <dd className="mt-1 text-sm font-semibold">
-                {engineer.seasonLabel}
-              </dd>
-            </div>
-          </dl>
-        </div>
-
-        <div className="border-t bg-muted/30 p-5 sm:p-6 lg:border-t-0 lg:border-l">
-          <p className="text-xs font-medium text-muted-foreground">최종 점수</p>
-          {result.status === "complete" ? (
-            <>
-              <p className="numeric mt-2 flex items-baseline gap-1">
-                <span className="text-[2rem] leading-none font-bold tracking-[-0.025em]">
-                  {result.finalScore.toFixed(2)}
-                </span>
-                <span className="text-sm font-medium text-muted-foreground">
-                  / 100
-                </span>
-              </p>
-              {result.adjustmentTotal === 0 ? null : (
-                <dl className="mt-4 grid grid-cols-2 gap-3 border-t pt-3 text-xs">
-                  <div>
-                    <dt className="text-muted-foreground">기본 가중 총점</dt>
-                    <dd className="numeric mt-1 font-semibold">{result.baseScore?.toFixed(2) ?? "-"}</dd>
-                  </div>
-                  <div>
-                    <dt className="text-muted-foreground">가·감점 합계</dt>
-                    <dd className={`numeric mt-1 font-semibold ${result.adjustmentTotal > 0 ? "text-emerald-700" : "text-destructive"}`}>
-                      {result.adjustmentTotal > 0 ? "+" : ""}{result.adjustmentTotal.toFixed(2)}
-                    </dd>
-                  </div>
-                </dl>
-              )}
-            </>
-          ) : (
-            <div className="mt-2 flex items-center gap-2 text-destructive">
-              <CircleAlert className="size-5" aria-hidden="true" />
-              <span className="text-xl font-bold">미확정</span>
-            </div>
-          )}
-          <p className="mt-3 text-xs leading-5 text-muted-foreground">
-            모든 필수 평가와 직접점수 완료 후 <span className="whitespace-nowrap">최종 점수</span> 확정
-          </p>
-          {result.adjustments.length === 0 ? null : (
-            <details className="mt-3 border-t pt-3 text-xs">
-              <summary className="cursor-pointer font-semibold">가·감점 내역 {result.adjustments.length}건</summary>
-              <ul className="mt-2 space-y-2 text-muted-foreground">
-                {result.adjustments.map((adjustment) => (
-                  <li className="leading-5" key={adjustment.id}>
-                    <span className={`numeric mr-1 font-semibold ${adjustment.amount > 0 ? "text-emerald-700" : "text-destructive"}`}>
-                      {adjustment.amount > 0 ? "+" : ""}{adjustment.amount.toFixed(2)}
-                    </span>
-                    {adjustment.reason}
-                  </li>
-                ))}
-              </ul>
-            </details>
-          )}
-        </div>
+    <section aria-labelledby="engineer-detail-title" className="signal-engineer-summary">
+      <div className="signal-engineer-heading-row">
+        <h1 id="engineer-detail-title" className="signal-engineer-title">{contextLabel}</h1>
+        <dl className="signal-engineer-identity">
+          <div><dt>엔지니어</dt><dd>{engineer.displayName}</dd></div>
+          <div><dt>사번</dt><dd className="numeric">{engineer.engineerCode}</dd></div>
+          <div><dt>소속</dt><dd>{engineer.teamName}</dd></div>
+          <div><dt>평가 연도</dt><dd>{engineer.seasonLabel}</dd></div>
+        </dl>
       </div>
 
-      <div className="border-t px-5 py-4 sm:px-6">
-        <div className="mb-2 flex items-center justify-between gap-4 text-xs">
-          <span className="font-medium">분야별 평가 완료도</span>
-          <span className="numeric text-muted-foreground">
-            {result.completedCategoryCount} / {result.totalCategoryCount}개
-          </span>
+      <dl className="signal-engineer-metrics">
+        <div>
+          <dt>총점</dt>
+          <dd className={`numeric signal-engineer-metric-value${result.status === "complete" ? "" : " signal-engineer-metric-pending"}`}>
+            {result.status === "complete" ? scoreLabel(result.finalScore) : "미확정"}
+            {result.status === "complete" || story.score === null ? null : (
+              <span className="signal-engineer-metric-note">현재 반영 <span className="numeric">{scoreLabel(story.score)}</span>점</span>
+            )}
+          </dd>
         </div>
-        <Progress
-          value={completionPercent}
-          aria-label={`과제별 평가 ${result.totalCategoryCount}개 중 ${result.completedCategoryCount}개 완료`}
-          className="h-1.5"
-        />
-      </div>
+        <div>
+          <dt>순위</dt>
+          <dd className="numeric signal-engineer-metric-value">
+            {story.rank === null ? "—" : <>{story.rank}<span className="signal-engineer-metric-denominator">/{story.cohortCount}</span></>}
+          </dd>
+        </div>
+        <div>
+          <dt>상위</dt>
+          <dd className="numeric signal-engineer-metric-value">
+            {story.topPercentile === null ? "—" : <>{story.topPercentile.toFixed(1)}<span className="signal-engineer-percent">%</span></>}
+          </dd>
+        </div>
+        <div>
+          <dt>완료</dt>
+          <dd className="numeric signal-engineer-metric-value">
+            {result.completedCategoryCount}<span className="signal-engineer-metric-denominator">/{result.totalCategoryCount}</span>
+          </dd>
+        </div>
+      </dl>
+      {result.status === "complete" ? null : (
+        <p className="signal-engineer-summary-note">모든 필수 평가와 직접점수 완료 후 최종 점수가 확정됩니다. 순위와 상위 비율은 현재 반영 점수 기준입니다.</p>
+      )}
+      {result.adjustmentTotal === 0 && result.adjustments.length === 0 ? null : (
+        <details className="signal-engineer-adjustments">
+          <summary>
+            기본 가중 총점 <span className="numeric">{result.baseScore === null ? "—" : scoreLabel(result.baseScore)}</span>
+            {" · "}가·감점 <span className="numeric">{result.adjustmentTotal > 0 ? "+" : ""}{scoreLabel(result.adjustmentTotal)}</span>
+            {result.adjustments.length > 0 ? ` · 내역 ${result.adjustments.length}건` : ""}
+          </summary>
+          <ul>
+            {result.adjustments.map((adjustment) => (
+              <li key={adjustment.id}>
+                <strong className="numeric">{adjustment.amount > 0 ? "+" : ""}{scoreLabel(adjustment.amount)}</strong>
+                {" "}{adjustment.reason}
+                <span className="signal-engineer-adjustment-date">{adjustment.updatedAtLabel}</span>
+              </li>
+            ))}
+          </ul>
+        </details>
+      )}
     </section>
   )
 }

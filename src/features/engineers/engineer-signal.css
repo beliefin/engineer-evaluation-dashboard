@@ -1,0 +1,154 @@
+.signal-engineer-detail {
+  --signal-detail-ink: #1a1a18;
+  --signal-detail-yellow: #e8cf4a;
+  --signal-detail-line: #d5d5d5;
+  color: #080808;
+  width: 100%;
+  min-width: 0;
+  font-variant-numeric: tabular-nums lining-nums;
+}
+.signal-engineer-heading-row { display: flex; align-items: center; justify-content: space-between; gap: 32px; min-height: 118px; padding: 10px 0 22px; }
+.signal-engineer-title { margin: 0; font-size: clamp(42px, 4.15vw, 64px); font-weight: 900; line-height: 1.08; letter-spacing: -.045em; white-space: nowrap; }
+.signal-engineer-identity { display: flex; align-items: center; margin: 0; }
+.signal-engineer-identity > div { min-width: 116px; padding: 0 30px; border-left: 1px solid #b9b9b9; }
+.signal-engineer-identity > div:first-child { padding-left: 0; border-left: 0; }
+.signal-engineer-identity > div:last-child { padding-right: 0; }
+.signal-engineer-identity dt { font-size: 16px; line-height: 1.4; margin-bottom: 5px; white-space: nowrap; }
+.signal-engineer-identity dd { font-size: 25px; line-height: 1.2; font-weight: 750; letter-spacing: -.025em; white-space: nowrap; margin: 0; }
+.signal-engineer-metrics { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); border: 1px solid var(--signal-detail-ink); min-height: 171px; margin: 0; }
+.signal-engineer-metrics > div { padding: 18px 28px 22px; min-width: 0; border-left: 1px solid #777; }
+.signal-engineer-metrics > div:first-child { border-left: 0; }
+.signal-engineer-metrics dt { font-size: 26px; font-weight: 800; line-height: 1.3; letter-spacing: -.035em; }
+.signal-engineer-metric-value { font-size: clamp(60px, 6vw, 92px); font-weight: 900; line-height: 1.04; letter-spacing: -.05em; margin: 5px 0 0; white-space: nowrap; }
+.signal-engineer-metric-denominator { font-size: .94em; }
+.signal-engineer-percent { font-size: .74em; }
+.signal-engineer-metric-pending { font-size: clamp(42px, 4.3vw, 66px); padding-top: 10px; }
+.signal-engineer-metric-note { display: block; font-size: 14px; font-weight: 500; line-height: 1.4; letter-spacing: -.01em; margin: 8px 0 0; color: #525252; }
+.signal-engineer-summary-note { font-size: 14px; margin: 10px 0 0; line-height: 1.5; color: #555; }
+.signal-engineer-adjustments { margin-top: 12px; border: 1px solid var(--signal-detail-line); padding: 10px 14px; font-size: 14px; }
+.signal-engineer-adjustments summary { cursor: pointer; font-weight: 600; }
+.signal-engineer-adjustments ul { margin: 10px 0 0; padding: 0 0 0 18px; }
+.signal-engineer-adjustments li { padding: 4px 0; }
+.signal-engineer-adjustment-date { margin-left: 12px; color: #666; }
+.signal-engineer-content-grid { margin-top: 20px; display: grid; grid-template-columns: minmax(0, 1.06fr) minmax(0, 1fr); gap: 18px; align-items: stretch; }
+.signal-engineer-section-bar { background: var(--signal-detail-ink); color: #fff; min-height: 46px; display: flex; align-items: center; padding: 8px 18px; }
+.signal-engineer-section-bar h2 { font-size: 24px; font-weight: 800; line-height: 1.2; letter-spacing: -.025em; margin: 0; }
+.signal-engineer-table-scroll { margin-top: 12px; overflow-x: auto; }
+.signal-engineer-score-table { width: 100%; border-collapse: collapse; table-layout: fixed; font-size: 18px; letter-spacing: -.025em; }
+.signal-engineer-score-table col:nth-child(1) { width: 26%; }
+.signal-engineer-score-table col:nth-child(2) { width: 15%; }
+.signal-engineer-score-table col:nth-child(3) { width: 16%; }
+.signal-engineer-score-table col:nth-child(4) { width: 17%; }
+.signal-engineer-score-table col:nth-child(5) { width: 26%; }
+.signal-engineer-score-table th, .signal-engineer-score-table td { border: 1px solid var(--signal-detail-line); padding: 12px 10px; height: 54px; line-height: 1.35; text-align: center; vertical-align: middle; }
+.signal-engineer-score-table thead th { background: #ececec; height: 47px; font-weight: 650; font-size: 18px; white-space: nowrap; }
+.signal-engineer-score-table tbody th, .signal-engineer-score-table tfoot th { text-align: left; padding-left: 24px; font-weight: 600; }
+.signal-engineer-score-table tbody th { overflow-wrap: break-word; }
+.signal-engineer-score-table tfoot td, .signal-engineer-score-table tfoot th { height: 72px; font-weight: 750; font-size: 20px; }
+.signal-engineer-score-table .signal-engineer-adjustment-row th, .signal-engineer-score-table .signal-engineer-adjustment-row td { font-size: 15px; height: 50px; }
+.signal-engineer-status { display: inline-flex; align-items: center; gap: 12px; white-space: nowrap; font-size: 17px; }
+.signal-engineer-status-mark { width: 14px; height: 14px; border: 2px solid var(--signal-detail-ink); flex: 0 0 auto; }
+.signal-engineer-status-mark.is-complete { background: var(--signal-detail-ink); }
+.signal-engineer-empty { padding: 32px 16px !important; color: #666; text-align: center; font-size: 16px; }
+.signal-engineer-profile-panel { display: flex; flex-direction: column; min-width: 0; }
+.signal-engineer-profile-heading { justify-content: space-between; gap: 12px; }
+.signal-engineer-profile-legend { display: flex; align-items: center; gap: 22px; font-size: 16px; white-space: nowrap; }
+.signal-engineer-profile-legend > span { display: flex; align-items: center; gap: 8px; }
+.signal-engineer-profile-legend i { width: 15px; height: 15px; border-radius: 50%; display: inline-block; }
+.signal-engineer-profile-legend .is-own { background: var(--signal-detail-yellow); }
+.signal-engineer-profile-legend .is-average { background: #ddd; }
+.signal-engineer-profile-body { margin-top: 12px; border: 1px solid var(--signal-detail-line); flex: 1; min-height: 449px; padding: 12px 48px 12px 18px; }
+.signal-engineer-profile-chart { display: grid; grid-template-columns: 146px minmax(0, 1fr); }
+.signal-engineer-profile-axis { grid-column: 2; height: 22px; position: relative; font-size: 14px; }
+.signal-engineer-profile-axis > div { position: relative; width: 100%; }
+.signal-engineer-profile-axis span { position: absolute; transform: translateX(-50%); top: -4px; width: max-content; white-space: nowrap; }
+.signal-engineer-profile-row { display: contents; }
+.signal-engineer-profile-label { min-height: 66px; padding-right: 10px; display: flex; align-items: center; font-size: 17px; font-weight: 650; letter-spacing: -.035em; line-height: 1.2; overflow-wrap: break-word; }
+.signal-engineer-profile-bars { position: relative; min-height: 66px; display: flex; flex-direction: column; justify-content: center; gap: 4px; }
+.signal-engineer-profile-grid { position: absolute; inset: 0; pointer-events: none; }
+.signal-engineer-profile-grid > span { position: absolute; top: 0; bottom: 0; border-left: 1px dashed #d2d2d2; }
+.signal-engineer-profile-track { position: relative; height: 15px; }
+.signal-engineer-profile-fill { position: absolute; left: 0; top: 0; height: 15px; min-width: 0; }
+.signal-engineer-profile-track.is-own .signal-engineer-profile-fill { background: var(--signal-detail-yellow); }
+.signal-engineer-profile-track.is-average .signal-engineer-profile-fill { background: #b0b2b4; }
+.signal-engineer-profile-value { position: absolute; margin-left: 9px; top: 50%; transform: translateY(-50%); font-size: 17px; line-height: 1; font-weight: 700; white-space: nowrap; }
+.signal-engineer-profile-track.is-average .signal-engineer-profile-value { font-weight: 450; }
+.signal-engineer-disclosures { display: flex; flex-wrap: wrap; gap: 4px 28px; margin-top: 16px; }
+.signal-engineer-disclosure { min-width: 0; font-size: 15px; }
+.signal-engineer-disclosure > summary { cursor: pointer; font-weight: 600; text-decoration: underline; text-underline-offset: 4px; padding: 7px 0; }
+.signal-engineer-disclosure[open] { flex-basis: 100%; }
+.signal-engineer-disclosure-content { margin-top: 12px; }
+.signal-engineer-disclosure-content > section { border-radius: 0; }
+.signal-engineer-detail :is(summary, [tabindex="0"]):focus-visible { outline: 3px solid var(--signal-detail-yellow); outline-offset: 3px; }
+@media (max-width: 1300px) {
+  .signal-engineer-heading-row { gap: 20px; }
+  .signal-engineer-identity > div { min-width: 95px; padding: 0 18px; }
+  .signal-engineer-identity dd { font-size: 21px; }
+  .signal-engineer-metrics > div { padding-inline: 22px; }
+  .signal-engineer-score-table { font-size: 16px; }
+  .signal-engineer-score-table tbody th, .signal-engineer-score-table tfoot th { padding-left: 14px; }
+  .signal-engineer-score-table thead th { font-size: 16px; }
+  .signal-engineer-status { gap: 7px; font-size: 15px; }
+  .signal-engineer-profile-legend { gap: 14px; font-size: 14px; }
+  .signal-engineer-profile-chart { grid-template-columns: 146px minmax(0, 1fr); }
+  .signal-engineer-profile-label { font-size: 16px; }
+  .signal-engineer-section-bar h2 { font-size: 22px; }
+}
+@media (max-width: 1100px) {
+  .signal-engineer-heading-row { flex-wrap: wrap; padding-bottom: 24px; }
+  .signal-engineer-identity { margin-top: 8px; }
+  .signal-engineer-content-grid { grid-template-columns: minmax(0, 1fr); }
+  .signal-engineer-profile-body { min-height: auto; }
+  .signal-engineer-profile-chart { grid-template-columns: 170px minmax(0, 1fr); }
+  .signal-engineer-score-table { font-size: 18px; }
+  .signal-engineer-status { font-size: 17px; }
+  .signal-engineer-metric-value { font-size: 64px; }
+  .signal-engineer-metric-pending { font-size: 44px; }
+}
+@media (max-width: 768px) {
+  .signal-engineer-heading-row { min-height: 0; gap: 20px; }
+  .signal-engineer-title { font-size: 42px; }
+  .signal-engineer-identity { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); width: 100%; gap: 20px 0; }
+  .signal-engineer-identity > div { padding: 0 16px; }
+  .signal-engineer-identity > div:nth-child(odd) { padding-left: 0; border-left: 0; }
+  .signal-engineer-identity > div:last-child { padding-right: 0; }
+  .signal-engineer-identity dt { font-size: 14px; }
+  .signal-engineer-identity dd { font-size: 21px; white-space: normal; }
+  .signal-engineer-metrics { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .signal-engineer-metrics > div { padding: 16px 18px; min-height: 130px; }
+  .signal-engineer-metrics > div:nth-child(3) { border-left: 0; }
+  .signal-engineer-metrics > div:nth-child(n+3) { border-top: 1px solid #777; }
+  .signal-engineer-metrics dt { font-size: 21px; }
+  .signal-engineer-metric-value { font-size: 60px; }
+  .signal-engineer-metric-pending { font-size: 42px; }
+  .signal-engineer-score-table { min-width: 620px; }
+  .signal-engineer-profile-heading { flex-wrap: wrap; padding: 12px 16px; }
+  .signal-engineer-profile-body { padding: 14px 44px 12px 12px; }
+  .signal-engineer-profile-chart { grid-template-columns: 114px minmax(0, 1fr); }
+  .signal-engineer-profile-label { font-size: 15px; min-height: 66px; }
+  .signal-engineer-profile-value { font-size: 14px; margin-left: 6px; }
+  .signal-engineer-profile-axis { font-size: 12px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .signal-engineer-detail * { transition: none !important; }
+}
+
+/* Narrow mobile refinement; desktop and the 768px tablet layout are unchanged. */
+@media (max-width: 767px) {
+  .signal-engineer-summary, .signal-engineer-heading-row, .signal-engineer-content-grid, .signal-engineer-category-panel, .signal-engineer-profile-body, .signal-engineer-profile-chart, .signal-engineer-profile-axis, .signal-engineer-profile-bars { min-width: 0; max-width: 100%; }
+  .signal-engineer-identity > div { min-width: 0; }
+  .signal-engineer-identity dd { overflow-wrap: anywhere; }
+  .signal-engineer-title { font-size: clamp(34px, 10.5vw, 42px); }
+  .signal-engineer-metrics > div { padding-inline: 14px; min-height: 120px; }
+  .signal-engineer-metric-value { font-size: clamp(36px, 10vw, 44px); }
+  .signal-engineer-metric-denominator { font-size: .86em; }
+  .signal-engineer-metric-pending { font-size: 36px; }
+  .signal-engineer-table-scroll { min-width: 0; max-width: 100%; overscroll-behavior-x: contain; }
+  .signal-engineer-table-scroll::before { content: "좌우로 밀어 모든 점수 보기"; display: block; position: sticky; left: 0; width: max-content; max-width: 100%; padding: 0 0 8px; color: #666; font-size: 13px; }
+  .signal-engineer-score-table tbody th, .signal-engineer-score-table tfoot th { position: sticky; left: 0; z-index: 1; background: white; }
+  .signal-engineer-score-table thead th:first-child { position: sticky; left: 0; z-index: 2; background: #ececec; }
+  .signal-engineer-disclosures, .signal-engineer-disclosure { max-width: 100%; }
+  .signal-engineer-disclosure:not([open]) > .signal-engineer-disclosure-content { display: none; }
+  .signal-engineer-disclosure-content { min-width: 0; max-width: 100%; overflow-x: auto; }
+  .signal-engineer-disclosure > summary, .signal-engineer-adjustments > summary { min-height: 44px; padding-block: 12px; overflow-wrap: anywhere; }
+}

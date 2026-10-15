@@ -5,6 +5,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 
 import { RosterSection } from "./roster-section"
 import { rosterDepartmentsForTeam, type RosterManagementPanelProps } from "./types"
+import styles from "./roster-signal.module.css"
 
 export function RosterManagementPanel({
   engineers,
@@ -35,28 +36,24 @@ export function RosterManagementPanel({
   return (
     <section
       aria-labelledby="roster-management-title"
-      className="overflow-hidden rounded-md border bg-card"
+      className={styles.panel}
     >
-      <header className="flex flex-col gap-3 border-b border-border-subtle px-4 py-4 sm:flex-row sm:items-start sm:justify-between sm:px-5">
-        <div>
-          <h2 className="text-base font-semibold" id="roster-management-title">
-            평가 명단 관리
-          </h2>
-          <p className="mt-1 max-w-3xl text-sm text-muted-foreground">
-            1부문 아래 팀·담당 기준의 엔지니어·평가자 <span className="whitespace-nowrap">사전 등록</span>
-          </p>
-        </div>
-        <Badge className="shrink-0" variant="outline">
+      <header className={styles.heading}>
+        <h2 id="roster-management-title">평가 명단 관리</h2>
+        <Badge className={styles.count} variant="outline">
           엔지니어 {engineers.length}명 · 평가자 {evaluators.length}명
         </Badge>
       </header>
-      <div className="p-4 sm:p-5">
-        <Tabs defaultValue="engineer">
-          <TabsList aria-label="평가 명단 종류" variant="line">
+      <p className={styles.description}>
+        1부문 아래 팀·담당 기준의 엔지니어·평가자 <span className="whitespace-nowrap">사전 등록</span>
+      </p>
+      <div className={styles.body}>
+        <Tabs className={styles.tabsRoot} defaultValue="engineer">
+          <TabsList aria-label="평가 명단 종류" className={styles.tabs} variant="line">
             <TabsTrigger value="engineer">엔지니어 {engineers.length}명</TabsTrigger>
             <TabsTrigger value="evaluator">평가자 {evaluators.length}명</TabsTrigger>
           </TabsList>
-          <TabsContent value="engineer">
+          <TabsContent className={styles.content} value="engineer">
             <RosterSection
               departmentOptions={departmentOptions}
               disabled={disabled}
@@ -72,7 +69,7 @@ export function RosterManagementPanel({
               rows={engineers}
             />
           </TabsContent>
-          <TabsContent value="evaluator">
+          <TabsContent className={styles.content} value="evaluator">
             <RosterSection
               departmentOptions={departmentOptions}
               disabled={disabled}

@@ -1,3 +1,5 @@
+import "./signal-states.css"
+
 import type { ComponentType, ReactNode } from "react"
 import { Inbox } from "lucide-react"
 
@@ -27,7 +29,7 @@ function EmptyState({
   className,
 }: EmptyStateProps) {
   return (
-    <Empty className={cn("min-h-64 border border-dashed border-border bg-card", className)}>
+    <Empty className={cn("signal-empty-state min-h-64 border border-border bg-card", className)}>
       <EmptyHeader>
         <EmptyMedia variant="icon" className="size-10 bg-muted text-muted-foreground">
           <Icon className="size-5" aria-hidden />

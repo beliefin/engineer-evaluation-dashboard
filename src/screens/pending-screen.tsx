@@ -5,6 +5,8 @@ import { PendingEvaluationPanel } from "@/features/pending"
 import { useEvaluation } from "@/providers"
 import { selectPendingEvaluations } from "@/view-models/pending"
 
+import "@/features/pending/pending-signal.css"
+
 export function PendingScreen() {
   const { snapshot, activeCycleId, backendMode, role } = useEvaluation()
   if (snapshot === null) return null
@@ -17,15 +19,16 @@ export function PendingScreen() {
     metrics.byStatus.in_progress
 
   return (
-    <div className="space-y-6">
+    <div className="signal-pending-screen">
       <PageHeader
+        className="signal-pending-page-heading"
         context={`평가 운영 · ${backendMode === "supabase" ? "운영 데이터" : "샘플 데이터"}`}
         description={"평가자 미배정·미제출·직접점수 누락 구분과 후속\u00A0작업 안내"}
         title="미평가 현황"
       />
       <section
         aria-label="미평가 요약"
-        className="grid grid-cols-2 overflow-hidden rounded-lg border border-border bg-card xl:grid-cols-4"
+        className="signal-pending-metrics"
       >
         <PendingMetric label="전체 대상" unit="명" value={metrics.totalEngineers} />
         <PendingMetric label="평가 미완료" tone="danger" unit="명" value={unevaluatedCount} />
@@ -61,11 +64,11 @@ function PendingMetric({
   }[tone]
 
   return (
-    <div className="border-b border-border-subtle px-5 py-4 odd:border-r [&:nth-child(n+3)]:border-b-0 xl:border-r xl:border-b-0 xl:last:border-r-0">
-      <p className="text-xs font-medium text-muted-foreground">{label}</p>
-      <p className={`numeric mt-1 text-2xl font-bold ${toneClass}`}>
+    <div className="signal-pending-metric" data-tone={tone}>
+      <p className="signal-pending-metric-label">{label}</p>
+      <p className={`signal-pending-metric-value numeric ${toneClass}`}>
         {value}
-        <span className="ml-1 text-sm font-medium text-muted-foreground">{unit}</span>
+        <span>{unit}</span>
       </p>
     </div>
   )

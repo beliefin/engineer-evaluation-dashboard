@@ -114,6 +114,54 @@ describe("ScoreInputRow", () => {
 })
 
 describe("EvaluationScoreForm", () => {
+  it("keeps P/F submit guidance and the task description method-specific", () => {
+    const model: EvaluationScoreFormViewModel = {
+      ...makeViewModel([]),
+      method: "evaluator_pass_fail",
+      passResult: null,
+    }
+
+    render(
+      <EvaluationScoreForm
+        viewModel={model}
+        onScoreChange={vi.fn()}
+        onScoresChange={vi.fn()}
+        onPassResultChange={vi.fn()}
+        onSave={vi.fn()}
+        onSubmit={vi.fn()}
+        onRequestUnlock={vi.fn()}
+      />,
+    )
+
+    const requirementsId = `score-submit-requirements-${model.assignmentId}`
+    expect(screen.getByRole("button", { name: "제출 및 잠금" })).toHaveAttribute("aria-describedby", requirementsId)
+    expect(document.getElementById(requirementsId)).toHaveTextContent("Pass 또는 Fail")
+    expect(screen.getByText(model.description)).toBeVisible()
+    expect(screen.queryByText(/0개 항목을 모두 입력/)).not.toBeInTheDocument()
+  })
+
+  it("links Signal score inputs to the integer-entry hint", () => {
+    const model = makeViewModel([null])
+
+    render(
+      <EvaluationScoreForm
+        viewModel={model}
+        onScoreChange={vi.fn()}
+        onScoresChange={vi.fn()}
+        onPassResultChange={vi.fn()}
+        onSave={vi.fn()}
+        onSubmit={vi.fn()}
+        onRequestUnlock={vi.fn()}
+      />,
+    )
+
+    const item = model.items[0]
+    if (item === undefined) throw new Error("score item fixture is missing")
+    const hintId = `score-${model.assignmentId}-${item.id}-hint`
+    expect(screen.getByRole("textbox", { name: `${item.label} 점수` })).toHaveAttribute("aria-describedby", hintId)
+    expect(document.getElementById(hintId)).toHaveTextContent("0점부터 10점까지 정수로 입력")
+  })
+
   it("P/F 과제는 결과 한 개를 선택해 제출한다", async () => {
     const user = userEvent.setup()
     const onPassResultChange = vi.fn()

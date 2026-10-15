@@ -1,4 +1,4 @@
-import { EngineerDetail } from "@/features/engineers"
+import { EngineerEvaluationOverview } from "@/features/engineers/engineer-evaluation-overview"
 
 import { PersonalSourceRecordEditor } from "./personal-source-record-editor"
 import type { EngineerPortalCallbacks, EngineerPortalViewModel } from "./types"
@@ -18,7 +18,7 @@ export function EngineerPortal({
 }: EngineerPortalProps) {
   return (
     <div className="space-y-6">
-      <EngineerDetail model={model.detail} role="engineer" />
+      <EngineerEvaluationOverview model={model.detail} contextLabel="내 평가" />
       <PersonalSourceRecordEditor
         certificationRecords={model.certificationRecords}
         certificationNoScoreRecordId={model.certificationNoScoreRecordId}

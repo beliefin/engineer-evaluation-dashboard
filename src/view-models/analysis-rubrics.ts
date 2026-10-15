@@ -19,6 +19,7 @@ import {
   selectFilteredSummaries,
   selectedCategory,
 } from "./analysis-common"
+import { displayEvaluationTaskName } from "./labels"
 
 export const EVALUATOR_OUTLIER_DELTA = 10
 
@@ -84,7 +85,7 @@ export function selectRubricItemAverages(
     .filter((task) => selectedEvaluationTaskIds(snapshot, cycleId, normalizeAnalysisFilters(snapshot, filters)).includes(task.id))
     .flatMap((task) => task.items.map((item) => ({
       taskId: task.id,
-      taskLabel: task.name,
+      taskLabel: displayEvaluationTaskName(task.name),
       item,
     })))
   return items.flatMap(({ taskId, taskLabel, item }) => {
@@ -195,7 +196,7 @@ function selectSubmittedEvaluatorScoreObservations(
       ? []
       : [{
         taskId: task.id,
-        taskLabel: task.name,
+        taskLabel: displayEvaluationTaskName(task.name),
         engineerId: engineer.id,
         engineerLabel: engineer.displayName,
         teamLabel: engineer.team,
@@ -376,7 +377,7 @@ export function selectEvaluatorDeviations(
       )
       return [{
         taskId,
-        taskLabel: task.name,
+        taskLabel: displayEvaluationTaskName(task.name),
         evaluatorId: evaluator.id,
         evaluatorLabel: evaluator.displayName,
         averageScore: averageScore(values.map((entry) => entry.score)),

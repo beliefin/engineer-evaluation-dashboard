@@ -1,6 +1,6 @@
 import { cleanup, render, screen } from "@testing-library/react"
 import userEvent from "@testing-library/user-event"
-import { afterEach, describe, expect, it } from "vitest"
+import { afterEach, beforeEach, describe, expect, it } from "vitest"
 
 import type { RelativeRankingCandidate } from "@/view-models/relative-ranking"
 
@@ -40,11 +40,15 @@ function metricValue(label: string): Element | null {
 }
 
 describe("RelativeRankingSection", () => {
+  beforeEach(() => {
+    window.localStorage.clear()
+  })
+
   afterEach(() => cleanup())
 
   it("selects every scored engineer and recalculates bands when one is excluded", async () => {
     const user = userEvent.setup()
-    render(<RelativeRankingSection candidates={createCandidates()} seasonLabel="2026년 엔지니어 역량평가" />)
+    render(<RelativeRankingSection accountId="test-account" candidates={createCandidates()} cycleId="test-cycle" seasonLabel="2026년 엔지니어 역량평가" />)
 
     expect(metricValue("선택 인원")).toHaveTextContent("10명")
     expect(metricValue("S/A")).toHaveTextContent("3명")
@@ -64,7 +68,7 @@ describe("RelativeRankingSection", () => {
   })
 
   it("labels partial scores and prevents no-score people from being selected", () => {
-    render(<RelativeRankingSection candidates={createCandidates()} seasonLabel="2026년 엔지니어 역량평가" />)
+    render(<RelativeRankingSection accountId="test-account" candidates={createCandidates()} cycleId="test-cycle" seasonLabel="2026년 엔지니어 역량평가" />)
 
     expect(screen.getAllByText("부분점수").length).toBeGreaterThan(0)
     expect(screen.getByRole("checkbox", { name: "미진행 엔지니어 분석 포함" })).toBeDisabled()

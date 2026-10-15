@@ -11,7 +11,7 @@ import type {
   SubmittedSheetViewModel,
 } from "@/features/operations"
 
-import { formatTimestamp } from "./labels"
+import { displayEvaluationTaskName, formatTimestamp } from "./labels"
 import { selectSourceRecordReview } from "./source-record-review"
 import { selectEngineerResultSummaries } from "./results"
 
@@ -131,7 +131,7 @@ export function selectOperationsViewModel(
       ).length
       return {
         taskId: task.id,
-        name: task.name,
+        name: displayEvaluationTaskName(task.name),
         description: task.description,
         method: task.method,
         weight: task.weight,
@@ -178,7 +178,7 @@ export function selectOperationsViewModel(
             employeeLabel: engineer.employeeCode,
             teamName: engineer.team,
             taskId: task.id,
-            taskName: task.name,
+            taskName: displayEvaluationTaskName(task.name),
             assignments: assignments.map((assignment) => {
               const sheet = snapshot.scoreSheets.find((entry) => entry.assignmentId === assignment.id)
               const status = sheet?.status === "submitted"
@@ -216,7 +216,7 @@ export function selectOperationsViewModel(
       ),
       tasks: tasks.map((task) => ({
         taskId: task.id,
-        taskName: task.name,
+        taskName: displayEvaluationTaskName(task.name),
         method: task.method,
         defaultWeight: task.weight,
         weight: resolveEngineerTaskWeight(
@@ -270,7 +270,7 @@ export function selectOperationsViewModel(
           )
         return [{
           taskId: task.id,
-          taskName: task.name,
+          taskName: displayEvaluationTaskName(task.name),
           method: task.method === "operator_score" ? "operator_score" : "operator_pass_fail",
           weight: effectiveWeight,
           score: taskRules.length > 0 ? calculatedScore : stored?.score ?? null,
@@ -364,16 +364,16 @@ export function selectOperationsViewModel(
       })),
     derivedTasks: tasks
       .filter((task) => task.method === "derived_score")
-      .map((task) => ({ taskId: task.id, taskName: task.name })),
+      .map((task) => ({ taskId: task.id, taskName: displayEvaluationTaskName(task.name) })),
     derivedSourceTasks: tasks
       .filter((task) => task.method === "evaluator_score" || task.method === "evaluator_pass_fail")
-      .map((task) => ({ taskId: task.id, taskName: task.name })),
+      .map((task) => ({ taskId: task.id, taskName: displayEvaluationTaskName(task.name) })),
     derivedEngineerOptions: snapshot.engineers.map((engineer) => ({
       engineerId: engineer.id,
       engineerName: engineer.displayName,
       teamName: engineer.team,
     })),
-    operatorTasks: operatorTasks.map((task) => ({ taskId: task.id, taskName: task.name })),
+    operatorTasks: operatorTasks.map((task) => ({ taskId: task.id, taskName: displayEvaluationTaskName(task.name) })),
     certificationOptions,
     languageOptions: [...languageOptionMap.values()],
     submittedSheets: selectSubmittedSheets(snapshot, cycleId),

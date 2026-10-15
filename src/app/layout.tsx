@@ -5,6 +5,9 @@ import { ReactDevTools } from "@/components/react-dev-tools"
 import { AppProviders } from "@/providers"
 
 import "./globals.css"
+import "./signal.css"
+import "./signal-mobile.css"
+import "./signal-print.css"
 
 const pretendard = localFont({
   src: "../../node_modules/pretendard/dist/public/variable/PretendardVariable.ttf",

@@ -87,8 +87,8 @@ export function AnalysisDashboard({
       <AnalysisInsightStrip data={highlights} />
       <QualificationLanguageAnalysis data={achievementSources} />
 
-      <section aria-labelledby="decision-analysis-heading" className="space-y-4">
-        <div>
+      <section aria-labelledby="decision-analysis-heading" className="signal-analysis-decision space-y-4">
+        <div className="signal-analysis-section-heading">
           <h2 id="decision-analysis-heading" className="text-xl font-semibold tracking-tight">
             의사결정 진단
           </h2>
@@ -96,7 +96,7 @@ export function AnalysisDashboard({
             점수 분포·진행 병목·팀별 상대 성과 비교
           </p>
         </div>
-        <div className="grid min-w-0 gap-6 xl:grid-cols-2">
+        <div className="signal-analysis-summary-grid grid min-w-0 gap-6 xl:grid-cols-2">
           <ScoreDistributionChart data={scoreDistributions} isLoading={isLoading} />
           <TaskCompletionChart data={taskCompletionRates} isLoading={isLoading} />
         </div>

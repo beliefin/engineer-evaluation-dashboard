@@ -1,5 +1,7 @@
 "use client"
 
+import "./signal-portals.css"
+
 import { Toaster as Sonner, type ToasterProps } from "sonner"
 import { CircleCheckIcon, InfoIcon, TriangleAlertIcon, OctagonXIcon, Loader2Icon } from "lucide-react"
 
@@ -7,7 +9,7 @@ const Toaster = ({ ...props }: ToasterProps) => {
   return (
     <Sonner
       theme="light"
-      className="toaster group"
+      className="signal-toaster toaster group"
       icons={{
         success: (
           <CircleCheckIcon className="size-4" />

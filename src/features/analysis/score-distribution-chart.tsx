@@ -1,9 +1,12 @@
+import { HorizontalScroll } from "@/components/ui/horizontal-scroll"
+
+import { scoreAxisMaximum } from "./chart-score-domain"
 import { AnalysisPanel } from "./analysis-panel"
 import { AnalysisTable, type AnalysisTableColumn } from "./analysis-table"
 import { formatCount, formatDecimal, formatScore } from "./format"
 import type { AnalysisChartProps, ScoreDistributionDatum } from "./types"
 
-const AXIS_TICKS = [0, 25, 50, 75, 100] as const
+import "./analysis-summary-signal.css"
 
 const columns: readonly AnalysisTableColumn<ScoreDistributionDatum>[] = [
   { key: "task", header: "과제", render: (row) => row.taskLabel },
@@ -20,54 +23,55 @@ const columns: readonly AnalysisTableColumn<ScoreDistributionDatum>[] = [
   },
 ]
 
-function DistributionMark({ datum }: Readonly<{ datum: ScoreDistributionDatum }>) {
-  const summary = `${datum.taskLabel}: 최소 ${formatScore(datum.minimum)}, 1사분위 ${formatScore(datum.firstQuartile)}, 중앙값 ${formatScore(datum.median)}, 3사분위 ${formatScore(datum.thirdQuartile)}, 최대 ${formatScore(datum.maximum)}`
+function DistributionMark({ datum, maximum }: Readonly<{ datum: ScoreDistributionDatum; maximum: number }>) {
+  const position = (value: number) => maximum === 100 ? value : value / maximum * 100
+  const ticks = Array.from({ length: 5 }, (_, index) => maximum * index / 4)
+  const summary = `${datum.taskLabel}: 최소 ${formatScore(datum.minimum)}, 1사분위 ${formatScore(datum.firstQuartile)}, 중앙값 ${formatScore(datum.median)}, 3사분위 ${formatScore(datum.thirdQuartile)}, 최대 ${formatScore(datum.maximum)}, 공통 점수 축 0~${maximum}점`
 
   return (
-    <div className="grid min-w-0 gap-2 border-b border-border-subtle py-4 last:border-b-0 sm:grid-cols-[minmax(9rem,0.7fr)_minmax(15rem,1.3fr)] sm:gap-5">
-      <div className="min-w-0">
+    <div className="signal-analysis-distribution-row" data-distribution-id={datum.taskId} data-domain-max={maximum}>
+      <div className="signal-analysis-distribution-name">
         <p className="text-sm font-medium text-foreground">{datum.taskLabel}</p>
         <p className="mt-1 text-xs text-muted-foreground">
           중앙값 {formatScore(datum.median)} · {formatCount(datum.completedCount, "명")}
         </p>
       </div>
-      <div role="img" aria-label={summary} className="min-w-0">
+      <div role="img" aria-label={summary} className="signal-analysis-distribution-mark">
         <svg
           aria-hidden="true"
-          className="h-7 w-full overflow-visible"
+          className="signal-analysis-distribution-svg"
           preserveAspectRatio="none"
           viewBox="0 0 100 28"
         >
-          {AXIS_TICKS.map((tick) => (
+          {ticks.map((tick) => (
             <line
               key={tick}
-              x1={tick}
-              x2={tick}
+              x1={position(tick)}
+              x2={position(tick)}
               y1="2"
               y2="26"
-              stroke="var(--border-subtle)"
+              stroke="#dededb"
               strokeWidth="1"
               vectorEffect="non-scaling-stroke"
             />
           ))}
           <line
-            x1={datum.minimum}
-            x2={datum.maximum}
+            x1={position(datum.minimum)}
+            x2={position(datum.maximum)}
             y1="14"
             y2="14"
-            stroke="var(--chart-3)"
-            strokeWidth="2"
+            stroke="#1a1a18"
+            strokeWidth="1.5"
             vectorEffect="non-scaling-stroke"
+            data-mark="range"
           />
-          <line
-            x1={datum.firstQuartile}
-            x2={datum.thirdQuartile}
-            y1="14"
-            y2="14"
-            stroke="var(--chart-2)"
-            strokeLinecap="round"
-            strokeWidth="8"
-            vectorEffect="non-scaling-stroke"
+          <rect
+            x={position(datum.firstQuartile)}
+            width={position(datum.thirdQuartile - datum.firstQuartile)}
+            y="6"
+            height="16"
+            fill="#e8cf4a"
+            data-mark="interquartile-range"
           />
           {([
             ["minimum", datum.minimum],
@@ -75,27 +79,28 @@ function DistributionMark({ datum }: Readonly<{ datum: ScoreDistributionDatum }>
           ] as const).map(([kind, value]) => (
             <line
               key={`${datum.taskId}-end-${kind}`}
-              x1={value}
-              x2={value}
+              x1={position(value)}
+              x2={position(value)}
               y1="9"
               y2="19"
-              stroke="var(--chart-3)"
+              stroke="#1a1a18"
               strokeWidth="1.5"
               vectorEffect="non-scaling-stroke"
             />
           ))}
           <line
-            x1={datum.median}
-            x2={datum.median}
+            x1={position(datum.median)}
+            x2={position(datum.median)}
             y1="7"
             y2="21"
-            stroke="var(--foreground)"
+            stroke={datum.firstQuartile === datum.thirdQuartile ? "#e8cf4a" : "#1a1a18"}
             strokeWidth="2.5"
             vectorEffect="non-scaling-stroke"
+            data-mark="median"
           />
         </svg>
-        <div aria-hidden="true" className="numeric flex justify-between text-xs text-muted-foreground">
-          {AXIS_TICKS.map((tick) => <span key={tick}>{tick}</span>)}
+        <div aria-hidden="true" className="signal-analysis-distribution-axis numeric">
+          {ticks.map((tick) => <span key={tick} style={{ left: `${position(tick)}%` }}>{tick}</span>)}
         </div>
         <p className="mt-1 text-xs text-muted-foreground">
           전체 {formatDecimal(datum.minimum)}–{formatDecimal(datum.maximum)}점 · 중앙 50% {formatDecimal(datum.firstQuartile)}–{formatDecimal(datum.thirdQuartile)}점
@@ -109,20 +114,27 @@ export function ScoreDistributionChart({
   data,
   isLoading = false,
 }: AnalysisChartProps<ScoreDistributionDatum>) {
+  const maximum = scoreAxisMaximum(data.flatMap((datum) => [datum.minimum, datum.firstQuartile, datum.median, datum.thirdQuartile, datum.maximum]))
   return (
-    <AnalysisPanel
-      title="과제별 점수 분포와 변별 폭"
-      description="최소·사분위·중앙값·최대 기준 점수 분산 확인. 사분위는 선형 보간값"
-      isLoading={isLoading}
-      isEmpty={data.length === 0}
-    >
-      <div>{data.map((datum) => <DistributionMark key={datum.taskId} datum={datum} />)}</div>
-      <AnalysisTable
-        caption="과제별 최소, 사분위, 중앙값, 최대 점수와 확정 인원"
-        rows={data}
-        columns={columns}
-        getRowKey={(row) => row.taskId}
-      />
-    </AnalysisPanel>
+    <div className="signal-analysis-panel signal-analysis-distribution">
+      <AnalysisPanel
+        title="과제별 점수 분포와 변별 폭"
+        description="최소·사분위·중앙값·최대 기준 점수 분산 확인. 사분위는 선형 보간값"
+        isLoading={isLoading}
+        isEmpty={data.length === 0}
+      >
+        <HorizontalScroll className="signal-analysis-scroll" role="region" aria-label="과제별 점수 분포 가로 스크롤 영역" tabIndex={0}>
+          <div className="signal-analysis-distribution-rows">
+            {data.map((datum) => <DistributionMark key={datum.taskId} datum={datum} maximum={maximum} />)}
+          </div>
+        </HorizontalScroll>
+        <AnalysisTable
+          caption="과제별 최소, 사분위, 중앙값, 최대 점수와 확정 인원"
+          rows={data}
+          columns={columns}
+          getRowKey={(row) => row.taskId}
+        />
+      </AnalysisPanel>
+    </div>
   )
 }

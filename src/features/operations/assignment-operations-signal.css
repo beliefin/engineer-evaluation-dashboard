@@ -1,0 +1,84 @@
+/* OP-04. Scoped presentation only: original assignment, weight and preset guards stay in TSX. */
+.signal-assignment-panel,.signal-assignment-editor,.signal-assignment-select-popup,.signal-assignment-preset-dialog {min-width:0;color:#1a1a18;background:white;font-family:var(--font-pretendard),sans-serif;font-size:16px;line-height:1.5}
+.signal-assignment-panel .signal-operation-panel-heading {display:grid;grid-template-columns:minmax(0,1fr) auto;gap:0}
+.signal-assignment-panel .signal-operation-heading-copy {display:contents}
+.signal-assignment-panel .signal-operation-heading-copy h2 {grid-column:1;grid-row:1}
+.signal-assignment-panel .signal-operation-heading-copy p {grid-column:1/-1;grid-row:2;padding:14px 4px;font-size:17px}
+.signal-assignment-panel .signal-operation-panel-heading>[data-slot=badge] {grid-column:2;grid-row:1;align-self:stretch;min-height:48px;height:auto;margin:0;padding:10px 18px;border:0;border-radius:0;background:#e8cf4a;color:#1a1a18;font-size:17px;font-weight:800;line-height:1.4}
+.signal-assignment-content,.signal-assignment-editor {display:grid;gap:16px}
+.signal-assignment-setup {display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.5fr);gap:18px;align-items:stretch}
+.signal-assignment-preset {display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:14px;padding:16px;border:1px solid #bfc1c5;min-width:0}
+.signal-assignment-preset>div {min-width:0;flex:1 1 200px}
+.signal-assignment-preset p:first-child {margin:0;font-size:19px;font-weight:800;line-height:1.4}
+.signal-assignment-preset p:last-child {margin:6px 0 0;color:#1a1a18;font-size:16px;line-height:1.5;overflow-wrap:anywhere}
+.signal-assignment-selectors {display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:18px;align-content:center;min-width:0}
+.signal-assignment-field {display:grid;gap:8px;min-width:0}
+.signal-assignment-field>label {font-size:18px;font-weight:800;line-height:1.4}
+.signal-assignment-field [data-slot=select-trigger] {width:100%;min-width:0;min-height:48px;height:auto;padding:11px 14px;border:1px solid #9a9a9a;border-radius:0;background:white;color:#1a1a18;font-size:16px;line-height:1.5;box-shadow:none}
+.signal-assignment-field [data-slot=select-value] {display:block;min-width:0;white-space:normal;text-align:left;overflow-wrap:anywhere;-webkit-line-clamp:unset}
+.signal-assignment-select-popup {max-width:calc(100vw - 32px);border:1px solid #1a1a18;border-radius:0;box-shadow:none}
+.signal-assignment-select-popup [data-slot=select-item] {min-height:44px;padding:10px 32px 10px 12px;border-radius:0;font-size:16px;line-height:1.5;overflow-wrap:anywhere}
+.signal-assignment-select-popup [data-slot=select-item][data-highlighted] {background:#e8cf4a;color:#1a1a18}
+.signal-assignment-toolbar {display:flex;flex-wrap:wrap;align-items:center;gap:12px 20px;padding:16px 18px;background:#1a1a18;color:white;min-width:0}
+.signal-assignment-group {flex:1 1 260px;min-width:0}
+.signal-assignment-group p:first-child {margin:0;font-size:21px;font-weight:800;line-height:1.4;overflow-wrap:anywhere}
+.signal-assignment-group p:last-child {margin:4px 0 0;font-size:16px;line-height:1.5;color:white}
+.signal-assignment-toolbar>[data-slot=badge] {height:auto;border:0;border-radius:0;background:transparent;color:#e8cf4a;font-size:23px;font-weight:800;line-height:1.4;padding:0}
+.signal-assignment-actions {display:flex;flex-wrap:wrap;gap:10px;margin-left:auto}
+.signal-assignment-panel button[data-slot=button],.signal-assignment-editor button[data-slot=button],.signal-assignment-preset button {min-height:44px;height:auto;padding:10px 14px;border:1px solid #1a1a18;border-radius:0;background:white;color:#1a1a18;font-size:16px;font-weight:750;line-height:1.4;white-space:normal;box-shadow:none}
+.signal-assignment-actions button[data-slot=button]:last-child {background:#e8cf4a}
+.signal-assignment-panel button[data-slot=button]:disabled,.signal-assignment-editor button[data-slot=button]:disabled,.signal-assignment-preset button:disabled {background:#ededeb;color:#6b6b65;border-color:#c9c9c3;opacity:1}
+.signal-assignment-list {display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+.signal-assignment-row {display:grid;grid-template-columns:44px minmax(0,1fr) 112px;align-items:center;gap:14px;padding:16px;border:1px solid #bfc1c5;border-radius:0;background:white;min-width:0}
+.signal-assignment-row[data-selected=true] {border-left:4px solid #1a1a18;padding-left:13px}
+.signal-assignment-checkbox {display:flex;align-items:center;justify-content:center;width:44px;min-width:44px;min-height:44px;cursor:pointer}
+.signal-assignment-checkbox:has(input:disabled) {cursor:not-allowed}
+.signal-assignment-checkbox input {width:24px;height:24px;flex:none;margin:0;accent-color:#1a1a18}
+.signal-assignment-evaluator {min-width:0}
+.signal-assignment-evaluator p {margin:0;font-size:16px;line-height:1.5;overflow-wrap:anywhere}
+.signal-assignment-evaluator p:first-child {font-size:19px;font-weight:800}
+.signal-assignment-evaluator p.signal-assignment-contribution {margin-top:8px;font-size:16px;font-weight:650}
+.signal-assignment-contribution [data-status=in_progress] {background:#f7edb8}
+.signal-assignment-contribution [data-status=submitted] {background:#ededeb}
+.signal-assignment-weight {display:grid;gap:8px;min-width:0}
+.signal-assignment-weight label {font-size:16px;line-height:1.5;font-weight:650}
+.signal-assignment-weight input {width:100%;min-width:0;min-height:44px;height:auto;border:1px solid #9a9a9a;border-radius:0;padding:8px 10px;background:white;color:#1a1a18;font-size:18px;line-height:1.5;text-align:center;font-variant-numeric:tabular-nums;box-shadow:none}
+.signal-assignment-weight input:disabled {background:#ededeb;color:#6b6b65;opacity:1}
+.signal-assignment-protection-note {margin:0;border-top:1px solid #bfc1c5;padding:14px 0 0;color:#1a1a18;font-size:16px;line-height:1.6;word-break:keep-all;overflow-wrap:anywhere}
+.signal-assignment-empty {border:1px solid #bfc1c5;padding:48px 20px;text-align:center;font-size:18px;line-height:1.6}
+.signal-assignment-empty p:last-child {color:#1a1a18;font-size:16px;line-height:1.5}
+.signal-dialog.signal-assignment-preset-dialog {gap:0;overflow:hidden}
+.signal-assignment-preset-dialog [data-slot=dialog-header] {padding:0}
+.signal-assignment-preset-dialog [data-slot=dialog-title] {margin:0;padding:18px 56px 18px 20px}
+.signal-assignment-preset-dialog [data-slot=dialog-description] {margin:0;padding:0 20px 16px;font-size:16px;line-height:1.5}
+.signal-assignment-preset-row {display:grid;grid-template-columns:44px minmax(0,1fr) 96px;align-items:center;gap:12px;padding:16px 0;min-width:0}
+.signal-assignment-preset-identity p {font-size:16px;line-height:1.5;overflow-wrap:anywhere;color:#1a1a18}
+.signal-assignment-preset-identity p:first-child {font-weight:800}
+.signal-assignment-preset-row>input {min-width:0;width:100%;min-height:44px;height:auto;padding:8px 10px;border:1px solid #9a9a9a;border-radius:0;background:white;color:#1a1a18;font-size:18px;line-height:1.5;text-align:center;box-shadow:none}
+.signal-assignment-preset-row>input:disabled {background:#ededeb;color:#6b6b65;opacity:1}
+.signal-assignment-panel :focus-visible,.signal-assignment-editor :focus-visible,.signal-assignment-select-popup :focus-visible,.signal-assignment-preset-dialog :focus-visible {outline:2px solid #1a1a18;outline-offset:3px;box-shadow:0 0 0 5px #e8cf4a}
+@media(max-width:1199px) {
+ .signal-assignment-setup {grid-template-columns:minmax(0,1fr)}
+ .signal-assignment-list {grid-template-columns:minmax(0,1fr)}
+ .signal-assignment-actions {flex:1 1 100%;margin-left:0}
+}
+@media(max-width:767px) {
+ .signal-assignment-panel .signal-operation-panel-heading {grid-template-columns:minmax(0,1fr)}
+ .signal-assignment-panel .signal-operation-panel-heading>[data-slot=badge] {grid-column:1;grid-row:2;justify-content:flex-start;padding:10px 14px;font-size:16px}
+ .signal-assignment-panel .signal-operation-heading-copy p {grid-column:1;grid-row:3;font-size:16px}
+ .signal-assignment-selectors {grid-template-columns:minmax(0,1fr);gap:16px}
+ .signal-assignment-preset {padding:16px;gap:12px}
+ .signal-assignment-preset button {width:100%;min-height:48px}
+ .signal-assignment-toolbar {padding:16px;gap:12px}
+ .signal-assignment-group {flex-basis:100%}
+ .signal-assignment-group p:first-child {font-size:20px}
+ .signal-assignment-actions {display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;width:100%}
+ .signal-assignment-actions button[data-slot=button] {min-height:48px;padding:10px 8px}
+ .signal-assignment-actions button[data-slot=button]:last-child {grid-column:1/-1}
+ .signal-assignment-row {grid-template-columns:44px minmax(0,1fr);gap:12px;padding:16px}
+ .signal-assignment-row[data-selected=true] {padding-left:13px}
+ .signal-assignment-weight {grid-column:2;grid-template-columns:minmax(0,1fr) 96px;align-items:center;gap:12px}
+ .signal-assignment-weight input {min-height:48px}
+ .signal-assignment-preset-row {grid-template-columns:44px minmax(0,1fr)}
+ .signal-assignment-preset-row>input {grid-column:2;width:96px;min-height:48px}
+}

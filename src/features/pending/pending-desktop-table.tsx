@@ -20,9 +20,16 @@ type PendingDesktopTableProps = Readonly<{
 
 export function PendingDesktopTable({ rows, role }: PendingDesktopTableProps) {
   return (
-    <div className="hidden md:block">
+    <div className="signal-pending-desktop hidden md:block">
       <Table>
         <TableCaption className="sr-only">미평가 엔지니어 목록</TableCaption>
+        <colgroup>
+          <col className="signal-pending-col-identity" />
+          <col className="signal-pending-col-reason" />
+          <col className="signal-pending-col-progress" />
+          <col className="signal-pending-col-progress" />
+          <col className="signal-pending-col-action" />
+        </colgroup>
         <TableHeader>
           <TableRow>
             <TableHead className="px-5">엔지니어</TableHead>
@@ -35,17 +42,21 @@ export function PendingDesktopTable({ rows, role }: PendingDesktopTableProps) {
         <TableBody>
           {rows.map((row) => (
             <TableRow key={row.engineerId}>
-              <TableCell className="px-5 py-3">
-                <p className="font-semibold text-foreground">{row.engineerName}</p>
-                <p className="mt-0.5 text-xs text-muted-foreground">
+              <TableCell className="signal-pending-identity">
+                <p className="signal-pending-engineer-name">{row.engineerName}</p>
+                <p className="signal-pending-engineer-meta">
                   {row.employeeCode} · {row.team}
                 </p>
               </TableCell>
-              <TableCell className="max-w-80 whitespace-normal py-3">
+              <TableCell className="signal-pending-reason-cell">
                 <PendingStatusBadge status={row.status} />
-                <p className="mt-1.5 text-xs leading-5 text-muted-foreground">
-                  {getPendingReason(row)}
-                </p>
+                <details className="signal-pending-reason-details">
+                  <summary>
+                    <span className="signal-pending-reason">{getPendingReason(row)}</span>
+                    <span className="signal-pending-reason-more">세부 확인</span>
+                  </summary>
+                  <p>{getPendingReason(row)}</p>
+                </details>
               </TableCell>
               <TableCell className="numeric text-center font-medium">
                 {row.submittedSheetCount}/{row.totalSheetCount}

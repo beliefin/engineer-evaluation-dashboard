@@ -1,0 +1,38 @@
+.root { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; margin-top: 18px; color: var(--signal-ink, #1a1a18); font-variant-numeric: tabular-nums lining-nums; }
+.panel { min-width: 0; border: 1px solid #c5c5c5; background: #fff; }
+.panel > header { padding: 14px 18px; border-bottom: 1px solid #c5c5c5; }
+.panel > header p { margin: 0; color: #595959; font-size: 12px; font-weight: 750; letter-spacing: .06em; }
+.panel > header h2 { margin: 4px 0 6px; font-size: 26px; line-height: 1.2; letter-spacing: -.035em; }
+.panel > header span, .note, .rows p, .rows small { color: #595959; font-size: 14px; line-height: 1.5; }
+.radarLayout { display: grid; grid-template-columns: minmax(240px, 1fr) minmax(180px, .8fr); gap: 12px; align-items: center; padding: 18px; }
+.radarGraphic { position: relative; aspect-ratio: 1; min-width: 0; }
+.radarGraphic svg { width: 100%; height: 100%; overflow: visible; }
+.radarGrid, .radarAxis { fill: none; stroke: #d7d7d7; stroke-width: .65; vector-effect: non-scaling-stroke; }
+.radarAverage { fill: rgb(89 89 89 / .16); stroke: #595959; stroke-width: 1.2; vector-effect: non-scaling-stroke; }
+.radarOwn { fill: rgb(232 207 74 / .38); stroke: #1a1a18; stroke-width: 1.5; vector-effect: non-scaling-stroke; }
+.radarGraphic > span { position: absolute; left: var(--insight-x); top: var(--insight-y); width: 74px; transform: translate(-50%, -50%); text-align: center; font-size: 12px; line-height: 1.25; font-weight: 700; overflow-wrap: anywhere; }
+.radarValues { margin: 0; }
+.radarValues > div { padding: 9px 0; border-top: 1px solid #e4e4e4; }
+.radarValues > div:first-child { border-top: 0; }
+.radarValues dt { font-weight: 750; overflow-wrap: anywhere; }
+.radarValues dd { margin: 3px 0 0; color: #595959; font-size: 14px; }
+.rows { margin: 0; padding: 0; list-style: none; }
+.rows > li { padding: 14px 18px; border-top: 1px solid #e1e1e1; }
+.rows > li:first-child { border-top: 0; }
+.rowHeading { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; }
+.rowHeading h4 { margin: 0; min-width: 0; font-size: 17px; line-height: 1.3; overflow-wrap: anywhere; }
+.rowHeading span { flex: 0 0 auto; font-weight: 800; text-align: end; }
+.rows p { margin: 7px 0 0; }
+.rows small { display: block; margin-top: 4px; }
+.contributionTrack { height: 12px; margin-top: 12px; background: #ededed; overflow: hidden; }
+.contributionTrack > span { display: block; height: 100%; background: var(--signal-yellow, #e8cf4a); }
+.distribution { position: relative; height: 40px; margin-top: 12px; background: repeating-linear-gradient(to right, #f3f3f3 0, #f3f3f3 1px, transparent 1px, transparent 25%); }
+.range, .interquartile, .median, .ownMarker { position: absolute; }
+.range { top: 20px; height: 2px; background: #1a1a18; }
+.interquartile { top: 13px; height: 16px; background: var(--signal-yellow, #e8cf4a); }
+.median { top: 11px; height: 20px; border-left: 3px solid #1a1a18; transform: translateX(-1px); }
+.ownMarker { top: 0; height: 100%; padding-left: 5px; font-size: 12px; font-weight: 800; }
+.ownMarker i { display: block; height: 9px; border-left: 2px solid #1a1a18; }
+.note { margin: 0; padding: 12px 18px 16px; border-top: 1px solid #e1e1e1; }
+@media (max-width: 1000px) { .root { grid-template-columns: minmax(0, 1fr); } }
+@media (max-width: 560px) { .radarLayout { grid-template-columns: minmax(0, 1fr); padding: 16px 14px; } .panel > header, .rows > li, .note { padding-left: 14px; padding-right: 14px; } .panel > header h2 { font-size: 23px; } .rowHeading { align-items: flex-start; } .rowHeading span { max-width: 48%; white-space: normal; } }

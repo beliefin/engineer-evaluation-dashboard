@@ -5,7 +5,6 @@ import { useMemo, useState } from "react"
 import { Button } from "@/components/ui/button"
 import {
   Dialog,
-  DialogClose,
   DialogContent,
   DialogDescription,
   DialogFooter,
@@ -21,10 +20,14 @@ type Props = Readonly<{
   rows: readonly CompletedRankingRow[]
   selectedIds: ReadonlySet<string>
   onChange: (next: ReadonlySet<string>) => void
+  onReset: () => boolean
+  onSave: () => boolean
 }>
 
-export function RankingPopulationDialog({ rows, selectedIds, onChange }: Props) {
+export function RankingPopulationDialog({ rows, selectedIds, onChange, onReset, onSave }: Props) {
+  const [open, setOpen] = useState(false)
   const [query, setQuery] = useState("")
+  const [saveMessage, setSaveMessage] = useState<string | null>(null)
   const normalizedQuery = query.trim().toLocaleLowerCase("ko")
   const visibleRows = useMemo(
     () => rows.filter((row) =>
@@ -41,13 +44,16 @@ export function RankingPopulationDialog({ rows, selectedIds, onChange }: Props) 
   }
 
   return (
-    <Dialog>
+    <Dialog onOpenChange={(nextOpen) => {
+      setOpen(nextOpen)
+      if (nextOpen) setSaveMessage(null)
+    }} open={open}>
       <DialogTrigger asChild>
         <Button size="sm" type="button" variant="outline">
           순위 대상 관리
         </Button>
       </DialogTrigger>
-      <DialogContent className="grid max-h-[min(42rem,calc(100dvh-2rem))] grid-rows-[auto_auto_minmax(0,1fr)_auto] gap-0 overflow-hidden p-0 sm:max-w-xl">
+      <DialogContent className="signal-ranking-population grid max-h-[min(42rem,calc(100dvh-2rem))] grid-rows-[auto_auto_minmax(0,1fr)_auto] gap-0 overflow-hidden p-0 sm:max-w-xl">
         <DialogHeader className="border-b border-border-subtle px-5 py-4 pr-12">
           <DialogTitle>전체 종합 순위 대상</DialogTitle>
           <DialogDescription>
@@ -68,12 +74,15 @@ export function RankingPopulationDialog({ rows, selectedIds, onChange }: Props) 
           </div>
           <div className="flex gap-2">
             <Button
-              onClick={() => onChange(new Set(rows.map((row) => row.id)))}
+              onClick={() => {
+                const reset = onReset()
+                setSaveMessage(reset ? "순위 대상을 전체 인원으로 초기화했습니다." : "현재 대상은 전체 인원으로 초기화했지만 브라우저 저장소를 비우지 못했습니다.")
+              }}
               size="sm"
               type="button"
               variant="outline"
             >
-              전체 선택
+              초기화
             </Button>
             <Button onClick={() => onChange(new Set())} size="sm" type="button" variant="ghost">
               전체 해제
@@ -87,17 +96,19 @@ export function RankingPopulationDialog({ rows, selectedIds, onChange }: Props) 
           <ul className="divide-y divide-border-subtle" aria-label="종합 순위 대상 목록">
             {visibleRows.map((row) => (
               <li className="flex items-center gap-3 py-2.5" key={row.id}>
-                <input
-                  aria-label={`${row.name} 순위 포함`}
-                  checked={selectedIds.has(row.id)}
-                  className="size-4 accent-primary"
-                  onChange={(event) => toggle(row.id, event.currentTarget.checked)}
-                  type="checkbox"
-                />
-                <div className="min-w-0 flex-1">
-                  <p className="truncate text-sm font-medium">{row.name}</p>
-                  <p className="mt-0.5 text-xs text-muted-foreground">{row.team}</p>
-                </div>
+                <label className="signal-ranking-population-choice">
+                  <input
+                    aria-label={`${row.name} 순위 포함`}
+                    checked={selectedIds.has(row.id)}
+                    className="size-4 accent-primary"
+                    onChange={(event) => toggle(row.id, event.currentTarget.checked)}
+                    type="checkbox"
+                  />
+                  <span className="min-w-0 flex-1">
+                    <span className="signal-ranking-person-name">{row.name}</span>
+                    <span className="signal-ranking-person-team">{row.team}</span>
+                  </span>
+                </label>
                 <p className="numeric text-xs font-semibold text-muted-foreground">
                   {row.totalScore === null ? "점수 없음" : `${row.totalScore.toFixed(2)}점`}
                 </p>
@@ -106,7 +117,12 @@ export function RankingPopulationDialog({ rows, selectedIds, onChange }: Props) 
           </ul>
         </div>
         <DialogFooter className="m-0 rounded-none px-5 py-3">
-          <DialogClose asChild><Button type="button">확인</Button></DialogClose>
+          {saveMessage === null ? null : <p className="mr-auto text-xs text-muted-foreground" role="status">{saveMessage}</p>}
+          <Button onClick={() => {
+            const saved = onSave()
+            if (saved) setOpen(false)
+            else setSaveMessage("순위 대상 선택을 저장하지 못했습니다. 브라우저 저장소 권한을 확인해 주세요.")
+          }} type="button">선택 저장</Button>
         </DialogFooter>
       </DialogContent>
     </Dialog>

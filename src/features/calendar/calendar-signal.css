@@ -1,0 +1,137 @@
+/* CA-01: the original 42-day calendar, role behavior and event data are unchanged. */
+.signal-calendar {display:grid;gap:24px;color:#080808;background:#fff;min-width:0;font-size:16px;line-height:1.5}
+.signal-calendar-header {display:flex;align-items:flex-end;justify-content:space-between;gap:24px;padding:0 4px}
+.signal-calendar-heading {display:flex;align-items:center;flex-wrap:wrap;gap:12px 20px}
+.signal-calendar-heading h1 {font-size:66px;line-height:1.08;letter-spacing:-.055em;font-weight:900;margin:0}
+.signal-calendar-header>div:first-child>p {font-size:24px;line-height:1.4;margin-top:10px}
+.signal-calendar-role {border:1px solid #1a1a18;padding:5px 10px;font-size:16px;font-weight:650}
+.signal-calendar-header-actions {display:flex;align-items:center;gap:30px;flex:none}
+.signal-calendar-header-actions p {font-size:24px;font-weight:750;white-space:nowrap}
+.signal-calendar-header-actions button {min-height:54px;padding:10px 26px;background:var(--signal-yellow,#e8cf4a);color:#080808;border:1px solid #1a1a18;font-size:24px;font-weight:800;border-radius:0}
+.signal-calendar-header-actions button:hover {background:#d6bd3b}
+.signal-calendar-header-actions button:disabled {background:#efefed;color:#666;border-color:#bfc1c5}
+.signal-calendar-header-actions button svg {display:none}
+.signal-calendar-layout {display:grid;grid-template-columns:minmax(0,2.6fr) minmax(300px,1fr);gap:18px;align-items:start;min-width:0}
+.signal-calendar-month {min-width:0}
+.signal-calendar-month-toolbar {display:flex;align-items:center;justify-content:center;gap:30px;min-height:62px;background:#1a1a18;color:#fff;padding:8px 16px}
+.signal-calendar-month-toolbar h2 {font-size:42px;font-weight:900;line-height:1.1;letter-spacing:-.035em;text-align:center}
+.signal-calendar-month-toolbar button {width:50px;height:44px;min-width:44px;border:1px solid #aaa;border-radius:0;background:#fff;color:#080808}
+.signal-calendar-month-toolbar button:hover {background:var(--signal-yellow,#e8cf4a)}
+.signal-calendar-month-toolbar button svg {width:26px;height:26px}
+.signal-calendar-month-toolbar button:disabled {opacity:.5}
+.signal-calendar-today {padding:7px 12px;background:#f8f2d2;font-size:16px;font-weight:700;border:1px solid #aaa;border-top:0}
+.signal-calendar-grid {margin-top:7px;min-width:0}
+.signal-calendar-table {width:100%;table-layout:fixed;border-collapse:collapse;font-size:16px}
+.signal-calendar-table th {height:50px;padding:8px;border:1px solid #aaa;background:#ececec;font-size:25px;font-weight:800;text-align:center}
+.signal-calendar-day {height:96px;vertical-align:top;padding:7px;border:1px solid #aaa;min-width:0}
+.signal-calendar-date {display:inline-flex;align-items:center;justify-content:center;min-width:30px;min-height:30px;font-size:24px;line-height:1.2;font-weight:800}
+.signal-calendar-day-outside .signal-calendar-date {color:#999}
+.signal-calendar-date-today {background:#1a1a18;color:#fff!important;outline:3px solid var(--signal-yellow,#e8cf4a);outline-offset:1px}
+.signal-calendar-day-events {display:grid;gap:6px;margin-top:3px}
+.signal-calendar-chip {display:block;width:100%;min-height:44px;border:1px solid transparent;border-radius:3px;background:var(--signal-yellow,#e8cf4a);color:#080808;padding:5px 6px;font-size:16px;line-height:1.25;letter-spacing:-.035em;text-align:left;overflow-wrap:anywhere}
+.signal-calendar-chip>span {display:block}
+.signal-calendar-chip-title {font-weight:800}
+.signal-calendar-chip button {font-size:inherit}
+button.signal-calendar-chip:hover {background:#d6bd3b;border-color:#1a1a18}
+.signal-calendar-more {font-size:16px;line-height:1.35;color:#555;padding:2px}
+.signal-calendar-compact-count {display:none}
+.signal-calendar-agenda {border:1px solid #aaa;min-width:0;align-self:stretch}
+.signal-calendar-agenda>h2 {display:flex;align-items:center;min-height:61px;background:#1a1a18;color:#fff;font-size:30px;font-weight:850;padding:10px 20px;line-height:1.2}
+.signal-calendar-agenda-groups {padding:0 20px;margin:0;list-style:none}
+.signal-calendar-agenda-groups>li {padding:20px 0 22px;border-bottom:1px solid #aaa;scroll-margin-top:20px}
+.signal-calendar-agenda-groups>li:last-child {border-bottom:0}
+.signal-calendar-agenda-date {display:flex;align-items:center;justify-content:space-between;gap:12px;font-size:22px;font-weight:800;line-height:1.4;margin:0 0 12px}
+.signal-calendar-agenda-count {display:flex;align-items:center;gap:6px;font-size:16px;font-weight:500;color:#555;white-space:nowrap}
+.signal-calendar-today-label {padding:2px 5px;background:var(--signal-yellow,#e8cf4a);color:#080808;font-weight:700}
+.signal-calendar-agenda-events {display:grid;gap:14px}
+.signal-calendar-agenda-event {display:block;width:100%;background:#fff;color:#080808;border:1px solid transparent;padding:0;text-align:left;font-size:22px;line-height:1.4;overflow-wrap:anywhere}
+button.signal-calendar-agenda-event {min-height:44px}
+button.signal-calendar-agenda-event:hover {background:#f8f2d2}
+.signal-calendar-agenda-title {font-size:26px;line-height:1.25;font-weight:850}
+.signal-calendar-agenda-engineer {margin-top:6px}
+.signal-calendar-agenda-time {margin-top:3px}
+.signal-calendar-agenda-note {margin-top:8px;white-space:pre-wrap}
+.signal-calendar-empty {display:flex;min-height:288px;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:28px 20px;gap:10px;font-size:16px;color:#555}
+.signal-calendar-empty-icon {display:flex;width:44px;height:44px;align-items:center;justify-content:center;background:#efefed;color:#1a1a18}
+.signal-calendar-empty-title {font-weight:750;color:#080808}
+.signal-calendar-error {border:1px solid #b42318;background:#fff4f4;padding:24px;font-size:16px}
+.signal-calendar-error p:first-child {font-weight:800;color:#b42318}
+.signal-calendar-editor {font-size:16px}
+.signal-calendar-editor.signal-dialog {overflow:hidden}
+.signal-calendar-editor-fields {overscroll-behavior:contain;scroll-padding-block:12px}
+.signal-calendar-editor-fields :is(p,legend,span) {font-size:16px;line-height:1.45}
+.signal-calendar-editor-fields button {font-size:16px;min-height:44px}
+.signal-calendar-engineer-heading {flex-wrap:wrap}
+.signal-calendar-engineer-heading>div {flex-wrap:wrap}
+.signal-calendar-engineer-option {min-height:56px!important;border-radius:0!important;padding:8px!important}
+.signal-calendar-engineer-option>span {min-width:0}
+.signal-calendar-engineer-option>span>span:first-child {white-space:normal;overflow-wrap:anywhere}
+.signal-calendar-engineer-option input,.signal-calendar-parallel-option input {width:20px;height:20px;flex-shrink:0;accent-color:#1a1a18}
+.signal-calendar-engineer-option:has(input:checked) {background:#f8f2d2;outline:1px solid #1a1a18;outline-offset:-1px}
+.signal-calendar-parallel-option {border-radius:0!important}
+.signal-calendar-parallel-option:has(input:disabled) {color:#666}
+.signal-calendar-editor-footer {width:calc(100% + 32px);align-self:center;gap:12px!important}
+.signal-calendar-save-actions {display:flex;gap:10px;margin-left:auto}
+.signal-calendar-save-actions button {min-height:46px;padding:10px 18px;font-size:17px;font-weight:750;white-space:normal}
+.signal-calendar-delete [data-slot=dialog-description] {overflow-wrap:anywhere}
+@media(max-width:1199px) {
+ .signal-calendar-heading h1 {font-size:56px}
+ .signal-calendar-header>div:first-child>p {font-size:20px}
+ .signal-calendar-header-actions {gap:18px}
+ .signal-calendar-header-actions p,.signal-calendar-header-actions button {font-size:20px}
+ .signal-calendar-layout {grid-template-columns:minmax(0,1fr)}
+ .signal-calendar-agenda-groups {display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:0 24px}
+ .signal-calendar-agenda-groups>li:nth-last-child(-n+2) {border-bottom:0}
+ .signal-calendar-agenda-title {font-size:24px}
+ .signal-calendar-agenda-event {font-size:20px}
+}
+@media(max-width:767px) {
+ .signal-calendar {gap:18px}
+ .signal-calendar-header {display:grid;gap:18px;padding:0}
+ .signal-calendar-heading {gap:10px}
+ .signal-calendar-heading h1 {font-size:42px}
+ .signal-calendar-header>div:first-child>p {font-size:18px;line-height:1.5;margin-top:10px}
+ .signal-calendar-header-actions {justify-content:space-between;gap:12px}
+ .signal-calendar-header-actions p {font-size:18px}
+ .signal-calendar-header-actions button {font-size:18px;min-height:48px;padding:10px 20px}
+ .signal-calendar-month-toolbar {gap:18px;min-height:62px;padding:8px 10px}
+ .signal-calendar-month-toolbar h2 {font-size:28px}
+ .signal-calendar-month-toolbar button {width:44px;min-width:44px}
+ .signal-calendar-table th {font-size:18px;height:42px;padding:6px 0}
+ .signal-calendar-day {height:68px;padding:3px 1px}
+ .signal-calendar-date {display:flex;min-width:0;min-height:27px;width:27px;margin:0 auto;font-size:18px}
+ .signal-calendar-date-today {outline-width:2px;outline-offset:0}
+ .signal-calendar-day-events {display:none}
+ .signal-calendar-compact-count {display:block;margin:4px 0 1px;padding:2px 0;text-align:center;background:var(--signal-yellow,#e8cf4a);color:#080808;font-size:16px;line-height:1.3;font-weight:750}
+ .signal-calendar-agenda>h2 {min-height:48px;font-size:24px;padding:10px 14px}
+ .signal-calendar-agenda-groups {grid-template-columns:minmax(0,1fr);padding:0 14px}
+ .signal-calendar-agenda-groups>li {padding:18px 0}
+ .signal-calendar-agenda-groups>li:nth-last-child(2) {border-bottom:1px solid #aaa}
+ .signal-calendar-agenda-date {font-size:20px;margin-bottom:10px}
+ .signal-calendar-agenda-title {font-size:22px}
+ .signal-calendar-agenda-event {font-size:18px}
+ .signal-calendar-agenda-event:where(button) {padding:8px;border:1px solid #bfc1c5}
+ .signal-calendar-agenda-note {font-size:16px;line-height:1.5}
+ .signal-calendar-empty {min-height:220px}
+ .signal-calendar-editor.signal-dialog {max-height:calc(100dvh - 24px);padding-bottom:16px}
+ .signal-calendar-editor-fields {margin-block:16px;gap:16px}
+ .signal-calendar-editor-footer {flex-direction:column!important;align-items:stretch!important;padding-bottom:calc(16px + env(safe-area-inset-bottom,0px))!important}
+ .signal-calendar-editor-footer>button {flex:none!important;width:100%;font-size:16px!important}
+ .signal-calendar-save-actions {display:grid!important;grid-template-columns:1fr 1fr;width:100%;margin:0}
+ .signal-calendar-save-actions button {padding:10px;font-size:16px}
+ .signal-calendar-engineer-heading {gap:4px!important}
+ .signal-calendar-engineer-heading>div {width:100%;justify-content:flex-end}
+}
+@media print {
+ .signal-calendar {font-size:10pt}
+ .signal-calendar-header-actions button,.signal-calendar-month-toolbar button {display:none}
+ .signal-calendar-heading h1 {font-size:26pt}
+ .signal-calendar-layout {display:block}
+ .signal-calendar-agenda {margin-top:16pt}
+ .signal-calendar-day-events {display:grid}
+ .signal-calendar-compact-count {display:none}
+ .signal-calendar-agenda-groups {display:block}
+ .signal-calendar-day {height:50pt}
+ .signal-calendar-chip {font-size:9pt}
+ .signal-calendar-date {font-size:12pt}
+}

@@ -1,5 +1,7 @@
 "use client"
 
+import { HorizontalScroll } from "@/components/ui/horizontal-scroll"
+
 import { Button } from "@/components/ui/button"
 import type { RelativeRankingPoint } from "@/view-models/relative-ranking"
 
@@ -22,7 +24,7 @@ export function RelativeRankingTable({
 }: RelativeRankingTableProps) {
   if (points.length === 0) return null
   return (
-    <details className="border-t pt-4">
+    <details className="signal-relative-table border-t pt-4">
       <summary className="cursor-pointer text-sm font-semibold focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring">
         선택 집단 순위표 보기
       </summary>
@@ -30,6 +32,7 @@ export function RelativeRankingTable({
         {points.toSorted((left, right) => right.score - left.score).map((point) => (
           <li
             key={point.engineerId}
+            data-selected={point.engineerId === selectedEngineerId}
             className={`rounded-md border p-3 ${point.engineerId === selectedEngineerId ? "border-primary bg-accent" : ""}`}
           >
             <div className="flex items-start justify-between gap-3">
@@ -63,7 +66,7 @@ export function RelativeRankingTable({
           </li>
         ))}
       </ul>
-      <div className="mt-3 hidden overflow-x-auto rounded-md border md:block">
+      <HorizontalScroll className="signal-relative-table-scroll mt-3 hidden overflow-x-auto rounded-md border md:block" role="region" aria-label="선택 집단 순위표 가로 스크롤 영역" tabIndex={0}>
         <table className="w-full min-w-[780px] border-collapse text-sm">
           <caption className="sr-only">선택 집단의 현재 점수, 상대 순위와 명목 등급</caption>
           <thead className="bg-muted/70 text-left text-xs text-muted-foreground">
@@ -82,6 +85,7 @@ export function RelativeRankingTable({
             {points.toSorted((left, right) => right.score - left.score).map((point) => (
               <tr
                 key={point.engineerId}
+                data-selected={point.engineerId === selectedEngineerId}
                 className={`border-t ${point.engineerId === selectedEngineerId ? "bg-accent" : ""}`}
               >
                 <td className="whitespace-nowrap px-3 py-2.5 text-right font-medium tabular-nums">{point.standardRank}위</td>
@@ -105,7 +109,7 @@ export function RelativeRankingTable({
             ))}
           </tbody>
         </table>
-      </div>
+      </HorizontalScroll>
     </details>
   )
 }

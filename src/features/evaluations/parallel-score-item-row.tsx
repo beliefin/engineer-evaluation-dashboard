@@ -24,7 +24,7 @@ export function ParallelScoreItemRow({
   return (
     <div
       role="row"
-      className="grid grid-cols-[minmax(0,1fr)_72px_72px] border-b border-border-subtle last:border-b-0 sm:grid-cols-[minmax(0,1fr)_112px_112px]"
+      className="signal-paired-item grid grid-cols-[minmax(0,1fr)_72px_72px] border-b border-border-subtle last:border-b-0 sm:grid-cols-[minmax(0,1fr)_112px_112px]"
     >
       <div role="cell" className="min-w-0 px-3 py-4 sm:px-4">
         <div className="flex items-start gap-2">
@@ -73,7 +73,8 @@ export function ParallelScoreItemRow({
         </div>
       </div>
 
-      <div role="cell" className="flex items-center border-l border-border-subtle px-1.5 py-3 sm:px-3">
+      <div role="cell" className="signal-paired-input-cell flex items-center border-l border-border-subtle px-1.5 py-3 sm:px-3">
+        <span className="signal-paired-mobile-name" aria-hidden="true">{left.engineerName}</span>
         <ScoreInputField
           assignmentId={left.assignmentId}
           compact
@@ -85,7 +86,8 @@ export function ParallelScoreItemRow({
           value={item.value}
         />
       </div>
-      <div role="cell" className="flex items-center border-l border-border-subtle px-1.5 py-3 sm:px-3">
+      <div role="cell" className="signal-paired-input-cell flex items-center border-l border-border-subtle px-1.5 py-3 sm:px-3">
+        <span className="signal-paired-mobile-name" aria-hidden="true">{right.engineerName}</span>
         {rightItem === undefined ? (
           <span className="mx-auto text-xs text-muted-foreground">항목 없음</span>
         ) : (

@@ -1,5 +1,9 @@
 "use client"
 
+import { HorizontalScroll } from "@/components/ui/horizontal-scroll"
+
+import "./evaluator-comparison-signal.css"
+
 import { AlertTriangle, Check, UsersRound } from "lucide-react"
 import { useId, useMemo, useState } from "react"
 
@@ -84,32 +88,33 @@ function sharedEvaluatorLabels(
 function ScoreRail({
   comparison,
 }: Readonly<{ comparison: EvaluatorScoreComparisonDatum }>) {
-  const visualRange = Math.max(comparison.scoreRange, 1)
 
   return (
     <div>
       <div
         aria-label={`${comparison.engineerLabel} 평가자 원점수 범위 ${formatScore(comparison.minimumScore)}부터 ${formatScore(comparison.maximumScore)}`}
-        className="relative h-8 rounded-sm border border-border-subtle bg-muted/60"
+        className="signal-comparison-rail relative h-8 rounded-sm border border-border-subtle bg-muted/60" data-minimum={comparison.minimumScore} data-maximum={comparison.maximumScore}
         role="img"
       >
         <span
           aria-hidden="true"
-          className="absolute top-1/2 h-0.5 -translate-y-1/2 bg-primary/55"
+          className="signal-comparison-range absolute top-1/2 h-0.5 -translate-y-1/2 bg-primary/55"
           style={{
             left: `${comparison.minimumScore}%`,
-            width: `${visualRange}%`,
+            width: `${comparison.scoreRange}%`,
           }}
         />
         <span
           aria-hidden="true"
-          className="absolute top-1/2 size-2.5 -translate-x-1/2 -translate-y-1/2 rounded-full border-2 border-card bg-primary shadow-sm"
+          className="signal-comparison-consensus absolute top-1/2 size-2.5 -translate-x-1/2 -translate-y-1/2 rounded-full border-2 border-card bg-primary shadow-sm" data-score={comparison.consensusScore}
           style={{ left: `${comparison.consensusScore}%` }}
         />
         {comparison.observations.map((observation) => (
           <span
             key={observation.evaluatorId}
             aria-label={observationLabel(observation)}
+            data-observation-score={observation.score}
+            data-outlier={observation.isOutlier}
             className={
               observation.isOutlier
                 ? "absolute top-1/2 size-3 -translate-x-1/2 -translate-y-1/2 rounded-full border-2 border-warning bg-card shadow-sm"
@@ -120,7 +125,10 @@ function ScoreRail({
           />
         ))}
       </div>
-      <div className="mt-2 flex flex-wrap gap-1.5">
+      <div className="signal-comparison-axis" aria-hidden="true">
+        {[0, 20, 40, 60, 80, 100].map((tick) => <span key={tick} style={{ left: `${tick}%` }}>{tick}</span>)}
+      </div>
+      <div className="signal-comparison-rail-caption mt-2 flex flex-wrap gap-1.5">
         <span className="inline-flex items-center gap-1 text-xs text-muted-foreground">
           <span aria-hidden="true" className="size-2 rounded-full border-2 border-primary bg-card" />
           합의 평균 {formatScore(comparison.consensusScore)}
@@ -137,32 +145,21 @@ function ObservationList({
   observations,
 }: Readonly<{ observations: readonly EvaluatorScoreObservationDatum[] }>) {
   return (
-    <ul className="grid gap-1.5 sm:grid-cols-2 xl:grid-cols-3">
-      {observations.map((observation) => (
-        <li
-          key={observation.evaluatorId}
-          className={
-            observation.isOutlier
-              ? "flex items-center justify-between gap-3 border border-warning/35 bg-warning-soft px-2.5 py-2 text-sm"
-              : "flex items-center justify-between gap-3 border border-border-subtle bg-background px-2.5 py-2 text-sm"
-          }
-        >
-          <span className="min-w-0 truncate font-medium">{observation.evaluatorLabel}</span>
-          <span className="numeric shrink-0 text-muted-foreground">
-            {formatScore(observation.score)}
-          </span>
-          <span
-            className={
-              observation.isOutlier
-                ? "numeric shrink-0 font-semibold text-warning"
-                : "numeric shrink-0 text-muted-foreground"
-            }
-          >
-            {signedScore(observation.deltaFromConsensus)}
-          </span>
-        </li>
-      ))}
-    </ul>
+    <HorizontalScroll className="signal-comparison-observation-scroll" role="region" aria-label="평가자 원점수 표 가로 스크롤 영역" tabIndex={0}>
+      <table className="signal-comparison-observations">
+        <caption className="sr-only">평가자 원점수와 합의 평균 대비 편차</caption>
+        <thead><tr><th scope="col">평가자</th><th scope="col">원점수</th><th scope="col">평균 대비</th></tr></thead>
+        <tbody>
+          {observations.map((observation) => (
+            <tr key={observation.evaluatorId} data-outlier={observation.isOutlier}>
+              <th scope="row">{observation.evaluatorLabel}</th>
+              <td className="numeric">{formatScore(observation.score)}</td>
+              <td className="numeric">{signedScore(observation.deltaFromConsensus)}</td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </HorizontalScroll>
   )
 }
 
@@ -173,6 +170,7 @@ function CalibrationCard({
 
   return (
     <li
+      data-calibration-marked={isMarked}
       className={
         isMarked
           ? "border border-warning/35 bg-warning-soft px-3 py-3"
@@ -258,6 +256,7 @@ export function EvaluatorScoreComparison({
   }
 
   return (
+    <div className="signal-comparison">
     <AnalysisPanel
       title="개인별 평가자 점수 비교"
       description={`같은 엔지니어·같은 과제에서 제출된 평가자 원점수와 합의 평균을 함께 확인합니다. 평균 대비 ±${formatDecimal(outlierThreshold)}점 이상은 검토 신호로 표시합니다.`}
@@ -265,7 +264,7 @@ export function EvaluatorScoreComparison({
       isLoading={isLoading}
     >
       <div className="space-y-5">
-        <div className="grid gap-3 border-b border-border-subtle pb-4 lg:grid-cols-[minmax(0,1fr)_auto] lg:items-end">
+        <div className="signal-comparison-controls grid gap-3 border-b border-border-subtle pb-4 lg:grid-cols-[minmax(0,1fr)_auto] lg:items-end">
           <div className="grid gap-1.5">
             <label htmlFor={`${id}-task`} className="text-xs font-medium text-muted-foreground">
               비교할 평가 과제
@@ -274,7 +273,7 @@ export function EvaluatorScoreComparison({
               <SelectTrigger id={`${id}-task`} className="w-full bg-card lg:max-w-sm">
                 <SelectValue placeholder="평가 과제를 선택하세요" />
               </SelectTrigger>
-              <SelectContent>
+              <SelectContent className="signal-comparison-popup">
                 {tasks.map((task) => (
                   <SelectItem key={task.id} value={task.id}>
                     {task.label}
@@ -288,8 +287,8 @@ export function EvaluatorScoreComparison({
           </p>
         </div>
 
-        <div className="grid min-w-0 gap-5 xl:grid-cols-[16rem_minmax(0,1fr)]">
-          <section aria-labelledby={`${id}-engineer-heading`} className="border border-border-subtle bg-muted/35">
+        <div className="signal-comparison-workspace grid min-w-0 gap-5 xl:grid-cols-[16rem_minmax(0,1fr)]">
+          <section aria-labelledby={`${id}-engineer-heading`} className="signal-comparison-roster border border-border-subtle bg-muted/35">
             <div className="flex items-center justify-between gap-2 border-b border-border-subtle px-3 py-3">
               <div>
                 <h3 id={`${id}-engineer-heading`} className="text-sm font-semibold">비교 대상</h3>
@@ -309,7 +308,7 @@ export function EvaluatorScoreComparison({
                 const checked = selectedIdSet.has(comparison.engineerId)
                 return (
                   <li key={comparison.engineerId} className="border-b border-border-subtle last:border-b-0">
-                    <label className="flex cursor-pointer items-start gap-2 px-2 py-2.5 text-sm hover:bg-background">
+                    <label className="flex cursor-pointer items-start gap-2 px-2 py-2.5 text-sm hover:bg-background" data-selected={checked}>
                       <input
                         aria-label={`${comparison.engineerLabel} 선택`}
                         checked={checked}
@@ -330,8 +329,8 @@ export function EvaluatorScoreComparison({
             </ul>
           </section>
 
-          <section aria-labelledby={`${id}-comparison-heading`} className="min-w-0">
-            <div className="flex flex-wrap items-center justify-between gap-3">
+          <section aria-labelledby={`${id}-comparison-heading`} className="signal-comparison-results min-w-0">
+            <div className="signal-comparison-results-heading flex flex-wrap items-center justify-between gap-3">
               <div>
                 <h3 id={`${id}-comparison-heading`} className="text-sm font-semibold">선택 인원 원점수 비교</h3>
                 <p className="mt-1 text-xs text-muted-foreground">
@@ -353,7 +352,7 @@ export function EvaluatorScoreComparison({
             ) : (
               <div className="mt-3 space-y-3">
                 {selectedComparisons.map((comparison) => (
-                  <article key={comparison.engineerId} className="border border-border-subtle bg-background p-3 sm:p-4">
+                  <article key={comparison.engineerId} className="signal-comparison-card border border-border-subtle bg-background p-3 sm:p-4">
                     <div className="flex flex-wrap items-start justify-between gap-2">
                       <div>
                         <h4 className="font-semibold">{comparison.engineerLabel}</h4>
@@ -389,7 +388,7 @@ export function EvaluatorScoreComparison({
         </div>
 
         {selectedComparisons.length > 1 ? (
-          <section className="border-l-2 border-primary bg-muted/35 px-3 py-3" aria-label="비교 해석 안내">
+          <section className="signal-comparison-explanation border-l-2 border-primary bg-muted/35 px-3 py-3" aria-label="비교 해석 안내">
             {sharedEvaluators.length === 0 ? (
               <p className="text-sm leading-6 text-foreground">
                 선택 인원 사이에 공통 평가자가 없습니다. 점수 차이에는 발표 품질뿐 아니라 평가자 구성 차이가 함께 반영될 수 있으므로, 아래 평가자 보정 진단을 같이 확인해 주세요.
@@ -402,7 +401,7 @@ export function EvaluatorScoreComparison({
           </section>
         ) : null}
 
-        <section aria-labelledby={`${id}-calibration-heading`} className="border-t border-border-subtle pt-5">
+        <section aria-labelledby={`${id}-calibration-heading`} className="signal-comparison-calibration border-t border-border-subtle pt-5">
           <div className="flex flex-wrap items-start justify-between gap-3">
             <div>
               <h3 id={`${id}-calibration-heading`} className="text-sm font-semibold">평가자 보정 진단</h3>
@@ -441,5 +440,6 @@ export function EvaluatorScoreComparison({
         ) : null}
       </div>
     </AnalysisPanel>
+    </div>
   )
 }

@@ -8,11 +8,9 @@ import { Button } from "@/components/ui/button"
 import {
   CategoryAverageChart,
   CompletedRanking,
-  DashboardHeader,
   downloadOverallRankingExcel,
   downloadTaskRankingsExcel,
   EngineerEvaluationProgress,
-  MetricStrip,
   TaskRankingPanel,
   type RankingFilterState,
   type RankingStatusFilter,
@@ -22,8 +20,9 @@ import {
   parseRankingSortState,
   type RankingSortState,
 } from "@/features/dashboard/dashboard-view-models"
-import { useEvaluation } from "@/providers"
+import { useAuth, useEvaluation } from "@/providers"
 import { selectDashboardViewModel } from "@/view-models/dashboard"
+import "@/features/dashboard/dashboard-ranking-signal.css"
 
 function parseStatus(value: string | null): RankingStatusFilter {
   return value === "confirmed" || value === "in_progress" ||
@@ -35,7 +34,8 @@ function parseStatus(value: string | null): RankingStatusFilter {
 export function DashboardScreen() {
   const pathname = usePathname()
   const searchParams = useSearchParams()
-  const { snapshot, activeCycleId, backendMode } = useEvaluation()
+  const { snapshot, activeCycleId } = useEvaluation()
+  const { session } = useAuth()
   const [filters, setFilters] = useState<RankingFilterState>(() => ({
     query: searchParams.get("q") ?? "",
     team: searchParams.get("team") ?? "all",
@@ -106,60 +106,49 @@ export function DashboardScreen() {
   }
 
   return (
-    <div className="space-y-6">
-      <DashboardHeader
-        asOfLabel={cycle === undefined ? "평가 시즌 기준" : `${cycle.startsAt} ~ ${cycle.endsAt}`}
-        contextLabel="평가 운영"
-        cycleLabel={cycle?.name ?? "평가 시즌"}
-        description="과제 평균과 현재 점수 기준 순위 확인. 모든 평가 완료 후 최종 결과 확정"
-        sampleLabel={backendMode === "supabase" ? "운영 데이터" : "샘플 데이터"}
-        title="엔지니어 역량평가 전체 현황"
-      />
-      <section
-        aria-labelledby="dashboard-scope-title"
-        className="flex flex-col gap-3 border-y border-border bg-muted/45 px-5 py-4 sm:flex-row sm:items-center sm:justify-between"
-      >
+    <div className="signal-dashboard signal-dashboard-original">
+      <header className="signal-dashboard-intro">
         <div>
-          <h2 className="text-sm font-semibold" id="dashboard-scope-title">현황 범위</h2>
-          <p className="mt-1 text-xs text-muted-foreground">
-            팀 선택 범위를 대상·평가 현황·과제 평균·종합 순위에 동일 적용
-          </p>
+          <p className="signal-dashboard-context">평가 운영</p>
+          <h1>엔지니어 역량평가 전체 현황</h1>
+          <p>과제 평균과 현재 점수 기준 순위 확인. 모든 평가 완료 후 최종 결과 확정</p>
         </div>
-        <fieldset className="inline-flex self-start overflow-hidden rounded-[3px] border border-border bg-card">
+        <p className="signal-dashboard-period">{cycle === undefined ? "평가 시즌 기준" : `${cycle.startsAt} ~ ${cycle.endsAt}`}</p>
+      </header>
+      <section className="signal-dashboard-scope" aria-labelledby="dashboard-scope-title">
+        <div>
+          <h2 id="dashboard-scope-title">현황 범위</h2>
+          <p>팀 선택 범위를 대상·평가 현황·과제 평균·종합 순위에 동일 적용</p>
+        </div>
+        <fieldset>
           <legend className="sr-only">현황 팀 범위</legend>
-          {["all", ...teams].map((team) => {
-            const label = team === "all" ? "전체" : team
-            const selected = selectedTeam === team
-            return (
-              <Button
-                aria-label={`${label} 현황 보기`}
-                aria-pressed={selected}
-                key={team}
-                onClick={() => updateFilters({ ...visibleFilters, team })}
-                size="sm"
-                type="button"
-                variant={selected ? "default" : "ghost"}
-                className="rounded-none border-r border-border last:border-r-0"
-              >
-                {label}
-              </Button>
-            )
-          })}
+          {["all", ...teams].map((team) => (
+            <Button
+              aria-label={`${team === "all" ? "전체" : team} 현황 보기`}
+              aria-pressed={selectedTeam === team}
+              key={team}
+              onClick={() => updateFilters({ ...visibleFilters, team })}
+              type="button"
+              variant="outline"
+            >
+              {team === "all" ? "전체" : team}
+            </Button>
+          ))}
         </fieldset>
       </section>
-      <MetricStrip metrics={model.metrics} />
-      <EngineerEvaluationProgress
-        rows={model.evaluationRows}
-        tasks={model.evaluationTasks}
-      />
-      <div className="grid gap-6 xl:grid-cols-2">
+      <section aria-label="평가 현황 요약" className="signal-dashboard-source-metrics">
+        <dl>{model.metrics.map((metric) => (
+          <div key={metric.id}>
+            <dt>{metric.label}</dt>
+            <dd className="numeric">{metric.value}<span>{metric.unit}</span><p>{metric.description}</p></dd>
+          </div>
+        ))}</dl>
+      </section>
+      <EngineerEvaluationProgress rows={model.evaluationRows} tasks={model.evaluationTasks} />
+      <div className="signal-dashboard-task-grid">
         <TaskRankingPanel
           description="평가 완료자는 평가자 가중 평균 기준 순위 산정. 진행 중·미진행 대상은 순위 하단 분리"
-          onDownload={() => downloadTaskRankingsExcel(
-            cycle?.name ?? "평가 시즌",
-            scopeLabel,
-            model.taskRankings,
-          )}
+          onDownload={() => downloadTaskRankingsExcel(cycle?.name ?? "평가 시즌", scopeLabel, model.taskRankings)}
           rankings={model.taskRankings}
           title={`${scopeLabel} 과제별 순위`}
         />
@@ -170,22 +159,20 @@ export function DashboardScreen() {
         />
       </div>
       <CompletedRanking
+        key={`${session?.id ?? "anonymous"}:${activeCycleId}`}
         description="완료 과제의 개인별 가중 환산점수 합산 기준 임시 순위. 모든 적용 과제 완료 시 최종 확정, 표시 점수 소수 둘째 자리 기준 공동순위(1, 2, 2, 4) 적용"
         filters={visibleFilters}
         onFiltersChange={updateFilters}
         sorting={sorting}
         onSortingChange={updateSorting}
-        onDownload={(rows) => downloadOverallRankingExcel(
-          cycle?.name ?? "평가 시즌",
-          scopeLabel,
-          rows,
-        )}
+        onDownload={(rows) => downloadOverallRankingExcel(cycle?.name ?? "평가 시즌", scopeLabel, rows)}
         rows={model.rankingRows}
         scoreLabel="현재 종합 점수"
         title={`${scopeLabel} 종합 순위`}
         populationSelectable
         populationRows={seasonPopulationRows}
         populationResetKey={activeCycleId}
+        populationStorageKey={`engineer-evaluation-dashboard:ranking-population-selection:v1:${session?.id ?? "anonymous"}:${activeCycleId}`}
       />
     </div>
   )

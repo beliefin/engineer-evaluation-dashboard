@@ -1,0 +1,293 @@
+/* MY-02 / OP-07. Presentation only: record values, review metadata and actions
+   continue to come from the original view models and existing dialogs. */
+.signal-source-editor {
+  --source-ink: #1a1a18;
+  --source-text: #080808;
+  --source-yellow: #e8cf4a;
+  --source-line: #d5d5d5;
+  --source-frame: #9d9d9d;
+  --source-muted: #595959;
+  min-width: 0;
+  max-width: 100%;
+  border: 0;
+  border-radius: 0;
+  background: #fff;
+  color: var(--source-text);
+  font-family: var(--font-pretendard), "Pretendard Variable", "Noto Sans CJK KR", sans-serif;
+  font-size: 18px;
+  line-height: 1.5;
+  font-variant-numeric: tabular-nums lining-nums;
+}
+
+.signal-source-editor :is(button, input, [data-slot="select-trigger"], [data-slot="badge"]) {
+  border-radius: 0;
+  box-shadow: none;
+}
+
+.signal-source-editor :is(button, [data-slot="select-trigger"]) {
+  min-width: 44px;
+  min-height: 44px;
+  height: auto;
+  color: var(--source-text);
+  font-size: 16px;
+  line-height: 1.4;
+  white-space: normal;
+}
+
+.signal-source-editor button {
+  border: 1px solid var(--source-ink);
+  padding: 9px 12px;
+  background: #fff;
+  font-weight: 750;
+}
+
+.signal-source-editor button:not(:disabled):hover { background: #ececec; }
+.signal-source-editor button:disabled { background: #ececec; color: var(--source-muted); border-color: var(--source-frame); }
+.signal-source-editor :is(button, input, [data-slot="select-trigger"]):focus-visible {
+  outline: 2px solid var(--source-ink);
+  outline-offset: 3px;
+  box-shadow: 0 0 0 5px var(--source-yellow);
+}
+
+.signal-source-heading { padding: 0 0 24px; border: 0; }
+.signal-source-heading h2 {
+  margin: 0;
+  font-size: clamp(36px, 3.6vw, 56px);
+  font-weight: 900;
+  line-height: 1.12;
+  letter-spacing: -.045em;
+}
+.signal-source-heading p { margin: 12px 0 0; color: var(--source-text); font-size: 20px; line-height: 1.5; }
+.signal-source-content { padding: 0; }
+
+.signal-source-summary {
+  display: block;
+  margin: 0 0 24px;
+  padding: 0;
+  border: 1px solid var(--source-frame);
+  border-radius: 0;
+  background: #fff;
+  color: var(--source-text);
+}
+.signal-source-summary [data-slot="alert-title"] {
+  display: flex;
+  align-items: center;
+  min-height: 48px;
+  padding: 10px 16px;
+  background: var(--source-ink);
+  color: #fff;
+  font-size: 24px;
+  font-weight: 850;
+  line-height: 1.25;
+  letter-spacing: -.025em;
+}
+.signal-source-summary [data-slot="alert-description"] {
+  display: grid;
+  grid-template-columns: minmax(0, 1.15fr) minmax(0, 1fr);
+  color: var(--source-text);
+  font-size: 18px;
+  line-height: 1.5;
+  text-wrap: pretty;
+}
+.signal-source-summary [data-slot="alert-description"] > span {
+  position: relative;
+  min-width: 0;
+  padding: 20px 20px 20px 42px;
+  border-top: 1px solid var(--source-line);
+}
+.signal-source-summary [data-slot="alert-description"] > span::before {
+  position: absolute;
+  top: 29px;
+  left: 20px;
+  width: 8px;
+  height: 8px;
+  background: var(--source-ink);
+  content: "";
+}
+.signal-source-total { font-weight: 750; }
+.signal-source-total strong { font-size: 30px; font-weight: 900; line-height: 1.2; white-space: nowrap; }
+.signal-source-equation { display: block; font-size: 18px; font-weight: 500; }
+.signal-source-personal .signal-source-total { border-left: 1px solid var(--source-line); }
+
+.signal-source-columns { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 20px; }
+.signal-source-column { min-width: 0; padding: 0; border: 0; }
+.signal-source-column-heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 8px 12px;
+  min-height: 60px;
+  margin: 0 0 8px;
+  padding: 8px 12px 8px 16px;
+  background: var(--source-ink);
+  color: #fff;
+}
+.signal-source-column-heading h3 { min-width: 0; margin: 0; font-size: 24px; font-weight: 850; line-height: 1.3; letter-spacing: -.025em; }
+.signal-source-column-heading h3 span { color: inherit; }
+.signal-source-column-heading button { background: var(--source-yellow); border-color: var(--source-yellow); }
+.signal-source-column-heading button:not(:disabled):hover { background: #f4df69; }
+.signal-source-column-heading button:disabled { background: #ececec; border-color: #ececec; }
+
+.signal-source-record {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  min-width: 0;
+  margin: 0 0 12px;
+  padding: 20px;
+  border: 1px solid var(--source-frame);
+  background: #fff;
+}
+.signal-source-record:first-child { border-top: 1px solid var(--source-frame); }
+.signal-source-record:last-child { margin-bottom: 0; }
+.signal-source-record-main { display: contents; }
+.signal-source-record-values {
+  display: grid;
+  grid-template-columns: minmax(0, .65fr) minmax(0, 1fr);
+  grid-row: 1;
+  align-items: center;
+  gap: 12px;
+  min-width: 0;
+}
+.signal-source-record-values :is(h3, h4) {
+  grid-column: 1 / -1;
+  margin: 0;
+  font-size: 28px;
+  font-weight: 850;
+  line-height: 1.25;
+  letter-spacing: -.035em;
+  overflow-wrap: anywhere;
+}
+.signal-source-result { margin: 0; color: var(--source-text); font-size: 36px; font-weight: 900; line-height: 1.15; }
+.signal-source-converted { margin: 0; padding-left: 16px; border-left: 1px solid var(--source-line); color: var(--source-text); font-size: 22px; font-weight: 800; line-height: 1.4; }
+.signal-source-catalog { grid-column: 1 / -1; margin: 0; color: var(--source-text); font-size: 24px; font-weight: 850; line-height: 1.4; letter-spacing: -.025em; }
+.signal-source-flags { grid-column: 1 / -1; gap: 8px; margin: 0; }
+.signal-source-flags:empty { display: none; }
+.signal-source-editor [data-slot="badge"] { height: auto; min-height: 28px; padding: 4px 8px; border: 1px solid var(--source-frame); border-radius: 0; color: var(--source-text); background: #fff; font-size: 16px; line-height: 1.4; white-space: normal; }
+.signal-source-flags [data-slot="badge"] { border-color: var(--source-yellow); background: var(--source-yellow); font-weight: 800; }
+.signal-source-metadata { grid-row: 2; margin: 16px 0 0; padding-top: 14px; border-top: 1px solid var(--source-line); color: var(--source-text); font-size: 16px; line-height: 1.5; }
+.signal-source-record > div:not(.signal-source-record-main) { grid-row: 3; gap: 8px; margin: 12px 0 0; }
+.signal-source-record > div:not(.signal-source-record-main) > span:not([data-slot="badge"]) { min-width: 0; color: var(--source-muted); font-size: 16px; line-height: 1.5; overflow-wrap: anywhere; }
+.signal-source-record[data-review-status="verified"] > div:not(.signal-source-record-main) [data-slot="badge"] { border-color: var(--source-ink); background: var(--source-ink); color: #fff; }
+.signal-source-record[data-review-status="pending"] > div:not(.signal-source-record-main) [data-slot="badge"] { border-color: var(--source-ink); background: #fff8d8; }
+.signal-source-record-actions { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); grid-row: 4; gap: 8px; margin-top: 16px; }
+.signal-source-record-actions button { width: 100%; min-height: 46px; }
+/* The existing edit trigger already owns this label. Make it visible without
+   cloning or replacing either dialog trigger. Delete keeps its original icon. */
+.signal-source-record-actions button > .sr-only { position: static; width: auto; height: auto; padding: 0; margin: 0; overflow: visible; clip: auto; clip-path: none; white-space: normal; }
+.signal-source-record-actions button { gap: 8px; }
+.signal-source-verify { grid-row: 5; justify-self: start; margin-top: 12px; }
+.signal-source-empty { padding: 28px 16px; border: 1px dashed var(--source-frame); border-radius: 0; color: var(--source-muted); font-size: 16px; line-height: 1.5; }
+.signal-source-zero { flex-wrap: wrap; padding: 16px; border: 1px solid var(--source-ink); border-radius: 0; background: #fff8d8; }
+.signal-source-zero p { color: var(--source-text); font-size: 16px; line-height: 1.5; }
+.signal-source-zero p:first-child { font-weight: 800; }
+
+/* Scope the existing OperationPanel and proposal input without changing either
+   shared component or creating a second responsive input tree. */
+.signal-source-operations > section { border: 0; border-radius: 0; background: #fff; }
+.signal-source-operations > section > div:first-child { display: block; padding: 0; border: 0; }
+.signal-source-operations > section > div:first-child h2 { display: flex; align-items: center; min-height: 48px; margin: 0; padding: 10px 18px; background: var(--source-ink); color: #fff; font-size: 24px; font-weight: 850; line-height: 1.3; }
+.signal-source-operations > section > div:first-child p { max-width: none; margin: 0; padding: 12px 8px; color: var(--source-text); font-size: 18px; font-weight: 600; line-height: 1.5; }
+.signal-source-operations > section > div:last-child { padding: 0; }
+.signal-source-operations .signal-source-summary { display: grid; grid-template-columns: 200px minmax(0, 1fr); gap: 0; margin-bottom: 16px; padding: 16px; border: 0; background: #fff8d8; }
+.signal-source-operations .signal-source-summary [data-slot="alert-title"] { display: block; min-height: 0; padding: 0 16px 0 8px; border-right: 1px solid var(--source-frame); background: none; color: var(--source-text); font-size: 24px; }
+.signal-source-operations .signal-source-summary [data-slot="alert-description"] { display: grid; grid-template-columns: minmax(0, 1fr) 180px; gap: 4px 20px; font-size: 16px; }
+.signal-source-operations .signal-source-summary [data-slot="alert-description"] > span { grid-column: 1; padding: 0 0 0 32px; border: 0; }
+.signal-source-operations .signal-source-summary [data-slot="alert-description"] > span::before { top: 8px; left: 16px; width: 6px; height: 6px; }
+.signal-source-operations .signal-source-summary .signal-source-total::before { content: none; }
+.signal-source-operations .signal-source-total strong { font-size: 20px; }
+.signal-source-operations .signal-source-equation { display: inline; font-size: 16px; }
+.signal-source-operations .signal-source-summary [data-slot="alert-description"] > .signal-source-pending { grid-column: 2; grid-row: 1 / 5; margin: 0; padding-left: 20px; border-left: 1px solid var(--source-frame); font-size: 20px; font-weight: 800; }
+.signal-source-operations .signal-source-summary [data-slot="alert-description"] > .signal-source-pending::before { content: none; }
+.signal-source-select { display: grid; grid-template-columns: 210px minmax(0, 1fr); gap: 8px; max-width: none; margin: 0 0 16px; }
+.signal-source-select label { display: flex; align-items: center; min-height: 48px; padding: 8px 16px; background: #ececec; color: var(--source-text); font-size: 20px; font-weight: 800; }
+.signal-source-select [data-slot="select-trigger"] { width: 100%; min-width: 0; margin: 0; border: 1px solid var(--source-frame); padding: 10px 16px; background: #fff; font-size: 18px; }
+.signal-source-select [data-slot="select-value"] { min-width: 0; white-space: normal; overflow-wrap: anywhere; }
+.signal-source-operations .signal-source-columns { gap: 16px; }
+.signal-source-operations .signal-source-record { padding: 16px; }
+.signal-source-operations .signal-source-record-values :is(h3, h4) { font-size: 24px; }
+.signal-source-operations .signal-source-result { font-size: 30px; }
+.signal-source-operations .signal-source-catalog { font-size: 22px; }
+.signal-source-operations section[aria-label="고등급 제안 점수 입력"] { margin-top: 20px; padding: 0; border: 1px solid var(--source-frame); border-radius: 0; background: #fff; }
+.signal-source-operations section[aria-label="고등급 제안 점수 입력"] > div { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 0; align-items: center; padding: 0 0 16px; }
+.signal-source-operations section[aria-label="고등급 제안 점수 입력"] > div > div:first-child { display: contents; }
+.signal-source-operations section[aria-label="고등급 제안 점수 입력"] > div > div:first-child > div { grid-column: 1 / -1; min-height: 48px; padding: 10px 16px; background: var(--source-ink); color: #fff; }
+.signal-source-operations section[aria-label="고등급 제안 점수 입력"] h3 { font-size: 24px; font-weight: 850; line-height: 1.3; }
+.signal-source-operations section[aria-label="고등급 제안 점수 입력"] p { grid-column: 1; margin: 12px 0 0; padding: 0 16px; color: var(--source-text); font-size: 16px; line-height: 1.5; }
+.signal-source-operations section[aria-label="고등급 제안 점수 입력"] > div > div:last-child:not(:first-child) { grid-column: 2; grid-row: 2 / 4; padding: 12px 16px 0; }
+.signal-source-operations section[aria-label="고등급 제안 점수 입력"] input { width: 132px; min-width: 0; min-height: 48px; border: 1px solid var(--source-frame); background: #fff; color: var(--source-text); font-size: 24px; font-weight: 800; }
+.signal-source-operations section[aria-label="고등급 제안 점수 입력"] input:disabled { background: #ececec; color: var(--source-muted); }
+.signal-source-operations section[aria-label="고등급 제안 점수 입력"] input[aria-invalid="true"] { border: 2px solid #b42318; background: #fff1ee; }
+.signal-source-operations section[aria-label="고등급 제안 점수 입력"] > div > div:last-child > span { color: var(--source-text); font-size: 18px; }
+
+@media (min-width: 1101px) {
+  .signal-source-operations .signal-source-record { grid-template-columns: minmax(0, 1fr) 156px; gap: 0 12px; }
+  .signal-source-operations .signal-source-record-values { grid-column: 1 / -1; grid-template-columns: minmax(0, 1.25fr) minmax(0, .55fr) minmax(0, 1fr) minmax(0, 1.15fr); align-items: stretch; gap: 0; border-bottom: 1px solid var(--source-line); }
+  .signal-source-operations .signal-source-record-values > * { display: flex; align-items: center; justify-content: center; min-width: 0; padding: 0 10px 14px; border: 0; border-right: 1px solid var(--source-line); }
+  .signal-source-operations .signal-source-record-values > :first-child { padding-left: 0; }
+  .signal-source-operations .signal-source-record-values > :last-child { padding-right: 0; border-right: 0; }
+  .signal-source-operations .signal-source-record-values :is(h3, h4) { grid-column: auto; justify-content: flex-start; font-size: 20px; }
+  .signal-source-operations .signal-source-record-values .signal-source-result { font-size: 24px; }
+  .signal-source-operations .signal-source-converted { font-size: 18px; }
+  .signal-source-operations .signal-source-record-values .signal-source-flags { grid-column: auto; flex-wrap: wrap; gap: 4px; }
+  .signal-source-operations .signal-source-record-values .signal-source-flags:empty { display: none; }
+  .signal-source-operations .signal-source-certification .signal-source-record-values { grid-template-columns: minmax(0, 1.1fr) minmax(0, 1.5fr) minmax(0, 1fr); }
+  .signal-source-operations .signal-source-catalog { grid-column: auto; font-size: 18px; }
+  .signal-source-operations .signal-source-metadata { grid-column: 1; margin-top: 12px; padding-top: 0; border: 0; }
+  .signal-source-operations .signal-source-record > div:not(.signal-source-record-main) { grid-column: 1; margin-top: 8px; }
+  .signal-source-operations .signal-source-record-actions { grid-column: 2; grid-row: 2 / 4; align-self: end; margin-top: 12px; }
+  .signal-source-operations .signal-source-verify { grid-column: 1 / -1; }
+}
+
+@media (max-width: 1100px) {
+  .signal-source-operations .signal-source-summary { grid-template-columns: 170px minmax(0, 1fr); }
+  .signal-source-operations .signal-source-summary [data-slot="alert-description"] { grid-template-columns: minmax(0, 1fr); }
+  .signal-source-operations .signal-source-summary [data-slot="alert-description"] > .signal-source-pending { grid-column: 1; grid-row: auto; padding: 12px 0 0 32px; border-left: 0; }
+  .signal-source-columns { grid-template-columns: minmax(0, 1fr); gap: 24px; }
+}
+
+@media (max-width: 767px) {
+  .signal-source-editor { font-size: 16px; }
+  .signal-source-heading { padding-bottom: 24px; }
+  .signal-source-heading h2 { font-size: 36px; line-height: 1.15; }
+  .signal-source-heading p { margin-top: 12px; font-size: 18px; }
+  .signal-source-summary { margin-bottom: 24px; }
+  .signal-source-summary [data-slot="alert-title"] { min-height: 48px; padding: 12px; font-size: 22px; }
+  .signal-source-summary [data-slot="alert-description"] { display: block; font-size: 16px; }
+  .signal-source-summary [data-slot="alert-description"] > span { display: block; padding: 18px 12px 18px 32px; border: 0; border-top: 1px solid var(--source-line); }
+  .signal-source-summary [data-slot="alert-description"] > span::before { top: 26px; left: 12px; }
+  .signal-source-total strong { font-size: 28px; }
+  .signal-source-equation { font-size: 16px; }
+  .signal-source-columns { grid-template-columns: minmax(0, 1fr); gap: 24px; }
+  .signal-source-column-heading { gap: 8px; padding: 8px 10px; }
+  .signal-source-column-heading h3 { font-size: 21px; }
+  .signal-source-column-heading button { padding: 9px 10px; font-size: 16px; }
+  .signal-source-record, .signal-source-operations .signal-source-record { padding: 16px 12px; }
+  .signal-source-record-values { gap: 12px 8px; }
+  .signal-source-record-values :is(h3, h4), .signal-source-operations .signal-source-record-values :is(h3, h4) { font-size: 26px; }
+  .signal-source-result, .signal-source-operations .signal-source-result { font-size: 36px; }
+  .signal-source-converted { padding-left: 12px; font-size: 22px; }
+  .signal-source-catalog, .signal-source-operations .signal-source-catalog { font-size: 24px; }
+  .signal-source-metadata { margin-top: 16px; }
+  .signal-source-record-actions { margin-top: 16px; }
+  .signal-source-record-actions button { min-height: 46px; }
+  .signal-source-operations > section > div:first-child h2 { padding: 12px; font-size: 22px; }
+  .signal-source-operations > section > div:first-child p { padding: 12px 0; font-size: 16px; }
+  .signal-source-operations .signal-source-summary { display: block; padding: 0; border: 1px solid var(--source-frame); background: #fff; }
+  .signal-source-operations .signal-source-summary [data-slot="alert-title"] { display: flex; min-height: 48px; padding: 12px; border: 0; background: var(--source-ink); color: #fff; font-size: 22px; }
+  .signal-source-operations .signal-source-summary [data-slot="alert-description"] { display: block; }
+  .signal-source-operations .signal-source-summary [data-slot="alert-description"] > span { padding: 18px 12px 18px 32px; border-top: 1px solid var(--source-line); }
+  .signal-source-operations .signal-source-summary [data-slot="alert-description"] > span::before { top: 26px; left: 12px; }
+  .signal-source-operations .signal-source-summary .signal-source-total::before { content: ""; }
+  .signal-source-operations .signal-source-total strong { font-size: 28px; }
+  .signal-source-operations .signal-source-equation { display: block; }
+  .signal-source-operations .signal-source-summary [data-slot="alert-description"] > .signal-source-pending { padding: 16px 12px; border-top: 1px solid var(--source-line); background: #fff8d8; font-size: 18px; }
+  .signal-source-select { grid-template-columns: minmax(0, 1fr); gap: 0; }
+  .signal-source-select label { padding: 10px 12px; font-size: 18px; }
+  .signal-source-select [data-slot="select-trigger"] { min-height: 48px; padding: 10px 12px; font-size: 16px; }
+  .signal-source-operations section[aria-label="고등급 제안 점수 입력"] > div { grid-template-columns: minmax(0, 1fr); padding: 0 0 16px; }
+  .signal-source-operations section[aria-label="고등급 제안 점수 입력"] > div > div:first-child > div { padding: 12px; }
+  .signal-source-operations section[aria-label="고등급 제안 점수 입력"] p { padding: 0 12px; }
+  .signal-source-operations section[aria-label="고등급 제안 점수 입력"] > div > div:last-child:not(:first-child) { grid-column: 1; grid-row: auto; padding: 16px 12px 0; }
+  .signal-source-operations section[aria-label="고등급 제안 점수 입력"] h3 { font-size: 22px; }
+}

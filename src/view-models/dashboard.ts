@@ -14,6 +14,7 @@ import type {
 } from "@/features/dashboard"
 
 import { selectDashboardProgress } from "./dashboard-progress"
+import { displayEvaluationTaskName } from "./labels"
 import { selectEngineerResultSummaries } from "./results"
 
 export type DashboardViewModel = Readonly<{
@@ -93,7 +94,7 @@ function createCategoryAverages(
     .toSorted((left, right) => left.order - right.order)
     .map((task) => ({
       id: task.id,
-      label: task.name,
+      label: displayEvaluationTaskName(task.name),
       scores: results.flatMap((result) => {
         const taskResult = result.taskResults.find((entry) => entry.taskId === task.id)
         if (taskResult?.status !== "complete" || taskResult.score === null) return []
@@ -255,7 +256,7 @@ function createTaskRankings(
       const rows = applyCompetitionRanks(candidates)
       return {
         taskId: task.id,
-        label: task.name,
+        label: displayEvaluationTaskName(task.name),
         completedCount: rows.filter((row) => row.status === "complete").length,
         targetCount: rows.length,
         rows,

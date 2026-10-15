@@ -1,0 +1,179 @@
+/* AN-01 and AN-04 only. Source selectors and values remain the data authority. */
+.signal-analysis-insights,
+.signal-analysis-decision,
+.signal-analysis-panel,
+.signal-analysis-reliability {
+  min-width: 0;
+  color: #1a1a18;
+  font-family: var(--font-pretendard), Pretendard, sans-serif;
+}
+
+.signal-analysis-insights { border: 1px solid #b5b5b2; background: #fff; }
+.signal-analysis-insights > header,
+.signal-analysis-section-heading,
+.signal-analysis-panel > section > header {
+  padding: 12px 18px;
+  border: 0;
+  border-radius: 0;
+  background: #1a1a18;
+  color: #fff;
+}
+.signal-analysis-insights > header h2,
+.signal-analysis-section-heading h2,
+.signal-analysis-panel > section > header h2 {
+  font-size: 24px;
+  line-height: 1.3;
+  font-weight: 850;
+  letter-spacing: -.025em;
+  word-break: keep-all;
+}
+.signal-analysis-insights > header p,
+.signal-analysis-section-heading p,
+.signal-analysis-panel > section > header p {
+  margin-top: 5px;
+  color: #eee;
+  font-size: 15px;
+  line-height: 1.5;
+}
+.signal-analysis-insights > dl > div { margin: 18px 0; padding: 0 28px; border-color: #b5b5b2; }
+.signal-analysis-insights dt { color: #1a1a18; font-size: 21px; font-weight: 800; }
+.signal-analysis-insights dd > span { font-size: clamp(36px, 4.4vw, 64px); line-height: 1.1; font-weight: 900; letter-spacing: -.045em; color: #1a1a18; }
+.signal-analysis-insights dd > p { margin-top: 8px; color: #555552; font-size: 17px; line-height: 1.45; }
+.signal-analysis-summary-grid { align-items: start; gap: 18px; }
+.signal-analysis-panel > section { border: 0; border-radius: 0; background: #fff; box-shadow: none; }
+.signal-analysis-panel > section > div { padding: 12px 0 0; }
+.signal-analysis-panel .text-muted-foreground { color: #555552; }
+.signal-analysis-panel > section > header .text-muted-foreground { color: #eee; }
+.signal-analysis-panel :is(.text-xs, .text-sm) { font-size: 14px; line-height: 1.5; }
+.signal-analysis-panel .text-warning { color: #1a1a18; }
+.signal-analysis-panel [data-slot="empty-title"] { font-size: 20px; }
+.signal-analysis-panel [data-slot="empty-description"] { font-size: 16px; }
+.signal-analysis-scroll,
+.signal-analysis-residual-scroll { min-width: 0; max-width: 100%; overflow: auto; overscroll-behavior-x: contain; }
+.signal-analysis-scroll { padding: 0 0 8px; }
+.signal-analysis-scroll:focus-visible,
+.signal-analysis-residual-scroll:focus-visible { outline: 2px solid #1a1a18; outline-offset: 3px; box-shadow: 0 0 0 5px #e8cf4a; }
+
+.signal-analysis-distribution-rows { min-width: 560px; border: 1px solid #b5b5b2; }
+.signal-analysis-distribution-row { display: grid; grid-template-columns: 172px minmax(0, 1fr); align-items: center; border-bottom: 1px solid #c9c9c6; }
+.signal-analysis-distribution-row:last-child { border-bottom: 0; }
+.signal-analysis-distribution-name { align-self: stretch; display: flex; flex-direction: column; justify-content: center; min-width: 0; padding: 12px; border-right: 1px solid #c9c9c6; }
+.signal-analysis-distribution-name > p:first-child { color: #1a1a18; font-size: 17px; font-weight: 750; word-break: keep-all; }
+.signal-analysis-distribution-mark { min-width: 0; padding: 10px 22px; }
+.signal-analysis-distribution-svg { display: block; width: 100%; height: 28px; overflow: visible; }
+.signal-analysis-distribution-axis { position: relative; height: 24px; color: #555552; font-size: 14px; line-height: 1.4; }
+.signal-analysis-distribution-axis > span { position: absolute; top: 0; width: max-content; white-space: nowrap; transform: translateX(-50%); }
+.signal-analysis-distribution-mark > p { white-space: nowrap; }
+
+.signal-analysis-completion-rows { min-width: 600px; border: 1px solid #b5b5b2; }
+.signal-analysis-completion-axis-row,
+.signal-analysis-completion-row { display: grid; grid-template-columns: 156px minmax(0, 1fr) 76px 102px; align-items: center; min-height: 65px; font-size: 17px; }
+.signal-analysis-completion-axis-row { min-height: 50px; background: #ededeb; font-size: 15px; font-weight: 750; }
+.signal-analysis-completion-axis-row > span,
+.signal-analysis-completion-row > span { display: flex; align-items: center; justify-content: center; align-self: stretch; padding: 10px 8px; border-right: 1px solid #c9c9c6; }
+.signal-analysis-completion-axis-row > span:last-child,
+.signal-analysis-completion-row > span:last-child { border-left: 1px solid #c9c9c6; border-right: 0; }
+.signal-analysis-completion-row { border-top: 1px solid #c9c9c6; }
+.signal-analysis-completion-row > .signal-analysis-completion-name { justify-content: flex-start; padding-left: 12px; font-weight: 750; word-break: keep-all; }
+.signal-analysis-completion-axis { position: relative; height: 24px; margin: 0 22px; font-size: 14px; font-weight: 500; }
+.signal-analysis-completion-axis > span { position: absolute; top: 0; transform: translateX(-50%); white-space: nowrap; }
+.signal-analysis-completion-track { height: 22px; margin: 0 22px; background: #e4e4e1; }
+.signal-analysis-completion-bar { display: block; height: 100%; background: #e8cf4a; }
+
+.signal-analysis-panel details { margin-top: 16px; padding-top: 12px; border-color: #b5b5b2; }
+.signal-analysis-panel details > summary { display: list-item; width: fit-content; min-height: 44px; padding: 10px 14px; border: 1px solid #1a1a18; border-radius: 0; color: #1a1a18; font-size: 16px; font-weight: 750; cursor: pointer; }
+.signal-analysis-panel details > div { border: 0; border-radius: 0; }
+.signal-analysis-panel table { width: 100%; border-collapse: collapse; border: 1px solid #b5b5b2; color: #1a1a18; font-size: 16px; line-height: 1.4; }
+.signal-analysis-panel :is(th, td) { height: 44px; padding: 10px 14px; border: 1px solid #c9c9c6; }
+.signal-analysis-panel thead th { background: #ededeb; color: #1a1a18; font-size: 16px; font-weight: 750; }
+.signal-analysis-panel tbody tr { background: #fff; }
+.signal-analysis-panel tbody tr:hover { background: #f5f5f3; }
+.signal-analysis-panel td { white-space: nowrap; }
+.signal-analysis-team-table { min-width: 1120px; }
+.signal-analysis-team-table thead th { min-width: 164px; vertical-align: top; }
+.signal-analysis-team-table thead th:first-child { min-width: 130px; }
+.signal-analysis-team-table thead th span { max-width: none; font-size: 16px; color: #1a1a18; }
+.signal-analysis-team-table tbody th { background: #fff; font-size: 17px; font-weight: 750; }
+.signal-analysis-team-table tbody td { padding: 14px; color: #1a1a18; }
+.signal-analysis-team-table tbody td > span:first-child { font-size: 22px; font-weight: 800; }
+.signal-analysis-team-table .signal-analysis-team-cell-high { background: #e8cf4a; }
+.signal-analysis-team-table .signal-analysis-team-cell-low { background: #e4e4e1; }
+.signal-analysis-team-table .signal-analysis-team-cell-neutral { background: #fff; }
+.signal-analysis-team-table .signal-analysis-team-cell-missing { color: #555552; background: #f1f1ef; }
+
+.signal-analysis-reliability { padding-top: 16px; }
+.signal-analysis-reliability-heading { display: grid; gap: 22px; padding: 0; border: 0; }
+.signal-analysis-reliability-heading h2 { color: #1a1a18; font-size: clamp(34px, 4vw, 56px); font-weight: 900; line-height: 1.15; letter-spacing: -.045em; }
+.signal-analysis-reliability-heading p { max-width: none; margin-top: 12px; color: #454543; font-size: 18px; line-height: 1.5; }
+.signal-analysis-task-selector { display: flex; align-items: center; gap: 20px; max-width: 820px; }
+.signal-analysis-task-selector > label { color: #1a1a18; font-size: 20px; font-weight: 750; white-space: nowrap; }
+.signal-analysis-task-selector [data-slot="select-trigger"] { flex: 1; min-width: 0; min-height: 54px; padding: 10px 16px; border: 1px solid #858582; border-radius: 0; color: #1a1a18; background: #fff; box-shadow: none; font-size: 20px; font-weight: 750; }
+.signal-analysis-select-popup { border-radius: 0; background: #fff; color: #1a1a18; font-family: var(--font-pretendard), Pretendard, sans-serif; }
+.signal-analysis-select-popup [data-slot="select-item"] { min-height: 44px; border-radius: 0; font-size: 16px; }
+.signal-analysis-reliability-metrics { max-width: 960px; margin: 28px 0; border: 0; }
+.signal-analysis-reliability-metrics > div { padding: 0 28px; border-color: #b5b5b2; }
+.signal-analysis-reliability-metrics > div:first-child { padding-left: 0; }
+.signal-analysis-reliability-metrics dt { color: #1a1a18; font-size: 21px; font-weight: 800; }
+.signal-analysis-reliability-metrics dd { margin-top: 4px; color: #1a1a18; font-size: clamp(36px, 4vw, 58px); font-weight: 900; line-height: 1.15; letter-spacing: -.035em; }
+.signal-analysis-reliability-charts { display: grid; min-width: 0; grid-template-columns: minmax(0, 1fr); gap: 24px; align-items: start; }
+.signal-analysis-quadrant-svg { display: block; width: 100%; min-width: 600px; height: auto; overflow: visible; color: #1a1a18; font-family: var(--font-pretendard), Pretendard, sans-serif; font-size: 16px; }
+.signal-analysis-quadrant-svg text { fill: #1a1a18; }
+.signal-analysis-axis-title { font-weight: 750; }
+.signal-analysis-quadrant-legend { display: flex; flex-wrap: wrap; gap: 14px 30px; margin-top: 14px; font-size: 16px; }
+.signal-analysis-quadrant-legend > span { display: inline-flex; align-items: center; gap: 10px; }
+.signal-analysis-quadrant-legend i { display: inline-block; width: 16px; height: 16px; border: 1px solid #1a1a18; border-radius: 50%; }
+.signal-analysis-point-stable { background: #b5b5b2; }
+.signal-analysis-point-review { background: #e8cf4a; }
+.signal-analysis-residual-scroll { border-radius: 0; }
+.signal-analysis-residuals table { min-width: 680px; }
+.signal-analysis-residuals :is(th, td) { min-width: 106px; padding: 10px; }
+.signal-analysis-residuals td:first-child { background: #fff; }
+.signal-analysis-residuals td:nth-child(2) { background: #f1f1ef; color: #1a1a18; }
+.signal-analysis-residuals td[data-observed="true"] { background: #fff; color: #1a1a18; }
+.signal-analysis-residuals td[data-observed="false"] { background: #f1f1ef; color: #666663; }
+.signal-analysis-residuals td[data-outlier="true"] { background: #e8cf4a; color: #1a1a18; }
+.signal-analysis-rank-sensitivity [data-slot="select-trigger"] { min-height: 44px; border: 1px solid #858582; border-radius: 0; background: #fff; color: #1a1a18; font-size: 16px; }
+.signal-analysis-rank-sensitivity li { border: 1px solid #b5b5b2; border-radius: 0; background: #fff; }
+.signal-analysis-rank-sensitivity li[data-high-impact="true"] { border-color: #1a1a18; background: #faf5d8; }
+.signal-analysis-rank-sensitivity li [role="img"] { margin-right: 8px; margin-left: 8px; border-radius: 0; background: #f1f1ef; }
+.signal-analysis-rank-sensitivity .border-primary { border-color: #1a1a18; }
+.signal-analysis-rank-sensitivity .border-warning { border-color: #1a1a18; background: #e8cf4a; }
+
+@media (min-width: 1200px) {
+  .signal-analysis-reliability-charts { grid-template-columns: minmax(0, .95fr) minmax(0, 1.05fr); }
+}
+
+@media (max-width: 768px) {
+  .signal-analysis-insights > header,
+  .signal-analysis-section-heading,
+  .signal-analysis-panel > section > header { padding: 12px 14px; }
+  .signal-analysis-insights > header h2,
+  .signal-analysis-section-heading h2,
+  .signal-analysis-panel > section > header h2 { font-size: 22px; }
+  .signal-analysis-insights > header p,
+  .signal-analysis-section-heading p,
+  .signal-analysis-panel > section > header p { font-size: 16px; }
+  .signal-analysis-insights > dl > div { margin: 0; padding: 18px; }
+  .signal-analysis-insights dt { font-size: 18px; }
+  .signal-analysis-insights dd > span { font-size: 42px; }
+  .signal-analysis-insights dd > p { font-size: 16px; }
+  .signal-analysis-panel :is(.text-xs, .text-sm) { font-size: 16px; line-height: 1.5; }
+  .signal-analysis-distribution-rows { min-width: 650px; }
+  .signal-analysis-distribution-axis,
+  .signal-analysis-completion-axis,
+  .signal-analysis-completion-axis-row { font-size: 16px; }
+  .signal-analysis-completion-rows { min-width: 700px; }
+  .signal-analysis-completion-axis-row,
+  .signal-analysis-completion-row { grid-template-columns: 176px minmax(0, 1fr) 86px 112px; font-size: 16px; }
+  .signal-analysis-task-selector { display: grid; gap: 10px; }
+  .signal-analysis-task-selector > label { font-size: 16px; }
+  .signal-analysis-task-selector [data-slot="select-trigger"] { min-height: 44px; font-size: 16px; }
+  .signal-analysis-reliability-heading h2 { font-size: 34px; }
+  .signal-analysis-reliability-heading p { font-size: 16px; }
+  .signal-analysis-reliability-metrics { gap: 0; margin: 20px 0; }
+  .signal-analysis-reliability-metrics > div { padding: 16px 18px; border-bottom: 1px solid #c9c9c6; }
+  .signal-analysis-reliability-metrics > div:first-child { padding-left: 18px; }
+  .signal-analysis-reliability-metrics dt { font-size: 18px; }
+  .signal-analysis-reliability-metrics dd { font-size: 42px; }
+  .signal-analysis-residuals :is(th, td) { min-width: 120px; }
+}

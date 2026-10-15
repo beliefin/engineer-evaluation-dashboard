@@ -1,6 +1,8 @@
 "use client"
 
-import { useMemo, useState } from "react"
+import "./dashboard-ranking-signal.css"
+
+import { useEffect, useMemo, useRef, useState } from "react"
 import {
   getCoreRowModel,
   getSortedRowModel,
@@ -31,6 +33,38 @@ const DEFAULT_FILTERS: RankingFilterState = {
 }
 
 const useDashboardTable = useReactTable
+function readPopulationSelection(key: string | undefined): readonly string[] | null {
+  if (key === undefined || typeof window === "undefined") return null
+  try {
+    const raw = window.localStorage.getItem(key)
+    if (raw === null) return null
+    const parsed: unknown = JSON.parse(raw)
+    if (!Array.isArray(parsed) || !parsed.every((id) => typeof id === "string")) return null
+    return [...new Set(parsed)]
+  } catch {
+    return null
+  }
+}
+
+function storePopulationSelection(key: string | undefined, ids: ReadonlySet<string>): boolean {
+  if (key === undefined || typeof window === "undefined") return false
+  try {
+    window.localStorage.setItem(key, JSON.stringify([...ids]))
+    return true
+  } catch {
+    return false
+  }
+}
+
+function clearPopulationSelection(key: string | undefined): boolean {
+  if (key === undefined || typeof window === "undefined") return false
+  try {
+    window.localStorage.removeItem(key)
+    return true
+  } catch {
+    return false
+  }
+}
 
 export function recalculateRankingRows(
   rows: ReadonlyArray<CompletedRankingProps["rows"][number]>,
@@ -65,6 +99,7 @@ export function CompletedRanking({
   populationSelectable = false,
   populationRows: populationCandidates = rows,
   populationResetKey,
+  populationStorageKey,
   onDownload,
 }: CompletedRankingProps) {
   const [internalFilters, setInternalFilters] =
@@ -78,10 +113,28 @@ export function CompletedRanking({
     () => new Set(populationCandidates.map((row) => row.id)),
     [populationCandidates],
   )
+  const [storedSelection] = useState<readonly string[] | null>(() => (
+    readPopulationSelection(populationStorageKey)
+  ))
+  const candidateIdsKey = populationCandidates.map((row) => row.id).join("\u0000")
+  const previousCandidateIdsKeyRef = useRef(candidateIdsKey)
   const [populationSelection, setPopulationSelection] = useState<Readonly<{
     key: string
     ids: ReadonlySet<string>
-  }>>(() => ({ key: populationKey, ids: defaultSelectedIds }))
+  }>>(() => ({
+    key: populationKey,
+    ids: storedSelection === null
+      ? defaultSelectedIds
+      : new Set(storedSelection.filter((id) => defaultSelectedIds.has(id))),
+  }))
+  useEffect(() => {
+    if (previousCandidateIdsKeyRef.current === candidateIdsKey) return
+    previousCandidateIdsKeyRef.current = candidateIdsKey
+    setPopulationSelection((current) => ({
+      key: populationKey,
+      ids: new Set([...current.ids].filter((id) => defaultSelectedIds.has(id))),
+    }))
+  }, [candidateIdsKey, defaultSelectedIds, populationKey])
   const selectedIds = useMemo(
     () => populationSelection.key === populationKey ? populationSelection.ids : defaultSelectedIds,
     [defaultSelectedIds, populationKey, populationSelection],
@@ -156,22 +209,36 @@ export function CompletedRanking({
     setInternalFilters(next)
   }
 
+  function resetPopulationSelection(): boolean {
+    const cleared = clearPopulationSelection(populationStorageKey)
+    setPopulationSelection({ key: populationKey, ids: defaultSelectedIds })
+    return cleared
+  }
+
+  function savePopulationSelection(): boolean {
+    if (populationStorageKey === undefined) return true
+    const saved = storePopulationSelection(populationStorageKey, selectedIds)
+    return saved
+  }
+
   return (
-    <section className="overflow-hidden rounded-md border border-border bg-card">
-      <div className="flex items-start justify-between gap-4 border-b border-border-subtle px-5 py-4">
+    <section className="signal-completed-ranking">
+      <div className="signal-completed-ranking-heading">
         <div>
           <h2 className="text-base font-semibold">{title}</h2>
           <p className="mt-1 max-w-2xl text-xs leading-5 text-muted-foreground">
             {description}
           </p>
         </div>
-        <div className="flex shrink-0 flex-col items-end gap-2">
+        <div className="signal-completed-ranking-actions">
           <Badge variant="outline" className="numeric">
             점수 반영 {populationRows.filter((row) => row.totalScore !== null).length}/{populationRows.length}명
           </Badge>
           {populationSelectable ? (
             <RankingPopulationDialog
               onChange={(ids) => setPopulationSelection({ key: populationKey, ids })}
+              onReset={resetPopulationSelection}
+              onSave={savePopulationSelection}
               rows={populationCandidates}
               selectedIds={selectedIds}
             />
@@ -192,6 +259,29 @@ export function CompletedRanking({
         resultCount={visibleRows.length}
         onChange={updateFilters}
       />
+
+      <label className="signal-ranking-mobile-sort">
+        정렬 기준
+        <select
+          aria-label="종합 순위 정렬 기준"
+          value={`${activeSorting.key}:${activeSorting.direction}`}
+          onChange={(event) => {
+            const [key, direction] = event.currentTarget.value.split(":")
+            const next = parseRankingSortState(key ?? null, direction ?? null)
+            if (onSortingChange) onSortingChange(next)
+            else setInternalSorting(next)
+          }}
+        >
+          <option value="rank:asc">순위 오름차순</option>
+          <option value="rank:desc">순위 내림차순</option>
+          <option value="name:asc">이름 오름차순</option>
+          <option value="name:desc">이름 내림차순</option>
+          <option value="team:asc">팀 오름차순</option>
+          <option value="team:desc">팀 내림차순</option>
+          <option value="totalScore:desc">점수 높은 순</option>
+          <option value="totalScore:asc">점수 낮은 순</option>
+        </select>
+      </label>
 
       {visibleRows.length > 0 ? (
         <>

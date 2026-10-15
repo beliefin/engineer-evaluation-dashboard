@@ -11,6 +11,7 @@ import {
   type EvaluationCalendarInput,
 } from "@/features/calendar"
 import { useEvaluation } from "@/providers"
+import { displayEvaluationTaskName } from "@/view-models"
 
 function collapseEvaluatorPresentationGroups(
   events: readonly CalendarEventView[],
@@ -76,7 +77,7 @@ export function CalendarScreen() {
         engineerId: engineer.id,
         engineerName: engineer.displayName,
         taskId: event.taskId,
-        taskName: task?.name ?? null,
+        taskName: task === undefined ? null : displayEvaluationTaskName(task.name),
         assignmentId: assignment?.id ?? null,
         parallelAssignmentId: null,
         presentationGroupId: event.presentationGroupId ?? null,
@@ -123,7 +124,7 @@ export function CalendarScreen() {
           .map((assignment) => assignment.taskId))],
       }))}
       events={events}
-      tasks={tasks.map((task) => ({ id: task.id, name: task.name }))}
+      tasks={tasks.map((task) => ({ id: task.id, name: displayEvaluationTaskName(task.name) }))}
       month={month}
       mode={role === "operator" ? "manage" : role === "evaluator" ? "evaluate" : "read"}
       onCreate={createEvent}

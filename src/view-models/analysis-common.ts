@@ -1,6 +1,8 @@
 import type { EvaluationSnapshot } from "@/domain"
 import type { AnalysisFilterState } from "@/features/analysis"
 
+import { displayEvaluationTaskName } from "./labels"
+
 import {
   selectEngineerResultSummaries,
   type EngineerProgressStatus,
@@ -80,6 +82,8 @@ export function categoryLabel(
   snapshot: EvaluationSnapshot,
   category: AnalysisCategoryKey,
 ): string {
+  const task = snapshot.tasks.find((entry) => entry.id === category)
+  if (task !== undefined) return displayEvaluationTaskName(task.name)
   return snapshot.tasks.find((task) => task.id === category)?.name ?? "알 수 없는 과제"
 }
 

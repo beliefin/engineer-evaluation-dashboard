@@ -1,6 +1,7 @@
 import { scoreSheetValue, type EvaluationSnapshot } from "@/domain"
 
 import { EVALUATOR_OUTLIER_DELTA } from "./analysis-rubrics"
+import { displayEvaluationTaskName } from "./labels"
 import {
   EVALUATOR_DISAGREEMENT_STANDARD_DEVIATION,
   selectEvaluatorResiduals,
@@ -121,7 +122,7 @@ export function selectEvaluatorDetail(
       const taskResiduals = residuals.filter((entry) => entry.taskId === taskId)
       return [{
         taskId,
-        taskLabel: task.name,
+        taskLabel: displayEvaluationTaskName(task.name),
         evaluationCount: rows.length,
         averageScore: average(rows.flatMap((entry) => entry.score === null ? [] : [entry.score])) ?? 0,
         peerAverage: average(taskResiduals.map((entry) => entry.leaveOneOutAverage)),
@@ -156,7 +157,7 @@ export function selectEvaluatorDetail(
       const peerAverage = average(peerValues)
       return [{
         taskId: task.id,
-        taskLabel: task.name,
+        taskLabel: displayEvaluationTaskName(task.name),
         itemId: item.id,
         itemNumber: item.order,
         itemLabel: item.label,
@@ -176,7 +177,7 @@ export function selectEvaluatorDetail(
       engineerLabel: entry.engineer.displayName,
       teamLabel: entry.engineer.team,
       taskId: entry.task.id,
-      taskLabel: entry.task.name,
+      taskLabel: displayEvaluationTaskName(entry.task.name),
       score: entry.score ?? 0,
       peerAverage: residual?.leaveOneOutAverage ?? null,
       residual: residual?.residual ?? null,

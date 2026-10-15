@@ -64,6 +64,7 @@ export function SaveStateIndicator({
   return (
     <div
       aria-live="polite"
+      data-save-state={state}
       className={cn(
         "flex h-7 shrink-0 items-center gap-1.5 text-xs font-medium",
         presentation.className

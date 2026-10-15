@@ -165,7 +165,9 @@ function toTaskGuide(task: EvaluationTask): SeasonTaskGuide {
     ? "성장·탐구 계획서"
     : known === "proposal"
       ? "고등급 제안"
-      : task.name
+      : known === "dx"
+        ? "AX 전환"
+        : task.name
   return {
     id: task.id,
     name: displayName,
@@ -195,7 +197,7 @@ function buildComposition(tasks: ReadonlyArray<EvaluationTask>): ReadonlyArray<S
         label: "선택 과제",
         weight: Math.max(ots.weight, dx?.weight ?? 0),
         kind: "alternative",
-        options: [ots.name, dx?.name ?? ""].filter(Boolean),
+        options: [ots.name, dx === undefined ? "" : "AX 전환"].filter(Boolean),
       })
       continue
     }
@@ -206,7 +208,9 @@ function buildComposition(tasks: ReadonlyArray<EvaluationTask>): ReadonlyArray<S
         ? "성장·탐구 계획서"
         : known === "proposal"
           ? "고등급 제안"
-          : task.name,
+          : known === "dx"
+            ? "AX 전환"
+            : task.name,
       weight: task.weight,
       kind: "single",
       options: [],

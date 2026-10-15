@@ -1,5 +1,9 @@
 "use client"
 
+import { HorizontalScroll } from "@/components/ui/horizontal-scroll"
+
+import "./evaluation-progress-signal.css"
+
 import Link from "next/link"
 import { useMemo, useState } from "react"
 
@@ -55,7 +59,7 @@ const NOT_APPLICABLE_CELL_CLASS = "bg-progress-not-applicable"
 
 function TaskLegend() {
   return (
-    <fieldset className="flex flex-wrap gap-x-4 gap-y-1 border-0 p-0 text-[11px] text-muted-foreground">
+    <fieldset className="signal-progress-legend flex flex-wrap gap-x-4 gap-y-1 border-0 p-0 text-[11px] text-muted-foreground">
       <legend className="sr-only">평가 상태 색상 안내</legend>
       <span><span aria-hidden="true" className="mr-1.5 inline-block size-2.5 bg-progress-complete ring-1 ring-success/35" />평가 완료</span>
       <span><span aria-hidden="true" className="mr-1.5 inline-block size-2.5 bg-progress-in-progress ring-1 ring-warning/35" />진행 중</span>
@@ -68,6 +72,7 @@ function TaskLegend() {
 function ProgressStatus({ status }: Readonly<{ status: DashboardEvaluationStatus }>) {
   return (
     <StatusBadge
+      className={`signal-progress-status signal-progress-status-${status}`}
       status={status === "complete" ? "completed" : status === "in_progress" ? "in_progress" : "pending"}
       label={STATUS_LABEL[status]}
     />
@@ -75,14 +80,14 @@ function ProgressStatus({ status }: Readonly<{ status: DashboardEvaluationStatus
 }
 
 function TaskProgress({ task }: Readonly<{ task: EngineerTaskProgress | undefined }>) {
-  if (task === undefined) return <span className="text-xs text-muted-foreground">해당 없음</span>
+  if (task === undefined) return <span className="signal-progress-not-applicable text-xs text-muted-foreground">해당 없음</span>
 
   const evaluatorProgress = task.evaluatorCount === null
     ? task.status === "complete" ? "점수 입력 완료" : "점수 없음"
     : `평가자 ${task.completedEvaluatorCount ?? 0}/${task.evaluatorCount}`
 
   return (
-    <div className="min-w-28 space-y-1.5">
+    <div className={`signal-progress-task signal-progress-task-${task.status} min-w-28 space-y-1.5`}>
       <p className={`text-xs font-semibold ${TASK_STATUS_CLASS[task.status]}`}>
         {STATUS_LABEL[task.status]}
       </p>
@@ -115,20 +120,20 @@ export function EngineerEvaluationProgress({ tasks, rows }: EngineerEvaluationPr
   }
 
   return (
-    <section className="overflow-hidden rounded-md border border-border bg-card">
-      <div className="flex items-start justify-between gap-4 border-b border-border-subtle px-5 py-4">
+    <section className="signal-engineer-progress overflow-hidden rounded-md border border-border bg-card">
+      <div className="signal-progress-heading flex items-start justify-between gap-4 border-b border-border-subtle px-5 py-4">
         <div>
           <h2 className="text-base font-semibold">엔지니어별 평가 현황</h2>
           <p className="mt-1 max-w-3xl text-xs leading-5 text-muted-foreground">
             가중치가 있는 과제만 표시. 배정 평가자 전원 제출 시 완료 처리
           </p>
-          <div className="mt-2"><TaskLegend /></div>
         </div>
         <Badge variant="outline" className="numeric">
           완료 {completedCount}/{rows.length}명
         </Badge>
       </div>
 
+      <div className="signal-progress-band"><h3>과제별 상태 필터</h3><TaskLegend /></div>
       <EvaluationProgressControls
         filters={filters}
         onFiltersChange={setFilters}
@@ -146,8 +151,8 @@ export function EngineerEvaluationProgress({ tasks, rows }: EngineerEvaluationPr
         </div>
       ) : (
         <>
-          <div className="hidden overflow-x-auto md:block">
-            <Table className="min-w-max">
+          <HorizontalScroll className="signal-progress-desktop hidden overflow-x-auto md:block" aria-label="엔지니어별 평가 현황 표, 가로 스크롤 영역">
+            <Table scrollable={false} className="min-w-max">
               <TableCaption className="sr-only">엔지니어별 적용 과제 평가 현황</TableCaption>
               <TableHeader>
                 <TableRow>
@@ -188,9 +193,9 @@ export function EngineerEvaluationProgress({ tasks, rows }: EngineerEvaluationPr
                 ))}
               </TableBody>
             </Table>
-          </div>
+          </HorizontalScroll>
 
-          <ul className="divide-y divide-border md:hidden" aria-label="엔지니어별 평가 현황">
+          <ul className="signal-progress-mobile divide-y divide-border md:hidden" aria-label="엔지니어별 평가 현황">
             {visibleRows.map((row) => {
               const outstandingTasks = row.tasks.filter((task) => task.status !== "complete")
               const visibleOutstandingTasks = outstandingTasks.slice(0, 2)

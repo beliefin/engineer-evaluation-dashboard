@@ -1,0 +1,59 @@
+/* OP-07g: direct scores are a sibling of the source editor, so scope their own surface. */
+.editor { min-width: 0; max-width: 100%; color: #1a1a18; background: #fff; font-size: 16px; line-height: 1.5; }
+.toolbar { display: flex; align-items: center; justify-content: space-between; gap: 16px; min-width: 0; margin-bottom: 16px; }
+.searchField { position: relative; width: 100%; max-width: 400px; min-width: 0; }
+.searchIcon { position: absolute; top: 50%; left: 14px; width: 20px; height: 20px; color: #555552; transform: translateY(-50%); pointer-events: none; }
+.editor [data-slot="input"], .editor [data-slot="select-trigger"] { min-height: 44px; height: 44px; border: 1px solid #90908b; border-radius: 0; padding: 8px 12px; background: #fff; color: #1a1a18; box-shadow: none; font-family: inherit; font-size: 16px; line-height: 1.5; }
+.editor .searchInput { width: 100%; padding-left: 44px; }
+.editor input[type="number"], .editor .passFail { width: 112px; min-width: 112px; font-variant-numeric: tabular-nums; font-weight: 750; }
+.editor [data-slot="input"]::placeholder { color: #666662; font-weight: 400; }
+.editor [data-slot="input"]:disabled, .editor [data-slot="select-trigger"]:disabled { background: #efefed; color: #666662; opacity: 1; }
+.editor [data-slot="input"]:focus-visible, .editor [data-slot="select-trigger"]:focus-visible { border-color: #1a1a18; outline: 2px solid #e8cf4a; outline-offset: 2px; box-shadow: none; }
+.editor [data-slot="input"][aria-invalid="true"] { border: 2px solid #b42318; outline-color: #b42318; }
+.editor input[type="number"][aria-invalid="true"] + span { position: static; display: block; width: 180px; max-width: 100%; height: auto; margin: 8px 0 0; padding: 0; overflow: visible; clip: auto; white-space: normal; overflow-wrap: anywhere; color: #b42318; font-size: 16px; line-height: 1.5; text-align: left; }
+.secondary { margin: 0; color: #555552; font-size: 16px; line-height: 1.5; overflow-wrap: anywhere; }
+.toolbar > .secondary { flex-shrink: 0; font-variant-numeric: tabular-nums; }
+.engineerName { display: block; margin: 0; font-size: 16px; font-weight: 800; line-height: 1.5; overflow-wrap: anywhere; }
+.weight { color: #555552; font-size: 16px; font-weight: 400; font-variant-numeric: tabular-nums; white-space: nowrap; }
+.formula { display: inline-flex; align-items: center; padding: 2px 6px; border: 1px solid #e8cf4a; border-radius: 0; background: #faf5d8; color: #1a1a18; font-size: 16px; font-weight: 700; white-space: nowrap; }
+.desktopTable { min-width: 0; max-width: 100%; border: 1px solid #bfc1c5; border-radius: 0; }
+.desktopTable [data-slot="table-container"] { max-width: 100%; min-width: 0; overflow-x: auto; overscroll-behavior-x: contain; border-radius: 0; }
+.desktopTable [data-slot="table-container"]:focus-visible { outline: 2px solid #e8cf4a; outline-offset: -3px; box-shadow: none; }
+.desktopTable [data-slot="table"] { width: 100%; min-width: 720px; border-collapse: collapse; color: #1a1a18; font-size: 16px; line-height: 1.5; }
+.desktopTable [data-slot="table-header"] { background: #efefed; color: #1a1a18; }
+.desktopTable [data-slot="table-head"], .desktopTable [data-slot="table-cell"] { height: auto; border-right: 1px solid #bfc1c5; border-bottom: 1px solid #bfc1c5; padding: 14px 16px; font-size: 16px; line-height: 1.5; letter-spacing: 0; }
+.desktopTable [data-slot="table-head"] { min-height: 48px; font-weight: 800; white-space: normal; word-break: keep-all; }
+.desktopTable [data-slot="table-cell"] { background: #fff; }
+.desktopTable [data-slot="table-head"]:last-child, .desktopTable [data-slot="table-cell"]:last-child { border-right: 0; }
+.desktopTable [data-slot="table-body"] tr:last-child td { border-bottom: 0; }
+.desktopTable [data-slot="table-head"]:first-child, .desktopTable [data-slot="table-cell"]:first-child { min-width: 180px; white-space: normal; overflow-wrap: anywhere; }
+.desktopTable .taskHeading { min-width: 220px; text-align: right; }
+.resultCell { text-align: right; }
+.resultGroup { display: flex; flex-wrap: wrap; align-items: center; justify-content: flex-end; gap: 8px; }
+.excluded { display: inline-block; padding: 4px 8px; background: #efefed; color: #555552; font-size: 16px; }
+.mobileCards { display: none; }
+.mobileCard { min-width: 0; border: 1px solid #bfc1c5; border-radius: 0; background: #fff; }
+.mobileHeading { display: flex; justify-content: space-between; align-items: flex-start; gap: 16px; min-width: 0; padding: 14px; border-bottom: 1px solid #bfc1c5; background: #efefed; }
+.mobileHeading > div, .mobileHeading > p { min-width: 0; }
+.mobileHeading > p { text-align: right; }
+.mobileTasks { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; min-width: 0; padding: 16px 14px; }
+.mobileTask { min-width: 0; }
+.taskLabel { display: flex; flex-wrap: wrap; align-items: center; gap: 4px 8px; margin: 0 0 8px; font-size: 16px; font-weight: 750; line-height: 1.5; overflow-wrap: anywhere; }
+.empty { margin: 0; padding: 48px 20px; border: 1px solid #bfc1c5; color: #555552; background: #fff; font-size: 16px; line-height: 1.6; text-align: center; word-break: keep-all; }
+.passFailMenu[data-slot="select-content"] { border: 1px solid #1a1a18; border-radius: 0; background: #fff; color: #1a1a18; box-shadow: none; font-size: 16px; }
+.passFailMenu [data-slot="select-item"] { min-height: 44px; border-radius: 0; font-size: 16px; line-height: 1.5; }
+.passFailMenu [data-slot="select-item"][data-state="checked"] { background: #e8cf4a; color: #1a1a18; }
+.passFailMenu [data-slot="select-item"][data-highlighted] { background: #1a1a18; color: #fff; outline: 2px solid #e8cf4a; outline-offset: -2px; }
+@media (max-width: 767px) {
+  .toolbar { align-items: flex-start; flex-direction: column; gap: 8px; }
+  .searchField { max-width: none; }
+  .desktopTable { display: none; }
+  .mobileCards { display: grid; gap: 16px; }
+  .empty { padding: 32px 16px; }
+}
+@media (max-width: 479px) {
+  .mobileTasks { grid-template-columns: minmax(0, 1fr); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .editor *, .passFailMenu { transition: none !important; animation: none !important; scroll-behavior: auto !important; }
+}

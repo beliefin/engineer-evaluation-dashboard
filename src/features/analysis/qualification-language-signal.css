@@ -1,0 +1,39 @@
+/* AN-02 only: the bars encode holder count / table maximum. */
+.signal-qualification { min-width: 0; color: #1a1a18; font-family: var(--font-pretendard), Pretendard, sans-serif; }
+.signal-qualification > header h2 { font-size: clamp(34px, 3.5vw, 52px); font-weight: 900; line-height: 1.15; letter-spacing: -.04em; }
+.signal-qualification > header p { max-width: none; font-size: 18px; line-height: 1.5; color: #454543; }
+.signal-qualification-metrics { border: 1px solid #b5b5b2; background: #fff; }
+.signal-qualification-metrics > div { padding: 20px 16px; text-align: center; border-color: #c9c9c6; }
+.signal-qualification-metrics dt { font-size: 18px; font-weight: 800; color: #1a1a18; word-break: keep-all; }
+.signal-qualification-metrics dd > span { font-size: clamp(34px, 3.4vw, 48px); line-height: 1.15; font-weight: 900; letter-spacing: -.04em; }
+.signal-qualification-metrics dd > p { font-size: 14px; color: #555552; line-height: 1.5; }
+.signal-qualification-panels { gap: 20px; align-items: start; }
+.signal-qualification-panels > article { display:flex; flex-direction:column; min-height:100%; border: 1px solid #b5b5b2; border-radius: 0; background: #fff; }
+.signal-qualification-panels > article > header { padding: 0; border: 0; }
+.signal-qualification-panels h3 { padding: 12px 18px; font-size: 26px; font-weight: 850; line-height: 1.3; letter-spacing: -.025em; background: #1a1a18; color: #fff; }
+.signal-qualification-panels header p { margin: 0; padding: 14px 18px; color: #1a1a18; font-size: 16px; line-height: 1.5; }
+.signal-qualification-scroll { max-width: 100%; overflow-x: auto; padding: 0; overscroll-behavior-x: contain; }
+.signal-qualification-panels > article .signal-qualification-scroll { flex:1; }
+.signal-qualification-expand { display:flex; justify-content:center; border-top:1px solid #b5b5b2; padding-top:16px; }
+.signal-qualification-scroll table { min-width: 480px; width: 100%; table-layout: fixed; border-collapse: collapse; }
+.signal-qualification-scroll :is(th, td) { padding: 12px 18px; border: 1px solid #d3d3cf; border-left: 0; font-size: 17px; color: #1a1a18; }
+.signal-qualification-scroll :is(th, td):last-child { border-right: 0; }
+.signal-qualification-scroll thead th { background: #ededeb; font-weight: 750; }
+.signal-qualification-scroll td > p:first-child { font-size: 17px; font-weight: 750; }
+.signal-qualification-scroll td > p + p { color: #555552; font-size: 14px; }
+.signal-qualification-scroll col:nth-child(n+2) { width: 78px; }
+.signal-qualification-track { margin-top: 10px; height: 12px; border-radius: 0; background: #e4e4e1; }
+.signal-qualification-bar { height: 100%; border-radius: 0; background: #e8cf4a; }
+.signal-qualification > p { border-top: 1px solid #1a1a18; padding-top: 16px; font-size: 14px; line-height: 1.6; color: #555552; }
+.signal-qualification :focus-visible { outline: 2px solid #1a1a18; outline-offset: 3px; box-shadow: 0 0 0 5px #e8cf4a; }
+@media (max-width: 768px) {
+ .signal-qualification > header h2 { font-size: 34px; }
+ .signal-qualification > header p, .signal-qualification > p, .signal-qualification-metrics dd > p, .signal-qualification-scroll td > p + p { font-size: 16px; }
+ .signal-qualification-metrics { grid-template-columns: repeat(2, minmax(0,1fr)); }
+ .signal-qualification-metrics > div { padding: 16px 12px; border-bottom: 1px solid #c9c9c6; }
+ .signal-qualification-metrics > div:nth-child(odd) { border-right: 1px solid #c9c9c6; }
+ .signal-qualification-metrics dt { font-size: 16px; }
+ .signal-qualification-metrics dd > span { font-size: 38px; }
+ .signal-qualification-panels h3 { font-size: 23px; }
+ .signal-qualification-scroll :is(th,td) { font-size: 16px; padding: 12px; }
+}

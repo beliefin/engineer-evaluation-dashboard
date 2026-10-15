@@ -61,7 +61,7 @@ function FilterFields({
   className,
 }: FilterFieldsProps) {
   return (
-    <div className={className}>
+    <div className={`signal-assignment-filter-fields ${className}`}>
       <label className="grid gap-1.5 text-xs font-semibold text-muted-foreground">
         배정 검색
         <span className="relative">
@@ -91,7 +91,7 @@ function FilterFields({
             <SelectTrigger aria-label="평가자 필터" className="h-9 w-full">
               <SelectValue />
             </SelectTrigger>
-            <SelectContent>
+            <SelectContent className="signal-assignment-select-popup">
               <SelectItem value="all">전체 평가자</SelectItem>
               {evaluatorOptions.map((option) => (
                 <SelectItem key={option.id} value={option.id}>
@@ -114,7 +114,7 @@ function FilterFields({
           <SelectTrigger aria-label="진행 상태 필터" className="h-9 w-full">
             <SelectValue />
           </SelectTrigger>
-          <SelectContent>
+          <SelectContent className="signal-assignment-select-popup">
             <SelectItem value="all">전체</SelectItem>
             <SelectItem value="pending">미작성</SelectItem>
             <SelectItem value="in_progress">작성 중</SelectItem>
@@ -147,7 +147,7 @@ export function AssignmentFilters(props: AssignmentFiltersProps) {
               필터{activeCount > 0 ? ` ${activeCount}` : ""}
             </Button>
           </SheetTrigger>
-          <SheetContent className="w-full" side="right">
+          <SheetContent className="signal-assignment-filter-sheet w-full" side="right">
             <SheetHeader>
               <SheetTitle>배정 평가 필터</SheetTitle>
               <SheetDescription>

@@ -11,6 +11,7 @@ import { ScoreFormActions } from "./score-form-actions"
 import { ScoreTsvInput } from "./score-tsv-input"
 import type { EvaluationScoreFormProps, EvaluationScoreFormViewModel } from "./types"
 import { UnlockRequestDialog } from "./unlock-request-dialog"
+import "./parallel-entry-signal.css"
 
 interface ParallelEvaluationScoreFormProps {
   readonly left: EvaluationScoreFormProps
@@ -52,7 +53,7 @@ function PresenterHeader({ form }: Readonly<{ form: EvaluationScoreFormProps }>)
     : state.answeredCount === 0 ? "pending" : "in_progress"
 
   return (
-    <div role="columnheader" className="min-w-0 border-l border-border-subtle px-1.5 py-3 text-center sm:px-3">
+    <div role="columnheader" className="signal-paired-presenter min-w-0 border-l border-border-subtle px-1.5 py-3 text-center sm:px-3" data-locked={form.viewModel.locked}>
       <p className="line-clamp-3 break-keep text-[11px] font-semibold leading-4 sm:text-sm" title={form.viewModel.engineerName}>
         {form.viewModel.engineerName}
       </p>
@@ -73,7 +74,7 @@ function PresenterHeader({ form }: Readonly<{ form: EvaluationScoreFormProps }>)
 function PassFailCell({ form }: Readonly<{ form: EvaluationScoreFormProps }>) {
   const model = form.viewModel
   return (
-    <div role="cell" className="grid gap-2 border-l border-border-subtle px-1.5 py-3 sm:px-3">
+    <div role="cell" className="signal-paired-pass-fail grid gap-2 border-l border-border-subtle px-1.5 py-3 sm:px-3">
       <Button
         aria-label={`${model.engineerName} Pass`}
         aria-pressed={model.passResult === true}
@@ -106,7 +107,7 @@ function PresenterActions({ form }: Readonly<{ form: EvaluationScoreFormProps }>
   }
 
   return (
-    <form className="min-w-0 border-l border-border-subtle" onSubmit={handleSubmit}>
+    <form className="signal-paired-actions min-w-0 border-l border-border-subtle" data-locked={form.viewModel.locked} onSubmit={handleSubmit}>
       <div className="px-3 pt-3 sm:px-4">
         <p className="truncate text-sm font-semibold">{form.viewModel.engineerName}</p>
         <p id={requirementsId} className="mt-1 text-xs leading-5 text-muted-foreground">
@@ -143,8 +144,8 @@ export function ParallelEvaluationScoreForm({ left, right }: ParallelEvaluationS
   const benchmark = model.benchmark
 
   return (
-    <section className="overflow-hidden rounded-md border border-border bg-card" aria-labelledby="parallel-score-title">
-      <header className="border-b border-border-subtle px-4 py-5">
+    <section className="signal-paired-form overflow-hidden rounded-md border border-border bg-card" aria-labelledby="parallel-score-title">
+      <header className="signal-paired-task-heading border-b border-border-subtle px-4 py-5">
         <p className="text-xs font-semibold text-primary">{model.cycleLabel}</p>
         <h2 id="parallel-score-title" className="mt-1 text-xl font-bold tracking-tight sm:text-2xl">
           {model.categoryLabel} · 동시 평가
@@ -163,19 +164,24 @@ export function ParallelEvaluationScoreForm({ left, right }: ParallelEvaluationS
       </header>
 
       {scoreMethod ? (
-        <details className="border-b border-border-subtle bg-muted/20">
+        <details className="signal-paired-tsv border-b border-border-subtle bg-muted/20">
           <summary className="cursor-pointer px-4 py-3 text-sm font-semibold focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring">
             TSV 점수 일괄 입력
           </summary>
-          <div className="grid grid-cols-1 border-t border-border-subtle sm:grid-cols-2">
-            <ScoreTsvInput idPrefix={model.assignmentId} itemCount={model.items.length} label={`${model.engineerName} TSV 점수`} locked={model.locked} onApply={left.onScoresChange} />
-            <ScoreTsvInput idPrefix={right.viewModel.assignmentId} itemCount={right.viewModel.items.length} label={`${right.viewModel.engineerName} TSV 점수`} locked={right.viewModel.locked} onApply={right.onScoresChange} />
+          <div className="signal-paired-tsv-grid border-t border-border-subtle">
+            <div className="signal-paired-tsv-spacer" aria-hidden="true" />
+            <div className="signal-paired-tsv-person">
+              <ScoreTsvInput idPrefix={model.assignmentId} itemCount={model.items.length} label={`${model.engineerName} TSV 점수`} locked={model.locked} onApply={left.onScoresChange} />
+            </div>
+            <div className="signal-paired-tsv-person">
+              <ScoreTsvInput idPrefix={right.viewModel.assignmentId} itemCount={right.viewModel.items.length} label={`${right.viewModel.engineerName} TSV 점수`} locked={right.viewModel.locked} onApply={right.onScoresChange} />
+            </div>
           </div>
         </details>
       ) : null}
 
-      <div role="table" aria-label="두 발표자 평가 점수 입력" aria-colcount={3}>
-        <div role="row" className="grid grid-cols-[minmax(0,1fr)_72px_72px] bg-muted/35 sm:grid-cols-[minmax(0,1fr)_112px_112px]">
+      <div className="signal-paired-table" role="table" aria-label="두 발표자 평가 점수 입력" aria-colcount={3}>
+        <div role="row" className="signal-paired-table-heading grid grid-cols-[minmax(0,1fr)_72px_72px] bg-muted/35 sm:grid-cols-[minmax(0,1fr)_112px_112px]">
           <div role="columnheader" className="px-3 py-3 text-xs font-semibold text-muted-foreground sm:px-4">평가항목</div>
           <PresenterHeader form={left} />
           <PresenterHeader form={right} />
@@ -191,7 +197,7 @@ export function ParallelEvaluationScoreForm({ left, right }: ParallelEvaluationS
         )}
       </div>
 
-      <div className="sticky bottom-0 z-20 grid grid-cols-2 border-t border-border bg-card shadow-[0_-6px_16px_rgba(17,24,32,0.06)]">
+      <div className="signal-paired-action-grid sticky bottom-0 z-20 grid grid-cols-2 border-t border-border bg-card shadow-[0_-6px_16px_rgba(17,24,32,0.06)]">
         <PresenterActions form={left} />
         <PresenterActions form={right} />
       </div>

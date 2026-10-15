@@ -19,6 +19,7 @@ import type {
 } from "@/features/analysis"
 
 import { selectAchievementSourceAnalysis } from "./analysis-achievements"
+import { displayEvaluationTaskName } from "./labels"
 import { selectAnalysisCategoryAverages, selectTeamComparison } from "./analysis-categories"
 import {
   categoryLabel,
@@ -142,7 +143,7 @@ export function selectAnalysisViewModel(
       { value: "all", label: "전체 평가 분야" },
       ...snapshot.tasks.filter((task) => task.cycleId === cycleId).toSorted((left, right) => left.order - right.order).map((task) => ({
         value: task.id,
-        label: task.name,
+        label: displayEvaluationTaskName(task.name),
       })),
     ],
     statusOptions: [

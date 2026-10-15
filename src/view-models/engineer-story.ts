@@ -16,6 +16,28 @@ function average(values: readonly number[]): number {
   return values.reduce((total, value) => total + value, 0) / values.length
 }
 
+function distribution(values: readonly number[]): EngineerEvaluationStoryViewModel["taskComparisons"][number]["distribution"] {
+  if (values.length === 0) return null
+  const sorted = values.toSorted((left, right) => left - right)
+  const quantile = (percentile: number) => {
+    const position = (sorted.length - 1) * percentile
+    const lower = sorted[Math.floor(position)]
+    const upper = sorted[Math.ceil(position)]
+    if (lower === undefined || upper === undefined) return 0
+    return roundToOne(lower + (upper - lower) * (position - Math.floor(position)))
+  }
+  const minimum = sorted[0]
+  const maximum = sorted.at(-1)
+  if (minimum === undefined || maximum === undefined) return null
+  return {
+    minimum: roundToOne(minimum),
+    firstQuartile: quantile(0.25),
+    median: quantile(0.5),
+    thirdQuartile: quantile(0.75),
+    maximum: roundToOne(maximum),
+  }
+}
+
 function currentScore(result: EngineerResult): number | null {
   if (result.roundedFinalScore !== null) return result.roundedFinalScore
   const contributions = Object.values(result.contributions).filter(
@@ -83,6 +105,7 @@ export function createEngineerEvaluationStory(
       averageScore: roundToOne(average(scores)),
       topQuartileAverage: roundToOne(average(topScores)),
       sampleSize: scores.length,
+      distribution: distribution(scores),
     }
   })
   const profile = taskComparisons.flatMap((comparison) =>

@@ -7,6 +7,7 @@ import { Input } from "@/components/ui/input"
 import { Textarea } from "@/components/ui/textarea"
 
 import type { TaskItemDraft } from "./types"
+import styles from "./rubric-item-signal.module.css"
 
 type Props = Readonly<{
   item: TaskItemDraft
@@ -26,13 +27,14 @@ export function RubricItemEditor({ item, index, itemCount, onChange, onDelete }:
   const itemNumber = index + 1
 
   return (
-    <div className="rounded-lg border border-border p-3">
-      <div className="grid gap-2 sm:grid-cols-[28px_112px_minmax(0,1fr)_32px] sm:items-center">
-        <span className="numeric hidden text-center text-xs text-muted-foreground sm:block">
+    <div className={styles.editor}>
+      <div className={styles.itemFields}>
+        <span className={styles.itemNumber}>
           {itemNumber}
         </span>
         <Input
           aria-label={`평가 항목 ${itemNumber} 구분`}
+          className={styles.sectionInput}
           maxLength={50}
           onChange={(event) => onChange({ ...item, section: event.currentTarget.value || null })}
           placeholder="구분"
@@ -40,12 +42,14 @@ export function RubricItemEditor({ item, index, itemCount, onChange, onDelete }:
         />
         <Input
           aria-label={`평가 항목 ${itemNumber}`}
+          className={styles.labelInput}
           maxLength={200}
           onChange={(event) => onChange({ ...item, label: event.currentTarget.value })}
           value={item.label}
         />
         <Button
           aria-label={`평가 항목 ${itemNumber} 삭제`}
+          className={`${styles.deleteButton} ${styles.itemDelete}`}
           disabled={itemCount <= 1}
           onClick={onDelete}
           size="icon-sm"
@@ -56,19 +60,20 @@ export function RubricItemEditor({ item, index, itemCount, onChange, onDelete }:
         </Button>
       </div>
 
-      <details className="group mt-3 border-t border-border-subtle pt-3">
-        <summary className="flex cursor-pointer list-none items-center gap-2 rounded-md text-xs font-semibold text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring [&::-webkit-details-marker]:hidden">
+      <details className={`${styles.criteriaDetails} group`}>
+        <summary className={styles.criteriaSummary}>
           <ChevronDownIcon className="size-4 transition-transform group-open:rotate-180" aria-hidden="true" />
           평가기준 {item.criteria.length}개 편집
         </summary>
-        <div className="mt-3 grid gap-3">
+        <div className={styles.criteriaList}>
           {item.criteria.map((criterion, criterionIndex) => (
             <div
-              className="grid gap-2 rounded-md bg-muted/45 p-3 sm:grid-cols-[72px_minmax(0,1fr)_32px] sm:items-start"
+              className={styles.criterionRow}
               key={`criterion-${criterionIndex}`}
             >
               <Input
                 aria-label={`평가 항목 ${itemNumber} 기준 ${criterionIndex + 1} 점수`}
+                className={styles.scoreInput}
                 max={10}
                 min={0}
                 onChange={(event) => {
@@ -86,6 +91,7 @@ export function RubricItemEditor({ item, index, itemCount, onChange, onDelete }:
               />
               <Textarea
                 aria-label={`평가 항목 ${itemNumber} 기준 ${criterionIndex + 1} 설명`}
+                className={styles.descriptionInput}
                 maxLength={500}
                 onChange={(event) => {
                   const description = event.currentTarget.value
@@ -102,6 +108,7 @@ export function RubricItemEditor({ item, index, itemCount, onChange, onDelete }:
               />
               <Button
                 aria-label={`평가 항목 ${itemNumber} 기준 ${criterionIndex + 1} 삭제`}
+                className={`${styles.deleteButton} ${styles.criterionDelete}`}
                 onClick={() => onChange({
                   ...item,
                   criteria: item.criteria.filter((_, currentIndex) => currentIndex !== criterionIndex),

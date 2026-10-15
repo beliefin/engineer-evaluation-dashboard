@@ -33,7 +33,7 @@ export function DeleteEventDialog({ event, onClose, onDelete }: DeleteEventDialo
 
   return (
     <Dialog open onOpenChange={(open) => { if (!open) onClose() }}>
-      <DialogContent role="alertdialog">
+      <DialogContent className="signal-calendar-delete" role="alertdialog">
         <DialogHeader>
           <DialogTitle>일정을 삭제할까요?</DialogTitle>
           <DialogDescription>

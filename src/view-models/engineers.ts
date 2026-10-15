@@ -13,7 +13,7 @@ import type {
 
 import { selectEngineerResultSummaries } from "./results"
 import { createEngineerEvaluationStory } from "./engineer-story"
-import { formatTimestamp } from "./labels"
+import { displayEvaluationTaskName, formatTimestamp } from "./labels"
 import type { ViewerRanking } from "@/backend/evaluation-backend"
 
 function evaluatorStatus(
@@ -50,7 +50,7 @@ function createEvaluatorScore(
   const base = {
     id: assignment.id,
     evaluatorName: evaluator.displayName,
-    categoryLabel: task.name,
+    categoryLabel: displayEvaluationTaskName(task.name),
     configuredWeight,
     normalizedRatioPercent: (score?.normalizedWeight ?? 0) * 100,
   }
@@ -91,7 +91,7 @@ export function selectEngineerDetail(
     const complete = taskResult?.status === "complete" && taskResult.score !== null && contribution !== null
     const base = {
       key: task.id,
-      label: task.name,
+      label: displayEvaluationTaskName(task.name),
       reflectionRatioPercent: effectiveWeight,
       maxContribution: effectiveWeight,
     }

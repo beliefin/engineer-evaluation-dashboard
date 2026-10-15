@@ -41,7 +41,7 @@ describe("evaluator-facing selectors", () => {
       evaluatorAssignmentIds.size - submittedCount,
     )
     expect(new Set(assignments.map((entry) => entry.categoryLabel))).toEqual(
-      new Set(["성장탐구계획서", "OTS 시나리오 제작", "DX 툴 활용"]),
+      new Set(["성장탐구계획서", "OTS 시나리오 제작", "AX 전환"]),
     )
   })
 

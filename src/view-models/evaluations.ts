@@ -11,7 +11,7 @@ import type {
   EvaluationScoreFormViewModel,
 } from "@/features/evaluations"
 
-import { formatTimestamp } from "./labels"
+import { displayEvaluationTaskName, formatTimestamp } from "./labels"
 
 export type ScoreFormSelectorState = Readonly<{
   autosaveStatus: AutosaveStatus
@@ -138,7 +138,7 @@ export function selectAssignedEvaluations(
         teamName: engineer.team,
         evaluatorId: evaluator.id,
         evaluatorName: evaluator.displayName,
-        categoryLabel: task.name,
+        categoryLabel: displayEvaluationTaskName(task.name),
         cycleLabel: cycle.name,
         status: assignmentStatus(sheet),
         answeredCount: answeredCount(sheet),
@@ -203,7 +203,7 @@ export function selectEvaluationScoreForm(
   return {
     assignmentId,
     cycleLabel: cycle.name,
-    categoryLabel: task.name,
+    categoryLabel: displayEvaluationTaskName(task.name),
     description: task.description,
     method: task.method,
     engineerName: engineer.displayName,

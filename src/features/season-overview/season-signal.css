@@ -1,0 +1,119 @@
+/* OV-01: original copy and view-model values, Signal 15 presentation. */
+.signal-season {min-width:0;color:#1a1a18;background:#fff;--season-line:#bfc1c5;--season-yellow:#e8cf4a}
+.signal-season-hero {display:grid;grid-template-columns:minmax(0,.39fr) minmax(0,.61fr);gap:36px;align-items:start;margin:0 0 24px}
+.signal-season-intro h1 {font-size:clamp(44px,4.18vw,68px);font-weight:900;letter-spacing:-.055em;line-height:1.06;margin:0 0 18px;overflow-wrap:normal;word-break:keep-all}
+.signal-season-intro h1>span {display:block}
+.signal-season-intro h2 {font-size:clamp(21px,1.8vw,28px);font-weight:900;line-height:1.3;letter-spacing:-.035em;margin:0 0 7px;word-break:keep-all}
+.signal-season-description {font-size:16px;line-height:1.5;word-break:keep-all;margin:0}
+.signal-season-period {display:flex;gap:8px 12px;align-items:center;flex-wrap:wrap;margin-top:8px;font-size:18px;line-height:1.5}
+.signal-season-period>span:first-child {display:flex;align-items:center;gap:7px}
+.signal-season-period svg {width:17px;height:17px}
+.signal-season-period [data-slot=badge] {font-size:13px;border:1px solid #1a1a18;padding:3px 6px;color:#1a1a18;background:#fff}
+.signal-season-process ol {display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:32px;margin:0;padding:0;list-style:none}
+.signal-season-process li {position:relative;min-width:0;min-height:244px;border:1px solid #1a1a18;padding:18px 15px;background:#fff}
+.signal-season-process li:first-child {background:var(--season-yellow)}
+.signal-season-step-number {display:block;font-size:40px;font-weight:900;line-height:1;border-bottom:1px solid #1a1a18;padding-bottom:12px;margin-bottom:12px;letter-spacing:-.04em}
+.signal-season-process h3 {font-size:21px;font-weight:900;line-height:1.3;letter-spacing:-.04em;word-break:keep-all;margin:0;min-height:56px}
+.signal-season-process li p {font-size:18px;line-height:1.5;word-break:keep-all;margin:14px 0 0}
+.signal-season-step-arrow {position:absolute;width:24px;height:24px;right:-29px;top:100px;stroke-width:2}
+.signal-season-loop-note {font-size:17px;line-height:1.4;text-align:right;margin:10px 0 0;word-break:keep-all}
+.signal-season-principles {display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:18px;margin-bottom:24px}
+.signal-season-principle {border:1px solid var(--season-line);min-width:0}
+.signal-season-band {display:flex;align-items:center;background:#1a1a18;color:white;font-size:26px;font-weight:850;line-height:1.25;letter-spacing:-.035em;min-height:46px;padding:9px 16px;margin:0}
+.signal-season-principle>div {display:grid;grid-template-columns:66px minmax(0,1fr);min-height:110px}
+.signal-season-principle>div>span {display:flex;align-items:center;justify-content:center;border-right:1px solid var(--season-line);font-size:24px;font-weight:900}
+.signal-season-principle p {align-self:center;margin:0;padding:20px;font-size:19px;line-height:1.45;word-break:keep-all}
+.signal-season-composition {border:1px solid var(--season-line);margin-bottom:28px}
+.signal-season-composition>ol {display:grid;grid-template-columns:repeat(5,minmax(0,1fr));padding:0;margin:0;list-style:none}
+.signal-season-composition>ol>li {display:flex;flex-direction:column;min-width:0;padding:20px 18px 28px;border-right:1px solid var(--season-line)}
+.signal-season-composition>ol>li:last-child {border-right:0}
+.signal-season-composition>ol>li:nth-child(-n+3) {background:var(--season-yellow)}
+.signal-season-component-label {min-height:80px;text-align:center;display:flex;flex-direction:column;justify-content:center}
+.signal-season-component-name {font-size:24px;line-height:1.25;font-weight:900;letter-spacing:-.035em;word-break:keep-all;margin:0}
+.signal-season-options {font-size:16px;line-height:1.5;margin:7px 0 0;word-break:keep-all}
+.signal-season-choice-note {display:block}
+.signal-season-weight {font-size:clamp(52px,5.2vw,80px);line-height:1.1;font-weight:900;letter-spacing:-.05em;margin:14px 0 0;border-top:1px solid var(--season-line);padding-top:20px;text-align:center}
+.signal-season-composition>ol>li:nth-child(-n+3) .signal-season-weight {border-color:#1a1a18}
+.signal-season-total {position:relative;background:#efefed;border-top:1px solid var(--season-line);padding:12px 24px}
+.signal-season-total-label {display:flex;justify-content:space-between;align-items:center;gap:18px;font-size:20px;font-weight:850;margin:0;line-height:1.3}
+.signal-season-total-label strong {font-size:30px;font-weight:900}
+.signal-season-equation {position:absolute;right:160px;top:50%;transform:translateY(-50%);display:flex;align-items:center;gap:8px;font-size:16px;margin:0}
+.signal-season-equation svg {width:16px;height:16px}
+.signal-season-choice-rule {padding:10px 18px;margin:0;border-top:1px solid var(--season-line);font-size:16px;line-height:1.5}
+@media (min-width:768px) and (max-width:1200px) {
+ .signal-season-hero {grid-template-columns:1fr;gap:20px}
+ .signal-season-intro h1 {font-size:56px}
+ .signal-season-intro h1>span {display:inline}
+ .signal-season-intro h1>span+span::before {content:' '}
+ .signal-season-process li {min-height:210px}
+ .signal-season-principle p {font-size:17px;padding:14px}
+ .signal-season-band {font-size:22px}
+ .signal-season-component-name {font-size:20px}
+ .signal-season-options {font-size:16px}
+}
+@media (max-width:767px) {
+ .signal-season-hero {display:block;margin-bottom:24px}
+ .signal-season-intro h1 {font-size:clamp(40px,12vw,60px);line-height:1.06;letter-spacing:-.05em;margin-bottom:18px}
+ .signal-season-intro h2 {font-size:22px;line-height:1.35;margin-bottom:10px}
+ .signal-season-description {font-size:16px;line-height:1.5}
+ .signal-season-period {font-size:16px;line-height:1.5;margin:14px 0 20px}
+ .signal-season-period [data-slot=badge] {font-size:14px}
+ .signal-season-process ol {display:grid;grid-template-columns:1fr;gap:8px}
+ .signal-season-process li {display:grid;grid-template-columns:62px minmax(0,1fr);min-height:104px;gap:14px;align-items:center;padding:14px 12px}
+ .signal-season-step-number {font-size:36px;border-bottom:0;border-right:1px solid #1a1a18;margin:0;padding:10px 12px 10px 0;text-align:center}
+ .signal-season-process h3 {font-size:21px;line-height:1.3;min-height:0}
+ .signal-season-process li p {font-size:16px;line-height:1.5;margin-top:5px}
+ .signal-season-step-arrow {display:none}
+ .signal-season-loop-note {font-size:16px;line-height:1.5;text-align:left;margin-top:12px;font-weight:700}
+ .signal-season-principles {grid-template-columns:1fr;gap:12px;margin-bottom:24px}
+ .signal-season-band {font-size:23px;line-height:1.3;min-height:46px;padding:10px 14px}
+ .signal-season-principle>div {display:block;min-height:0}
+ .signal-season-principle>div>span {display:none}
+ .signal-season-principle p {font-size:17px;line-height:1.5;padding:16px 14px}
+ .signal-season-composition>ol {grid-template-columns:1fr}
+ .signal-season-composition>ol>li {display:grid;grid-template-columns:minmax(0,1fr) 92px;padding:0;border-right:0;border-bottom:1px solid var(--season-line)}
+ .signal-season-composition>ol>li:last-child {border-bottom:0}
+ .signal-season-component-label {text-align:left;align-items:start;min-height:65px;padding:14px 12px}
+ .signal-season-component-name {font-size:21px;line-height:1.3}
+ .signal-season-options {font-size:16px;line-height:1.5;margin-top:8px}
+ .signal-season-weight {display:flex;align-items:center;justify-content:center;font-size:36px;border-top:0;border-left:1px solid var(--season-line);padding:12px 6px;margin:0;letter-spacing:-.04em}
+ .signal-season-composition>ol>li:nth-child(-n+3) .signal-season-weight {border-color:var(--season-line)}
+ .signal-season-total {padding:14px 12px}
+ .signal-season-total-label {font-size:18px}
+ .signal-season-total-label strong {font-size:30px}
+ .signal-season-equation {position:static;transform:none;font-size:16px;flex-wrap:wrap;gap:6px;margin-top:10px}
+ .signal-season-choice-rule {font-size:16px;padding:12px;word-break:keep-all}
+}
+@media (prefers-reduced-motion:reduce) {.signal-season * {scroll-behavior:auto}}
+/* OV03 shared role-guide tail: preserve original descriptions and applicability. */
+.signal-season-outcome { min-width: 0; border: 1px solid #bfc1c5; border-top: 4px solid #1a1a18; background: #fff; color: #1a1a18; }
+.signal-season-outcome-grid { display: grid; grid-template-columns: minmax(0, .82fr) minmax(0, 1.18fr); }
+.signal-season-outcome-copy { min-width: 0; padding: 30px 28px; border-right: 1px solid #bfc1c5; background: #e8cf4a; }
+.signal-season-outcome-eyebrow { margin: 0; font-size: 16px; line-height: 1.5; font-weight: 800; font-variant-numeric: tabular-nums; }
+.signal-season-outcome-title { margin: 10px 0 0; font-size: clamp(28px, 2.25vw, 36px); font-weight: 900; line-height: 1.25; letter-spacing: -.04em; word-break: keep-all; overflow-wrap: anywhere; }
+.signal-season-outcome-description { margin: 18px 0 0; font-size: 18px; line-height: 1.65; word-break: keep-all; overflow-wrap: anywhere; }
+.signal-season-outcome-summary { display: flex; align-items: flex-start; gap: 10px; margin: 24px 0 0; padding: 12px 14px; border: 1px solid #1a1a18; font-size: 16px; font-weight: 750; line-height: 1.5; word-break: keep-all; overflow-wrap: anywhere; }
+.signal-season-outcome-summary svg { flex: 0 0 20px; width: 20px; height: 20px; margin-top: 2px; }
+.signal-season-roles { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); min-width: 0; }
+.signal-season-role { min-width: 0; padding: 30px 22px; border-right: 1px solid #bfc1c5; }
+.signal-season-role:last-child { border-right: 0; }
+.signal-season-role-icon { width: 28px; height: 28px; color: #1a1a18; }
+.signal-season-role-title { margin: 24px 0 0; font-size: 24px; font-weight: 850; line-height: 1.3; letter-spacing: -.03em; }
+.signal-season-role-description { margin: 12px 0 0; font-size: 16px; line-height: 1.65; word-break: keep-all; overflow-wrap: anywhere; }
+@media (max-width: 1100px) {
+ .signal-season-outcome-grid { grid-template-columns: minmax(0, 1fr); }
+ .signal-season-outcome-copy { border-right: 0; border-bottom: 1px solid #bfc1c5; }
+ .signal-season-role { padding: 24px 20px; }
+}
+@media (max-width: 639px) {
+ .signal-season-outcome-copy { padding: 22px 16px; }
+ .signal-season-outcome-title { font-size: 28px; }
+ .signal-season-outcome-description { font-size: 16px; }
+ .signal-season-outcome-summary { margin-top: 20px; padding: 12px; }
+ .signal-season-roles { grid-template-columns: minmax(0, 1fr); }
+ .signal-season-role { display: grid; grid-template-columns: 32px minmax(0, 1fr); gap: 8px 12px; padding: 20px 16px; border-right: 0; border-bottom: 1px solid #bfc1c5; }
+ .signal-season-role:last-child { border-bottom: 0; }
+ .signal-season-role-icon { grid-row: 1 / 3; margin-top: 1px; }
+ .signal-season-role-title { margin: 0; font-size: 22px; }
+ .signal-season-role-description { grid-column: 2; margin: 0; font-size: 16px; }
+}

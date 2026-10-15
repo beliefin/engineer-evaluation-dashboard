@@ -1,0 +1,161 @@
+/* Print-only presentation: no score, filter, disclosure or persistence mutation.
+   A4 uses the current rendered analysis values and fits wide visualizations. */
+@media print {
+  .signal-shell > a[href="#main-content"],
+  .signal-analysis-page [data-horizontal-scroll-controls],
+  .signal-analysis-page-heading a,
+  .signal-relative-header button,
+  .signal-relative-tooltip,
+  .signal-analysis-page details:not([open]),
+  .signal-analysis-page details > summary,
+  .signal-analysis-team-matrix > section > div > p:first-child {
+    display: none !important;
+  }
+
+  .signal-analysis-page {
+    width: 100%;
+    min-width: 0;
+    color-adjust: exact;
+    print-color-adjust: exact;
+  }
+
+  /* Fragment long panels normally, while keeping chart/row atoms together. */
+  .signal-analysis-page :is(.signal-relative-workspace, .signal-analysis-summary-grid,
+    .signal-analysis-reliability-charts, .signal-qualification-panels,
+    .signal-comparison-workspace),
+  .signal-analysis-page .grid:has(> .signal-detail-panel) {
+    display: block !important;
+  }
+  .signal-analysis-page :is(.signal-relative-main, .signal-detail-panel > section) {
+    height: auto !important;
+  }
+  .signal-analysis-page :is(header, h2, h3, .signal-relative-band-heading) {
+    break-after: avoid-page;
+    page-break-after: avoid;
+  }
+  .signal-analysis-page :is(.signal-relative-main, .signal-analysis-quadrant,
+    .signal-analysis-distribution-row, .signal-analysis-completion-row,
+    .signal-analysis-completion-axis-row, .signal-detail-bars,
+    .signal-detail-task, .signal-analysis-rank-sensitivity li,
+    .signal-analysis-insights, .signal-qualification-metrics,
+    .signal-comparison-roster label, tr) {
+    break-inside: avoid-page;
+    page-break-inside: avoid;
+  }
+  /* Keep each evaluator diagnosis with its own score row. */
+  .signal-analysis-page .signal-comparison-calibration li {
+    break-inside: avoid-page;
+    page-break-inside: avoid;
+  }
+  /* Recharts may retain pre-print pixel dimensions. Fit its SVG viewBox too,
+     rather than only fitting the outer responsive container. */
+  /* Its percentage-sized responsive container has an inline zero-width shim.
+     Give the printed wrapper a nonzero containing block, leaving height alone. */
+  .signal-analysis-page .signal-detail-task .recharts-responsive-container > div {
+    width: 100% !important;
+  }
+  .signal-analysis-page .signal-detail-task .recharts-wrapper {
+    width: 100% !important;
+    max-width: 100% !important;
+  }
+  .signal-analysis-page .signal-detail-task .recharts-surface {
+    display: block;
+    width: 100% !important;
+    max-width: 100% !important;
+    height: auto !important;
+  }
+  .signal-analysis-page .signal-detail-panel { margin-top: 16px; }
+  .signal-analysis-page .signal-relative-main:has(details[open]) {
+    break-inside: auto;
+    page-break-inside: auto;
+  }
+  .signal-analysis-page .signal-detail-task [data-slot="chart"] {
+    width: 100% !important;
+    min-width: 0 !important;
+    /* Keep the original rubric viewport within A4 instead of scaling 1402px
+       down to paper and shrinking the unchanged 11px value labels below 4pt. */
+    max-width: 640px !important;
+  }
+
+  /* Screen scroll minima must not crop the right edge of the printed page. */
+  .signal-analysis-page :is([id^="horizontal-scroll-"],
+    .signal-relative-chart-scroll, .signal-analysis-scroll,
+    .signal-analysis-residual-scroll, .signal-detail-scroll,
+    .signal-qualification-scroll, .signal-comparison-observation-scroll) {
+    overflow: visible !important;
+    width: 100% !important;
+    min-width: 0 !important;
+    max-width: 100% !important;
+    max-height: none !important;
+  }
+  .signal-analysis-page :is(.signal-relative-svg, .signal-analysis-quadrant-svg) {
+    display: block;
+    width: 100% !important;
+    min-width: 0 !important;
+    max-width: 100% !important;
+    height: auto !important;
+  }
+  .signal-analysis-page :is(.signal-analysis-distribution-rows,
+    .signal-analysis-completion-rows, .signal-detail-bars,
+    .signal-comparison-roster, .signal-comparison-roster ul, .signal-relative-roster) {
+    min-width: 0 !important;
+    max-height: none !important;
+    overflow: visible !important;
+  }
+
+  .signal-analysis-page table {
+    width: 100% !important;
+    min-width: 0 !important;
+    table-layout: fixed;
+    border-collapse: collapse;
+  }
+  .signal-analysis-page thead { display: table-header-group; }
+  .signal-analysis-page tfoot { display: table-footer-group; }
+  .signal-analysis-page :is(th, td) {
+    position: static !important;
+    min-width: 0 !important;
+    max-width: none !important;
+    padding: 6px !important;
+    white-space: normal !important;
+    overflow-wrap: anywhere;
+    font-size: 9pt !important;
+    line-height: 1.35;
+  }
+  .signal-analysis-page .signal-analysis-team-table :is(th, td) span {
+    font-size: 9pt !important;
+    white-space: normal !important;
+  }
+  .signal-analysis-page .signal-analysis-team-table tbody td > span:first-child {
+    font-size: 11pt !important;
+  }
+  .signal-analysis-page .signal-qualification-scroll :is(th, td):not(:first-child) {
+    white-space: nowrap !important;
+  }
+  .signal-analysis-page .signal-qualification-scroll col:nth-child(n+2) { width: 64px; }
+
+  .signal-analysis-page-heading h1 { font-size: 28px !important; }
+  .signal-analysis-page .signal-relative-header { padding-bottom: 10px; }
+  .signal-analysis-page .signal-relative-header h2 { font-size: 26px; }
+  .signal-analysis-page .signal-relative-header p { font-size: 13px !important; }
+  .signal-analysis-page .signal-relative-metrics { grid-template-columns: repeat(4, minmax(0, 1fr)); margin-top: 10px; }
+  .signal-analysis-page .signal-relative-metrics dt { font-size: 13px; padding: 5px; }
+  .signal-analysis-page .signal-relative-metrics dd { font-size: 22px; padding: 7px; }
+  .signal-analysis-page .signal-relative-notices > p { font-size: 12px; padding: 5px 8px; }
+  .signal-analysis-page .signal-relative-chart { padding: 8px; }
+  .signal-analysis-page .signal-relative-band-heading { font-size: 17px; padding: 8px; }
+  .signal-analysis-page .signal-relative-legend { font-size: 12px; gap: 8px 14px; }
+  .signal-analysis-page .signal-analysis-distribution-row { grid-template-columns: 140px minmax(0, 1fr); }
+  .signal-analysis-page .signal-analysis-distribution-mark > p { white-space: normal; }
+  .signal-analysis-page :is(.signal-analysis-completion-axis-row, .signal-analysis-completion-row) {
+    grid-template-columns: 140px minmax(0, 1fr) 64px 86px;
+    font-size: 13px;
+    min-height: 46px;
+  }
+  .signal-analysis-page .signal-detail-bar-axis > span,
+  .signal-analysis-page .signal-analysis-completion-axis > span {
+    width: max-content;
+    white-space: nowrap;
+  }
+  .signal-analysis-page .signal-detail-zero { min-height: 84px; padding: 16px; }
+  .signal-analysis-page .signal-detail-zero p:first-child { font-size: 20px; }
+}

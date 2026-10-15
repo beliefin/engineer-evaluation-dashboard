@@ -1,4 +1,4 @@
-import { render, within } from "@testing-library/react"
+import { render, waitFor, within } from "@testing-library/react"
 import userEvent from "@testing-library/user-event"
 import { describe, expect, it, vi } from "vitest"
 
@@ -62,7 +62,8 @@ describe("completed ranking sorting", () => {
 
     await user.click(within(view.container).getByRole("button", { name: "순위 대상 관리" }))
     await user.click(within(document.body).getByRole("checkbox", { name: "가상 엔지니어 고득점 순위 포함" }))
-    await user.click(within(document.body).getByRole("button", { name: "확인" }))
+    await user.click(within(document.body).getByRole("button", { name: "선택 저장" }))
+    await waitFor(() => expect(document.body.querySelector('[role="dialog"]')).not.toBeInTheDocument())
 
     const table = within(view.container).getByRole("table")
     expect(within(table).queryByText("가상 엔지니어 고득점")).not.toBeInTheDocument()

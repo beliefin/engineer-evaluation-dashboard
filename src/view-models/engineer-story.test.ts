@@ -160,6 +160,35 @@ describe("createEngineerEvaluationStory", () => {
     })
   })
 
+  it("uses linear-interpolated quartiles for confirmed zero-inclusive scores and preserves ties", () => {
+    const story = createEngineerEvaluationStory(
+      [0, 20, 40, 60].map((score, index) => summary(`engineer-${index}`, score, { taskA: score })),
+      "engineer-0",
+      [category("taskA", "Task A", 0)],
+    )
+
+    expect(story.taskComparisons[0]?.distribution).toEqual({
+      minimum: 0,
+      firstQuartile: 15,
+      median: 30,
+      thirdQuartile: 45,
+      maximum: 60,
+    })
+
+    const tied = createEngineerEvaluationStory(
+      [70, 70, 70].map((score, index) => summary(`tied-${index}`, score, { taskA: score })),
+      "tied-0",
+      [category("taskA", "Task A", 70)],
+    )
+    expect(tied.taskComparisons[0]?.distribution).toEqual({
+      minimum: 70,
+      firstQuartile: 70,
+      median: 70,
+      thirdQuartile: 70,
+      maximum: 70,
+    })
+  })
+
   it("uses the server-projected full-cohort rank for an engineer-only snapshot", () => {
     const story = createEngineerEvaluationStory(
       [summary("target", 72, { taskA: 72 })],

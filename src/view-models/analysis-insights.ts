@@ -7,6 +7,8 @@ import type {
   TeamTaskPerformanceDatum,
 } from "@/features/analysis"
 
+import { displayEvaluationTaskName } from "./labels"
+
 import {
   averageScore,
   normalizeAnalysisFilters,
@@ -82,7 +84,7 @@ export function selectTaskScoreDistributions(
       ? []
       : [{
           taskId: task.id,
-          taskLabel: task.name,
+          taskLabel: displayEvaluationTaskName(task.name),
           ...distribution,
           completedCount: values.length,
         }]
@@ -108,7 +110,7 @@ export function selectTaskCompletionRates(
     const eligibleCount = eligibleSummaries.length
     return {
       taskId: task.id,
-      taskLabel: task.name,
+      taskLabel: displayEvaluationTaskName(task.name),
       completedCount,
       eligibleCount,
       completionRate: eligibleCount === 0
@@ -151,7 +153,7 @@ export function selectTeamTaskPerformance(
         teamId: team,
         teamLabel: team,
         taskId: task.id,
-        taskLabel: task.name,
+        taskLabel: displayEvaluationTaskName(task.name),
         metric: task.method === "evaluator_pass_fail" || task.method === "operator_pass_fail"
           ? "pass-rate"
           : "score",

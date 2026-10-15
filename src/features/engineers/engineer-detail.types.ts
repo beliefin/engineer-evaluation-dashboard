@@ -106,6 +106,13 @@ export type EngineerTaskComparisonViewModel = Readonly<{
   averageScore: number
   topQuartileAverage: number
   sampleSize: number
+  distribution: Readonly<{
+    minimum: number
+    firstQuartile: number
+    median: number
+    thirdQuartile: number
+    maximum: number
+  }> | null
 }>
 
 export type EngineerEvaluationStoryViewModel = Readonly<{

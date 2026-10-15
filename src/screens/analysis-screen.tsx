@@ -1,6 +1,7 @@
 "use client"
 
 import Link from "next/link"
+import "@/features/analysis/analysis-navigation-signal.css"
 import { usePathname, useRouter, useSearchParams } from "next/navigation"
 
 import { ErrorState, PageHeader } from "@/components/shared"
@@ -11,7 +12,7 @@ import {
   type AnalysisFilterKey,
   type AnalysisFilterState,
 } from "@/features/analysis"
-import { useEvaluation } from "@/providers"
+import { useAuth, useEvaluation } from "@/providers"
 import { selectAnalysisViewModel } from "@/view-models/analysis"
 import { selectRelativeRankingCandidates } from "@/view-models/relative-ranking"
 
@@ -20,6 +21,7 @@ export function AnalysisScreen() {
   const router = useRouter()
   const searchParams = useSearchParams()
   const { snapshot, activeCycleId, backendMode, role, canViewInsights } = useEvaluation()
+  const { session } = useAuth()
   if (snapshot === null) return null
 
   const requestedFilters: AnalysisFilterState = {
@@ -50,8 +52,9 @@ export function AnalysisScreen() {
   }
 
   return (
-    <div className="space-y-6">
+    <div className="signal-analysis-page space-y-6">
       <PageHeader
+        className="signal-analysis-page-heading"
         actions={role === "operator" || role === "approver" ||
           (role === "evaluator" && canViewInsights) ? (
           <Button asChild variant="outline">
@@ -63,7 +66,9 @@ export function AnalysisScreen() {
         title="평가 항목 분석"
       />
       <RelativeRankingSection
-        key={activeCycleId}
+        accountId={session?.id ?? "anonymous"}
+        cycleId={activeCycleId}
+        key={`${session?.id ?? "anonymous"}:${activeCycleId}`}
         candidates={relativeRankingCandidates}
         seasonLabel={activeCycle?.name ?? "선택 평가 시즌"}
       />

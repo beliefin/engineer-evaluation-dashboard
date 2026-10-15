@@ -1,5 +1,7 @@
 import type { EvaluationSnapshot } from "@/domain"
 
+import { displayEvaluationTaskName } from "./labels"
+
 export type ScheduledEvaluationView = Readonly<{
   eventId: string
   assignmentId: string
@@ -54,7 +56,7 @@ export function selectScheduledEvaluations(
         engineerName: engineer.displayName,
         team: engineer.team,
         taskId: task.id,
-        taskName: task.name,
+        taskName: displayEvaluationTaskName(task.name),
         title: event.title,
         date: event.date,
         startTime: event.startTime,

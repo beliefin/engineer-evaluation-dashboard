@@ -1,3 +1,5 @@
+import "./signal-states.css"
+
 import type { ReactNode } from "react"
 import { CircleAlert } from "lucide-react"
 
@@ -21,7 +23,7 @@ function ErrorState({
     <Alert
       variant="destructive"
       className={cn(
-        "min-h-36 grid-cols-[auto_1fr] items-start border-destructive/20 bg-danger-soft p-4",
+        "signal-error-state min-h-36 grid-cols-[auto_1fr] items-start border-destructive/20 bg-danger-soft p-4",
         className
       )}
     >

@@ -22,6 +22,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select"
+import styles from "./configuration-signal.module.css"
 
 import type {
   EvaluationCycleSettingsDraft,
@@ -90,7 +91,7 @@ export function CycleSettingsDialog({
           설정 수정
         </Button>
       </DialogTrigger>
-      <DialogContent className="sm:max-w-xl">
+      <DialogContent className={`${styles.configurationDialog} sm:max-w-xl`}>
         <form onSubmit={handleSubmit}>
           <DialogHeader>
             <DialogTitle>평가 시즌 설정 수정</DialogTitle>
