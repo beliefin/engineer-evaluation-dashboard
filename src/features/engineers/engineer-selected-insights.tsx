@@ -93,7 +93,7 @@ function Distribution({ point }: Readonly<{ point: EngineerEvaluationStoryViewMo
         <span className={styles.range} style={{ left: position(distribution.minimum), width: `calc(${position(distribution.maximum)} - ${position(distribution.minimum)})` }} />
         <span className={styles.interquartile} style={{ left: position(distribution.firstQuartile), width: `calc(${position(distribution.thirdQuartile)} - ${position(distribution.firstQuartile)})` }} />
         <span className={styles.median} style={{ left: position(distribution.median) }} />
-        {point.ownScore === null ? null : <span className={styles.ownMarker} style={{ left: position(point.ownScore) }}><i />내</span>}
+        {point.ownScore === null ? null : <span aria-hidden="true" className={styles.ownMarker} style={{ left: position(point.ownScore) }} />}
       </div>
       <p>최소 {score(distribution.minimum)} · 중앙값 {score(distribution.median)} · 최대 {score(distribution.maximum)} / 0–{maximum}점</p>
     </li>
@@ -107,20 +107,24 @@ export function EngineerSelectedInsights({ categories, story }: Readonly<{
   return (
     <section className={styles.root} aria-label="개인 평가 분석">
       <section className={styles.panel} aria-labelledby="individual-profile-title">
-        <header><p>PERSONAL PROFILE</p><h2 id="individual-profile-title">개인 역량 프로필</h2><span>확정 점수와 동일 과제 완료자 평균을 같은 축에서 비교</span></header>
+        <header><h2 id="individual-profile-title">개인 역량 프로필</h2></header>
+        <p className={styles.caption}>확정 점수와 동일 과제 완료자 평균을 같은 축에서 비교</p>
         <RadarProfile story={story} />
       </section>
       <section className={styles.panel} aria-labelledby="task-distribution-title">
-        <header><p>FIELD DISTRIBUTION</p><h2 id="task-distribution-title">분야별 분포와 내 위치</h2><span>동일 시즌·과제·평가 방식의 확정 점수만 사용</span></header>
+        <header><h2 id="task-distribution-title">분야별 점수 분포</h2></header>
+        <p className={styles.caption}>동일 시즌·과제·평가 방식의 확정 점수만 사용</p>
         <ul className={styles.rows}>{story.taskComparisons.map((point) => <Distribution key={point.key} point={point} />)}</ul>
       </section>
       <section className={styles.panel} aria-labelledby="contribution-title">
-        <header><p>FINAL SCORE CONTRIBUTION</p><h2 id="contribution-title">항목별 최종 점수 기여도</h2><span>기존 최종 산식의 항목별 결과를 그대로 표시</span></header>
+        <header><h2 id="contribution-title">항목별 최종 점수 기여도</h2></header>
+        <p className={styles.caption}>기존 최종 산식의 항목별 결과를 그대로 표시</p>
         <ul className={styles.rows}>{categories.map((category) => <Contribution key={category.key} category={category} />)}</ul>
         <p className={styles.note}>합산 전 기여도입니다. 가감점과 최종 상한 적용 전후 차이는 최종 점수 영역에서 별도로 확인합니다.</p>
       </section>
       <section className={styles.panel} aria-labelledby="average-difference-title">
-        <header><p>AVERAGE DIFFERENCE</p><h2 id="average-difference-title">평균 대비 차이</h2><span>비교집단과 분모를 항목마다 명시</span></header>
+        <header><h2 id="average-difference-title">평균 대비 차이</h2></header>
+        <p className={styles.caption}>비교집단과 분모를 항목마다 명시</p>
         <ul className={styles.rows}>{story.taskComparisons.map((point) => <Difference key={point.key} point={point} />)}</ul>
       </section>
     </section>

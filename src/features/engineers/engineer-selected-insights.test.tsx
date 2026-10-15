@@ -34,7 +34,7 @@ describe("EngineerSelectedInsights", () => {
     render(<EngineerSelectedInsights categories={categories} story={story} />)
 
     expect(screen.getByRole("heading", { name: "개인 역량 프로필" })).toBeInTheDocument()
-    expect(screen.getByRole("heading", { name: "분야별 분포와 내 위치" })).toBeInTheDocument()
+    expect(screen.getByRole("heading", { name: "분야별 점수 분포" })).toBeInTheDocument()
     expect(screen.getByRole("heading", { name: "항목별 최종 점수 기여도" })).toBeInTheDocument()
     expect(screen.getByRole("heading", { name: "평균 대비 차이" })).toBeInTheDocument()
     expect(screen.getByText("28.00 / 35.00점")).toBeInTheDocument()
