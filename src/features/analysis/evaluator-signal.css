@@ -1,0 +1,72 @@
+/* ER-01: present original evaluator evidence without changing its interpretation. */
+.signal-evaluator-page {min-width:0;color:#1a1a18}
+.signal-evaluator-heading {padding-bottom:30px;gap:20px}
+.signal-evaluator-heading>div:first-child {display:flex;flex-direction:column;min-width:0}
+.signal-evaluator-heading h1 {order:0;font-size:clamp(32px,3.7vw,58px);font-weight:900;line-height:1.12;letter-spacing:-.045em;word-break:keep-all}
+.signal-evaluator-heading>div:first-child>div {order:1;font-size:18px;line-height:1.5;letter-spacing:-.02em;margin:12px 0 0;color:#555}
+.signal-evaluator-heading>div:first-child>p {order:2;font-size:16px;line-height:1.5;max-width:none;margin-top:8px;color:#555}
+.signal-evaluator-heading a {min-height:48px;border:1px solid #1a1a18;font-size:17px;font-weight:750;padding:12px 22px;background:white;color:#1a1a18}
+.signal-evaluator-selector {margin:0 0 26px}
+.signal-evaluator-selector-content {display:grid;grid-template-columns:150px minmax(0,1fr);column-gap:22px;align-items:center}
+.signal-evaluator-selector-label {grid-column:1;grid-row:1;font-size:22px;font-weight:850;line-height:1.3}
+.signal-evaluator-select {grid-column:2;grid-row:1;width:100%;min-width:0;min-height:60px;border:1px solid #1a1a18;background:#fff;color:#1a1a18;border-radius:0;padding:12px 18px;font-size:23px;font-weight:750;line-height:1.4}
+.signal-evaluator-selector-help {grid-column:2;grid-row:2;font-size:16px;line-height:1.5;margin:8px 0 0;color:#555}
+.signal-evaluator-summary {min-width:0;display:grid;gap:22px;margin-bottom:24px}
+.signal-evaluator-identity,.signal-evaluator-characteristics {min-width:0;border:1px solid #bfc1c5;background:#fff}
+.signal-evaluator-band {display:flex;align-items:center;justify-content:space-between;gap:22px;padding:10px 20px;min-height:49px;background:#1a1a18;color:#fff;font-size:27px;font-weight:850;line-height:1.25;letter-spacing:-.035em;margin:0}
+.signal-evaluator-metric-layout {display:grid;grid-template-columns:minmax(0,1.05fr) minmax(0,5fr);padding:26px 0}
+.signal-evaluator-person {min-width:0;padding:0 22px;border-right:1px solid #858585}
+.signal-evaluator-person-name {font-size:28px;font-weight:900;line-height:1.25;letter-spacing:-.04em;word-break:keep-all;margin:2px 0 10px}
+.signal-evaluator-person-meta,.signal-evaluator-cycle-name {font-size:17px;line-height:1.5;word-break:keep-all;margin:0}
+.signal-evaluator-cycle-name {margin-top:6px}
+.signal-evaluator-metrics {min-width:0;display:grid;grid-template-columns:repeat(5,minmax(0,1fr));margin:0}
+.signal-evaluator-metric {min-width:0;display:flex;flex-direction:column;align-items:center;justify-content:space-between;text-align:center;padding:0 16px;border-right:1px solid #858585}
+.signal-evaluator-metric:last-child {border-right:0}
+.signal-evaluator-metric dt {font-size:20px;font-weight:800;line-height:1.35;word-break:keep-all}
+.signal-evaluator-metric dd {font-size:clamp(32px,3.6vw,56px);font-weight:900;letter-spacing:-.05em;line-height:1.15;margin:16px 0;word-break:keep-all}
+.signal-evaluator-metric dd.signal-evaluator-value-text {font-size:26px;line-height:1.3}
+.signal-evaluator-metric p {font-size:16px;line-height:1.4;margin:0;word-break:keep-all}
+.signal-evaluator-characteristics-title {font-size:27px;font-weight:850;line-height:1.25;flex:none;margin:0}
+.signal-evaluator-characteristics-note {font-size:16px;font-weight:450;line-height:1.5;margin:0;text-align:right;word-break:keep-all;letter-spacing:-.02em}
+.signal-evaluator-characteristic-list {display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px 12px;margin:0;padding:12px 20px 16px;list-style:none}
+.signal-evaluator-characteristic {display:flex;align-items:center;gap:22px;border:1px solid #9a9a9a;min-width:0;min-height:84px;padding:8px 14px 8px 10px;font-size:18px;font-weight:650;line-height:1.5;word-break:keep-all}
+.signal-evaluator-characteristic-number {display:flex;align-items:center;justify-content:center;flex:none;width:68px;min-height:66px;background:#e8cf4a;color:#1a1a18;font-size:31px;font-weight:900;letter-spacing:-.05em}
+@media (min-width:768px) and (max-width:1100px) {
+ .signal-evaluator-metric-layout {grid-template-columns:1fr;padding-top:0}
+ .signal-evaluator-person {display:flex;align-items:center;justify-content:space-between;gap:18px;padding:20px;border-right:0;border-bottom:1px solid #bfc1c5;margin-bottom:22px}
+ .signal-evaluator-person-name {font-size:26px}
+ .signal-evaluator-metric dd {font-size:36px}
+ .signal-evaluator-metric dt {font-size:17px}
+ .signal-evaluator-characteristics .signal-evaluator-band {align-items:start}
+ .signal-evaluator-characteristic-list {grid-template-columns:1fr}
+}
+@media (max-width:767px) {
+ .signal-evaluator-heading {padding-bottom:24px;gap:16px}
+ .signal-evaluator-heading h1 {font-size:38px}
+ .signal-evaluator-heading>div:first-child>div {font-size:16px}
+ .signal-evaluator-heading>div:first-child>p {font-size:16px}
+ .signal-evaluator-heading a {min-height:44px;font-size:16px;padding:10px 16px}
+ .signal-evaluator-selector-content {display:flex;flex-direction:column;align-items:stretch;gap:10px}
+ .signal-evaluator-selector-label {font-size:20px;order:0}
+ .signal-evaluator-select {min-height:48px;font-size:16px;padding:10px;order:1}
+ .signal-evaluator-selector-help {font-size:16px;margin:0;order:2}
+ .signal-evaluator-band {font-size:23px;padding:10px 14px}
+ .signal-evaluator-metric-layout {display:block;padding:0}
+ .signal-evaluator-person {border-right:0;border-bottom:1px solid #bfc1c5;padding:18px 14px}
+ .signal-evaluator-person-name {font-size:28px}
+ .signal-evaluator-person-meta,.signal-evaluator-cycle-name {font-size:16px}
+ .signal-evaluator-metrics {grid-template-columns:repeat(2,minmax(0,1fr))}
+ .signal-evaluator-metric {padding:18px 12px;border-right:0;border-bottom:1px solid #bfc1c5;gap:0}
+ .signal-evaluator-metric:nth-child(odd) {border-right:1px solid #bfc1c5}
+ .signal-evaluator-metric:last-child {grid-column:1/-1;border:0}
+ .signal-evaluator-metric dt {font-size:18px}
+ .signal-evaluator-metric dd {font-size:40px;margin:12px 0}
+ .signal-evaluator-metric dd.signal-evaluator-value-text {font-size:25px}
+ .signal-evaluator-metric p {font-size:16px}
+ .signal-evaluator-characteristics .signal-evaluator-band {display:block}
+ .signal-evaluator-characteristics-title {font-size:23px}
+ .signal-evaluator-characteristics-note {text-align:left;margin-top:10px;font-size:16px}
+ .signal-evaluator-characteristic-list {grid-template-columns:1fr;padding:12px;gap:10px}
+ .signal-evaluator-characteristic {gap:12px;align-items:start;font-size:16px;padding:10px;line-height:1.5}
+ .signal-evaluator-characteristic-number {width:42px;min-height:44px;font-size:25px}
+}

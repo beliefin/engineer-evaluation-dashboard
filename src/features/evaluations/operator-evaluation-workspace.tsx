@@ -14,6 +14,8 @@ import {
   SelectValue,
 } from "@/components/ui/select"
 
+import "./operator-entry-signal.css"
+
 import type { AssignedEvaluationViewModel } from "./types"
 
 export type OperatorEngineerOption = Readonly<{
@@ -70,14 +72,10 @@ export function OperatorEvaluationWorkspace({
   const selectedEngineer = engineers.find((engineer) => engineer.id === engineerId)
 
   return (
-    <section className="overflow-hidden rounded-lg border bg-card" aria-labelledby="operator-entry-title">
-      <header className="border-b px-4 py-4 sm:px-5">
-        <h2 className="text-lg font-semibold" id="operator-entry-title">엔지니어별 평가 입력</h2>
-        <p className="mt-1 text-sm text-muted-foreground">엔지니어 선택 후 배정 과제·평가자별 점수 대리 입력</p>
-      </header>
-      <div className="grid lg:grid-cols-[18rem_minmax(0,1fr)]">
-        <aside className="border-b lg:border-r lg:border-b-0" aria-label="엔지니어 목록">
-          <div className="border-b p-3">
+    <section className="signal-operator-workspace overflow-hidden rounded-lg border bg-card" aria-labelledby="operator-entry-title">
+      <div className="signal-operator-grid grid lg:grid-cols-[18rem_minmax(0,1fr)]">
+        <aside className="signal-operator-roster border-b lg:border-r lg:border-b-0" aria-label="엔지니어 목록">
+          <div className="border-b p-3"><h3>엔지니어 목록 ({engineers.length}명)</h3>
             <div className="relative">
               <Search aria-hidden="true" className="absolute top-1/2 left-3 size-4 -translate-y-1/2 text-muted-foreground" />
               <label className="sr-only" htmlFor="operator-engineer-search">엔지니어 검색</label>
@@ -91,30 +89,34 @@ export function OperatorEvaluationWorkspace({
               />
             </div>
           </div>
-          <div className="max-h-72 overflow-y-auto lg:max-h-[70dvh]">
+          <div className="signal-operator-columns" aria-hidden="true"><span>이름</span><span>사번</span><span>소속 팀</span><span>평가 배정 수</span></div>
+          <div className="signal-operator-people max-h-72 overflow-y-auto lg:max-h-[70dvh]">
             {visibleEngineers.map((engineer) => {
               const count = assignments.filter((entry) => entry.engineerId === engineer.id).length
               const selected = engineer.id === engineerId
               return (
                 <button
                   aria-pressed={selected}
-                  className={`flex w-full items-center gap-3 border-l-2 px-4 py-3 text-left transition-colors ${selected ? "border-l-primary bg-primary/5" : "border-l-transparent hover:bg-muted/45"}`}
+                  className={`signal-operator-person flex w-full items-center gap-3 border-l-2 px-4 py-3 text-left transition-colors ${selected ? "border-l-primary bg-primary/5" : "border-l-transparent hover:bg-muted/45"}`}
                   key={engineer.id}
                   onClick={() => selectEngineer(engineer.id)}
                   type="button"
                 >
-                  <UserRound aria-hidden="true" className="size-4 shrink-0 text-muted-foreground" />
-                  <span className="min-w-0 flex-1">
-                    <span className="block truncate text-sm font-medium">{engineer.name}</span>
-                    <span className="block truncate text-xs text-muted-foreground">{engineer.employeeCode} · {engineer.teamName}</span>
-                  </span>
+                  <span className="signal-operator-person-name"><UserRound aria-hidden="true" />{engineer.name}</span>
+                  <span>{engineer.employeeCode}</span>
+                  <span>{engineer.teamName}</span>
                   <Badge variant={count > 0 ? "secondary" : "outline"}>{count}</Badge>
                 </button>
               )
             })}
           </div>
         </aside>
-        <div className="min-w-0 p-4 sm:p-5">
+        <div className="signal-operator-main min-w-0 p-4 sm:p-5">
+      <header className="border-b px-4 py-4 sm:px-5">
+        <h2 className="text-lg font-semibold" id="operator-entry-title">엔지니어별 평가 입력</h2>
+        <p className="mt-1 text-sm text-muted-foreground">엔지니어 선택 후 배정 과제·평가자별 점수 대리 입력</p>
+      </header>
+
           {selectedEngineer === undefined ? null : engineerAssignments.length === 0 ? (
             <div className="rounded-md border border-dashed py-14 text-center">
               <p className="font-semibold">{selectedEngineer.name}에게 배정된 평가가 없습니다.</p>
@@ -122,19 +124,19 @@ export function OperatorEvaluationWorkspace({
             </div>
           ) : (
             <div className="space-y-5">
-              <div className="grid gap-4 rounded-md border bg-muted/20 p-4 sm:grid-cols-2">
+              <div className="signal-operator-selectors grid gap-4 rounded-md border bg-muted/20 p-4 sm:grid-cols-2">
                 <div className="space-y-2">
                   <Label htmlFor="operator-task-select">과제</Label>
                   <Select onValueChange={selectTask} value={selectedAssignment?.taskId ?? firstTaskId}>
                     <SelectTrigger className="w-full" id="operator-task-select"><SelectValue /></SelectTrigger>
-                    <SelectContent>{taskOptions.map((task) => <SelectItem key={task.id} value={task.id}>{task.label}</SelectItem>)}</SelectContent>
+                    <SelectContent className="signal-operator-select-options">{taskOptions.map((task) => <SelectItem key={task.id} value={task.id}>{task.label}</SelectItem>)}</SelectContent>
                   </Select>
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor="operator-evaluator-select">평가자</Label>
                   <Select onValueChange={setEvaluatorId} value={selectedAssignment?.evaluatorId ?? ""}>
                     <SelectTrigger className="w-full" id="operator-evaluator-select"><SelectValue /></SelectTrigger>
-                    <SelectContent>{taskAssignments.map((assignment) => <SelectItem key={assignment.evaluatorId} value={assignment.evaluatorId}>{assignment.evaluatorName}</SelectItem>)}</SelectContent>
+                    <SelectContent className="signal-operator-select-options">{taskAssignments.map((assignment) => <SelectItem key={assignment.evaluatorId} value={assignment.evaluatorId}>{assignment.evaluatorName}</SelectItem>)}</SelectContent>
                   </Select>
                 </div>
               </div>

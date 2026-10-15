@@ -21,7 +21,7 @@ export function PendingActionLink({ row, role }: PendingActionLinkProps) {
       return null
     case "approver":
       return (
-        <Button asChild variant="outline" size="sm">
+        <Button asChild variant="outline" size="sm" className="signal-pending-action">
           <Link
             href={`/engineers/detail?engineerId=${encodeURIComponent(row.engineerId)}`}
             aria-label={`${row.engineerName} 상세 보기`}
@@ -38,7 +38,7 @@ export function PendingActionLink({ row, role }: PendingActionLinkProps) {
         ? `/evaluations/detail?assignmentId=${encodeURIComponent(row.firstPendingAssignmentId)}`
         : `/operations?tab=scores&q=${encodeURIComponent(row.engineerName)}`
       return (
-        <Button asChild size="sm">
+        <Button asChild size="sm" className="signal-pending-action">
           <Link href={href} aria-label={`${row.engineerName} ${label}`}>
             {label}
             <ArrowRight aria-hidden="true" data-icon="inline-end" />

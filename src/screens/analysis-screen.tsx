@@ -1,6 +1,7 @@
 "use client"
 
 import Link from "next/link"
+import "@/features/analysis/analysis-navigation-signal.css"
 import { usePathname, useRouter, useSearchParams } from "next/navigation"
 
 import { ErrorState, PageHeader } from "@/components/shared"
@@ -50,8 +51,9 @@ export function AnalysisScreen() {
   }
 
   return (
-    <div className="space-y-6">
+    <div className="signal-analysis-page space-y-6">
       <PageHeader
+        className="signal-analysis-page-heading"
         actions={role === "operator" || role === "approver" ||
           (role === "evaluator" && canViewInsights) ? (
           <Button asChild variant="outline">

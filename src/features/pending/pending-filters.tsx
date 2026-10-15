@@ -57,12 +57,11 @@ export function PendingFilters({
     value.query.length > 0 || value.team !== "all" || value.status !== "all"
 
   return (
-    <div className="grid gap-3 border-b border-border-subtle px-4 py-4 md:grid-cols-[minmax(220px,1fr)_140px_160px] md:items-end md:px-5 xl:grid-cols-[minmax(220px,1fr)_160px_180px_auto]">
-      <label className="grid gap-1 text-xs font-medium text-muted-foreground">
+    <div className="signal-pending-filters">
+      <label className="signal-pending-filter-field">
         이름 또는 사번
-        <span className="relative">
+        <span className="signal-pending-search">
           <Search
-            className="pointer-events-none absolute top-1/2 left-2.5 size-4 -translate-y-1/2 text-muted-foreground"
             aria-hidden="true"
           />
           <Input
@@ -73,12 +72,12 @@ export function PendingFilters({
             onChange={(event) =>
               onChange({ ...value, query: event.currentTarget.value })
             }
-            className="pl-8"
+            className="signal-pending-query"
           />
         </span>
       </label>
 
-      <label className="grid gap-1 text-xs font-medium text-muted-foreground">
+      <label className="signal-pending-filter-field">
         팀
         <Select
           value={value.team}
@@ -86,10 +85,10 @@ export function PendingFilters({
             if (isTeamFilter(team)) onChange({ ...value, team })
           }}
         >
-          <SelectTrigger className="w-full" aria-label="팀 필터">
+          <SelectTrigger className="signal-pending-select" aria-label="팀 필터">
             <SelectValue />
           </SelectTrigger>
-          <SelectContent>
+          <SelectContent className="signal-pending-select-popup">
             <SelectItem value="all">전체 팀</SelectItem>
             {PRODUCTION_TEAMS.map((team) => (
               <SelectItem key={team} value={team}>
@@ -100,7 +99,7 @@ export function PendingFilters({
         </Select>
       </label>
 
-      <label className="grid gap-1 text-xs font-medium text-muted-foreground">
+      <label className="signal-pending-filter-field">
         미완료 사유
         <Select
           value={value.status}
@@ -108,10 +107,10 @@ export function PendingFilters({
             if (isStatusFilter(status)) onChange({ ...value, status })
           }}
         >
-          <SelectTrigger className="w-full" aria-label="미완료 사유 필터">
+          <SelectTrigger className="signal-pending-select" aria-label="미완료 사유 필터">
             <SelectValue />
           </SelectTrigger>
-          <SelectContent>
+          <SelectContent className="signal-pending-select-popup">
             <SelectItem value="all">전체 사유</SelectItem>
             <SelectItem value="unassigned">{getPendingStatusLabel("unassigned")}</SelectItem>
             <SelectItem value="not_started">{getPendingStatusLabel("not_started")}</SelectItem>
@@ -123,9 +122,10 @@ export function PendingFilters({
         </Select>
       </label>
 
-      <div className="flex items-center justify-between gap-3 md:col-span-3 md:justify-end xl:col-span-1">
-        <p className="numeric text-xs text-muted-foreground">검색 결과 {resultCount}명</p>
+      <div className="signal-pending-filter-results">
+        <p className="numeric">검색 결과 {resultCount}명</p>
         <Button
+          className="signal-pending-reset"
           type="button"
           variant="ghost"
           size="sm"

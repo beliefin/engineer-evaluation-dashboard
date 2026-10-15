@@ -73,7 +73,7 @@ function FilterFields({
           <SelectTrigger className="w-full min-w-36" aria-label="팀 필터">
             <SelectValue />
           </SelectTrigger>
-          <SelectContent>
+          <SelectContent className="signal-ranking-select-popup">
             <SelectItem value="all">전체 팀</SelectItem>
             {teams.map((team) => (
               <SelectItem key={team} value={team}>
@@ -100,7 +100,7 @@ function FilterFields({
           <SelectTrigger className="w-full min-w-36" aria-label="순위 상태 필터">
             <SelectValue />
           </SelectTrigger>
-          <SelectContent>
+          <SelectContent className="signal-ranking-select-popup">
             <SelectItem value="all">전체 상태</SelectItem>
             <SelectItem value="confirmed">최종 확정</SelectItem>
             <SelectItem value="in_progress">진행 중</SelectItem>
@@ -133,18 +133,18 @@ export function RankingFilters(props: RankingFiltersProps) {
 
   return (
     <>
-      <div className="hidden items-end justify-between gap-4 border-b border-border bg-muted/45 px-5 py-3 md:flex">
+      <div className="signal-ranking-desktop-filters hidden md:flex">
         <FilterFields
           {...props}
           idPrefix="desktop"
-          className="flex items-end gap-3"
+          className="signal-ranking-filter-fields"
         />
         <p className="numeric pb-2 text-xs text-muted-foreground">
           검색 결과 {props.resultCount}명
         </p>
       </div>
 
-      <div className="flex items-center justify-between border-b border-border-subtle px-4 py-3 md:hidden">
+      <div className="signal-ranking-mobile-filters flex md:hidden">
         <p className="numeric text-xs text-muted-foreground">
           검색 결과 {props.resultCount}명
         </p>
@@ -155,7 +155,7 @@ export function RankingFilters(props: RankingFiltersProps) {
               필터{activeCount > 0 ? ` ${activeCount}` : ""}
             </Button>
           </SheetTrigger>
-          <SheetContent side="right" className="w-full sm:max-w-sm">
+          <SheetContent side="right" className="signal-ranking-filter-sheet w-full sm:max-w-sm">
             <SheetHeader>
               <SheetTitle>순위표 필터</SheetTitle>
               <SheetDescription>
@@ -165,7 +165,7 @@ export function RankingFilters(props: RankingFiltersProps) {
             <FilterFields
               {...props}
               idPrefix="mobile"
-              className="grid gap-4 px-4"
+              className="signal-ranking-filter-fields grid gap-4 px-4"
             />
             <SheetFooter>
               <SheetClose asChild>

@@ -1,0 +1,108 @@
+/* EV02: the original operator selection and proxy-save contract. */
+.signal-operator-workspace { border: 0; border-radius: 0; background: #fff; color: #1a1a18; overflow: visible; }
+.signal-operator-grid { display: grid; grid-template-columns: minmax(290px,.85fr) minmax(0,2.4fr); gap: 24px; align-items: start; }
+.signal-operator-roster { min-width: 0; border: 1px solid #b5b5b2; }
+.signal-operator-roster > div:first-child { padding: 16px; background: #f3f3f0; }
+.signal-operator-roster h3 { margin: 0 0 14px; font-size: 23px; font-weight: 850; line-height: 1.35; }
+.signal-operator-roster input { min-height: 46px; border: 1px solid #969691; border-radius: 0; font-size: 16px; }
+.signal-operator-columns,.signal-operator-person { display: grid; grid-template-columns: minmax(0,1.8fr) minmax(46px,.7fr) minmax(58px,1fr) minmax(40px,.8fr); gap: 0; }
+.signal-operator-columns { background: #ededeb; border-bottom: 1px solid #b5b5b2; font-size: 16px; font-weight: 750; }
+.signal-operator-columns > span { display: flex; align-items: center; padding: 12px 8px; border-right: 1px solid #d5d5d1; line-height: 1.4; }
+.signal-operator-columns > span:last-child { border-right: 0; }
+.signal-operator-people { max-height: 650px; overflow-y: auto; overscroll-behavior-y: contain; }
+.signal-operator-person { min-height: 64px; width: 100%; padding: 0; border: 0; border-bottom: 1px solid #dededb; background: #fff; color: #1a1a18; text-align: left; }
+.signal-operator-person:hover { background: #faf5d8; }
+.signal-operator-person[aria-pressed="true"] { background: #e8cf4a; color: #1a1a18; }
+.signal-operator-person > span { min-width: 0; padding: 12px 8px; font-size: 16px; line-height: 1.45; overflow-wrap: anywhere; }
+.signal-operator-person .signal-operator-person-name { font-weight: 750; }
+.signal-operator-person-name svg { display: none; }
+.signal-operator-person [data-slot="badge"] { display: flex; justify-content: flex-start; border: 0; border-radius: 0; background: transparent; color: inherit; font-weight: 650; white-space: normal; }
+.signal-operator-main { min-width: 0; padding: 0; }
+.signal-operator-main > header { padding: 0 0 16px; border: 0; }
+.signal-operator-main > header h2 { font-size: 32px; font-weight: 900; letter-spacing: -.035em; line-height: 1.25; }
+.signal-operator-main > header p { font-size: 16px; line-height: 1.5; color: #555552; }
+.signal-operator-selectors { grid-template-columns: repeat(2,minmax(0,1fr)); padding: 16px; border: 1px solid #b5b5b2; border-radius: 0; background: #fff; }
+.signal-operator-selectors label { font-size: 16px; font-weight: 750; }
+.signal-operator-selectors [data-slot="select-trigger"] { min-height: 46px; height: auto; border: 1px solid #969691; border-radius: 0; font-size: 16px; white-space: normal; }
+.signal-operator-select-options { border-radius: 0; background: #fff; }
+.signal-operator-select-options [data-slot="select-item"] { min-height: 44px; border-radius: 0; font-size: 16px; }
+.signal-proxy-entry { padding: 0; }
+.signal-proxy-entry .signal-evaluation-header { grid-template-columns: minmax(0,1fr) minmax(260px,.85fr); padding: 18px; margin: 0 0 16px; border: 1px solid #b5b5b2; gap: 20px; }
+.signal-proxy-entry .signal-evaluation-header h2 { margin: 0 0 10px; font-size: 27px; font-weight: 850; line-height: 1.3; }
+.signal-proxy-entry .signal-evaluation-header p { margin: 6px 0 0; font-size: 16px; line-height: 1.5; }
+.signal-proxy-entry .signal-score-summary { width: 100%; max-width: none; min-height: 84px; margin: 0; grid-template-columns: 1.3fr 1fr .8fr; }
+.signal-proxy-entry .signal-score-summary > div { padding-inline: 12px; }
+.signal-proxy-entry .signal-score-summary dt { font-size: 16px; }
+.signal-proxy-entry .signal-score-summary strong { font-size: 36px; }
+.signal-proxy-entry .signal-score-summary dd { flex-wrap: wrap; gap: 4px; }
+.signal-proxy-entry .signal-score-summary dd > span { display: block; flex-basis: 100%; font-size: 16px; }
+.signal-proxy-entry .signal-proxy-notice { padding: 16px; border: 1px solid #d2bb36; background: #faf5d8; color: #1a1a18; font-size: 18px; line-height: 1.5; }
+.signal-proxy-entry .signal-proxy-notice strong { font-size: 22px; }
+.signal-proxy-entry .signal-proxy-notice span { font-size: 16px; }
+.signal-proxy-entry .signal-score-table { min-width: 0; }
+.signal-proxy-entry .signal-score-label { padding: 10px 16px; font-size: 18px; }
+.signal-proxy-entry .signal-score-section { padding: 10px; font-size: 20px; }
+.signal-proxy-entry .signal-score-table thead th { padding: 10px; font-size: 17px; }
+.signal-proxy-entry .signal-score-cell { padding: 10px 14px; }
+.signal-proxy-entry .signal-score-cell input { min-height: 44px; font-size: 20px; }
+.signal-proxy-entry .signal-form-bottom { position: static; margin: 20px 0 0; padding: 16px; min-height: 0; flex-wrap: wrap; gap: 16px; }
+.signal-proxy-entry .signal-form-bottom > p { font-size: 16px; white-space: normal; }
+.signal-proxy-entry .signal-form-bottom [data-testid="score-form-actions"] { position: static; padding: 0; min-width: 0; background: transparent; display: flex; flex-wrap: wrap; gap: 12px; }
+.signal-proxy-entry .signal-form-bottom [role="status"],.signal-proxy-entry .signal-form-bottom [role="status"] span { font-size: 16px; }
+.signal-proxy-entry .signal-form-bottom button { min-height: 48px; height: auto; font-size: 18px; }
+.signal-proxy-entry .signal-evaluation-tools { margin-top: 24px; }
+.signal-operator-workspace :focus-visible,.signal-operator-select-options :focus-visible { outline: 2px solid #1a1a18; outline-offset: 3px; box-shadow: 0 0 0 5px #e8cf4a; }
+@media (max-width: 1279px) {
+ .signal-operator-grid { grid-template-columns: minmax(0,1fr); }
+ .signal-operator-people { max-height: 280px; }
+ .signal-operator-columns,.signal-operator-person { grid-template-columns: minmax(0,1.8fr) minmax(46px,.7fr) minmax(58px,1fr) minmax(40px,.8fr); }
+}
+@media (max-width: 900px) {
+ .signal-proxy-entry .signal-evaluation-header { grid-template-columns: minmax(0,1fr); padding: 16px; }
+ .signal-proxy-entry .signal-score-cell { padding: 10px 6px; }
+ .signal-proxy-entry .signal-score-label { padding: 10px 8px; font-size: 16px; }
+ .signal-proxy-entry .signal-form-bottom [data-testid="score-form-actions"] > div:last-child { width: 100%; }
+ .signal-proxy-entry .signal-form-bottom button { width: 100%; }
+}
+@media (max-width: 767px) {
+ .signal-operator-selectors { grid-template-columns: minmax(0,1fr); }
+ .signal-operator-main > header h2 { font-size: 28px; }
+ .signal-proxy-entry .signal-evaluation-header h2 { font-size: 25px; }
+ .signal-operator-roster h3 { font-size: 22px; }
+ .signal-operator-columns > span,.signal-operator-person > span { padding-inline: 6px; }
+}
+.signal-proxy-entry .signal-evaluation-header { grid-template-columns: minmax(0,1fr) minmax(250px,.8fr) 150px; }
+.signal-proxy-entry .signal-proxy-submitted { display: inline-block; padding: 4px 10px; border: 1px solid #b5b5b2; background: #ededeb; font-size: 16px; font-weight: 750; line-height: 1.4; }
+.signal-proxy-header-actions { align-self: center; min-width: 0; }
+.signal-proxy-header-actions [data-testid="score-form-actions"] { position: static; display: flex; flex-direction: column-reverse; align-items: stretch; border: 0; background: transparent; padding: 0; gap: 10px; }
+.signal-proxy-header-actions [data-testid="score-form-actions"] > div { margin: 0; width: 100%; }
+.signal-proxy-header-actions button { width: 100%; min-height: 50px; height: auto; border: 1px solid #1a1a18; border-radius: 0; background: #e8cf4a; color: #1a1a18; font-size: 18px; font-weight: 800; }
+.signal-proxy-header-actions button:disabled { background: #dededb; color: #73736e; border-color: #b5b5b2; }
+.signal-proxy-header-actions [role="status"] { width: 100%; flex-wrap: wrap; white-space: normal; font-size: 16px; line-height: 1.45; height: auto; }
+.signal-proxy-header-actions [role="status"] span { font-size: 16px; line-height: 1.45; }
+.signal-proxy-entry .signal-evaluation-tools { display: grid; grid-template-columns: minmax(0,1.8fr) minmax(220px,1fr); gap: 16px; margin: 16px 0; border: 0; padding: 0; align-items: start; }
+.signal-proxy-entry .signal-evaluation-tools > details { margin: 0; padding: 14px 16px; background: #f3f3f0; }
+.signal-proxy-entry .signal-evaluation-tools summary { min-height: 44px; font-size: 18px; line-height: 1.4; }
+.signal-proxy-entry .signal-evaluation-tools p { font-size: 16px; line-height: 1.5; }
+.signal-proxy-entry .signal-proxy-tsv > section { margin-top: 12px; padding: 0; border: 0; background: transparent; }
+.signal-proxy-entry .signal-proxy-tsv > section > div { grid-template-columns: minmax(0,1fr); gap: 12px; }
+.signal-proxy-entry .signal-proxy-tsv textarea { width: 100%; min-height: 110px; }
+.signal-proxy-entry .signal-proxy-tsv button { width: 100%; }
+@media (max-width: 1500px) and (min-width: 1280px) {
+ .signal-proxy-entry .signal-evaluation-header { grid-template-columns: minmax(0,1fr) 260px; }
+ .signal-proxy-header-actions { grid-column: 1 / -1; max-width: 260px; justify-self: end; }
+}
+@media (max-width: 900px) {
+ .signal-proxy-entry .signal-evaluation-header { grid-template-columns: minmax(0,1fr); }
+ .signal-proxy-header-actions { width: 100%; }
+ .signal-proxy-header-actions button { min-height: 50px; }
+ .signal-proxy-entry .signal-evaluation-tools { grid-template-columns: minmax(0,1fr); }
+}
+
+@media (min-width: 901px) {
+ .signal-operator-main { display: grid; grid-template-columns: minmax(250px,.85fr) minmax(360px,1.15fr); gap: 20px; }
+ .signal-operator-main > .space-y-5 { display: contents; }
+ .signal-operator-main > header { margin: 0; padding: 0; align-self: center; }
+ .signal-operator-selectors { margin: 0; padding: 0; border: 0; background: transparent; align-self: center; }
+ .signal-operator-main .signal-proxy-entry { grid-column: 1 / -1; margin: 0; }
+}

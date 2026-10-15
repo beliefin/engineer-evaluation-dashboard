@@ -1,3 +1,7 @@
+import { HorizontalScroll } from "@/components/ui/horizontal-scroll"
+
+import "./qualification-language-signal.css"
+
 import type { AchievementSourceAnalysisDatum } from "./types"
 
 type QualificationLanguageAnalysisProps = Readonly<{
@@ -17,7 +21,7 @@ export function QualificationLanguageAnalysis(
   )
 
   return (
-    <section aria-labelledby="qualification-language-heading" className="space-y-4">
+    <section aria-labelledby="qualification-language-heading" className="signal-qualification space-y-4">
       <header>
         <h2
           className="text-xl font-semibold tracking-tight"
@@ -31,7 +35,7 @@ export function QualificationLanguageAnalysis(
         </p>
       </header>
 
-      <dl className="grid overflow-hidden border-y border-border bg-card sm:grid-cols-2 lg:grid-cols-6 lg:divide-x lg:divide-border-subtle">
+      <dl className="signal-qualification-metrics grid overflow-hidden border-y border-border bg-card sm:grid-cols-2 lg:grid-cols-6 lg:divide-x lg:divide-border-subtle">
         <Metric
           detail={`${data.eligibleEngineerCount}명 중 실제 기록`}
           label="자격증 기록 인원"
@@ -64,7 +68,7 @@ export function QualificationLanguageAnalysis(
         />
       </dl>
 
-      <div className="grid min-w-0 gap-6 lg:grid-cols-2">
+      <div className="signal-qualification-panels grid min-w-0 gap-6 lg:grid-cols-2">
         <article className="min-w-0 rounded-md border border-border bg-card">
           <header className="border-b border-border-subtle px-4 py-4 sm:px-5">
             <h3 className="text-base font-semibold tracking-tight">보유 자격증 분포</h3>
@@ -73,7 +77,7 @@ export function QualificationLanguageAnalysis(
               · 미입력 {data.certificationUnreportedEngineerCount}명
             </p>
           </header>
-          <div className="p-4 sm:p-5">
+          <HorizontalScroll className="signal-qualification-scroll p-4 sm:p-5" role="region" aria-label="자격증 분포 표 가로 스크롤 영역" tabIndex={0}>
             {data.certificationHoldings.length === 0 ? (
               <p className="border border-dashed border-border px-4 py-10 text-center text-sm text-muted-foreground">
                 현재 필터에 실제 자격증 기록이 없습니다.
@@ -104,9 +108,9 @@ export function QualificationLanguageAnalysis(
                         <p className="mt-1 text-xs text-muted-foreground">
                           {data.evaluationYear}년 신규 {entry.acquiredThisYearCount}명
                         </p>
-                        <div aria-hidden="true" className="mt-2 h-1.5 overflow-hidden rounded-sm bg-muted">
+                        <div aria-hidden="true" className="signal-qualification-track mt-2 h-1.5 overflow-hidden rounded-sm bg-muted">
                           <div
-                            className="h-full rounded-sm bg-[var(--chart-1)]"
+                            className="signal-qualification-bar h-full rounded-sm bg-[var(--chart-1)]" data-holder-count={entry.holderCount} data-scale-maximum={certificationMaximum}
                             style={{ width: `${(entry.holderCount / certificationMaximum) * 100}%` }}
                           />
                         </div>
@@ -122,7 +126,7 @@ export function QualificationLanguageAnalysis(
                 </tbody>
               </table>
             )}
-          </div>
+          </HorizontalScroll>
         </article>
 
         <article className="min-w-0 rounded-md border border-border bg-card">
@@ -133,7 +137,7 @@ export function QualificationLanguageAnalysis(
               · 미입력 {data.languageUnreportedEngineerCount}명
             </p>
           </header>
-          <div className="p-4 sm:p-5">
+          <HorizontalScroll className="signal-qualification-scroll p-4 sm:p-5" role="region" aria-label="어학 분포 표 가로 스크롤 영역" tabIndex={0}>
             {data.languageResults.length === 0 ? (
               <p className="border border-dashed border-border px-4 py-10 text-center text-sm text-muted-foreground">
                 현재 필터에 실제 어학 성적 기록이 없습니다.
@@ -163,9 +167,9 @@ export function QualificationLanguageAnalysis(
                         <p className="break-keep text-sm font-medium text-foreground">
                           {entry.scopeLabel} · {entry.examName}
                         </p>
-                        <div aria-hidden="true" className="mt-2 h-1.5 overflow-hidden rounded-sm bg-muted">
+                        <div aria-hidden="true" className="signal-qualification-track mt-2 h-1.5 overflow-hidden rounded-sm bg-muted">
                           <div
-                            className="h-full rounded-sm bg-[var(--chart-2)]"
+                            className="signal-qualification-bar h-full rounded-sm bg-[var(--chart-2)]" data-holder-count={entry.holderCount} data-scale-maximum={languageMaximum}
                             style={{ width: `${(entry.holderCount / languageMaximum) * 100}%` }}
                           />
                         </div>
@@ -184,7 +188,7 @@ export function QualificationLanguageAnalysis(
                 </tbody>
               </table>
             )}
-          </div>
+          </HorizontalScroll>
         </article>
       </div>
 

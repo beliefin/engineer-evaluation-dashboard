@@ -1,16 +1,11 @@
 "use client"
 
-import { useId } from "react"
-import {
-  Bar,
-  BarChart,
-  CartesianGrid,
-  LabelList,
-  XAxis,
-  YAxis,
-} from "recharts"
+import { HorizontalScroll } from "@/components/ui/horizontal-scroll"
 
-import { ChartContainer, type ChartConfig } from "@/components/ui/chart"
+import "./dashboard-ranking-signal.css"
+
+import { useId, type CSSProperties } from "react"
+
 import {
   Table,
   TableBody,
@@ -20,119 +15,65 @@ import {
   TableRow,
 } from "@/components/ui/table"
 
-import { DashboardPanel } from "./dashboard-panel"
 import type { CategoryAverageChartProps } from "./dashboard-view-models"
+import { getAverageChartScale } from "./signal-dashboard"
 
-const CHART_CONFIG: ChartConfig = {
-  weightedScore: {
-    label: "가중 평균",
-    color: "var(--chart-1)",
-  },
-  unweightedScore: {
-    label: "비가중 평균",
-    color: "var(--chart-3)",
-  },
-}
-
-export function CategoryAverageChart({
-  title,
-  description,
-  data,
-}: CategoryAverageChartProps) {
+export function CategoryAverageChart({ title, description, data }: CategoryAverageChartProps) {
   const titleId = useId()
   const hasData = data.some((item) => item.sampleSize > 0)
+  const { maximum, ticks } = getAverageChartScale(data)
 
   return (
-    <DashboardPanel title={title} description={description}>
-      <figure aria-labelledby={titleId}>
-        <figcaption id={titleId} className="sr-only">
-          과제별 평가자 가중 평균과 비가중 평균을 0점에서 100점 범위로 비교
-        </figcaption>
+    <section className="signal-category-panel" aria-labelledby={titleId}>
+      <h2 className="signal-dashboard-panel-title" id={titleId}>{title}</h2>
+      <p className="signal-category-description">{description}</p>
+      <figure aria-label={`과제별 평가자 가중 평균과 비가중 평균 비교, 공통 척도 0~${maximum}점`}>
         {hasData ? (
           <>
-            <div className="mb-3 flex flex-wrap gap-x-5 gap-y-2 text-xs text-muted-foreground">
-              <span className="inline-flex items-center gap-2">
-                <span className="size-2.5 rounded-sm bg-[var(--chart-1)]" aria-hidden />
-                가중 평균
-              </span>
-              <span className="inline-flex items-center gap-2">
-                <span className="size-2.5 rounded-sm bg-[var(--chart-3)]" aria-hidden />
-                비가중 평균
-              </span>
+            <div className="signal-category-legend" aria-label="평균 종류">
+              <span><i aria-hidden="true" />가중 평균</span>
+              <span><i aria-hidden="true" />비가중 평균</span>
             </div>
-            <ChartContainer
-              config={CHART_CONFIG}
-              className="h-72 w-full aspect-auto"
-              aria-hidden="true"
-            >
-              <BarChart
-                layout="vertical"
-                data={[...data]}
-                accessibilityLayer={false}
-                margin={{ top: 4, right: 44, bottom: 4, left: 4 }}
-              >
-                <CartesianGrid
-                  horizontal={false}
-                  stroke="var(--border-subtle)"
-                />
-                <XAxis
-                  type="number"
-                  domain={[0, 100]}
-                  ticks={[0, 20, 40, 60, 80, 100]}
-                  axisLine={false}
-                  tickLine={false}
-                  tickMargin={8}
-                />
-                <YAxis
-                  type="category"
-                  dataKey="label"
-                  axisLine={false}
-                  tickLine={false}
-                  width={88}
-                />
-                <Bar
-                  dataKey="weightedScore"
-                  fill="var(--chart-1)"
-                  radius={[0, 3, 3, 0]}
-                  isAnimationActive={false}
-                >
-                  <LabelList
-                    dataKey="weightedScore"
-                    position="right"
-                    fill="var(--foreground)"
-                    fontSize={11}
-                  />
-                </Bar>
-                <Bar
-                  dataKey="unweightedScore"
-                  fill="var(--chart-3)"
-                  radius={[0, 3, 3, 0]}
-                  isAnimationActive={false}
-                >
-                  <LabelList
-                    dataKey="unweightedScore"
-                    position="right"
-                    fill="var(--foreground)"
-                    fontSize={11}
-                  />
-                </Bar>
-              </BarChart>
-            </ChartContainer>
+            <HorizontalScroll className="signal-category-scroll" role="region" aria-label="과제별 평균 차트, 가로로 스크롤할 수 있습니다" tabIndex={0}>
+              <div className="signal-category-chart" style={{ "--average-tick-count": ticks.length - 1 } as CSSProperties}>
+                {data.map((item) => (
+                  <div className="signal-category-row" key={item.id}>
+                    <span className="signal-category-label">{item.label}</span>
+                    <div className="signal-category-plot">
+                      {(["weightedScore", "unweightedScore"] as const).map((series) => {
+                        const score = item[series]
+                        const seriesLabel = series === "weightedScore" ? "가중 평균" : "비가중 평균"
+                        return (
+                          <div
+                            className={`signal-category-bar ${series === "weightedScore" ? "is-weighted" : "is-unweighted"}`}
+                            key={series}
+                            role="img"
+                            aria-label={item.sampleSize === 0 ? `${item.label} ${seriesLabel} 확정 점수 없음` : `${item.label} ${seriesLabel} ${score.toFixed(1)}점, 완료 표본 ${item.sampleSize}명, 공통 척도 0~${maximum}점`}
+                          >
+                            <span
+                              className="signal-category-bar-fill"
+                              data-series={series}
+                              data-score={item.sampleSize === 0 ? undefined : score}
+                              style={{ width: `${item.sampleSize === 0 ? 0 : Math.max(0, score) / maximum * 100}%` }}
+                            ><span className="signal-category-value numeric">{item.sampleSize === 0 ? "—" : score.toFixed(1)}</span></span>
+                          </div>
+                        )
+                      })}
+                    </div>
+                  </div>
+                ))}
+                <div className="signal-category-axis" aria-hidden="true">
+                  {ticks.map((tick) => <span className="numeric" key={tick} style={{ left: `${tick / maximum * 100}%` }}>{tick}</span>)}
+                </div>
+              </div>
+            </HorizontalScroll>
           </>
         ) : (
-          <div
-            role="status"
-            className="flex h-64 items-center justify-center rounded-md bg-muted text-sm text-muted-foreground"
-          >
-            집계할 분야 점수가 없습니다.
-          </div>
+          <div role="status" className="signal-category-empty">집계할 분야 점수가 없습니다.</div>
         )}
-
-        <details className="mt-4 border-t border-border-subtle pt-3">
-          <summary className="w-fit text-xs font-medium text-primary underline-offset-4 hover:underline">
-            과제 평균 표 데이터 보기
-          </summary>
-          <Table className="mt-3">
+        <details className="signal-category-data" open>
+          <summary>과제 평균 표 데이터 보기</summary>
+          <Table>
             <TableHeader>
               <TableRow>
                 <TableHead>과제</TableHead>
@@ -145,21 +86,15 @@ export function CategoryAverageChart({
               {data.map((item) => (
                 <TableRow key={item.id}>
                   <TableCell>{item.label}</TableCell>
-                  <TableCell className="numeric text-right font-medium">
-                    {item.weightedScore.toFixed(1)}점
-                  </TableCell>
-                  <TableCell className="numeric text-right font-medium">
-                    {item.unweightedScore.toFixed(1)}점
-                  </TableCell>
-                  <TableCell className="numeric text-right text-muted-foreground">
-                    {item.sampleSize}명
-                  </TableCell>
+                  <TableCell className="numeric text-right">{item.sampleSize === 0 ? "—" : `${item.weightedScore.toFixed(1)}점`}</TableCell>
+                  <TableCell className="numeric text-right">{item.sampleSize === 0 ? "—" : `${item.unweightedScore.toFixed(1)}점`}</TableCell>
+                  <TableCell className="numeric text-right">{item.sampleSize}명</TableCell>
                 </TableRow>
               ))}
             </TableBody>
           </Table>
         </details>
       </figure>
-    </DashboardPanel>
+    </section>
   )
 }

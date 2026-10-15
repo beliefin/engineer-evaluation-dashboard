@@ -1,6 +1,8 @@
 "use client"
 
-import { useState } from "react"
+import { useId, useState } from "react"
+
+import "./assignment-operations-signal.css"
 
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
@@ -27,6 +29,7 @@ type Props = Readonly<{
 }>
 
 export function EvaluatorAssignmentEditor({ group, evaluators, preset, disabled, onSave }: Props) {
+  const inputId = useId()
   const [draft, setDraft] = useState<ReadonlyArray<AssignmentDraft>>(
     group.assignments.map((entry) => ({ evaluatorId: entry.evaluatorId, weight: entry.weight })),
   )
@@ -73,62 +76,14 @@ export function EvaluatorAssignmentEditor({ group, evaluators, preset, disabled,
   }
 
   return (
-    <div className="space-y-4">
-      <div className="flex flex-wrap items-center justify-between gap-2 rounded-md border bg-muted/25 px-4 py-3">
-        <div>
+    <div className="signal-assignment-editor">
+      <div className="signal-assignment-toolbar">
+        <div className="signal-assignment-group">
           <p className="font-semibold">{group.engineerName} · {group.taskName}</p>
           <p className="mt-1 text-xs text-muted-foreground">{group.employeeLabel} · {group.teamName}</p>
         </div>
         <Badge variant="outline">{draft.length}명 배정</Badge>
-      </div>
-      <div className="grid gap-2 sm:grid-cols-2">
-        {evaluators.map((evaluator) => {
-          const selected = draft.find((entry) => entry.evaluatorId === evaluator.id)
-          const current = group.assignments.find((entry) => entry.evaluatorId === evaluator.id)
-          const protectedAssignment = protectedIds.has(evaluator.id)
-          const ratio = selected === undefined || totalWeight <= 0 ? 0 : selected.weight / totalWeight
-          return (
-            <div className="grid grid-cols-[auto_minmax(0,1fr)_5.5rem] items-center gap-3 rounded-md border p-3" key={evaluator.id}>
-              <input
-                aria-label={`${evaluator.name} 평가 배정`}
-                checked={selected !== undefined}
-                className="size-4 accent-primary"
-                disabled={disabled || protectedAssignment}
-                onChange={(event) => toggle(evaluator.id, event.currentTarget.checked)}
-                type="checkbox"
-              />
-              <div className="min-w-0">
-                <p className="truncate text-sm font-medium">{evaluator.name}</p>
-                <p className="text-xs text-muted-foreground">{evaluator.employeeCode}</p>
-                {selected === undefined ? null : (
-                  <p className="mt-1 text-xs text-muted-foreground">
-                    실제 반영 {(ratio * 100).toFixed(1)}%
-                    {current?.status === "in_progress" ? " · 입력 중" : current?.status === "submitted" ? " · 제출 완료" : ""}
-                  </p>
-                )}
-              </div>
-              <Input
-                aria-label={`${evaluator.name} 원시 가중치`}
-                disabled={disabled || selected === undefined}
-                min="0.1"
-                onChange={(event) => {
-                  const weight = Number(event.currentTarget.value)
-                  setDraft((currentDraft) => currentDraft.map((entry) =>
-                    entry.evaluatorId === evaluator.id ? { ...entry, weight } : entry))
-                }}
-                step="0.1"
-                type="number"
-                value={selected?.weight ?? 1}
-              />
-            </div>
-          )
-        })}
-      </div>
-      <div className="flex flex-col-reverse gap-2 sm:flex-row sm:items-center sm:justify-between">
-        <p className="text-xs text-muted-foreground">
-          입력 중이거나 제출된 평가는 이 화면에서 배정을 제거할 수 없습니다.
-        </p>
-        <div className="flex flex-wrap justify-end gap-2">
+        <div className="signal-assignment-actions">
           <Button disabled={disabled || preset.length === 0} onClick={applyPreset} type="button" variant="outline">
             고정 멤버 적용
           </Button>
@@ -147,6 +102,59 @@ export function EvaluatorAssignmentEditor({ group, evaluators, preset, disabled,
           </Button>
         </div>
       </div>
+      <div className="signal-assignment-list">
+        {evaluators.map((evaluator) => {
+          const selected = draft.find((entry) => entry.evaluatorId === evaluator.id)
+          const current = group.assignments.find((entry) => entry.evaluatorId === evaluator.id)
+          const protectedAssignment = protectedIds.has(evaluator.id)
+          const ratio = selected === undefined || totalWeight <= 0 ? 0 : selected.weight / totalWeight
+          return (
+            <div className="signal-assignment-row" data-selected={selected !== undefined} key={evaluator.id}>
+              <label className="signal-assignment-checkbox" htmlFor={`${inputId}-${evaluator.id}-selected`}>
+                <span className="sr-only">{evaluator.name} 평가 배정</span>
+                <input
+                  aria-label={`${evaluator.name} 평가 배정`}
+                  checked={selected !== undefined}
+                  disabled={disabled || protectedAssignment}
+                  id={`${inputId}-${evaluator.id}-selected`}
+                  onChange={(event) => toggle(evaluator.id, event.currentTarget.checked)}
+                  type="checkbox"
+                />
+              </label>
+              <div className="signal-assignment-evaluator">
+                <p>{evaluator.name}</p>
+                <p>{evaluator.employeeCode}</p>
+                {selected === undefined ? null : (
+                  <p className="signal-assignment-contribution">
+                    실제 반영 {(ratio * 100).toFixed(1)}%
+                    <span data-status={current?.status}>{current?.status === "in_progress" ? " · 입력 중" : current?.status === "submitted" ? " · 제출 완료" : ""}</span>
+                  </p>
+                )}
+              </div>
+              <div className="signal-assignment-weight">
+                <label htmlFor={`${inputId}-${evaluator.id}-weight`}>원시 가중치</label>
+                <Input
+                  aria-label={`${evaluator.name} 원시 가중치`}
+                  disabled={disabled || selected === undefined}
+                  id={`${inputId}-${evaluator.id}-weight`}
+                  min="0.1"
+                  onChange={(event) => {
+                    const weight = Number(event.currentTarget.value)
+                    setDraft((currentDraft) => currentDraft.map((entry) =>
+                      entry.evaluatorId === evaluator.id ? { ...entry, weight } : entry))
+                  }}
+                  step="0.1"
+                  type="number"
+                  value={selected?.weight ?? 1}
+                />
+              </div>
+            </div>
+          )
+        })}
+      </div>
+      <p className="signal-assignment-protection-note">
+        입력 중이거나 제출된 평가는 이 화면에서 배정을 제거할 수 없습니다.
+      </p>
     </div>
   )
 }

@@ -1,13 +1,12 @@
 "use client"
 
-import { LogOutIcon } from "lucide-react"
+import { LogOutIcon, Settings2 } from "lucide-react"
+import Link from "next/link"
 
 import { Button } from "@/components/ui/button"
 
-import { AppBrand } from "./app-sidebar"
+import { AppNavigation } from "./app-navigation"
 import { MobileMenu } from "./mobile-menu"
-import { SampleDataBadge } from "./sample-data-badge"
-import { SaveStateIndicator } from "./save-state-indicator"
 import { ShellControls } from "./shell-controls"
 import {
   APP_SHELL_HOME_PATHS,
@@ -41,7 +40,6 @@ export function AppTopbar({
   evaluatorOptions,
   activeCycleId,
   activeEvaluatorId,
-  saveState,
   onCycleChange,
   onEvaluatorChange,
   onLogout,
@@ -49,60 +47,25 @@ export function AppTopbar({
   actorLabel,
 }: AppTopbarProps) {
   return (
-    <header className="sticky top-0 z-40 flex h-[52px] items-center border-b border-border bg-card px-3 print:hidden sm:px-4 lg:px-6">
-      <div className="flex min-w-0 flex-1 items-center gap-2 lg:hidden">
-        <MobileMenu
-          activeCycleId={activeCycleId}
-          activeEvaluatorId={activeEvaluatorId}
-          actorLabel={actorLabel}
-          canViewInsights={canViewInsights}
-          availableRoles={availableRoles}
-          cycles={cycles}
-          evaluatorOptions={evaluatorOptions}
-          onCycleChange={onCycleChange}
-          onEvaluatorChange={onEvaluatorChange}
-          onLogout={onLogout}
-          onRoleChange={onRoleChange}
-          role={role}
-        />
-        <AppBrand compact href={APP_SHELL_HOME_PATHS[role]} />
+    <header className="signal-topbar signal-shell-topbar print:hidden">
+      <div className="signal-mobile-menu">
+        <MobileMenu activeCycleId={activeCycleId} activeEvaluatorId={activeEvaluatorId} actorLabel={actorLabel} canViewInsights={canViewInsights} availableRoles={availableRoles} cycles={cycles} evaluatorOptions={evaluatorOptions} onCycleChange={onCycleChange} onEvaluatorChange={onEvaluatorChange} onLogout={onLogout} onRoleChange={onRoleChange} role={role} />
       </div>
-
-      <div className="hidden min-w-0 flex-1 lg:block">
-        <p className="truncate text-xs text-muted-foreground">
-          평가 운영 콘솔 · 모든 점수는 0~100 기준
-        </p>
-      </div>
-
-      <div className="flex shrink-0 items-center gap-2 lg:gap-3">
-        <div className="hidden lg:block">
-          <ShellControls
-            activeCycleId={activeCycleId}
-            availableRoles={availableRoles}
-            activeEvaluatorId={activeEvaluatorId}
-            cycles={cycles}
-            evaluatorOptions={evaluatorOptions}
-            idPrefix="desktop-shell"
-            onCycleChange={onCycleChange}
-            onEvaluatorChange={onEvaluatorChange}
-            onRoleChange={onRoleChange}
-            role={role}
-          />
-        </div>
-        <span aria-hidden="true" className="hidden h-5 w-px bg-border lg:block" />
-        <SaveStateIndicator compact={false} state={saveState} />
-        <SampleDataBadge />
-        <Button
-          aria-label={`${actorLabel ?? "현재 계정"} 로그아웃`}
-          className="hidden lg:inline-flex"
-          onClick={onLogout}
-          size="sm"
-          type="button"
-          variant="ghost"
-        >
-          <LogOutIcon aria-hidden="true" />
-          로그아웃
-        </Button>
+      <Link className="signal-brand" aria-label="엔지니어 역량평가 메인으로 이동" href={APP_SHELL_HOME_PATHS[role]}>엔지니어 역량평가</Link>
+      <div className="signal-primary-navigation"><AppNavigation layout="horizontal" role={role} canViewInsights={canViewInsights} /></div>
+      <div className="signal-topbar-controls">
+        <select className="signal-cycle" aria-label="평가 시즌" value={activeCycleId} onChange={(event) => onCycleChange(event.currentTarget.value)}>
+          {cycles.map((cycle) => <option disabled={cycle.disabled ?? false} key={cycle.id} value={cycle.id}>{cycle.label}</option>)}
+        </select>
+        <details className="signal-account-menu">
+          <summary aria-label="계정 및 운영 메뉴"><Settings2 size={20} aria-hidden="true" /></summary>
+          <div className="signal-account-panel">
+            <p className="signal-shell-actor font-bold">{actorLabel ?? "현재 계정"}</p>
+            <ShellControls activeCycleId={activeCycleId} availableRoles={availableRoles} activeEvaluatorId={activeEvaluatorId} cycles={cycles} evaluatorOptions={evaluatorOptions} idPrefix="desktop-shell" onCycleChange={onCycleChange} onEvaluatorChange={onEvaluatorChange} onRoleChange={onRoleChange} role={role} orientation="vertical" />
+            <AppNavigation layout="secondary" role={role} canViewInsights={canViewInsights} />
+            <Button className="signal-shell-logout" aria-label={`${actorLabel ?? "현재 계정"} 로그아웃`} onClick={onLogout} size="sm" type="button" variant="outline"><LogOutIcon aria-hidden="true" />로그아웃</Button>
+          </div>
+        </details>
       </div>
     </header>
   )

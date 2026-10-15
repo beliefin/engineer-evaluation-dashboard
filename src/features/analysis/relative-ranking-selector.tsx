@@ -56,7 +56,7 @@ export function RelativeRankingSelector({
   ))
 
   return (
-    <div className="flex min-h-0 flex-col gap-4">
+    <div className="signal-relative-selector flex min-h-0 flex-col gap-4">
       <div className="flex items-center justify-between gap-3">
         <div>
           <h3 className="font-semibold">분석 대상 선택</h3>
@@ -124,7 +124,7 @@ export function RelativeRankingSelector({
         </div>
       </div>
 
-      <div className="max-h-[32rem] overflow-y-auto rounded-md border" aria-label="엔지니어 선택 목록">
+      <div className="signal-relative-roster max-h-[32rem] overflow-y-auto rounded-md border" aria-label="엔지니어 선택 목록">
         {filtered.length === 0 ? (
           <p className="p-4 text-sm text-muted-foreground">조건에 맞는 엔지니어가 없습니다.</p>
         ) : filtered.map((candidate) => {
@@ -132,6 +132,8 @@ export function RelativeRankingSelector({
           return (
             <label
               key={candidate.engineerId}
+              data-selected={!disabled && selectedIds.has(candidate.engineerId)}
+              data-score-status={candidate.scoreStatus}
               className="flex cursor-pointer items-start gap-3 border-b px-3 py-3 last:border-b-0 has-[:checked]:bg-accent/70 has-[:disabled]:cursor-not-allowed has-[:disabled]:bg-muted/50"
             >
               <input

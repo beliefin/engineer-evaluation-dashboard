@@ -9,12 +9,10 @@ export function EvaluatorProfile({
   model,
 }: Readonly<{ model: EvaluatorDetailViewModel }>) {
   return (
-    <div className="space-y-6">
+    <div className="signal-evaluator-profile">
       <EvaluatorProfileSummary model={model} />
-      <div className="grid min-w-0 gap-6 xl:grid-cols-2">
-        <EvaluatorTaskProfile data={model.taskTendencies} />
-        <EvaluatorItemProfile key={model.evaluator.id} data={model.itemProfiles} />
-      </div>
+      <EvaluatorTaskProfile data={model.taskTendencies} />
+      <EvaluatorItemProfile key={model.evaluator.id} data={model.itemProfiles} />
       <EvaluatorHistory data={model.recentEvaluations} />
     </div>
   )

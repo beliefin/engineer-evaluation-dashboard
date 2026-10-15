@@ -1,6 +1,8 @@
 "use client"
 
 import { Plus } from "lucide-react"
+
+import "./operation-rules-signal.css"
 import { useState, type FormEvent } from "react"
 
 import { Badge } from "@/components/ui/badge"
@@ -141,13 +143,13 @@ export function DirectScoreRuleForm({ operatorTasks, disabled, initialRule, onRe
   }
 
   return (
-    <form aria-label="환산 규칙 편집" className="grid self-start gap-2 rounded-md border bg-muted/20 p-3" onSubmit={submit}>
-      <div className="flex items-center justify-between gap-2">
+    <form aria-label="환산 규칙 편집" className="signal-rule-form grid self-start gap-2 rounded-md border bg-muted/20 p-3" data-rule-kind={form.kind} data-rule-type={form.ruleType} onSubmit={submit}>
+      <div className="signal-rule-form-heading flex items-center justify-between gap-2">
         <p className="font-medium">{form.ruleId === null ? "규칙 추가" : "규칙 수정"}</p>
         {form.ruleId !== null ? <Button onClick={reset} size="sm" type="button" variant="ghost">새 규칙</Button> : null}
       </div>
 
-      <div className="grid gap-x-2 gap-y-2 sm:grid-cols-2 lg:grid-cols-6">
+      <div className="signal-rule-fields grid gap-x-2 gap-y-2 sm:grid-cols-2 lg:grid-cols-6">
         <label className={`${FIELD_CLASS} sm:col-span-2 lg:col-span-3`}><span className="font-medium">연결 과제</span><select className={SELECT_CLASS} disabled={disabled} onChange={(event) => update("taskId", event.currentTarget.value)} value={form.taskId}><option value="">과제를 선택하세요</option>{operatorTasks.map((task) => <option key={task.taskId} value={task.taskId}>{task.taskName}</option>)}</select></label>
         <label className={`${FIELD_CLASS} lg:col-span-2`}><span className="font-medium">원천 종류</span><select className={SELECT_CLASS} disabled={disabled} onChange={(event) => { const kind = event.currentTarget.value === "certification" ? "certification" : "language"; setForm((current) => ({ ...current, kind, field: kind === "language" ? "result" : "certificateName", operator: kind === "language" ? "gte" : "equals", ruleType: "base" })) }} value={form.kind}><option value="language">어학</option><option value="certification">자격증</option></select></label>
         <label className={`${FIELD_CLASS} lg:col-span-1`}><span className="font-medium">상태</span><span className="flex h-8 items-center gap-2 rounded-[4px] border border-border-subtle bg-card px-2"><input checked={form.enabled} className="size-4 accent-primary" disabled={disabled} onChange={(event) => update("enabled", event.currentTarget.checked)} type="checkbox" />규칙 사용</span></label>
@@ -183,7 +185,7 @@ export function DirectScoreRuleForm({ operatorTasks, disabled, initialRule, onRe
       </div>
 
       {error !== null ? <p className="text-sm text-destructive" role="alert">{error}</p> : null}
-      <div className="flex flex-wrap justify-end gap-2 border-t border-border-subtle pt-2">
+      <div className="signal-rule-form-actions flex flex-wrap justify-end gap-2 border-t border-border-subtle pt-2">
         <Button disabled={disabled || operatorTasks.length === 0 || onPreview === undefined} onClick={() => { const draft = draftFromForm(); if (draft !== null) setImpact(onPreview?.(draft) ?? null) }} type="button" variant="outline">변경 영향 미리보기</Button>
         <Button disabled={disabled || operatorTasks.length === 0} type="submit"><Plus aria-hidden="true" />{form.ruleId === null ? "환산 규칙 저장" : "수정 저장"}</Button>
       </div>
@@ -207,5 +209,5 @@ function ScoreFields({ disabled, form, update }: Omit<FieldProps, "className">) 
 }
 
 function ImpactPreview({ impact }: Readonly<{ impact: DirectScoreRuleImpactViewModel }>) {
-  return <section aria-live="polite" className="space-y-2 rounded-md border bg-background p-3"><div className="flex items-center justify-between gap-3"><p className="text-sm font-semibold">변경 예상 영향</p><Badge variant={impact.affectedCount === 0 ? "outline" : "secondary"}>{impact.affectedCount}명</Badge></div>{impact.rows.length === 0 ? <p className="text-xs text-muted-foreground">현재 등록된 원천 실적에는 점수 변화가 없습니다.</p> : <div className="max-h-52 overflow-auto"><table className="w-full text-left text-xs"><thead><tr className="border-b"><th className="py-2">엔지니어</th><th className="py-2 text-right">과제 전 → 후</th><th className="py-2 text-right">최종 전 → 후</th></tr></thead><tbody>{impact.rows.map((row) => <tr className="border-b last:border-0" key={row.engineerId}><td className="py-2 font-medium">{row.engineerName}</td><td className="numeric py-2 text-right">{row.currentTaskScore?.toFixed(1) ?? "미확정"} → {row.proposedTaskScore?.toFixed(1) ?? "미확정"}</td><td className="numeric py-2 text-right">{row.currentFinalScore?.toFixed(2) ?? "미확정"} → {row.proposedFinalScore?.toFixed(2) ?? "미확정"}</td></tr>)}</tbody></table></div>}</section>
+  return <section aria-live="polite" className="signal-rule-impact space-y-2 rounded-md border bg-background p-3"><div className="flex items-center justify-between gap-3"><p className="text-sm font-semibold">변경 예상 영향</p><Badge variant={impact.affectedCount === 0 ? "outline" : "secondary"}>{impact.affectedCount}명</Badge></div>{impact.rows.length === 0 ? <p className="text-xs text-muted-foreground">현재 등록된 원천 실적에는 점수 변화가 없습니다.</p> : <div className="max-h-52 overflow-auto"><table className="w-full text-left text-xs"><thead><tr className="border-b"><th className="py-2">엔지니어</th><th className="py-2 text-right">과제 전 → 후</th><th className="py-2 text-right">최종 전 → 후</th></tr></thead><tbody>{impact.rows.map((row) => <tr className="border-b last:border-0" key={row.engineerId}><td className="py-2 font-medium">{row.engineerName}</td><td className="numeric py-2 text-right">{row.currentTaskScore?.toFixed(1) ?? "미확정"} → {row.proposedTaskScore?.toFixed(1) ?? "미확정"}</td><td className="numeric py-2 text-right">{row.currentFinalScore?.toFixed(2) ?? "미확정"} → {row.proposedFinalScore?.toFixed(2) ?? "미확정"}</td></tr>)}</tbody></table></div>}</section>
 }

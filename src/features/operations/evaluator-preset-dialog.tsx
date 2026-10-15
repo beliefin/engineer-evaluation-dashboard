@@ -1,6 +1,8 @@
 "use client"
 
-import { useState } from "react"
+import { useId, useState } from "react"
+
+import "./assignment-operations-signal.css"
 
 import { Button } from "@/components/ui/button"
 import {
@@ -30,6 +32,7 @@ type Props = Readonly<{
 }>
 
 export function EvaluatorPresetDialog({ evaluators, preset, disabled, onSave }: Props) {
+  const inputId = useId()
   const [open, setOpen] = useState(false)
   const [draft, setDraft] = useState<ReadonlyArray<AssignmentDraft>>(
     preset.map((entry) => ({ evaluatorId: entry.evaluatorId, weight: entry.weight })),
@@ -54,7 +57,7 @@ export function EvaluatorPresetDialog({ evaluators, preset, disabled, onSave }: 
       <DialogTrigger asChild>
         <Button disabled={disabled} size="sm" type="button" variant="outline">고정 멤버 설정</Button>
       </DialogTrigger>
-      <DialogContent className="grid max-h-[min(44rem,calc(100dvh-2rem))] grid-rows-[auto_minmax(0,1fr)_auto] gap-0 overflow-hidden p-0 sm:max-w-2xl">
+      <DialogContent className="signal-assignment-preset-dialog grid max-h-[min(44rem,calc(100dvh-2rem))] grid-rows-[auto_minmax(0,1fr)_auto] gap-0 overflow-hidden p-0 sm:max-w-2xl">
         <DialogHeader className="border-b border-border-subtle px-5 py-4 pr-12">
           <DialogTitle>고정 평가자 멤버와 가중치</DialogTitle>
           <DialogDescription>
@@ -67,22 +70,29 @@ export function EvaluatorPresetDialog({ evaluators, preset, disabled, onSave }: 
               const selected = draft.find((entry) => entry.evaluatorId === evaluator.id)
               const ratio = selected === undefined || totalWeight <= 0 ? 0 : selected.weight / totalWeight
               return (
-                <div className="grid grid-cols-[auto_minmax(0,1fr)_6rem] items-center gap-3 py-3" key={evaluator.id}>
-                  <input
-                    aria-label={`${evaluator.name} 고정 멤버`}
-                    checked={selected !== undefined}
-                    className="size-4 accent-primary"
-                    disabled={disabled}
-                    onChange={(event) => toggle(evaluator.id, event.currentTarget.checked)}
-                    type="checkbox"
-                  />
-                  <div className="min-w-0">
-                    <p className="truncate text-sm font-medium">{evaluator.name}</p>
+                <div className="signal-assignment-preset-row" key={evaluator.id}>
+                  <label className="signal-assignment-checkbox" htmlFor={`${inputId}-${evaluator.id}-preset-selected`}>
+                    <span className="sr-only">{evaluator.name} 고정 멤버</span>
+                    <input
+                      aria-label={`${evaluator.name} 고정 멤버`}
+                      checked={selected !== undefined}
+                      disabled={disabled}
+                      id={`${inputId}-${evaluator.id}-preset-selected`}
+                      onChange={(event) => toggle(evaluator.id, event.currentTarget.checked)}
+                      type="checkbox"
+                    />
+                  </label>
+                  <div className="signal-assignment-preset-identity min-w-0">
+                    <p className="text-sm font-medium">{evaluator.name}</p>
                     <p className="text-xs text-muted-foreground">{evaluator.employeeCode}{selected === undefined ? "" : ` · 반영 ${(ratio * 100).toFixed(1)}%`}</p>
                   </div>
+                  <label className="sr-only" htmlFor={`${inputId}-${evaluator.id}-preset-weight`}>
+                    {evaluator.name} 고정 가중치
+                  </label>
                   <Input
                     aria-label={`${evaluator.name} 고정 가중치`}
                     disabled={disabled || selected === undefined}
+                    id={`${inputId}-${evaluator.id}-preset-weight`}
                     min="0.1"
                     onChange={(event) => {
                       const weight = Number(event.currentTarget.value)

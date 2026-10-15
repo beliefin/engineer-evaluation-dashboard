@@ -1,0 +1,66 @@
+/* Signal 15: body portals cannot inherit the workspace's scoped theme tokens. */
+.signal-select-content,
+.signal-sheet,
+.signal-toaster {
+ --background: #fff; --foreground: #1a1a18; --popover: #fff; --popover-foreground: #1a1a18;
+ --primary: #e8cf4a; --primary-foreground: #1a1a18; --primary-hover: #d6bd3b;
+ --secondary: #efefed; --secondary-foreground: #1a1a18; --muted: #efefed; --muted-foreground: #555552;
+ --accent: #faf5d8; --accent-foreground: #1a1a18; --border: #b5b5b2; --input: #90908b;
+ --ring: #1a1a18; --destructive: #b42318; --radius: 0;
+ font-family: var(--font-pretendard), Pretendard, sans-serif;
+ color: #1a1a18;
+ font-size: 16px;
+ line-height: 1.5;
+}
+.signal-select-trigger[data-slot="select-trigger"] {
+ min-height: 44px; height: auto; border-radius: 0; font-size: 16px; line-height: 1.5;
+ padding: 9px 12px; background: #fff; color: #1a1a18; border: 1px solid #90908b;
+ max-width: 100%; white-space: normal;
+}
+.signal-select-trigger[data-slot="select-trigger"] [data-slot="select-value"] {
+ display: flex; min-width: 0; white-space: normal; overflow-wrap: anywhere;
+ -webkit-line-clamp: unset;
+}
+.signal-select-trigger[data-slot="select-trigger"]:disabled { background: #efefed; color: #666662; opacity: 1; }
+.signal-select-trigger[data-slot="select-trigger"][aria-invalid="true"] { border: 2px solid #b42318; }
+.signal-select-trigger[data-slot="select-trigger"]:focus-visible { outline: 2px solid #1a1a18; outline-offset: 3px; box-shadow: 0 0 0 5px #e8cf4a; }
+.signal-select-content[data-slot="select-content"] {
+ border: 1px solid #1a1a18; border-radius: 0; background: #fff; color: #1a1a18;
+ box-shadow: 0 4px 0 rgb(26 26 24 / 12%); max-width: calc(100vw - 24px);
+ overscroll-behavior: contain;
+}
+.signal-select-content [data-slot="select-item"] {
+ min-height: 44px; border-radius: 0; padding: 10px 36px 10px 12px;
+ font-size: 16px; line-height: 1.5; white-space: normal; overflow-wrap: anywhere;
+ color: #1a1a18; background: #fff;
+}
+.signal-select-content [data-slot="select-item"][data-state="checked"] { background: #e8cf4a; font-weight: 750; }
+.signal-select-content [data-slot="select-item"][data-highlighted] { background: #1a1a18; color: #fff; outline: 2px solid #e8cf4a; outline-offset: -2px; }
+.signal-select-content [data-slot="select-item"][data-highlighted] * { color: inherit; }
+.signal-select-content [data-slot="select-item"][data-disabled] { background: #efefed; color: #73736e; opacity: 1; }
+.signal-select-content [data-slot="select-label"] { padding: 10px 12px; color: #555552; font-size: 16px; font-weight: 750; line-height: 1.4; }
+.signal-select-content [data-slot="select-separator"] { margin-block: 0; background: #b5b5b2; }
+.signal-select-content [data-slot="select-scroll-up-button"],
+.signal-select-content [data-slot="select-scroll-down-button"] { min-height: 44px; padding: 8px; background: #efefed; color: #1a1a18; }
+.signal-sheet[data-slot="sheet-content"] { background: #fff; color: #1a1a18; border-color: #1a1a18; border-radius: 0; }
+.signal-sheet > [data-slot="sheet-close"] { min-width: 44px; min-height: 44px; width: 44px; height: 44px; border-radius: 0; }
+.signal-sheet > [data-slot="sheet-close"]:focus-visible { outline: 2px solid #1a1a18; outline-offset: 3px; box-shadow: 0 0 0 5px #e8cf4a; }
+.signal-toaster [data-sonner-toast][data-styled] {
+ --normal-bg: #fff; --normal-text: #1a1a18; --normal-border: #1a1a18;
+ --success-bg: #fff; --success-text: #1a1a18; --success-border: #1a1a18;
+ --info-bg: #fff; --info-text: #1a1a18; --info-border: #1a1a18;
+ --warning-bg: #faf5d8; --warning-text: #1a1a18; --warning-border: #b6a12d;
+ --error-bg: #fff4f4; --error-text: #a72f2b; --error-border: #b42318;
+ border-radius: 0; border-width: 1px; padding: 18px; font-family: inherit; font-size: 16px; line-height: 1.5;
+ box-shadow: 0 4px 0 rgb(26 26 24 / 12%);
+}
+.signal-toaster [data-sonner-toast] [data-title],
+.signal-toaster [data-sonner-toast] [data-description] { font-size: 16px; line-height: 1.5; }
+.signal-toaster [data-sonner-toast] [data-title] { font-weight: 750; }
+.signal-toaster [data-sonner-toast] [data-button],
+.signal-toaster [data-sonner-toast] [data-close-button] { min-height: 44px; border-radius: 0; font-size: 16px; }
+.signal-toaster [data-sonner-toast] [data-close-button] { min-width: 44px; }
+@media (prefers-reduced-motion: reduce) {
+ .signal-select-content, .signal-sheet { animation: none !important; transition: none !important; }
+ .signal-toaster [data-sonner-toast], .signal-toaster [data-sonner-toast] svg { animation: none !important; transition: none !important; }
+}

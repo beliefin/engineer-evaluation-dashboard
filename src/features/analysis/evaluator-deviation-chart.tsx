@@ -1,5 +1,7 @@
 "use client"
 
+import "./detail-analysis-signal.css"
+
 import {
   Bar,
   BarChart,
@@ -19,7 +21,7 @@ import type { AnalysisChartProps, EvaluatorDeviationDatum } from "./types"
 const chartConfig = {
   deviation: {
     label: "평균 절대 편차",
-    color: "var(--chart-5)",
+    color: "#e8cf4a",
   },
 } satisfies ChartConfig
 
@@ -90,13 +92,13 @@ function EvaluatorTaskDeviationChart({
   const allZero = rows.every((datum) => datum.meanAbsoluteDeviation === 0)
 
   return (
-    <section className="border-t border-border-subtle pt-4 first:border-t-0 first:pt-0">
+    <section className="signal-detail-task border-t border-border-subtle pt-4 first:border-t-0 first:pt-0">
       <h3 className="text-sm font-semibold text-foreground">{taskLabel}</h3>
       <p className="mt-1 text-xs text-muted-foreground">
         축 범위 0~{resolvedDomainMax}점 · 동일 과제 전체 평균 기준
       </p>
       {allZero ? (
-        <div className="mt-3 flex min-h-72 items-center justify-center rounded-md bg-muted px-5 text-center">
+        <div className="signal-detail-zero mt-3 flex min-h-72 items-center justify-center rounded-md bg-muted px-5 text-center">
           <div>
             <p className="numeric text-lg font-semibold text-foreground">모든 평가자 편차 0.0점</p>
             <p className="mt-1 text-sm text-muted-foreground">
@@ -166,6 +168,7 @@ export function EvaluatorDeviationChart({
   const groups = taskGroups(data)
 
   return (
+    <div className="signal-detail-panel signal-detail-deviation">
     <AnalysisPanel
       title="평가자 간 점수 편차"
       description="평가자 원점수와 동일 과제 전체 평균 간 절대 차이의 평균"
@@ -183,5 +186,6 @@ export function EvaluatorDeviationChart({
         ))}
       </div>
     </AnalysisPanel>
+    </div>
   )
 }

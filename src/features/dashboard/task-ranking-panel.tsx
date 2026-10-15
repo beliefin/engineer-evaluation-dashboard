@@ -1,9 +1,12 @@
 "use client"
 
+import { HorizontalScroll } from "@/components/ui/horizontal-scroll"
+
+import "./dashboard-ranking-signal.css"
+
 import { useState } from "react"
 import Link from "next/link"
 
-import { StatusBadge } from "@/components/shared"
 import { Badge } from "@/components/ui/badge"
 import {
   Select,
@@ -25,20 +28,11 @@ import type { TaskRankingPanelProps, TaskRankingRow } from "./dashboard-view-mod
 import { RankingExportButton } from "./ranking-export-button"
 
 function RankingState({ row }: Readonly<{ row: TaskRankingRow }>) {
-  if (row.status === "complete") {
-    return (
-      <div className="flex flex-wrap items-center gap-1.5">
-        <StatusBadge status="completed" label="평가 완료" />
-        {row.isTied ? <Badge variant="outline">공동 순위</Badge> : null}
-      </div>
-    )
-  }
-
   return (
-    <StatusBadge
-      status={row.status === "in_progress" ? "in_progress" : "pending"}
-      label={row.status === "in_progress" ? "진행 중" : "미진행"}
-    />
+    <div className={`signal-task-rank-status is-${row.status}`}>
+      <span>{row.status === "complete" ? "평가 완료" : row.status === "in_progress" ? "진행 중" : "미진행"}</span>
+      {row.isTied ? <span className="signal-task-tied">공동 순위</span> : null}
+    </div>
   )
 }
 
@@ -48,13 +42,13 @@ export function TaskRankingPanel({ title, description, rankings, onDownload }: T
     ?? rankings[0]
 
   return (
-    <section className="overflow-hidden rounded-md border border-border bg-card">
-      <div className="flex flex-col gap-4 border-b border-border-subtle px-5 py-4 sm:flex-row sm:items-start sm:justify-between">
+    <section className="signal-task-ranking">
+      <h2 className="signal-dashboard-panel-title">{title}</h2>
+      <div className="signal-task-ranking-intro">
         <div>
-          <h2 className="text-base font-semibold">{title}</h2>
           <p className="mt-1 max-w-2xl text-xs leading-5 text-muted-foreground">{description}</p>
         </div>
-        <div className="flex shrink-0 flex-col items-end gap-2">
+        <div className="signal-task-ranking-actions">
           {activeRanking ? (
             <Badge variant="outline" className="numeric w-fit">
               완료 {activeRanking.completedCount}/{activeRanking.targetCount}명
@@ -72,7 +66,7 @@ export function TaskRankingPanel({ title, description, rankings, onDownload }: T
 
       {activeRanking ? (
         <>
-          <div className="flex flex-col gap-2 border-b border-border bg-muted/45 px-5 py-3 sm:flex-row sm:items-center sm:justify-between">
+          <div className="signal-task-ranking-select">
             <label className="text-xs font-medium text-muted-foreground" htmlFor="dashboard-task-ranking-select">
               순위 과제
             </label>
@@ -84,7 +78,7 @@ export function TaskRankingPanel({ title, description, rankings, onDownload }: T
               >
                 <SelectValue />
               </SelectTrigger>
-              <SelectContent>
+              <SelectContent className="signal-ranking-select-popup">
                 {rankings.map((ranking) => (
                   <SelectItem key={ranking.taskId} value={ranking.taskId}>
                     {ranking.label} 순위
@@ -94,8 +88,8 @@ export function TaskRankingPanel({ title, description, rankings, onDownload }: T
             </Select>
           </div>
 
-          <div className="max-h-[32rem] overflow-auto">
-            <Table>
+          <HorizontalScroll className="signal-task-ranking-scroll" role="region" aria-label="과제별 순위표, 스크롤할 수 있습니다" tabIndex={0}>
+            <Table scrollable={false}>
               <TableHeader className="sticky top-0 z-10 bg-card">
                 <TableRow>
                   <TableHead className="w-20 px-5">순위</TableHead>
@@ -106,7 +100,7 @@ export function TaskRankingPanel({ title, description, rankings, onDownload }: T
               </TableHeader>
               <TableBody>
                 {activeRanking.rows.map((row) => (
-                  <TableRow key={row.id}>
+                  <TableRow key={row.id} data-ranking-status={row.status}>
                     <TableCell className="numeric px-5 font-bold">
                       {row.rank === null ? "—" : `${row.rank}위`}
                     </TableCell>
@@ -127,7 +121,7 @@ export function TaskRankingPanel({ title, description, rankings, onDownload }: T
                 ))}
               </TableBody>
             </Table>
-          </div>
+          </HorizontalScroll>
         </>
       ) : (
         <div role="status" className="px-5 py-12 text-center text-sm text-muted-foreground">

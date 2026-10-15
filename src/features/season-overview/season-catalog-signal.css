@@ -1,0 +1,69 @@
+/* OV-02: one reusable card retains every original guide field and process step. */
+.signal-task-catalog,.signal-education-catalog {min-width:0;color:#1a1a18;background:#fff;padding:28px 0 36px}
+.signal-task-catalog-heading {margin-bottom:24px}
+.signal-task-catalog-heading>p:first-child {font-size:18px;font-weight:800;line-height:1.4;margin:0 0 10px;letter-spacing:-.02em}
+.signal-task-catalog-heading h2 {font-size:clamp(32px,4vw,60px);font-weight:900;line-height:1.12;letter-spacing:-.045em;margin:0 0 10px;word-break:keep-all}
+.signal-task-catalog-heading>p:last-child {font-size:20px;font-weight:600;line-height:1.5;margin:0;word-break:keep-all}
+.signal-task-catalog-grid {display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:28px 24px;align-items:start}
+.signal-task-card {min-width:0;background:white;border:1px solid #bfc1c5;scroll-margin-top:24px}
+.signal-task-card-heading {display:grid;grid-template-columns:76px minmax(0,1fr) 136px;grid-template-rows:minmax(52px,auto) minmax(28px,auto);align-items:stretch;background:#1a1a18;color:#fff}
+.signal-task-card-number {display:flex;align-items:center;justify-content:center;grid-column:1;grid-row:1/3;background:#e8cf4a;color:#1a1a18;font-size:42px;font-weight:900;letter-spacing:-.04em;padding:8px}
+.signal-task-card-heading h3 {display:flex;align-items:center;grid-column:2;grid-row:1/3;font-size:28px;font-weight:900;line-height:1.25;letter-spacing:-.035em;padding:16px 18px;margin:0;word-break:keep-all}
+.signal-task-card-weight {display:flex;align-items:center;justify-content:center;grid-column:3;grid-row:1;background:#e8cf4a;color:#1a1a18;font-size:40px;font-weight:900;line-height:1.1;padding:8px}
+.signal-task-card-method {display:flex;align-items:center;justify-content:center;grid-column:3;grid-row:2;text-align:center;background:#f1f1ee;color:#1a1a18;font-size:14px;font-weight:650;line-height:1.4;padding:4px 6px}
+.signal-task-guide {margin:0}
+.signal-task-guide-row {display:grid;grid-template-columns:138px minmax(0,1fr);border-top:1px solid #c9cbd0}
+.signal-task-guide-row dt {display:flex;align-items:center;padding:18px 20px;border-right:1px solid #c9cbd0;background:#f3f3f1;font-size:19px;font-weight:850;line-height:1.4;word-break:keep-all}
+.signal-task-guide-row dd {min-width:0;margin:0;padding:18px;font-size:17px;line-height:1.6;word-break:keep-all;overflow-wrap:anywhere}
+.signal-task-process {display:grid;gap:10px;margin:0;padding:0;list-style:none}
+.signal-task-process li {display:grid;grid-template-columns:42px minmax(0,1fr);gap:16px;align-items:stretch;background:#f6f6f3;min-width:0}
+.signal-task-process-number {display:flex;align-items:center;justify-content:center;background:#e8cf4a;color:#1a1a18;min-height:54px;font-size:21px;font-weight:900;padding:8px 4px}
+.signal-task-process li>div {padding:6px 8px 6px 0;min-width:0}
+.signal-task-process p {margin:0;font-size:16px;line-height:1.55;word-break:keep-all}
+.signal-task-process p.signal-task-process-title {font-size:18px;font-weight:800;line-height:1.4;margin:0 0 3px}
+.signal-task-focus {display:grid;gap:8px;list-style:none;margin:0;padding:0}
+.signal-task-focus li {display:grid;grid-template-columns:36px minmax(0,1fr);gap:12px;align-items:start;font-size:17px;line-height:1.5}
+.signal-task-focus li>span:first-child {display:flex;align-items:center;justify-content:center;background:#e8cf4a;min-height:28px;font-size:18px;font-weight:850}
+.signal-education-catalog {border-top:2px solid #1a1a18}
+.signal-education-card {min-width:0;border:1px solid #bfc1c5;padding:20px}
+.signal-education-card>header {display:flex;flex-wrap:wrap;gap:10px 16px;align-items:center;background:#1a1a18;color:white;padding:16px;margin:-20px -20px 20px}
+.signal-education-card h3 {font-size:25px;font-weight:850;line-height:1.3;margin:0}
+.signal-education-card [data-slot=badge] {color:white;border:1px solid #fff;border-radius:0;font-size:14px}
+.signal-education-card>header>span:last-child {font-size:16px}
+.signal-education-card>p {font-size:17px;line-height:1.6;margin:0 0 18px}
+@media(min-width:768px) and (max-width:1200px) {
+ .signal-task-catalog-grid {grid-template-columns:1fr}
+ .signal-task-card-heading {grid-template-columns:82px minmax(0,1fr) 155px}
+ .signal-task-card-heading h3 {font-size:30px}
+ .signal-task-guide-row {grid-template-columns:150px minmax(0,1fr)}
+ .signal-task-guide-row dd {font-size:18px}
+}
+@media(max-width:767px) {
+ .signal-task-catalog,.signal-education-catalog {padding:22px 0 30px}
+ .signal-task-catalog-heading h2 {font-size:36px;line-height:1.2}
+ .signal-task-catalog-heading>p:first-child,.signal-task-catalog-heading>p:last-child {font-size:16px;line-height:1.5}
+ .signal-task-catalog-grid {grid-template-columns:1fr;gap:26px}
+ .signal-task-card {border:0}
+ .signal-task-card-heading {grid-template-columns:minmax(0,.9fr) minmax(0,1.1fr);grid-template-rows:auto auto;border:1px solid #9a9a9a;background:#fff;margin-bottom:18px}
+ .signal-task-card-number {grid-column:1;grid-row:1;padding:18px 12px 4px;font-size:54px;line-height:1.1}
+ .signal-task-card-heading h3 {grid-column:1;grid-row:2;justify-content:center;text-align:center;padding:8px 12px 18px;background:#e8cf4a;color:#1a1a18;font-size:24px;line-height:1.3}
+ .signal-task-card-method {grid-column:2;grid-row:1;background:#1a1a18;color:white;font-size:19px;font-weight:800;padding:18px 12px}
+ .signal-task-card-weight {grid-column:2;grid-row:2;background:white;color:#1a1a18;font-size:48px;padding:18px 12px}
+ .signal-task-guide {display:grid;gap:18px}
+ .signal-task-guide-row {display:block;border:1px solid #bfc1c5}
+ .signal-task-guide-row dt {display:block;padding:10px 14px;border:0;background:#1a1a18;color:white;font-size:23px;line-height:1.3}
+ .signal-task-guide-row dd {padding:16px 14px;font-size:17px;line-height:1.6}
+ .signal-task-process-row dd {padding:0}
+ .signal-task-process {gap:0}
+ .signal-task-process li {grid-template-columns:44px minmax(0,1fr);gap:0;border-bottom:1px solid #bfc1c5;background:white}
+ .signal-task-process li:last-child {border-bottom:0}
+ .signal-task-process-number {font-size:23px;min-height:64px;border-right:1px solid #bfc1c5}
+ .signal-task-process li>div {padding:14px 12px}
+ .signal-task-process p {font-size:16px;line-height:1.55}
+ .signal-task-process p.signal-task-process-title {font-size:20px;line-height:1.4;margin-bottom:6px}
+ .signal-task-focus li {font-size:16px;line-height:1.5;grid-template-columns:32px minmax(0,1fr);gap:10px}
+ .signal-education-card {padding:16px}
+ .signal-education-card>header {padding:14px;margin:-16px -16px 16px}
+ .signal-education-card h3 {font-size:23px}
+ .signal-education-card>p {font-size:16px}
+}

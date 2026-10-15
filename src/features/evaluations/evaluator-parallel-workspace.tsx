@@ -13,6 +13,9 @@ import {
   SelectValue,
 } from "@/components/ui/select"
 
+import "./assignment-signal.css"
+import "./parallel-entry-signal.css"
+
 import type { AssignedEvaluationViewModel } from "./types"
 
 interface ParallelAssignmentGroup {
@@ -105,9 +108,9 @@ export function EvaluatorParallelWorkspace({
   return (
     <section
       aria-labelledby="parallel-evaluation-title"
-      className="overflow-hidden rounded-md border border-border bg-card"
+      className="signal-parallel-workspace overflow-hidden rounded-md border border-border bg-card"
     >
-      <header className="flex flex-col gap-4 p-5 sm:flex-row sm:items-center sm:justify-between">
+      <header className="signal-parallel-heading flex flex-col gap-4 p-5 sm:flex-row sm:items-center sm:justify-between">
         <div>
           <p className="mb-1 text-[10px] font-semibold tracking-[0.14em] text-primary uppercase">
             Paired score sheet
@@ -132,7 +135,7 @@ export function EvaluatorParallelWorkspace({
       </header>
 
       {open ? (
-        <div id="parallel-evaluation-content" className="border-t border-border-subtle bg-muted/20 p-4 md:p-5">
+        <div id="parallel-evaluation-content" className="signal-parallel-content border-t border-border-subtle bg-muted/20 p-4 md:p-5">
           <div className="grid gap-4 rounded-md border border-border-subtle bg-card p-4 lg:grid-cols-3">
             <div className="grid gap-2">
               <Label htmlFor="parallel-task">평가 과제</Label>
@@ -140,7 +143,7 @@ export function EvaluatorParallelWorkspace({
                 <SelectTrigger id="parallel-task" className="w-full">
                   <SelectValue />
                 </SelectTrigger>
-                <SelectContent>
+                <SelectContent className="signal-paired-select-options">
                   {groups.map((group) => (
                     <SelectItem key={group.taskId} value={group.taskId}>
                       {group.taskLabel}
@@ -155,7 +158,7 @@ export function EvaluatorParallelWorkspace({
                 <SelectTrigger id="parallel-left-presenter" className="w-full">
                   <SelectValue />
                 </SelectTrigger>
-                <SelectContent>
+                <SelectContent className="signal-paired-select-options">
                   {activeGroup.assignments.map((assignment) => (
                     <SelectItem key={assignment.id} value={assignment.id}>
                       {assignment.engineerName} · {assignment.teamName}
@@ -170,7 +173,7 @@ export function EvaluatorParallelWorkspace({
                 <SelectTrigger id="parallel-right-presenter" className="w-full">
                   <SelectValue />
                 </SelectTrigger>
-                <SelectContent>
+                <SelectContent className="signal-paired-select-options">
                   {activeGroup.assignments.map((assignment) => (
                     <SelectItem key={assignment.id} value={assignment.id}>
                       {assignment.engineerName} · {assignment.teamName}

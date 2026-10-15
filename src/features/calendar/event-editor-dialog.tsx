@@ -134,7 +134,7 @@ export function EventEditorDialog({
 
   return (
     <Dialog open onOpenChange={(open) => { if (!open) onClose() }}>
-      <DialogContent className="grid max-h-[min(48rem,calc(100dvh-2rem))] grid-rows-[minmax(0,1fr)] overflow-hidden sm:max-w-lg">
+      <DialogContent className="signal-calendar-editor grid max-h-[min(48rem,calc(100dvh-2rem))] grid-rows-[minmax(0,1fr)] overflow-hidden sm:max-w-lg">
         <form className="flex min-h-0 flex-col overflow-hidden" onSubmit={handleSubmit}>
           <DialogHeader className="shrink-0">
             <DialogTitle>{isEditing ? "발표 일정 수정" : "발표 일정 추가"}</DialogTitle>
@@ -143,7 +143,7 @@ export function EventEditorDialog({
             </DialogDescription>
           </DialogHeader>
 
-          <fieldset className="my-5 grid min-h-0 flex-1 gap-4 overflow-y-auto pr-1 sm:grid-cols-2">
+          <fieldset className="signal-calendar-editor-fields my-5 grid min-h-0 flex-1 gap-4 overflow-y-auto pr-1 sm:grid-cols-2">
             <legend className="sr-only">일정 입력 항목</legend>
             <div className="grid gap-2 sm:col-span-2">
               <Label htmlFor={`${id}-task`}>평가 과제</Label>
@@ -187,9 +187,9 @@ export function EventEditorDialog({
               <fieldset
                 aria-describedby={describedBy("engineerIds")}
                 aria-invalid={errorField === "engineerIds"}
-                className="grid gap-2 sm:col-span-2"
+                className="signal-calendar-engineers grid gap-2 sm:col-span-2"
               >
-                <div className="flex items-center justify-between gap-3">
+                <div className="signal-calendar-engineer-heading flex items-center justify-between gap-3">
                   <legend className="text-sm font-medium">엔지니어 복수 선택</legend>
                   <div className="flex items-center gap-1 text-xs">
                     <Button
@@ -214,7 +214,7 @@ export function EventEditorDialog({
                     <p className="p-2 text-sm text-muted-foreground">먼저 과제별 평가자를 배정해 주세요.</p>
                   ) : eligibleEngineers.map((engineer) => (
                     <label
-                      className="flex min-h-10 cursor-pointer items-center gap-2 rounded-md px-2 py-1.5 hover:bg-muted"
+                      className="signal-calendar-engineer-option flex min-h-10 cursor-pointer items-center gap-2 rounded-md px-2 py-1.5 hover:bg-muted"
                       htmlFor={`${id}-engineer-${engineer.id}`}
                       key={engineer.id}
                     >
@@ -233,7 +233,7 @@ export function EventEditorDialog({
                   ))}
                 </div>
                 <label
-                  className="mt-1 flex cursor-pointer items-start gap-3 rounded-md border border-border bg-muted/25 p-3"
+                  className="signal-calendar-parallel-option mt-1 flex cursor-pointer items-start gap-3 rounded-md border border-border bg-muted/25 p-3"
                   htmlFor={`${id}-parallel`}
                 >
                   <input
@@ -314,8 +314,8 @@ export function EventEditorDialog({
             </p>
           )}
 
-          <DialogFooter className="shrink-0 items-center sm:justify-between">
-            {event === null ? <span /> : (
+          <DialogFooter className="signal-calendar-editor-footer shrink-0 items-center sm:justify-between">
+            {event === null ? null : (
               <Button
                 onClick={() => onDeleteRequest(event)}
                 type="button"
@@ -324,7 +324,7 @@ export function EventEditorDialog({
                 일정 삭제
               </Button>
             )}
-            <div className="flex flex-col-reverse gap-2 sm:flex-row">
+            <div className="signal-calendar-save-actions flex flex-col-reverse gap-2 sm:flex-row">
               <Button onClick={onClose} type="button" variant="outline">취소</Button>
               <Button disabled={tasks.length === 0 || eligibleEngineers.length === 0} type="submit">
                 {isEditing ? "변경사항 저장" : "일정 저장"}

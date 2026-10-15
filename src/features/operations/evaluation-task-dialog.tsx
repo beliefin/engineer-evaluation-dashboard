@@ -32,6 +32,7 @@ import type {
   TaskItemDraft,
 } from "./types"
 import { RubricItemEditor } from "./rubric-item-editor"
+import styles from "./configuration-signal.module.css"
 
 const METHOD_LABELS: Readonly<Record<EvaluationMethod, string>> = {
   evaluator_score: "평가자 점수형",
@@ -126,7 +127,7 @@ export function EvaluationTaskDialog({ initial, disabled, onSave }: Props) {
           {initial === undefined ? "과제 추가" : "설정 수정"}
         </Button>
       </DialogTrigger>
-      <DialogContent className="block max-h-[90dvh] overflow-hidden p-0 sm:max-w-2xl">
+      <DialogContent className={`${styles.taskDialog} block max-h-[90dvh] overflow-hidden p-0 sm:max-w-2xl`}>
         <form className="flex max-h-[90dvh] flex-col" onSubmit={handleSubmit}>
           <DialogHeader className="shrink-0 px-4 pt-5 pr-12 sm:px-6 sm:pt-6">
             <DialogTitle>{initial === undefined ? "새 평가 과제" : "평가 과제 수정"}</DialogTitle>

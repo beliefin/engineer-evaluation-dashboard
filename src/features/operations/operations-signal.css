@@ -1,0 +1,32 @@
+/* OP-06 shell and common OperationPanel framing; tab/form contracts unchanged. */
+.signal-operations {min-width:0;color:#1a1a18;background:white}
+.signal-operations-heading {gap:18px;margin-bottom:20px}
+.signal-operations-heading>div>p:first-child {font-size:16px;line-height:1.4;color:#1a1a18;letter-spacing:0;margin:0 0 8px;font-weight:700}
+.signal-operations-heading h1 {font-size:clamp(36px,3.7vw,56px);line-height:1.1;font-weight:900;letter-spacing:-.045em;margin:0;word-break:keep-all}
+.signal-operations-heading>div>p:last-child {font-size:18px;line-height:1.5;margin-top:10px;color:#1a1a18;max-width:none}
+.signal-operations-heading>[data-slot=badge] {border:1px solid #1a1a18;background:white;border-radius:0;color:#1a1a18;font-size:16px;padding:8px 12px}
+.signal-operations-tab-wrap {min-width:0;max-width:100%;margin-bottom:12px}
+.signal-operations-tabs[data-slot=tabs-list] {display:flex;flex-wrap:wrap;justify-content:stretch;align-items:stretch;width:100%;height:auto;gap:0;border:1px solid #9a9a9a;background:white;min-width:0;padding:0}
+.signal-operations-tabs>[data-slot=tabs-trigger] {flex:1 0 auto;min-height:48px;height:auto;margin:0;padding:10px 12px;font-size:16px;font-weight:750;line-height:1.4;color:#1a1a18;border:0;border-right:1px solid #bfc1c5;border-bottom:1px solid #bfc1c5;border-radius:0;white-space:normal;text-align:center;word-break:keep-all}
+.signal-operations-tabs>[data-slot=tabs-trigger]::after {display:none}
+.signal-operations-tabs>[data-slot=tabs-trigger][data-state=active] {color:#1a1a18;background:#e8cf4a;font-weight:850}
+.signal-operations-tabs>[data-slot=tabs-trigger]:hover {background:#f4f1dc}
+.signal-operations-tabs>[data-slot=tabs-trigger]:focus-visible {outline:2px solid #1a1a18;outline-offset:-4px;box-shadow:none}
+.signal-operation-panel {min-width:0;border:0;border-radius:0;background:white;color:#1a1a18}
+.signal-operation-panel-heading {display:block;padding:0;border:0;gap:0}
+.signal-operation-heading-copy h2 {display:flex;align-items:center;min-height:48px;margin:0;background:#1a1a18;color:#fff;padding:10px 18px;font-size:26px;font-weight:850;line-height:1.3;letter-spacing:-.03em;word-break:keep-all}
+.signal-operation-heading-copy p {font-size:17px;line-height:1.5;max-width:none;margin:0;padding:12px 8px;color:#1a1a18}
+.signal-operation-panel-heading> :not(.signal-operation-heading-copy) {margin:10px 0}
+.signal-operation-panel-content {padding:0}
+.signal-derived-empty {display:flex;align-items:center;justify-content:center;min-height:440px;margin:0;padding:40px;border:1px solid #bfc1c5;border-radius:0;background:white;color:#1a1a18;font-size:20px;font-weight:650;line-height:1.6;word-break:keep-all;text-align:center}
+@media(max-width:1000px) {
+ .signal-operations-tabs>[data-slot=tabs-trigger] {flex:1 0 24%;font-size:16px}
+}
+@media(max-width:767px) {
+ .signal-operations-heading h1 {font-size:38px}
+ .signal-operations-heading>div>p:last-child {font-size:16px}
+ .signal-operations-tabs>[data-slot=tabs-trigger] {flex:1 0 32%;font-size:16px;padding:10px 8px;min-height:48px}
+ .signal-operation-heading-copy h2 {font-size:23px;padding:10px 14px}
+ .signal-operation-heading-copy p {font-size:16px;padding:12px 4px}
+ .signal-derived-empty {min-height:280px;padding:24px 18px;font-size:17px}
+}

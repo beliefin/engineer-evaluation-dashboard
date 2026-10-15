@@ -1,6 +1,8 @@
 "use client"
 
 import { useEffect } from "react"
+
+import "@/features/auth/auth-signal.css"
 import { ShieldCheckIcon } from "lucide-react"
 import { useRouter } from "next/navigation"
 
@@ -28,16 +30,14 @@ export function LoginScreen() {
   }
 
   return (
-    <main className="flex min-h-dvh items-center bg-background px-4 py-8 sm:px-5 lg:px-6">
-      <div className="mx-auto w-full max-w-4xl overflow-hidden rounded-lg border border-border bg-card">
-        <div className="border-b border-border px-5 py-4 sm:px-6">
+    <main className="signal-login flex min-h-dvh items-center bg-background px-4 py-8 sm:px-5 lg:px-6">
+      <div className="signal-login-panel mx-auto w-full max-w-4xl overflow-hidden rounded-lg border border-border bg-card">
+        <div className="signal-login-brand border-b border-border px-5 py-4 sm:px-6">
           <AppBrand href="/" />
+          <Badge variant="secondary">{remoteMode ? "운영 인증" : "샘플 인증"}</Badge>
         </div>
-        <div className="grid md:grid-cols-[minmax(0,1.1fr)_minmax(280px,0.9fr)]">
-          <section className="px-5 py-8 sm:px-8 sm:py-10" aria-labelledby="login-heading">
-            <Badge className="mb-4" variant="secondary">
-              {remoteMode ? "운영 인증" : "샘플 인증"}
-            </Badge>
+        <div className="signal-login-body grid md:grid-cols-[minmax(0,1.1fr)_minmax(280px,0.9fr)]">
+          <section className="signal-login-entry px-5 py-8 sm:px-8 sm:py-10" aria-labelledby="login-heading">
             <h1 className="text-[26px] leading-tight font-bold tracking-[-0.02em]" id="login-heading">
               역량평가 시스템 로그인
             </h1>
@@ -47,7 +47,7 @@ export function LoginScreen() {
             <LoginForm disabled={loadState !== "ready" || pending} onLogin={handleLogin} />
           </section>
 
-          <aside className="border-t border-border bg-muted/40 px-5 py-7 sm:px-8 md:border-t-0 md:border-l">
+          <aside className="signal-login-guide border-t border-border bg-muted/40 px-5 py-7 sm:px-8 md:border-t-0 md:border-l">
             <div className="flex items-start gap-3">
               <span className="mt-0.5 flex size-8 shrink-0 items-center justify-center rounded-md border border-primary/20 bg-accent text-primary">
                 <ShieldCheckIcon aria-hidden="true" className="size-4" />

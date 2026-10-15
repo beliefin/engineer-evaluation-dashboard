@@ -1,0 +1,88 @@
+/* Mobile-only Signal 15 adaptations. Same input DOM and persistence contracts. */
+@media (max-width: 767px) {
+  .signal-topbar { column-gap: 8px; }
+  /* Mobile navigation lives in the role-filtered Sheet. Do not leave a clipped
+     second copy of the desktop links below its trigger. */
+  .signal-shell-topbar { padding-bottom: 14px; }
+  .signal-shell-topbar > .signal-primary-navigation { display: none; }
+  .signal-brand { font-size: 24px; }
+  .signal-topbar-controls { gap: 6px; flex-shrink: 1; min-width: 0; }
+  .signal-cycle { min-height: 44px; max-width: 82px; font-size: 16px; }
+  .signal-mobile-menu button[aria-label="메뉴 열기"] { width: 44px; height: 44px; }
+  .signal-primary-navigation { max-width: 100%; overscroll-behavior-x: contain; }
+  .signal-nav-link { min-height: 48px; }
+  body:has(.signal-shell) [data-slot="sheet-content"] button[aria-label="메뉴 닫기"] { width: 44px; height: 44px; }
+  body:has(.signal-shell) [data-slot="sheet-content"] select { min-height: 44px; font-size: 16px; }
+  body:has(.signal-shell) [data-slot="sheet-content"] button { min-height: 44px; }
+  body:has(.signal-shell) [data-slot="sheet-content"] { padding-bottom: env(safe-area-inset-bottom, 0px); }
+
+  .signal-dashboard-metrics dd { font-size: clamp(36px, 10vw, 42px); }
+  .signal-dashboard-metrics dl > div { padding-inline: 12px !important; }
+  .signal-search { min-height: 44px; height: auto; padding: 0 8px; }
+  .signal-search input { min-height: 42px; font-size: 16px; }
+  .signal-search button { width: 44px; min-height: 44px; align-items: center; justify-content: center; }
+  .signal-page-actions { gap: 4px; }
+  .signal-page-actions button { width: 44px; min-height: 44px; align-items: center; justify-content: center; }
+  .signal-progress-table tbody th a { display: inline-flex; min-height: 44px; align-items: center; }
+  .signal-ranking-table a { display: inline-flex; min-height: 44px; align-items: center; justify-content: center; }
+  .signal-table-scroll { overscroll-behavior-x: contain; }
+  .signal-secondary-details > summary { min-height: 44px; padding-block: 12px; }
+  .signal-detail-return { position: static; display: inline-flex; min-height: 44px; align-items: center; margin-bottom: 8px; font-size: 14px; }
+
+  .signal-evaluation-header h1 { font-size: clamp(34px, 10.5vw, 42px); }
+  .signal-evaluation-header h2 { overflow-wrap: anywhere; }
+  .signal-footer { flex-wrap: wrap; gap: 8px; overflow-wrap: anywhere; padding-bottom: calc(12px + env(safe-area-inset-bottom, 0px)); }
+}
+
+/* Compact evaluation keeps each criterion and its input together on tablets. */
+@media (max-width: 900px) {
+  .signal-score-summary { grid-template-columns: 1.25fr 1fr .75fr; min-height: 94px; }
+  .signal-score-summary > div { padding-inline: 8px; }
+  .signal-score-summary > div:first-child { padding-left: 0; }
+  .signal-score-summary dd { flex-wrap: wrap; gap: 0 4px; }
+  .signal-score-summary strong { font-size: clamp(34px, 10.5vw, 42px); }
+  .signal-score-summary dd > span { display: block; flex-basis: 100%; font-size: 16px; line-height: 1.3; }
+
+  /* One real input per criterion; no duplicated mobile forms or IDs. */
+  .signal-score-table-scroll { overflow: visible; border-width: 1px; }
+  .signal-score-table { display: block; width: 100%; min-width: 0; max-width: 100%; }
+  .signal-score-table colgroup { display: none; }
+  .signal-score-table thead { position: absolute; width: 1px; height: 1px; padding: 0; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
+  .signal-score-table tbody { display: block; }
+  .signal-score-table tbody tr { display: grid; grid-template-columns: 24px minmax(0, 1fr) 86px; border-bottom: 1px solid #d5d5d5; }
+  .signal-score-table tbody tr:last-child { border-bottom: 0; }
+  .signal-score-table tbody :is(th, td) { height: auto; min-width: 0; border: 0; }
+  .signal-score-table .signal-group-start > * { border-top: 0; }
+  .signal-score-table .signal-score-section { grid-column: 1 / -1; display: block; padding: 10px 12px; min-height: 42px; background: #1a1a18; color: white; font-size: 20px; line-height: 1.2; }
+  .signal-score-number { grid-column: 1; display: flex; align-items: center; justify-content: center; min-height: 64px; font-size: 15px; }
+  .signal-score-label { grid-column: 2; display: flex; align-items: center; padding: 10px 8px; font-size: 16px; line-height: 1.4; overflow-wrap: anywhere; }
+  .signal-score-cell { grid-column: 3; display: flex; flex-direction: column; justify-content: center; padding: 8px 6px; }
+  .signal-score-cell input { width: 100%; height: 44px; font-size: 18px; padding: 6px 26px 6px 4px; scroll-margin-block: 100px; }
+  .signal-score-cell input + span { font-size: 12px; right: 5px; }
+  .signal-score-cell [id$="-error"] { font-size: 12px; line-height: 1.35; overflow-wrap: anywhere; white-space: normal; }
+  .signal-criteria > summary { min-height: 44px; align-items: center; }
+  .signal-criteria-content { padding-block: 16px; }
+  .signal-evaluation-tools { margin-top: 24px; }
+  .signal-evaluation-tools summary { min-height: 44px; }
+  .signal-evaluation-tools textarea { font-size: 16px; }
+  .signal-proxy-notice, .signal-locked-notice { overflow-wrap: anywhere; }
+  .signal-locked-notice button, .signal-evaluation-tools button { min-height: 44px; }
+  .signal-pass-fail { padding: 24px 16px; }
+  .signal-pass-fail h2 { font-size: 26px; }
+  .signal-pass-fail > div { gap: 12px; }
+  .signal-pass-fail button { min-width: 0; flex: 1; height: 56px; font-size: 20px; }
+
+  /* In-flow actions cannot cover the last score/error when the viewport shrinks. */
+  .signal-form-bottom { position: static; inset: auto; margin-top: 16px; min-height: 0; padding: 16px 12px; }
+  .signal-form-bottom > p { min-width: 0; white-space: normal; }
+  .signal-form-bottom [role="status"] { flex-wrap: wrap; overflow-wrap: anywhere; }
+  .signal-form-bottom [data-testid="score-form-actions"] { min-width: 0; }
+  .signal-form-bottom [data-slot="button"] { min-width: 0; min-height: 44px; padding-inline: 10px; }
+  .signal-shell:has(.signal-evaluation) .signal-footer { position: static; inset: auto; height: auto; min-height: 34px; padding: 10px 16px calc(10px + env(safe-area-inset-bottom, 0px)); }
+  .signal-evaluation { padding-bottom: 0; }
+}
+
+/* Preserve a clear gutter between tablet KPI values without changing desktop. */
+@media (min-width: 768px) and (max-width: 900px) {
+  .signal-dashboard-metrics dd { font-size: 48px; }
+}

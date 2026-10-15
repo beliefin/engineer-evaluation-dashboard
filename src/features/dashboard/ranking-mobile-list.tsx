@@ -9,10 +9,11 @@ interface RankingMobileListProps {
 
 export function RankingMobileList({ rows }: RankingMobileListProps) {
   return (
-    <ol className="divide-y divide-border md:hidden">
+    <ol className="signal-ranking-mobile divide-y divide-border md:hidden" aria-label="종합 순위 목록">
       {rows.map((row) => (
         <li
           key={row.id}
+          data-ranking-status={row.status}
           className="bg-card px-4 py-4"
         >
           <div className="flex items-start justify-between gap-3">

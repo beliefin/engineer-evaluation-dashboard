@@ -1,6 +1,7 @@
 import { BulkRegistrationDialog } from "./bulk-registration-dialog"
 import { RosterList } from "./roster-list"
 import { SingleRegistrationDialog } from "./single-registration-dialog"
+import styles from "./roster-signal.module.css"
 import type {
   EngineerRegistration,
   EngineerRosterItem,
@@ -42,15 +43,15 @@ export function RosterSection({
   const existingEmployeeCodes = rows.map((row) => row.employeeCode)
 
   return (
-    <section aria-labelledby={`${kind}-roster-title`} className="space-y-5 pt-3">
-      <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+    <section aria-labelledby={`${kind}-roster-title`} className={styles.section}>
+      <div className={styles.sectionHeading}>
         <div>
-          <h3 className="text-base font-semibold" id={`${kind}-roster-title`}>{label} 명단</h3>
-          <p className="mt-1 text-sm text-muted-foreground">
+          <h3 id={`${kind}-roster-title`}>{label} 명단</h3>
+          <p>
             개별 추가 또는 스프레드시트 목록 붙여넣기 일괄 등록
           </p>
         </div>
-        <div className="flex flex-wrap gap-2">
+        <div className={styles.registrationActions}>
           <SingleRegistrationDialog
             departmentOptions={departmentOptions}
             disabled={disabled}

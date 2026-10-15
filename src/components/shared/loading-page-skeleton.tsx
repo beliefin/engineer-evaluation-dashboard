@@ -1,3 +1,5 @@
+import "./signal-states.css"
+
 import { Skeleton } from "@/components/ui/skeleton"
 import { cn } from "@/lib/utils"
 
@@ -15,7 +17,7 @@ function LoadingPageSkeleton({
       role="status"
       aria-live="polite"
       aria-busy="true"
-      className={cn("space-y-6", className)}
+      className={cn("signal-loading-state space-y-6", className)}
     >
       <span className="sr-only">화면을 불러오는 중입니다.</span>
       <div className="space-y-2">

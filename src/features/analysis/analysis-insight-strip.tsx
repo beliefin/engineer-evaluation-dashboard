@@ -1,5 +1,7 @@
 import type { AnalysisHighlightDatum } from "./types"
 
+import "./analysis-summary-signal.css"
+
 type AnalysisInsightStripProps = Readonly<{
   data: readonly AnalysisHighlightDatum[]
 }>
@@ -10,7 +12,7 @@ export function AnalysisInsightStrip({ data }: AnalysisInsightStripProps) {
   return (
     <section
       aria-labelledby="analysis-insight-heading"
-      className="overflow-hidden border-y border-border bg-card"
+      className="signal-analysis-insights overflow-hidden border-y border-border bg-card"
     >
       <header className="border-b border-border-subtle px-4 py-4 sm:px-5">
         <h2 id="analysis-insight-heading" className="text-base font-semibold tracking-tight">

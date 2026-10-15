@@ -1,0 +1,52 @@
+/* EN-03: read-only raw scores, configured weights and normalized shares. */
+.panel {
+  --evaluator-ink: var(--signal-ink, #1a1a18);
+  --evaluator-line: #c5c5c5;
+  min-width: 0;
+  width: 100%;
+  color: var(--evaluator-ink);
+  background: #fff;
+  font-size: 16px;
+  line-height: 1.5;
+  font-variant-numeric: tabular-nums lining-nums;
+}
+.panel .heading { margin: 0; padding: 22px 20px 18px; font-size: 32px; line-height: 1.2; font-weight: 900; letter-spacing: -.035em; }
+.sectionBar { display: flex; align-items: center; gap: 24px; padding: 14px 20px; background: var(--evaluator-ink); color: #fff; }
+.panel .permission { margin: 0; flex-shrink: 0; font-size: 23px; line-height: 1.35; font-weight: 850; letter-spacing: -.025em; }
+.panel .explanation { margin: 0; padding-left: 24px; border-left: 1px solid #b1b1b1; font-size: 16px; line-height: 1.6; }
+.tableScroll { width: 100%; max-width: 100%; min-width: 0; overflow-x: auto; overscroll-behavior-x: contain; margin-top: 12px; }
+.scoreTable { border-collapse: collapse; width: 100%; min-width: 900px; table-layout: fixed; font-size: 18px; }
+.panel .scoreTable th, .panel .scoreTable td { border: 1px solid var(--evaluator-line); padding: 16px 20px; vertical-align: middle; text-align: center; font-size: 18px; line-height: 1.5; overflow-wrap: anywhere; }
+.scoreTable th { height: 58px; background: #ededed; font-weight: 800; }
+.scoreTable td { height: 66px; }
+.scoreTable th:nth-child(1), .scoreTable th:nth-child(2) { width: 18%; }
+.scoreTable th:nth-child(3) { width: 15%; }
+.scoreTable th:nth-child(4) { width: 16%; }
+.scoreTable th:nth-child(5) { width: 18%; }
+.scoreTable th:nth-child(6) { width: 15%; }
+.panel .scoreTable :is(th, td):nth-child(-n+2) { text-align: left; }
+.scoreTable td:nth-child(1), .scoreTable td:nth-child(2) { font-weight: 650; }
+.panel .status { height: auto; min-height: 32px; border: 0; border-radius: 0; padding: 4px 8px; background: #ededed; color: var(--evaluator-ink); font-size: 16px; font-weight: 650; line-height: 1.5; white-space: nowrap; }
+.scoreCards { display: none; }
+.panel .empty { margin: 12px 0 0; padding: 40px 20px; border: 1px solid var(--evaluator-line); color: #595959; text-align: center; font-size: 16px; }
+.panel [tabindex="0"]:focus-visible { outline: 3px solid var(--evaluator-ink); outline-offset: 3px; box-shadow: 0 0 0 3px var(--signal-yellow, #e8cf4a); }
+@media (max-width: 1100px) {
+  .sectionBar { align-items: flex-start; flex-direction: column; gap: 10px; }
+  .panel .explanation { border-left: 0; padding-left: 0; }
+}
+@media (max-width: 767px) {
+  .panel .heading { padding: 18px 14px 16px; font-size: 28px; }
+  .sectionBar { padding: 14px; }
+  .panel .permission { font-size: 22px; }
+  .tableScroll { display: none; }
+  .scoreCards { display: block; margin: 0; padding: 0; list-style: none; }
+  .scoreCards > li { min-width: 0; padding: 20px 14px; border-bottom: 1px solid var(--evaluator-line); }
+  .scoreCards > li:last-child { border-bottom: 0; }
+  .cardHeading { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: flex-start; gap: 12px; }
+  .cardHeading > div { min-width: 0; }
+  .cardHeading h3 { margin: 0; font-size: 22px; font-weight: 800; line-height: 1.3; overflow-wrap: anywhere; }
+  .cardHeading p { margin: 5px 0 0; color: #595959; font-size: 16px; overflow-wrap: anywhere; }
+  .scoreCards dl { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; margin: 20px 0 0; }
+  .scoreCards dt { color: #595959; font-size: 16px; }
+  .panel .scoreCards dd { margin: 6px 0 0; font-size: 20px; font-weight: 750; line-height: 1.4; overflow-wrap: anywhere; }
+}

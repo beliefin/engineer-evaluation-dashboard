@@ -58,7 +58,7 @@ export function ReopenSheetDialog({
           잠금 해제
         </Button>
       </DialogTrigger>
-      <DialogContent>
+      <DialogContent className="signal-reopen-dialog">
         <form onSubmit={handleSubmit}>
           <DialogHeader>
             <DialogTitle>잠금 해제 요청 승인</DialogTitle>

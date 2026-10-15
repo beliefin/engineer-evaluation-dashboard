@@ -1,0 +1,81 @@
+/* DA-03: existing filtering and task eligibility remain the data authority. */
+.signal-engineer-progress {border:0;border-radius:0;background:white;color:#1a1a18;min-width:0;overflow:visible}
+.signal-progress-heading {padding:0 0 26px;border:0;gap:24px;align-items:center}
+.signal-progress-heading h2 {font-size:clamp(34px,3.6vw,56px);font-weight:900;line-height:1.15;letter-spacing:-.045em}
+.signal-progress-heading h2+p {font-size:19px;line-height:1.6;color:#1a1a18;max-width:none;margin-top:10px}
+.signal-progress-heading>[data-slot=badge] {min-height:64px;padding:14px 20px;background:#f0f0ee;border:0;border-radius:0;color:#1a1a18;font-size:26px;font-weight:850;line-height:1.3;white-space:nowrap}
+.signal-progress-band {display:flex;align-items:center;gap:28px;background:#1a1a18;color:white;padding:14px 20px}
+.signal-progress-band h3 {font-size:21px;line-height:1.4;font-weight:850;margin:0}
+.signal-progress-legend {display:flex;gap:16px 26px;align-items:center;color:white;font-size:16px;line-height:1.4}
+.signal-progress-legend>span {display:inline-flex;align-items:center;gap:10px}
+.signal-progress-legend>span>span {width:18px;height:18px;margin:0;border:2px solid white;box-shadow:none;background:transparent}
+.signal-progress-legend>span:first-of-type>span {background:white}
+.signal-progress-legend>span:nth-of-type(2)>span {background:#e8cf4a;border-color:#e8cf4a}
+.signal-progress-legend>span:nth-of-type(4)>span {background:#a6a6a3;border-color:#a6a6a3}
+.signal-progress-controls {background:white;padding:18px 20px;border:1px solid #9a9a9a;border-top:0;color:#1a1a18;margin-bottom:18px;min-width:0}
+.signal-progress-primary-controls {display:flex;flex-direction:row;align-items:end;gap:20px;flex-wrap:wrap}
+.signal-progress-controls label {font-size:16px;font-weight:750;line-height:1.4;color:#1a1a18;min-width:0}
+.signal-progress-primary-controls>label:first-child {flex:1 1 280px}
+.signal-progress-primary-controls>label:not(:first-child) {flex:0 1 220px}
+.signal-progress-primary-controls>button {min-height:44px;min-width:130px;border:1px solid #9a9a9a;border-radius:0;font-size:16px;background:white;color:#1a1a18}
+.signal-progress-controls input,.signal-progress-controls [data-slot=select-trigger] {min-height:44px;height:auto;border:1px solid #9a9a9a;border-radius:0;background:white;color:#1a1a18;font-size:16px;line-height:1.4;box-shadow:none;padding-top:10px;padding-bottom:10px}
+.signal-progress-controls input {padding-left:40px}
+.signal-progress-controls [data-slot=select-trigger] {width:100%}
+.signal-progress-task-controls {display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:16px 20px;border-top:1px solid #bfc1c5;margin-top:18px;padding:16px 0 0;overflow:visible}
+.signal-progress-task-controls>p {grid-column:1/-1;justify-self:end;margin:0;padding:0;font-size:16px;color:#1a1a18}
+.signal-progress-select-popup {background:white;color:#1a1a18;border:1px solid #1a1a18;border-radius:0;box-shadow:none}
+.signal-progress-select-popup [data-slot=select-item] {min-height:44px;font-size:16px;border-radius:0}
+.signal-progress-select-popup [data-slot=select-item][data-highlighted] {background:#e8cf4a;color:#1a1a18}
+.signal-progress-desktop {max-width:100%;border:1px solid #9a9a9a;overscroll-behavior-inline:contain}
+.signal-progress-desktop [data-slot=table-container] {overflow:visible}
+.signal-progress-desktop table {width:100%;min-width:1350px;border-collapse:collapse;table-layout:auto;font-size:16px}
+.signal-progress-desktop thead {background:#ededeb}
+.signal-progress-desktop th {font-size:17px;font-weight:800;text-align:center;line-height:1.4;padding:14px 12px;color:#1a1a18;border-right:1px solid #bfc1c5;height:auto;background:#ededeb}
+.signal-progress-desktop th:first-child {min-width:174px;padding:14px}
+.signal-progress-desktop th:nth-child(2) {min-width:130px}
+.signal-progress-desktop th:nth-child(n+3) {min-width:170px}
+.signal-progress-desktop td {background:white;padding:16px 14px;border-top:1px solid #bfc1c5;border-right:1px solid #bfc1c5;vertical-align:top;white-space:normal;color:#1a1a18;font-size:16px}
+.signal-progress-desktop td:first-child {min-width:174px;background:white}
+.signal-progress-desktop td:first-child a {display:inline-flex;align-items:center;min-height:44px;font-size:17px;font-weight:800;line-height:1.4;color:#1a1a18;text-decoration:underline;text-decoration-thickness:1px;text-underline-offset:4px}
+.signal-progress-desktop td:first-child p {font-size:16px;line-height:1.5;margin-top:4px}
+.signal-progress-desktop td:nth-child(2) {text-align:center}
+.signal-progress-desktop td:nth-child(2)>p {font-size:18px;font-weight:750;color:#1a1a18;line-height:1.5;margin-top:8px}
+.signal-engineer-progress .signal-progress-status[data-slot=badge] {display:inline-flex;align-items:center;gap:9px;background:transparent;border:0;border-radius:0;padding:0;color:#1a1a18;font-size:16px;line-height:1.5;white-space:nowrap}
+.signal-progress-status::before,.signal-progress-task>p:first-child::before,.signal-progress-not-applicable::before {content:"";display:inline-block;width:16px;height:16px;flex:0 0 16px;border:2px solid #1a1a18;background:white;vertical-align:-2px;margin-right:9px}
+.signal-progress-status::before {margin-right:0}
+.signal-progress-status-complete::before,.signal-progress-task-complete>p:first-child::before {background:#1a1a18}
+.signal-progress-status-in_progress::before,.signal-progress-task-in_progress>p:first-child::before {background:#e8cf4a}
+.signal-progress-not-applicable::before {background:#b4b4b0;border-color:#b4b4b0}
+.signal-progress-not-applicable {font-size:16px;line-height:1.5;color:#1a1a18}
+.signal-progress-task {min-width:0}
+.signal-progress-task>p:first-child {font-size:16px;font-weight:650;line-height:1.5;color:#1a1a18}
+.signal-progress-task>p:nth-child(2) {font-size:24px;font-weight:850;line-height:1.25;letter-spacing:-.03em;color:#1a1a18;margin:6px 0}
+.signal-progress-task>p:last-child {font-size:15px;line-height:1.5;color:#1a1a18;white-space:normal}
+.signal-progress-mobile {border:1px solid #9a9a9a;padding:0;list-style:none}
+.signal-progress-mobile>li {background:white;padding:20px 16px;border-color:#bfc1c5}
+.signal-progress-mobile a {display:inline-flex;align-items:center;min-height:44px;font-size:20px;font-weight:850;color:#1a1a18;text-decoration:underline;text-underline-offset:4px;white-space:normal;overflow:visible}
+.signal-progress-mobile p {font-size:16px;line-height:1.6;color:#1a1a18}
+.signal-engineer-progress>div[role=status] {border:1px solid #bfc1c5;padding:50px 20px;font-size:18px;color:#1a1a18}
+@media(max-width:1000px) {
+ .signal-progress-band {display:block}
+ .signal-progress-legend {margin-top:14px;gap:14px 24px}
+ .signal-progress-heading h2+p {font-size:17px}
+ .signal-progress-heading>[data-slot=badge] {font-size:22px}
+}
+@media(max-width:767px) {
+ .signal-progress-heading {display:block;padding-bottom:20px}
+ .signal-progress-heading h2 {font-size:36px;line-height:1.2}
+ .signal-progress-heading h2+p {font-size:16px}
+ .signal-progress-heading>[data-slot=badge] {margin-top:16px;min-height:50px;font-size:23px;padding:10px 16px}
+ .signal-progress-band {padding:16px}
+ .signal-progress-band h3 {font-size:21px}
+ .signal-progress-legend {display:grid;grid-template-columns:repeat(2,minmax(0,1fr));font-size:16px;gap:14px 16px}
+ .signal-progress-controls {padding:18px 16px}
+ .signal-progress-primary-controls {display:grid;grid-template-columns:minmax(0,1fr);gap:16px}
+ .signal-progress-primary-controls>button {width:100%}
+ .signal-progress-task-controls {grid-template-columns:repeat(2,minmax(0,1fr));gap:16px 12px}
+ .signal-progress-task-controls label {font-size:16px}
+ .signal-progress-task-controls [data-slot=select-trigger] {padding-inline:10px}
+ .signal-progress-mobile>li>div {gap:12px}
+ .signal-progress-mobile .signal-progress-status {font-size:16px}
+}

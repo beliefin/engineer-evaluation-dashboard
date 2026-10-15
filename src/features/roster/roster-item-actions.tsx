@@ -2,6 +2,7 @@ import { PencilIcon, Trash2Icon } from "lucide-react"
 
 import { Button } from "@/components/ui/button"
 import { cn } from "@/lib/utils"
+import styles from "./roster-signal.module.css"
 
 type RosterActionItem = Readonly<{
   id: string
@@ -25,10 +26,10 @@ export function RosterItemActions<Item extends RosterActionItem>({
 }>) {
   const linkedDescriptionId = `${item.id}-${surface}-linked-account-description`
   return (
-    <div className={cn("mt-2 flex items-center justify-end md:mt-0", surface === "mobile" ? "gap-2" : "gap-1")}>
+    <div className={cn(styles.itemActions, surface === "mobile" ? styles.mobileActions : styles.desktopActions)}>
       {linkedAccount ? (
         <span
-          className="mr-1 text-xs whitespace-nowrap text-muted-foreground"
+          className={styles.linked}
           id={linkedDescriptionId}
         >
           계정 연결됨
@@ -41,7 +42,7 @@ export function RosterItemActions<Item extends RosterActionItem>({
         className={surface === "mobile" ? "size-11" : undefined}
         size={surface === "mobile" ? "icon-lg" : "icon-sm"}
         type="button"
-        variant="ghost"
+        variant="outline"
       >
         <PencilIcon aria-hidden="true" />
       </Button>
@@ -54,7 +55,7 @@ export function RosterItemActions<Item extends RosterActionItem>({
         size={surface === "mobile" ? "icon-lg" : "icon-sm"}
         title={linkedAccount ? "연결된 로그인 계정을 먼저 변경하거나 삭제해 주세요." : undefined}
         type="button"
-        variant="destructive"
+        variant="outline"
       >
         <Trash2Icon aria-hidden="true" />
       </Button>

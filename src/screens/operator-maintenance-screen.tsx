@@ -11,6 +11,7 @@ import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, D
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { useEvaluation } from "@/providers"
+import "@/features/operations/maintenance-reset-signal.css"
 
 const OPERATION_LABELS: Readonly<Record<string, string>> = {
   backup_created: "백업 생성", state_restored: "백업 복구", save_draft: "평가 초안 저장",
@@ -84,27 +85,27 @@ export function OperatorMaintenanceScreen() {
   }
 
   if (backendMode !== "supabase") {
-    return <p className="rounded-lg border bg-card p-5 text-sm text-muted-foreground">백업과 변경 이력은 서버 연결 모드에서 사용할 수 있습니다.</p>
+    return <p className="signal-maintenance-local-notice rounded-lg border bg-card p-5 text-sm text-muted-foreground">백업과 변경 이력은 서버 연결 모드에서 사용할 수 있습니다.</p>
   }
 
   return (
-    <div className="space-y-6">
+    <div className="signal-maintenance-server space-y-6">
       <header className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
         <div><p className="mb-2 text-xs font-semibold tracking-[0.08em] text-primary uppercase">운영 안전</p><h1 className="text-[26px] font-bold tracking-[-0.02em] sm:text-3xl">백업 및 변경 이력</h1><p className="mt-2 text-sm text-muted-foreground">중요 변경 전 상태 보관과 사용자별 변경 내역 확인</p></div>
         <Button disabled={pending} onClick={() => void refresh()} type="button" variant="outline"><RefreshCwIcon aria-hidden="true" />새로고침</Button>
       </header>
       {error ? <p className="rounded-md border border-destructive/30 bg-destructive/5 px-4 py-3 text-sm text-destructive" role="alert">{error}</p> : null}
-      <section className="flex flex-col gap-3 rounded-lg border bg-card px-5 py-4 sm:flex-row sm:items-center sm:justify-between"><div><h2 className="font-semibold">명단 계정 초기 비밀번호</h2><p className="mt-1 text-sm text-muted-foreground">연결 명단의 사번 4자리로 초기화하고 다음 로그인 시 변경 안내 표시</p></div><Button disabled={pending} onClick={() => void handleResetRosterPasswords()} type="button" variant="outline">사번 4자리 적용</Button></section>
-      <section className="rounded-lg border bg-card" aria-labelledby="backup-heading">
+      <section className="signal-maintenance-passwords flex flex-col gap-3 rounded-lg border bg-card px-5 py-4 sm:flex-row sm:items-center sm:justify-between"><div><h2 className="font-semibold">명단 계정 초기 비밀번호</h2><p className="mt-1 text-sm text-muted-foreground">연결 명단의 사번 4자리로 초기화하고 다음 로그인 시 변경 안내 표시</p></div><Button disabled={pending} onClick={() => void handleResetRosterPasswords()} type="button" variant="outline">사번 4자리 적용</Button></section>
+      <section className="signal-maintenance-backups rounded-lg border bg-card" aria-labelledby="backup-heading">
         <div className="border-b px-5 py-4"><h2 className="font-semibold" id="backup-heading">평가 데이터 백업</h2><p className="mt-1 text-sm text-muted-foreground">복구 직전 현재 상태 자동 백업</p></div>
         <div className="grid gap-3 border-b p-5 sm:grid-cols-[1fr_auto] sm:items-end"><div className="space-y-2"><Label htmlFor="backup-label">백업 이름</Label><Input id="backup-label" maxLength={100} onChange={(event) => setLabel(event.currentTarget.value)} placeholder="예: 평가 시작 전 설정" value={label} /></div><Button disabled={pending} onClick={() => void handleCreateBackup()} type="button"><DatabaseBackupIcon aria-hidden="true" />현재 상태 백업</Button></div>
         <ul className="divide-y">{data?.backups.length ? data.backups.map((backup) => <li className="flex flex-col gap-3 px-5 py-4 sm:flex-row sm:items-center sm:justify-between" key={backup.id}><div><p className="font-medium">{backup.label}</p><p className="mt-1 text-xs text-muted-foreground">revision {backup.revision} · {formatDate(backup.createdAt)} · {backup.createdBy ?? "시스템"}</p></div><Button disabled={pending} onClick={() => setRestoreTarget(backup)} size="sm" type="button" variant="outline"><ArchiveRestoreIcon aria-hidden="true" />이 상태로 복구</Button></li>) : <li className="px-5 py-8 text-center text-sm text-muted-foreground">저장된 백업이 없습니다.</li>}</ul>
       </section>
-      <section className="overflow-hidden rounded-lg border bg-card" aria-labelledby="audit-heading">
+      <section className="signal-maintenance-audit overflow-hidden rounded-lg border bg-card" aria-labelledby="audit-heading">
         <div className="border-b px-5 py-4"><h2 className="font-semibold" id="audit-heading">최근 변경 이력</h2><p className="mt-1 text-sm text-muted-foreground">최근 100건 최신순 표시</p></div>
         <div className="overflow-x-auto"><table className="w-full min-w-[720px] text-sm"><thead className="bg-muted/50 text-left"><tr><th className="px-4 py-3">시각</th><th className="px-4 py-3">작업</th><th className="px-4 py-3">사용자</th><th className="px-4 py-3">대상</th><th className="px-4 py-3 text-right">revision</th></tr></thead><tbody className="divide-y">{data?.auditEvents.map((event) => <tr key={event.id}><td className="px-4 py-3 text-muted-foreground">{formatDate(event.createdAt)}</td><td className="px-4 py-3 font-medium">{OPERATION_LABELS[event.operation] ?? event.operation}</td><td className="px-4 py-3">{event.actorName}</td><td className="max-w-52 truncate px-4 py-3 text-muted-foreground">{event.targetId ?? "-"}</td><td className="px-4 py-3 text-right tabular-nums">{event.revision}</td></tr>)}</tbody></table></div>
       </section>
-      <Dialog onOpenChange={(open) => { if (!open) setRestoreTarget(null) }} open={restoreTarget !== null}><DialogContent showCloseButton={false}><DialogHeader><DialogTitle>백업을 복구할까요?</DialogTitle><DialogDescription>현재 평가 데이터는 자동 백업한 뒤 ‘{restoreTarget?.label}’ 상태로 교체됩니다.</DialogDescription></DialogHeader><DialogFooter><Button disabled={pending} onClick={() => setRestoreTarget(null)} type="button" variant="outline">취소</Button><Button disabled={pending} onClick={() => void handleRestore()} type="button" variant="destructive">복구 실행</Button></DialogFooter></DialogContent></Dialog>
+      <Dialog onOpenChange={(open) => { if (!open) setRestoreTarget(null) }} open={restoreTarget !== null}><DialogContent className="signal-maintenance-dialog" showCloseButton={false}><DialogHeader><DialogTitle>백업을 복구할까요?</DialogTitle><DialogDescription>현재 평가 데이터는 자동 백업한 뒤 ‘{restoreTarget?.label}’ 상태로 교체됩니다.</DialogDescription></DialogHeader><DialogFooter><Button disabled={pending} onClick={() => setRestoreTarget(null)} type="button" variant="outline">취소</Button><Button disabled={pending} onClick={() => void handleRestore()} type="button" variant="destructive">복구 실행</Button></DialogFooter></DialogContent></Dialog>
     </div>
   )
 }

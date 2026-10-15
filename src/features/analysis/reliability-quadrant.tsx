@@ -1,26 +1,16 @@
 "use client"
 
-import {
-  CartesianGrid,
-  Cell,
-  ReferenceLine,
-  Scatter,
-  ScatterChart,
-  XAxis,
-  YAxis,
-} from "recharts"
-
-import { ChartContainer, type ChartConfig } from "@/components/ui/chart"
+import { HorizontalScroll } from "@/components/ui/horizontal-scroll"
 
 import { AnalysisPanel } from "./analysis-panel"
 import { AnalysisTable, type AnalysisTableColumn } from "./analysis-table"
 import { formatCount, formatScore } from "./format"
 import type { EvaluationReliabilityDatum } from "./types"
 
-const chartConfig = {
-  stable: { label: "평가자 의견 유사", color: "var(--chart-1)" },
-  review: { label: "이견 검토", color: "var(--chart-5)" },
-} satisfies ChartConfig
+import "./analysis-summary-signal.css"
+
+const X_AXIS_TICKS = [0, 20, 40, 60, 80, 100] as const
+const PLOT = { left: 56, right: 580, top: 28, bottom: 308 } as const
 
 const columns: readonly AnalysisTableColumn<EvaluationReliabilityDatum>[] = [
   { key: "engineer", header: "엔지니어", render: (row) => row.engineerLabel },
@@ -54,81 +44,84 @@ export function ReliabilityQuadrant({
   isLoading = false,
 }: ReliabilityQuadrantProps) {
   const domainMax = domainMaximum(data)
-  const chartData = data.map((entry) => ({
-    ...entry,
-    kind: entry.isHighDisagreement ? "review" : "stable",
-  }))
+  const yTicks = Array.from({ length: 5 }, (_, index) => domainMax * index / 4)
+  const xPosition = (value: number) => PLOT.left + value / 100 * (PLOT.right - PLOT.left)
+  const yPosition = (value: number) => PLOT.bottom - value / domainMax * (PLOT.bottom - PLOT.top)
 
   return (
-    <AnalysisPanel
-      title="평가 신뢰도 사분면"
-      description={`${taskLabel}의 합의 평균과 평가자 간 점수 이견 비교. 오른쪽 위는 고득점·추가 확인 대상`}
-      isEmpty={data.length === 0}
-      isLoading={isLoading}
-    >
-      <ChartContainer
-        config={chartConfig}
-        className="h-80 w-full aspect-auto"
-        role="img"
-        aria-label={`${taskLabel} 합의 평균과 평가자 점수 표준편차 산점도`}
+    <div className="signal-analysis-panel signal-analysis-quadrant">
+      <AnalysisPanel
+        title="평가 신뢰도 사분면"
+        description={`${taskLabel}의 합의 평균과 평가자 간 점수 이견 비교. 오른쪽 위는 고득점·추가 확인 대상`}
+        isEmpty={data.length === 0}
+        isLoading={isLoading}
       >
-        <ScatterChart margin={{ top: 16, right: 20, bottom: 20, left: 0 }}>
-          <CartesianGrid strokeDasharray="3 3" />
-          <XAxis
-            dataKey="consensusScore"
-            domain={[0, 100]}
-            name="합의 평균"
-            tickLine={false}
-            axisLine={false}
-            ticks={[0, 20, 40, 60, 80, 100]}
-            type="number"
-            label={{ value: "합의 평균 점수", position: "insideBottom", offset: -10 }}
-          />
-          <YAxis
-            dataKey="standardDeviation"
-            domain={[0, domainMax]}
-            name="평가자 표준편차"
-            tickLine={false}
-            axisLine={false}
-            type="number"
-            width={40}
-            label={{ value: "이견", angle: -90, position: "insideLeft", offset: 8 }}
-          />
-          <ReferenceLine
-            y={standardDeviationThreshold}
-            stroke="var(--warning)"
-            strokeDasharray="4 4"
-            label={{ value: "이견 검토선", position: "insideTopRight", fill: "var(--warning)", fontSize: 12 }}
-          />
-          <Scatter data={chartData} name="평가 대상">
-            {chartData.map((entry) => (
-              <Cell
-                key={entry.engineerId}
-                fill={entry.isHighDisagreement ? "var(--warning)" : "var(--chart-1)"}
-              />
+        <HorizontalScroll className="signal-analysis-scroll" role="region" aria-label="평가 신뢰도 산점도 가로 스크롤 영역" tabIndex={0}>
+          <svg
+            className="signal-analysis-quadrant-svg"
+            viewBox="0 0 600 368"
+            role="img"
+            aria-label={`${taskLabel} 합의 평균과 평가자 점수 표준편차 산점도`}
+            data-domain-max={domainMax}
+          >
+            <title>{`${taskLabel}: 비교 가능 대상 ${formatCount(data.length, "명")}, 이견 검토선 ${formatScore(standardDeviationThreshold)}`}</title>
+            <text x="18" y="18" className="signal-analysis-axis-title">이견</text>
+            {X_AXIS_TICKS.map((tick) => (
+              <g key={tick} data-x-tick={tick}>
+                <line x1={xPosition(tick)} x2={xPosition(tick)} y1={PLOT.top} y2={PLOT.bottom} stroke="#dededb" />
+                <text x={xPosition(tick)} y={PLOT.bottom + 26} textAnchor="middle">{tick}</text>
+              </g>
             ))}
-          </Scatter>
-        </ScatterChart>
-      </ChartContainer>
-      <section aria-label="사분면 점 범례" className="mt-3 flex flex-wrap gap-x-4 gap-y-1 text-xs text-muted-foreground">
-        <span className="inline-flex items-center gap-1.5">
-          <span aria-hidden="true" className="size-2 rounded-full bg-primary" />
-          의견 유사
-        </span>
-        <span className="inline-flex items-center gap-1.5">
-          <span aria-hidden="true" className="size-2 rounded-full bg-warning" />
-          이견 확인
-        </span>
-      </section>
-      <p className="mt-3 text-xs leading-5 text-muted-foreground">
-        이견 확인은 최고·최저 차, 표준편차, 다른 평가자 평균 대비 큰 편차를 함께 반영한 검토 신호입니다. 확정 판정이 아닙니다.
-      </p>
-      <AnalysisTable
-        caption={`${taskLabel} 엔지니어별 합의 평균, 평가자 간 표준편차, 점수 범위와 검토 상태`}
-        columns={columns}
-        getRowKey={(row) => row.engineerId}
-        rows={data}
-      />
-    </AnalysisPanel>
+            {yTicks.map((tick) => (
+              <g key={tick} data-y-tick={tick}>
+                <line x1={PLOT.left} x2={PLOT.right} y1={yPosition(tick)} y2={yPosition(tick)} stroke="#dededb" />
+                <text x={PLOT.left - 14} y={yPosition(tick)} textAnchor="end" dominantBaseline="middle">{tick}</text>
+              </g>
+            ))}
+            <line x1={PLOT.left} x2={PLOT.right} y1={PLOT.bottom} y2={PLOT.bottom} stroke="#1a1a18" />
+            <line x1={PLOT.left} x2={PLOT.left} y1={PLOT.top} y2={PLOT.bottom} stroke="#1a1a18" />
+            <line
+              data-mark="review-threshold"
+              x1={PLOT.left}
+              x2={PLOT.right}
+              y1={yPosition(standardDeviationThreshold)}
+              y2={yPosition(standardDeviationThreshold)}
+              stroke="#777774"
+              strokeDasharray="6 5"
+            />
+            <text x={PLOT.right - 8} y={yPosition(standardDeviationThreshold) - 12} textAnchor="end">이견 검토선</text>
+            {data.map((entry) => (
+              <circle
+                key={entry.engineerId}
+                data-engineer-id={entry.engineerId}
+                data-disagreement={entry.isHighDisagreement}
+                cx={xPosition(entry.consensusScore)}
+                cy={yPosition(entry.standardDeviation)}
+                r="7"
+                fill={entry.isHighDisagreement ? "#e8cf4a" : "#b5b5b2"}
+                stroke="#1a1a18"
+                strokeWidth="1.2"
+              >
+                <title>{`${entry.engineerLabel}: 합의 평균 ${formatScore(entry.consensusScore)}, 표준편차 ${formatScore(entry.standardDeviation)}, 평가자 ${formatCount(entry.evaluatorCount, "명")}, ${entry.isHighDisagreement ? "이견 확인" : "의견 유사"}`}</title>
+              </circle>
+            ))}
+            <text x={PLOT.right} y="362" textAnchor="end" className="signal-analysis-axis-title">합의 평균 점수</text>
+          </svg>
+        </HorizontalScroll>
+        <section aria-label="사분면 점 범례" className="signal-analysis-quadrant-legend">
+          <span><i aria-hidden="true" className="signal-analysis-point-stable" />의견 유사</span>
+          <span><i aria-hidden="true" className="signal-analysis-point-review" />이견 확인</span>
+        </section>
+        <p className="mt-3 text-xs leading-5 text-muted-foreground">
+          이견 확인은 최고·최저 차, 표준편차, 다른 평가자 평균 대비 큰 편차를 함께 반영한 검토 신호입니다. 확정 판정이 아닙니다.
+        </p>
+        <AnalysisTable
+          caption={`${taskLabel} 엔지니어별 합의 평균, 평가자 간 표준편차, 점수 범위와 검토 상태`}
+          columns={columns}
+          getRowKey={(row) => row.engineerId}
+          rows={data}
+        />
+      </AnalysisPanel>
+    </div>
   )
 }

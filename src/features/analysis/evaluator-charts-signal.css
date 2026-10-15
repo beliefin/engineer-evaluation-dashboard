@@ -1,0 +1,132 @@
+/* ER-02/03/04: scoped presentation only. All values come from the original view model. */
+.signal-evaluator-profile {
+  display: grid;
+  min-width: 0;
+  gap: 48px;
+  color: #1a1a18;
+  font-family: var(--font-pretendard), Pretendard, sans-serif;
+}
+
+.signal-evaluator-profile > .signal-evaluator-summary { margin-bottom: 0; }
+.signal-evaluator-scene { min-width: 0; color: #1a1a18; font-family: var(--font-pretendard), Pretendard, sans-serif; }
+.signal-evaluator-scene > section { border: 0; border-radius: 0; background: #fff; box-shadow: none; }
+.signal-evaluator-scene > section > header { border: 0; padding: 0 0 20px; }
+.signal-evaluator-scene > section > header h2 {
+  margin: 0;
+  font-size: clamp(34px, 3.7vw, 56px);
+  font-weight: 900;
+  line-height: 1.15;
+  letter-spacing: -.045em;
+  word-break: keep-all;
+}
+.signal-evaluator-scene > section > header p { margin-top: 12px; font-size: 19px; line-height: 1.5; color: #454543; }
+.signal-evaluator-scene > section > div { padding: 0; }
+.signal-evaluator-scene [data-slot="empty-description"] { font-size: 16px; }
+
+.signal-evaluator-chart-legend { display: flex; flex-wrap: wrap; justify-content: flex-end; gap: 12px 28px; margin: 0 0 22px; font-size: 18px; font-weight: 750; line-height: 1.5; }
+.signal-evaluator-chart-legend > span { display: inline-flex; align-items: center; gap: 10px; }
+.signal-evaluator-chart-legend i { display: inline-block; flex: none; width: 22px; height: 22px; }
+.signal-evaluator-legend-primary, .signal-evaluator-chart-bar-primary { background: #e8cf4a; }
+.signal-evaluator-legend-peer, .signal-evaluator-chart-bar-peer { background: #c9c9c7; }
+.signal-evaluator-chart-scroll, .signal-evaluator-table-scroll { min-width: 0; max-width: 100%; overflow: auto; overscroll-behavior-x: contain; }
+.signal-evaluator-chart-scroll { margin-bottom: 24px; }
+.signal-evaluator-chart-scroll:focus-visible, .signal-evaluator-table-scroll:focus-visible { outline: 2px solid #1a1a18; outline-offset: 3px; box-shadow: 0 0 0 5px #e8cf4a; }
+.signal-evaluator-comparison {
+  --label-width: 220px;
+  --end-space: 90px;
+  --axis-height: 36px;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  min-width: 800px;
+}
+.signal-evaluator-chart-grid { position: absolute; top: 0; bottom: var(--axis-height); left: var(--label-width); right: var(--end-space); pointer-events: none; }
+.signal-evaluator-chart-gridline { position: absolute; top: 0; bottom: 0; border-left: 1px solid #dededb; }
+.signal-evaluator-chart-gridline:first-child { border-color: #939390; }
+.signal-evaluator-chart-axis { position: relative; order: 2; flex: none; height: var(--axis-height); margin-left: var(--label-width); margin-right: var(--end-space); border-top: 1px solid #939390; }
+.signal-evaluator-chart-tick { position: absolute; top: 8px; transform: translateX(-50%); font-size: 16px; line-height: 1.25; white-space: nowrap; }
+.signal-evaluator-chart-rows { position: relative; order: 1; min-width: 0; }
+.signal-evaluator-chart-row { display: grid; grid-template-columns: var(--label-width) minmax(0, 1fr); align-items: center; min-height: 100px; padding-right: var(--end-space); }
+.signal-evaluator-chart-category { min-width: 0; padding-right: 20px; font-size: 23px; font-weight: 800; line-height: 1.35; word-break: keep-all; }
+.signal-evaluator-chart-pair { display: grid; gap: 7px; min-width: 0; }
+.signal-evaluator-chart-series { position: relative; height: 26px; min-width: 0; }
+.signal-evaluator-chart-bar { display: block; height: 100%; border: 0; border-radius: 0; }
+.signal-evaluator-chart-value { position: absolute; top: 50%; transform: translateY(-50%); padding-left: 12px; white-space: nowrap; font-size: 21px; font-weight: 750; line-height: 1.2; }
+.signal-evaluator-chart-series[data-series="peer"] .signal-evaluator-chart-value { font-weight: 500; }
+.signal-evaluator-chart-missing { padding-left: 12px; color: #555552; font-size: 16px; line-height: 26px; }
+.signal-evaluator-comparison-item { --label-width: 74px; --end-space: 76px; min-width: 700px; }
+.signal-evaluator-comparison-item .signal-evaluator-chart-grid { top: var(--axis-height); bottom: 0; }
+.signal-evaluator-comparison-item .signal-evaluator-chart-axis { order: 0; border: 0; }
+.signal-evaluator-comparison-item .signal-evaluator-chart-tick { top: 0; }
+.signal-evaluator-comparison-item .signal-evaluator-chart-row { min-height: 68px; }
+.signal-evaluator-comparison-item .signal-evaluator-chart-category { font-size: 22px; text-align: right; padding-right: 24px; }
+.signal-evaluator-comparison-item .signal-evaluator-chart-pair { gap: 5px; }
+.signal-evaluator-comparison-item .signal-evaluator-chart-series { height: 22px; }
+.signal-evaluator-comparison-item .signal-evaluator-chart-value { font-size: 19px; }
+.signal-evaluator-item-selector { display: flex; align-items: center; justify-content: flex-end; gap: 18px; margin: 0 0 24px; }
+.signal-evaluator-item-selector label { font-size: 20px; font-weight: 800; line-height: 1.4; }
+.signal-evaluator-item-selector select { width: 320px; min-width: 0; min-height: 52px; border: 1px solid #858582; border-radius: 0; padding: 10px 16px; color: #1a1a18; background: #fff; font-size: 19px; font-weight: 700; line-height: 1.4; }
+.signal-evaluator-item-selector select:focus-visible { outline: 2px solid #1a1a18; outline-offset: 3px; box-shadow: 0 0 0 5px #e8cf4a; }
+
+.signal-evaluator-table-band { display: flex; align-items: center; min-height: 45px; margin: 0 0 6px; padding: 9px 18px; background: #1a1a18; color: #fff; font-size: 23px; font-weight: 800; line-height: 1.25; letter-spacing: -.025em; }
+.signal-evaluator-evidence-table { width: 100%; border-collapse: collapse; border: 1px solid #aaa9a5; background: #fff; font-size: 20px; line-height: 1.4; }
+.signal-evaluator-evidence-table th, .signal-evaluator-evidence-table td { height: 56px; border: 1px solid #bbbcb8; padding: 10px 18px; text-align: center; }
+.signal-evaluator-evidence-table thead th { background: #ededeb; font-weight: 800; white-space: nowrap; }
+.signal-evaluator-evidence-table tbody th { text-align: left; font-weight: 600; word-break: keep-all; }
+.signal-evaluator-evidence-table td { white-space: nowrap; font-weight: 500; }
+.signal-evaluator-task-table { min-width: 860px; }
+.signal-evaluator-task-table th:first-child { width: 25%; }
+.signal-evaluator-task-table tbody th { padding-left: 24px; }
+.signal-evaluator-item-table { min-width: 980px; }
+.signal-evaluator-item-table thead th { background: #1a1a18; color: #fff; height: 60px; }
+.signal-evaluator-item-table thead th:first-child { width: 43%; text-align: left; padding-left: 24px; }
+.signal-evaluator-item-table tbody th { padding: 0; }
+.signal-evaluator-item-name { display: grid; grid-template-columns: 60px minmax(0, 1fr); min-height: 56px; }
+.signal-evaluator-item-number { display: flex; align-items: center; justify-content: center; border-right: 1px solid #bbbcb8; font-size: 23px; font-weight: 800; }
+.signal-evaluator-item-label { display: flex; align-items: center; padding: 10px 18px; }
+.signal-evaluator-history-scroll { max-height: 570px; overscroll-behavior-y: contain; scrollbar-gutter: stable; }
+.signal-evaluator-history-table { min-width: 1120px; }
+.signal-evaluator-history-table thead th { position: sticky; top: 0; z-index: 1; box-shadow: inset 0 -1px #aaa9a5; }
+.signal-evaluator-history-table tbody th { width: 25%; font-weight: 500; }
+.signal-evaluator-history-table .signal-evaluator-history-task { text-align: left; }
+.signal-evaluator-history-team { white-space: nowrap; }
+.signal-evaluator-history-date { font-size: 18px; }
+.signal-evaluator-history-outlier { color: #a3231d; font-weight: 800; }
+.signal-evaluator-history-outlier-note { display: block; margin-top: 3px; color: #a3231d; font-size: 16px; font-weight: 700; }
+
+@media (max-width: 768px) {
+  .signal-evaluator-profile { gap: 36px; }
+  .signal-evaluator-scene > section > header { padding-bottom: 18px; }
+  .signal-evaluator-scene > section > header h2 { font-size: 34px; }
+  .signal-evaluator-scene > section > header p { font-size: 16px; margin-top: 10px; }
+  .signal-evaluator-chart-legend { justify-content: flex-start; gap: 10px 20px; margin-bottom: 18px; font-size: 16px; }
+  .signal-evaluator-chart-legend i { width: 18px; height: 18px; }
+  .signal-evaluator-chart-scroll { margin-bottom: 20px; }
+  .signal-evaluator-comparison { --label-width: 180px; --end-space: 76px; min-width: 720px; }
+  .signal-evaluator-chart-row { min-height: 84px; }
+  .signal-evaluator-chart-category { font-size: 18px; padding-right: 16px; }
+  .signal-evaluator-chart-series { height: 22px; }
+  .signal-evaluator-chart-value { font-size: 16px; padding-left: 10px; }
+  .signal-evaluator-comparison-item { --label-width: 60px; --end-space: 64px; min-width: 620px; }
+  .signal-evaluator-comparison-item .signal-evaluator-chart-row { min-height: 62px; }
+  .signal-evaluator-comparison-item .signal-evaluator-chart-category { font-size: 18px; padding-right: 16px; }
+  .signal-evaluator-comparison-item .signal-evaluator-chart-value { font-size: 16px; }
+  .signal-evaluator-item-selector { justify-content: flex-start; gap: 12px; margin-bottom: 20px; }
+  .signal-evaluator-item-selector label { flex: none; font-size: 16px; }
+  .signal-evaluator-item-selector select { flex: 1; width: 100%; min-height: 44px; padding: 9px 12px; font-size: 16px; }
+  .signal-evaluator-table-band { min-height: 44px; padding: 9px 14px; font-size: 21px; }
+  .signal-evaluator-evidence-table { font-size: 16px; }
+  .signal-evaluator-evidence-table th, .signal-evaluator-evidence-table td { height: 52px; padding: 10px 14px; }
+  .signal-evaluator-task-table { min-width: 760px; }
+  .signal-evaluator-task-table tbody th { padding-left: 16px; }
+  .signal-evaluator-item-table { min-width: 880px; }
+  .signal-evaluator-item-table thead th { height: 54px; }
+  .signal-evaluator-item-table tbody th { padding: 0; }
+  .signal-evaluator-item-name { grid-template-columns: 48px minmax(0, 1fr); min-height: 52px; }
+  .signal-evaluator-item-number { font-size: 18px; }
+  .signal-evaluator-item-label { padding: 10px 14px; }
+  .signal-evaluator-history-scroll { max-height: 510px; }
+  .signal-evaluator-history-table { min-width: 1000px; }
+  .signal-evaluator-history-date { font-size: 16px; }
+}

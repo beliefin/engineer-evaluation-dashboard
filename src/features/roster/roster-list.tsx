@@ -18,6 +18,7 @@ import { DeleteEngineerDialog } from "./delete-engineer-dialog"
 import { EngineerEditorDialog } from "./engineer-editor-dialog"
 import { EvaluatorEditorDialog } from "./evaluator-editor-dialog"
 import { RosterItemActions } from "./roster-item-actions"
+import styles from "./roster-signal.module.css"
 import type {
   EngineerRegistration,
   EngineerRosterItem,
@@ -81,9 +82,9 @@ export function RosterList({
   const linkedEvaluatorIdSet = useMemo(() => new Set(linkedEvaluatorIds), [linkedEvaluatorIds])
 
   return (
-    <div className="space-y-4">
-      <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
-        <div className="relative w-full sm:max-w-sm">
+    <div className={styles.list}>
+      <div className={styles.searchRow}>
+        <div className={styles.searchField}>
           <SearchIcon
             aria-hidden="true"
             className="absolute top-1/2 left-3 size-4 -translate-y-1/2 text-muted-foreground"
@@ -98,7 +99,7 @@ export function RosterList({
             value={query}
           />
         </div>
-        <p aria-live="polite" className="text-xs text-muted-foreground">
+        <p aria-live="polite" className={styles.searchCount}>
           전체 {rows.length}명 · {filteredRows.length}명 표시
         </p>
       </div>
@@ -113,58 +114,50 @@ export function RosterList({
         </div>
       ) : (
         <>
-          <ul className="divide-y rounded-md border md:hidden">
+          <ul className={styles.cards}>
             {filteredRows.map((row) => (
-              <li className="flex items-start justify-between gap-4 p-4" key={`${row.id}-mobile`}>
-                <div className="min-w-0">
-                  <p className="truncate font-medium">{row.displayName}</p>
-                  <p className="mt-1 text-xs text-muted-foreground">{row.employeeCode}</p>
+              <li className={styles.card} key={`${row.id}-mobile`}>
+                <div className={styles.cardHeading}>
+                  <h4>{row.displayName}</h4>
+                  <span>사번 {row.employeeCode}</span>
                 </div>
-                <div className="shrink-0 text-right text-xs text-muted-foreground">
-                  <p>{row.division}</p>
-                  <p>{row.team}</p>
-                  <p className="mt-1">{row.organizationUnit ?? row.department}</p>
-                  {row.organizationUnit === null || row.organizationUnit === undefined
-                    ? null
-                    : <p>{row.department}</p>}
-                  {"position" in row ? (
-                    <>
-                      <p className="mt-1">{row.position}</p>
-                      {row.jobTitle === null || row.jobTitle === undefined ? null : <p>{row.jobTitle}</p>}
-                      <RosterItemActions
-                        disabled={disabled}
-                        item={row}
-                        linkedAccount={linkedIds.has(row.id)}
-                        onDelete={setDeletingEngineer}
-                        onEdit={setEditingEngineer}
-                        surface="mobile"
-                      />
-                    </>
-                  ) : (
-                    <>
-                      {row.rank === null || row.rank === undefined ? null : <p className="mt-1">{row.rank}</p>}
-                      {row.jobTitle === null || row.jobTitle === undefined ? null : <p>{row.jobTitle}</p>}
-                      <RosterItemActions
-                        disabled={disabled}
-                        item={row}
-                        linkedAccount={linkedEvaluatorIdSet.has(row.id)}
-                        onDelete={setDeletingEvaluator}
-                        onEdit={setEditingEvaluator}
-                        surface="mobile"
-                      />
-                    </>
-                  )}
-                </div>
+                <dl className={styles.details}>
+                  <div><dt>부문</dt><dd>{row.division}</dd></div>
+                  <div><dt>팀</dt><dd>{row.team}</dd></div>
+                  <div><dt>부서</dt><dd>{row.organizationUnit ?? "-"}</dd></div>
+                  <div><dt>담당</dt><dd>{row.department}</dd></div>
+                  <div><dt>직급</dt><dd>{"position" in row ? row.position : row.rank ?? "-"}</dd></div>
+                  <div><dt>직책</dt><dd>{row.jobTitle ?? "-"}</dd></div>
+                </dl>
+                {"position" in row ? (
+                  <RosterItemActions
+                    disabled={disabled}
+                    item={row}
+                    linkedAccount={linkedIds.has(row.id)}
+                    onDelete={setDeletingEngineer}
+                    onEdit={setEditingEngineer}
+                    surface="mobile"
+                  />
+                ) : (
+                  <RosterItemActions
+                    disabled={disabled}
+                    item={row}
+                    linkedAccount={linkedEvaluatorIdSet.has(row.id)}
+                    onDelete={setDeletingEvaluator}
+                    onEdit={setEditingEvaluator}
+                    surface="mobile"
+                  />
+                )}
               </li>
             ))}
           </ul>
           <div
             aria-label={`${label} 명단 표`}
-            className="hidden max-h-[32rem] overflow-auto rounded-md border md:block"
+            className={styles.tableFrame}
             role="region"
             tabIndex={0}
           >
-            <Table>
+            <Table className={styles.table}>
               <TableHeader>
                 <TableRow>
                   <TableHead>이름</TableHead>

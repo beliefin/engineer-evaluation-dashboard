@@ -17,6 +17,7 @@ import {
 } from "@/components/ui/dialog"
 
 import { OperationPanel } from "./operation-panel"
+import "./maintenance-reset-signal.css"
 
 interface ResetDemoPanelProps {
   readonly disabled: boolean
@@ -36,7 +37,7 @@ export function ResetDemoPanel({ disabled, onReset }: ResetDemoPanelProps) {
       description="브라우저에 저장된 모든 변경을 지우고 최초 고정 샘플 상태로 되돌립니다."
       title="샘플 데이터 초기화"
     >
-      <Alert className="border-destructive/30 bg-danger-soft text-destructive">
+      <Alert className="signal-reset-warning border-destructive/30 bg-danger-soft text-destructive">
         <TriangleAlert />
         <AlertTitle>현재 브라우저의 데모 변경 내용이 모두 삭제됩니다.</AlertTitle>
         <AlertDescription>
@@ -45,10 +46,10 @@ export function ResetDemoPanel({ disabled, onReset }: ResetDemoPanelProps) {
         </AlertDescription>
       </Alert>
 
-      <div className="mt-5 flex justify-end">
+      <div className="signal-reset-actions mt-5 flex justify-end">
         <Dialog onOpenChange={setOpen} open={open}>
           <DialogTrigger asChild>
-            <Button disabled={disabled} variant="destructive">
+            <Button className="signal-reset-trigger" disabled={disabled} variant="destructive">
               <RotateCcw />
               샘플 데이터 초기화
             </Button>

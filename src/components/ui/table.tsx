@@ -2,23 +2,26 @@
 
 import * as React from "react"
 
+import { HorizontalScroll } from "./horizontal-scroll"
+
 import { cn } from "@/lib/utils"
 
-function Table({ className, ...props }: React.ComponentProps<"table">) {
+function Table({ className, scrollable = true, ...props }: React.ComponentProps<"table"> & { scrollable?: boolean }) {
+  const Container = scrollable ? HorizontalScroll : "div"
   return (
-    <div
+    <Container
       aria-label="가로로 스크롤 가능한 표"
       data-slot="table-container"
-      role="region"
-      tabIndex={0}
-      className="relative w-full overflow-x-auto rounded-[inherit] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-inset"
+      role={scrollable ? "region" : undefined}
+      tabIndex={scrollable ? 0 : undefined}
+      className={cn("relative w-full rounded-[inherit] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-inset", scrollable ? "overflow-x-auto" : "overflow-visible")}
     >
       <table
         data-slot="table"
         className={cn("w-full caption-bottom text-sm", className)}
         {...props}
       />
-    </div>
+    </Container>
   )
 }
 

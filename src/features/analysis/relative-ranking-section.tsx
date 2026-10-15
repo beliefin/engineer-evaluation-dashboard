@@ -1,5 +1,7 @@
 "use client"
 
+import "./relative-ranking-signal.css"
+
 import { useMemo, useState } from "react"
 import { SlidersHorizontal } from "lucide-react"
 
@@ -120,8 +122,8 @@ export function RelativeRankingSection({
   )
 
   return (
-    <section aria-labelledby="relative-ranking-heading" className="overflow-hidden rounded-lg border bg-card">
-      <div className="border-b px-5 py-5 sm:px-6">
+    <section aria-labelledby="relative-ranking-heading" className="signal-relative overflow-hidden rounded-lg border bg-card">
+      <div className="signal-relative-header border-b px-5 py-5 sm:px-6">
         <div className="flex flex-wrap items-start justify-between gap-4">
           <div>
             <p className="text-xs font-medium text-primary">{seasonLabel}</p>
@@ -139,7 +141,7 @@ export function RelativeRankingSection({
                 분석 대상 {selectedIds.size}명
               </Button>
             </SheetTrigger>
-            <SheetContent className="overflow-y-auto" side="right">
+            <SheetContent className="signal-relative-sheet overflow-y-auto" side="right">
               <SheetHeader>
                 <SheetTitle>분석 대상 선택</SheetTitle>
                 <SheetDescription>체크 변경 즉시 상대 순위·등급 구간 재계산</SheetDescription>
@@ -149,7 +151,7 @@ export function RelativeRankingSection({
           </Sheet>
         </div>
 
-        <dl className="mt-5 grid grid-cols-4 border-y xl:grid-cols-8">
+        <dl className="signal-relative-metrics mt-5 grid grid-cols-4 border-y xl:grid-cols-8">
           {[
             ["선택 인원", `${analysis.selectedCount}명`],
             ["S/A", `${analysis.gradeCounts.sa}명`],
@@ -167,15 +169,15 @@ export function RelativeRankingSection({
           ))}
         </dl>
 
-        <div className="mt-4 hidden space-y-2 text-sm sm:block" aria-live="polite">
+        <div className="signal-relative-notices mt-4 hidden space-y-2 text-sm sm:block" aria-live="polite">
           {analysisMessages}
         </div>
       </div>
 
-      <div className="grid min-w-0 lg:grid-cols-[280px_minmax(0,1fr)]">
-        <aside className="hidden border-r p-5 lg:block">{selector}</aside>
-        <div className="min-w-0 p-4 sm:p-6">
-          <p className="mb-2 text-xs text-muted-foreground">
+      <div className="signal-relative-workspace grid min-w-0 lg:grid-cols-[280px_minmax(0,1fr)]">
+        <aside className="signal-relative-sidebar hidden border-r p-5 lg:block">{selector}</aside>
+        <div className="signal-relative-main min-w-0 p-4 sm:p-6">
+          <p className="signal-relative-band-heading mb-2 text-xs text-muted-foreground">
             명목 구간 · C 하위 20% · B 중간 50% · S/A 상위 30%
           </p>
           <RelativeRankingChart
@@ -183,12 +185,12 @@ export function RelativeRankingSection({
             selectedEngineerId={selectedEngineerId}
             onSelectEngineer={setSelectedEngineerId}
           />
-          <div className="mt-4 space-y-2 text-sm sm:hidden" aria-live="polite">
+          <div className="signal-relative-notices mt-4 space-y-2 text-sm sm:hidden" aria-live="polite">
             {analysisMessages}
           </div>
 
           {selectedPoint !== null ? (
-            <div className="mt-5 border-t pt-4" aria-live="polite">
+            <div className="signal-relative-detail mt-5 border-t pt-4" aria-live="polite">
               <div className="flex flex-wrap items-baseline justify-between gap-2">
                 <h3 className="font-semibold">{selectedPoint.engineerName}</h3>
                 <span className="text-xs text-muted-foreground">

@@ -1,0 +1,33 @@
+/* OP-03 rubric editor: source callbacks and score-validation rules stay unchanged. */
+.editor { min-width: 0; padding: 12px; border: 1px solid #bfc1c5; border-radius: 0; color: #1a1a18; background: #fff; font-size: 16px; line-height: 1.5; }
+.itemFields { display: grid; grid-template-columns: 44px 112px minmax(0, 1fr) 44px; align-items: center; gap: 8px; min-width: 0; }
+.itemNumber { display: flex; align-items: center; justify-content: center; min-height: 44px; color: #1a1a18; background: #efefed; font-size: 16px; font-weight: 750; font-variant-numeric: tabular-nums; }
+.editor :is(input, textarea) { min-width: 0; min-height: 44px; height: auto; border: 1px solid #90908b; border-radius: 0; padding: 10px 12px; color: #1a1a18; background: #fff; font-size: 16px; line-height: 1.5; box-shadow: none; }
+.editor textarea { min-height: 80px; resize: vertical; }
+.editor button { min-width: 44px; min-height: 44px; height: auto; border: 1px solid #bfc1c5; border-radius: 0; padding: 10px 12px; color: #1a1a18; background: #fff; font-size: 16px; line-height: 1.5; font-weight: 750; white-space: normal; box-shadow: none; }
+.editor .deleteButton { width: 44px; height: 44px; padding: 0; }
+.editor button:not(:disabled):hover { background: #f4efd5; }
+.editor button:disabled { color: #96968f; background: #f3f3f1; border-color: #dededb; opacity: 1; }
+.criteriaDetails { margin-top: 12px; border-top: 1px solid #dededb; padding-top: 12px; }
+.criteriaSummary { display: flex; align-items: center; gap: 8px; min-height: 44px; border-radius: 0; padding: 10px 12px; color: #1a1a18; background: #f5f5f3; font-size: 16px; line-height: 1.5; font-weight: 750; list-style: none; cursor: pointer; overflow-wrap: anywhere; }
+.criteriaSummary::-webkit-details-marker { display: none; }
+.criteriaSummary svg { flex-shrink: 0; }
+.criteriaList { display: grid; gap: 12px; min-width: 0; margin-top: 12px; }
+.criterionRow { display: grid; grid-template-columns: 88px minmax(0, 1fr) 44px; align-items: start; gap: 8px; min-width: 0; padding: 12px; border: 1px solid #dededb; border-radius: 0; background: #f5f5f3; }
+.scoreInput { font-variant-numeric: tabular-nums; }
+.editor :is(input, textarea, button, summary):focus-visible { outline: 2px solid #1a1a18; outline-offset: 2px; box-shadow: 0 0 0 4px #e8cf4a; }
+@media (max-width: 639px) {
+  .itemFields { grid-template-columns: 44px minmax(0, 1fr) 44px; }
+  .itemNumber { grid-column: 1; grid-row: 1; }
+  .sectionInput { grid-column: 2; grid-row: 1; }
+  .labelInput { grid-column: 1 / -1; grid-row: 2; }
+  .itemDelete { grid-column: 3; grid-row: 1; }
+  .criterionRow { grid-template-columns: minmax(0, 1fr) 44px; }
+  .scoreInput { grid-column: 1; grid-row: 1; max-width: 88px; }
+  .descriptionInput { grid-column: 1 / -1; grid-row: 2; }
+  .criterionDelete { grid-column: 2; grid-row: 1; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .editor :is(input, textarea, button), .criteriaSummary svg { transition: none; }
+  .editor button { transform: none; }
+}

@@ -61,7 +61,8 @@ export function PendingStatusBadge({
     <Badge
       variant="outline"
       aria-label={`상태: ${config.label}`}
-      className={cn("rounded-md px-2 py-0.5", config.className, className)}
+      data-status={status}
+      className={cn("signal-pending-status", config.className, className)}
     >
       {config.label}
     </Badge>

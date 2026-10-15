@@ -11,6 +11,7 @@ import { ScoreFormActions } from "./score-form-actions"
 import { ScoreInputRow } from "./score-input-row"
 import { ScoreSummary } from "./score-summary"
 import { ScoreTsvInput } from "./score-tsv-input"
+import { SignalEvaluationForm } from "./signal-evaluation-form"
 import type { EvaluationScoreFormProps } from "./types"
 import { UnlockRequestDialog } from "./unlock-request-dialog"
 
@@ -42,6 +43,18 @@ export function EvaluationScoreForm({
   function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault()
     if (canSubmit) onSubmit()
+  }
+
+  if (presentation === "standard") {
+    return <SignalEvaluationForm
+      viewModel={viewModel}
+      onScoreChange={onScoreChange}
+      onScoresChange={onScoresChange}
+      onPassResultChange={onPassResultChange}
+      onSave={onSave}
+      onSubmit={onSubmit}
+      onRequestUnlock={onRequestUnlock}
+    />
   }
 
   return (

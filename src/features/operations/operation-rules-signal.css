@@ -1,0 +1,132 @@
+/* OP-05 and OP-08. Original rule/weight state, validation and callbacks are untouched. */
+.signal-weight-panel,.signal-rule-panel {min-width:0;color:#1a1a18;background:white}
+.signal-weight-panel .signal-operation-panel-heading {display:grid;grid-template-columns:minmax(0,1fr) auto;gap:0}
+.signal-weight-panel .signal-operation-heading-copy {display:contents}
+.signal-weight-panel .signal-operation-heading-copy h2 {grid-column:1;grid-row:1;padding:12px 18px}
+.signal-weight-panel .signal-operation-heading-copy p {grid-column:1/-1;grid-row:2;padding:14px 8px;font-size:19px;font-weight:650}
+.signal-weight-panel .signal-operation-panel-heading>[data-slot=badge] {grid-column:2;grid-row:1;align-self:stretch;display:flex;align-items:center;border:0;border-radius:0;background:#1a1a18;color:#e8cf4a;font-size:28px;font-weight:850;line-height:1.3;height:auto;margin:0;padding:12px 18px;white-space:nowrap}
+.signal-weight-panel .signal-operation-panel-heading>[data-slot=badge][data-variant=destructive] {color:#ffb8ad}
+.signal-weight-toolbar {display:flex;align-items:center;gap:20px;flex-wrap:wrap;padding:16px 20px;border:1px solid #bfc1c5;border-bottom:0;min-width:0}
+.signal-weight-engineer {display:flex;align-items:center;gap:22px;min-width:0;flex:1 1 330px}
+.signal-weight-engineer label,.signal-weight-team>span:first-child {font-size:19px;font-weight:800;line-height:1.4;white-space:nowrap}
+.signal-weight-engineer [data-slot=select-trigger] {min-height:50px;height:auto;min-width:0;flex:1;padding:12px 16px;border:1px solid #9a9a9a;border-radius:0;background:white;font-size:17px;font-weight:700;color:#1a1a18;box-shadow:none}
+.signal-weight-engineer [data-slot=select-value] {white-space:normal;line-height:1.4;text-align:left;min-width:0}
+.signal-weight-team {display:flex;align-items:center;gap:22px;flex:0 1 250px;min-width:0}
+.signal-weight-team [data-slot=badge] {min-height:50px;height:auto;min-width:0;flex:1;border:1px solid #c4c4bf;border-radius:0;background:#f1f1ee;font-size:17px;font-weight:650;color:#1a1a18;padding:12px 14px}
+.signal-weight-defaults {min-height:44px;display:flex;align-items:center;gap:12px;font-size:16px;font-weight:750;line-height:1.4;white-space:nowrap}
+.signal-weight-defaults input {width:23px;height:23px;accent-color:#e8cf4a;flex:none}
+.signal-weight-actions {display:flex;gap:10px;flex-wrap:wrap;margin-left:auto}
+.signal-weight-actions button {min-height:50px;height:auto;border:1px solid #1a1a18;border-radius:0;background:#e8cf4a;color:#1a1a18;padding:12px 18px;font-size:16px;font-weight:750;line-height:1.4;white-space:normal}
+.signal-weight-actions button:disabled {background:#ededeb;color:#6b6b65;border-color:#c9c9c3;opacity:1}
+.signal-weight-table-wrap {max-width:100%;min-width:0;overflow-x:auto}
+.signal-weight-table {width:100%;min-width:780px;border-collapse:collapse;table-layout:fixed;font-size:18px;color:#1a1a18}
+.signal-weight-table th,.signal-weight-table td {border:1px solid #bfc1c5;padding:10px 20px;line-height:1.45;text-align:center;overflow-wrap:anywhere}
+.signal-weight-table thead th {background:#ededeb;font-size:18px;font-weight:800;padding-block:14px}
+.signal-weight-table thead th:first-child {width:26%;text-align:left}
+.signal-weight-table thead th:nth-child(2) {width:22%}
+.signal-weight-table thead th:nth-child(3) {width:21%}
+.signal-weight-table thead th:nth-child(4) {width:31%;text-align:left}
+.signal-weight-table tbody th {font-weight:800;text-align:left}
+.signal-weight-input {display:flex;align-items:center;gap:14px;min-width:0}
+.signal-weight-input input {min-height:46px;height:auto;width:150px;min-width:0;border:1px solid #9a9a9a;border-radius:0;background:white;padding:10px 16px;text-align:right;color:#1a1a18;font-size:19px;line-height:1.3;box-shadow:none}
+.signal-weight-input input:disabled {background:#efefec;color:#6b6b65}
+.signal-weight-input input[aria-invalid=true] {border:2px solid #b42318;background:#fff4f4}
+.signal-weight-input>span:not([data-slot]) {font-size:18px}
+.signal-weight-input [data-slot=badge] {margin-left:auto;min-height:34px;height:auto;border:0;border-radius:0;background:#efefed;color:#1a1a18;padding:6px 12px;font-size:16px;font-weight:650;line-height:1.3}
+.signal-weight-warning {border:1px solid #b42318;border-top:3px solid #b42318;background:#fff4f4;color:#7a231c;padding:14px 18px;font-size:17px;line-height:1.6;margin-top:16px}
+.signal-weight-empty {border:1px solid #bfc1c5;padding:50px 20px;text-align:center;font-size:18px;color:#1a1a18}
+.signal-rules-select-popup {border:1px solid #1a1a18;border-radius:0;background:white;color:#1a1a18;box-shadow:none}
+.signal-rules-select-popup [data-slot=select-item] {font-size:16px;min-height:44px;border-radius:0}
+.signal-rules-select-popup [data-slot=select-item][data-highlighted] {background:#e8cf4a;color:#1a1a18}
+.signal-rule-layout {display:grid;grid-template-columns:minmax(0,1.3fr) minmax(0,1fr);gap:20px;min-width:0}
+.signal-rule-form {display:grid;gap:0;min-width:0;align-self:start;padding:0;border:1px solid #bfc1c5;border-radius:0;background:white;color:#1a1a18}
+.signal-rule-form-heading {padding:12px 18px;border-bottom:1px solid #bfc1c5;background:#f1f1ee;min-height:50px}
+.signal-rule-form-heading>p {font-size:23px;font-weight:850;line-height:1.3;margin:0}
+.signal-rule-fields {display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px 24px;padding:20px 18px;min-width:0}
+.signal-rule-fields>label {display:grid;grid-template-columns:90px minmax(0,1fr);align-items:center;gap:8px;grid-column:auto;grid-row:auto;min-width:0;margin:0;font-size:16px;line-height:1.45;color:#1a1a18}
+.signal-rule-fields>label>span:first-child {font-weight:700;margin:0;overflow-wrap:anywhere}
+.signal-rule-fields>label>span:not(:first-child) {min-height:44px;height:auto;border:0;border-radius:0;padding:8px 0;font-size:16px;color:#1a1a18;line-height:1.5}
+.signal-rule-fields :is(input:not([type=checkbox]),select) {min-height:44px;height:auto;min-width:0;width:100%;margin:0;border:1px solid #9a9a9a;border-radius:0;background:white;color:#1a1a18;padding:10px 12px;font-size:16px;line-height:1.4;box-shadow:none}
+.signal-rule-fields :is(input,select):disabled {background:#ededeb;color:#6b6b65;opacity:1}
+.signal-rule-fields input[type=checkbox] {width:22px;height:22px;accent-color:#e8cf4a;flex:none}
+.signal-rule-form[data-rule-kind=language][data-rule-type=base] .signal-rule-fields>label:nth-child(-n+6) {grid-column:1}
+.signal-rule-form[data-rule-kind=language][data-rule-type=base] .signal-rule-fields>label:nth-child(n+7) {grid-column:2}
+.signal-rule-form[data-rule-kind=language][data-rule-type=base] .signal-rule-fields>label:nth-child(1),.signal-rule-form[data-rule-kind=language][data-rule-type=base] .signal-rule-fields>label:nth-child(7) {grid-row:1}
+.signal-rule-form[data-rule-kind=language][data-rule-type=base] .signal-rule-fields>label:nth-child(2),.signal-rule-form[data-rule-kind=language][data-rule-type=base] .signal-rule-fields>label:nth-child(8) {grid-row:2}
+.signal-rule-form[data-rule-kind=language][data-rule-type=base] .signal-rule-fields>label:nth-child(3),.signal-rule-form[data-rule-kind=language][data-rule-type=base] .signal-rule-fields>label:nth-child(9) {grid-row:3}
+.signal-rule-form[data-rule-kind=language][data-rule-type=base] .signal-rule-fields>label:nth-child(4),.signal-rule-form[data-rule-kind=language][data-rule-type=base] .signal-rule-fields>label:nth-child(10) {grid-row:4}
+.signal-rule-form[data-rule-kind=language][data-rule-type=base] .signal-rule-fields>label:nth-child(5),.signal-rule-form[data-rule-kind=language][data-rule-type=base] .signal-rule-fields>label:nth-child(11) {grid-row:5}
+.signal-rule-form[data-rule-kind=language][data-rule-type=base] .signal-rule-fields>label:nth-child(6),.signal-rule-form[data-rule-kind=language][data-rule-type=base] .signal-rule-fields>label:nth-child(12) {grid-row:6}
+.signal-rule-form-actions {margin:12px 18px 18px;border-top:1px solid #bfc1c5;padding-top:16px;gap:12px}
+.signal-rule-form button {min-height:46px;height:auto;border-radius:0;font-size:16px;font-weight:750;line-height:1.4;padding:10px 16px;background:white;color:#1a1a18;border:1px solid #9a9a9a}
+.signal-rule-form button[type=submit] {background:#e8cf4a;border-color:#1a1a18}
+.signal-rule-form button:disabled {background:#ededeb;color:#6b6b65;border-color:#c9c9c3;opacity:1}
+.signal-rule-form>p[role=alert] {font-size:16px;line-height:1.6;color:#7a231c;background:#fff4f4;border:1px solid #b42318;padding:12px 16px;margin:0 18px 8px}
+.signal-rule-list {min-width:0;border:1px solid #bfc1c5;background:white;align-self:start;max-height:555px;overflow-y:auto;overscroll-behavior:contain;padding:0 12px 12px}
+.signal-rule-list-heading {position:sticky;top:0;z-index:1;background:#f1f1ee;border-bottom:1px solid #bfc1c5;margin:0 -12px 12px;padding:12px 18px;gap:12px;min-height:50px}
+.signal-rule-list-heading>p {font-size:22px;font-weight:850;line-height:1.3}
+.signal-rule-list-heading [data-slot=badge] {min-height:28px;height:auto;border:0;border-radius:0;background:transparent;color:#1a1a18;font-size:17px;padding:0}
+.signal-rule-card {border:1px solid #d6d6d2;border-radius:0;padding:14px;background:white;min-width:0}
+.signal-rule-card>div {gap:12px}
+.signal-rule-card [data-slot=badge] {min-height:27px;height:auto;border:0;border-radius:0;background:#efefed;color:#1a1a18;padding:4px 8px;font-size:14px;line-height:1.4}
+.signal-rule-card [data-slot=badge][data-variant=outline] {background:#f7edb8}
+.signal-rule-card p.signal-rule-card-title {font-size:20px;font-weight:800;line-height:1.45;color:#1a1a18;margin:8px 0 4px;word-break:keep-all;overflow-wrap:anywhere}
+.signal-rule-card p:not(.signal-rule-card-title) {font-size:16px;line-height:1.5;color:#555;margin-top:6px;overflow-wrap:anywhere}
+.signal-rule-card button {min-width:44px;min-height:44px;height:auto;width:44px;border:1px solid #bfc1c5;border-radius:0;background:white;color:#1a1a18;box-shadow:none;padding:10px}
+.signal-rule-card button:last-child:not(:disabled) {color:#b42318}
+.signal-rule-card button:disabled {background:#ededeb;color:#6b6b65;opacity:1}
+.signal-rule-card>div>div:last-child {flex-direction:column;gap:10px}
+.signal-rule-impact {padding:16px;margin:0 18px 18px;border:1px solid #bfc1c5;border-radius:0;background:white;color:#1a1a18;font-size:16px;line-height:1.5}
+.signal-rule-impact p,.signal-rule-impact table {font-size:16px;line-height:1.5}
+.signal-rule-impact table {min-width:400px}
+.signal-rule-impact [data-slot=badge] {height:auto;min-height:28px;border-radius:0;font-size:16px;color:#1a1a18;background:#f7edb8}
+.signal-rule-panel :focus-visible,.signal-weight-panel :focus-visible {outline:2px solid #1a1a18;outline-offset:3px;box-shadow:0 0 0 5px #e8cf4a}
+@media(max-width:1199px) {
+ .signal-rule-layout {grid-template-columns:minmax(0,1fr)}
+ .signal-rule-list {max-height:650px}
+ .signal-weight-toolbar {gap:16px}
+ .signal-weight-actions {margin-left:0}
+ .signal-weight-panel .signal-operation-heading-copy p {font-size:17px}
+}
+@media(max-width:767px) {
+ .signal-weight-panel .signal-operation-panel-heading {grid-template-columns:minmax(0,1fr)}
+ .signal-weight-panel .signal-operation-heading-copy h2 {grid-column:1;grid-row:1;padding-bottom:8px}
+ .signal-weight-panel .signal-operation-panel-heading>[data-slot=badge] {grid-column:1;grid-row:2;justify-content:flex-start;font-size:25px;padding-top:0}
+ .signal-weight-panel .signal-operation-heading-copy p {grid-column:1;grid-row:3;font-size:16px;padding:12px 4px}
+ .signal-weight-toolbar {display:grid;grid-template-columns:minmax(0,1fr);padding:16px}
+ .signal-weight-engineer,.signal-weight-team {display:grid;grid-template-columns:minmax(0,1fr);gap:8px}
+ .signal-weight-engineer label,.signal-weight-team>span:first-child {font-size:17px}
+ .signal-weight-team [data-slot=badge] {justify-content:flex-start}
+ .signal-weight-actions {display:grid;grid-template-columns:minmax(0,1fr);gap:12px}
+ .signal-weight-actions button {width:100%;min-height:48px;font-size:16px}
+ .signal-weight-table-wrap {overflow:visible}
+ .signal-weight-table {display:block;min-width:0;table-layout:auto}
+ .signal-weight-table thead {position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}
+ .signal-weight-table tbody {display:block;border:1px solid #bfc1c5}
+ .signal-weight-table tr {display:grid;grid-template-columns:minmax(0,1fr) 115px;gap:8px 12px;padding:16px;border-bottom:1px solid #bfc1c5}
+ .signal-weight-table tr:last-child {border-bottom:0}
+ .signal-weight-table th,.signal-weight-table td {display:block;border:0;padding:0;text-align:left;font-size:16px;line-height:1.5;min-width:0}
+ .signal-weight-table tbody th {grid-column:1;grid-row:1;font-size:19px}
+ .signal-weight-table td:nth-child(2) {grid-column:1;grid-row:2}
+ .signal-weight-table td:nth-child(3) {grid-column:1;grid-row:3}
+ .signal-weight-table td:nth-child(4) {grid-column:2;grid-row:1/4;align-self:center}
+ .signal-weight-input {display:grid;grid-template-columns:minmax(0,1fr) 14px;gap:6px}
+ .signal-weight-input input {width:100%;font-size:19px;padding:10px 8px;min-height:48px}
+ .signal-weight-input [data-slot=badge] {grid-column:1/-1;margin:4px 0 0;justify-self:start;font-size:16px;padding:5px 8px}
+ .signal-weight-warning {font-size:16px;line-height:1.6}
+ .signal-rule-fields {grid-template-columns:minmax(0,1fr);gap:18px;padding:18px 16px}
+ .signal-rule-fields>label {grid-template-columns:minmax(0,1fr);gap:8px;font-size:16px}
+ .signal-rule-form[data-rule-kind=language][data-rule-type=base] .signal-rule-fields>label {grid-column:1;grid-row:auto}
+ .signal-rule-form-heading {padding:12px 16px}
+ .signal-rule-form-heading>p {font-size:22px}
+ .signal-rule-form-actions {display:grid;grid-template-columns:minmax(0,1fr);margin:0 16px 16px;padding-top:16px}
+ .signal-rule-form-actions button {width:100%;min-height:48px;white-space:normal}
+ .signal-rule-list {max-height:none;padding:0 10px 10px;overflow:visible}
+ .signal-rule-list-heading {position:static;margin-inline:-10px;font-size:20px}
+ .signal-rule-card {padding:12px}
+ .signal-rule-card p.signal-rule-card-title {font-size:19px}
+ .signal-rule-card [data-slot=badge] {font-size:16px}
+ .signal-rule-card>div {display:block}
+ .signal-rule-card>div>div:last-child {flex-direction:row;justify-content:flex-end;margin-top:12px}
+ .signal-rule-impact {margin:0 16px 16px;padding:14px}
+}

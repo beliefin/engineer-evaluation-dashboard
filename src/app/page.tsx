@@ -3,6 +3,8 @@
 import { useEffect } from "react"
 import { useRouter } from "next/navigation"
 
+import "@/components/shared/signal-states.css"
+
 export default function Home() {
   const router = useRouter()
 
@@ -11,8 +13,8 @@ export default function Home() {
   }, [router])
 
   return (
-    <main className="flex min-h-dvh items-center justify-center px-4">
-      <p aria-live="polite" className="text-sm text-muted-foreground">평가 시즌 안내를 여는 중입니다.</p>
+    <main className="signal-redirect-state">
+      <p aria-live="polite" className="signal-redirect-message">평가 시즌 안내를 여는 중입니다.</p>
     </main>
   )
 }

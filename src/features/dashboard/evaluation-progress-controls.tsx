@@ -57,8 +57,8 @@ export function EvaluationProgressControls({
   }
 
   return (
-    <div className="border-b border-border-subtle bg-muted/35 px-5 py-3">
-      <div className="flex flex-col gap-3 lg:flex-row lg:items-end">
+    <div className="signal-progress-controls border-b border-border-subtle bg-muted/35 px-5 py-3">
+      <div className="signal-progress-primary-controls flex flex-col gap-3 lg:flex-row lg:items-end">
         <label className="min-w-56 flex-1 text-xs font-semibold">
           엔지니어
           <span className="relative mt-1.5 block">
@@ -83,7 +83,7 @@ export function EvaluationProgressControls({
             value={filters.overallStatus}
           >
             <SelectTrigger aria-label="평가 현황 전체 상태 필터" className="mt-1.5 w-full bg-card"><SelectValue /></SelectTrigger>
-            <SelectContent>
+            <SelectContent className="signal-progress-select-popup">
               <SelectItem value="all">전체 상태</SelectItem>
               <SelectItem value="complete">평가 완료</SelectItem>
               <SelectItem value="in_progress">진행 중</SelectItem>
@@ -95,7 +95,7 @@ export function EvaluationProgressControls({
           정렬 기준
           <Select onValueChange={(value) => onSortChange(value as ProgressSort)} value={sort}>
             <SelectTrigger aria-label="평가 현황 정렬 기준" className="mt-1.5 w-full bg-card"><SelectValue /></SelectTrigger>
-            <SelectContent>
+            <SelectContent className="signal-progress-select-popup">
               <SelectItem value="default">기본 순서</SelectItem>
               <SelectItem value="name_asc">이름 가나다순</SelectItem>
               <SelectItem value="name_desc">이름 역순</SelectItem>
@@ -117,7 +117,7 @@ export function EvaluationProgressControls({
           <RotateCcw aria-hidden="true" /> 초기화
         </Button>
       </div>
-      <div className="mt-3 flex gap-2 overflow-x-auto pb-1" aria-label="과제별 상태 필터">
+      <div className="signal-progress-task-controls mt-3 flex gap-2 overflow-x-auto pb-1" aria-label="과제별 상태 필터">
         {tasks.map((task) => (
           <label className="min-w-40 text-[11px] font-semibold text-muted-foreground" key={task.id}>
             {task.label}
@@ -126,7 +126,7 @@ export function EvaluationProgressControls({
               value={filters.taskFilters[task.id] ?? "all"}
             >
               <SelectTrigger aria-label={`${task.label} 상태 필터`} className="mt-1 h-8 w-full bg-card text-xs"><SelectValue /></SelectTrigger>
-              <SelectContent>
+              <SelectContent className="signal-progress-select-popup">
                 {TASK_FILTER_OPTIONS.map((option) => <SelectItem key={option.value} value={option.value}>{option.label}</SelectItem>)}
               </SelectContent>
             </Select>

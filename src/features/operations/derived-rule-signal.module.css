@@ -1,0 +1,67 @@
+/* OP06: the existing conditional editor. No runtime task or rule is added. */
+.canvas { display: grid; grid-template-columns: minmax(0, 1.45fr) minmax(0, 1fr); gap: 16px; min-width: 0; color: #1a1a18; font-size: 16px; line-height: 1.5; }
+.form, .current { min-width: 0; margin: 0; border: 1px solid #bfc1c5; border-radius: 0; background: #fff; }
+.form { display: flex; flex-direction: column; gap: 16px; padding: 0 22px 18px; }
+.formHeading, .currentHeading { display: flex; align-items: center; justify-content: space-between; gap: 12px; min-height: 50px; background: #1a1a18; color: #fff; padding: 8px 20px; }
+.formHeading { margin: 0 -22px; }
+.formHeading h3, .currentHeading h3 { margin: 0; font-size: 26px; font-weight: 850; line-height: 1.3; letter-spacing: -.03em; overflow-wrap: anywhere; }
+.formHeading button { min-height: 44px; height: auto; padding: 8px 14px; border: 1px solid #fff; border-radius: 0; color: #fff; background: transparent; font-size: 16px; font-weight: 700; }
+.formHeading button:hover { background: #fff; color: #1a1a18; }
+.fields { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px 20px; min-width: 0; }
+.field { display: flex; flex-direction: column; gap: 5px; min-width: 0; font-size: 16px; line-height: 1.5; font-weight: 700; }
+.sourceTaskField { grid-column: 1 / -1; }
+.select, .canvas .search { display: block; width: 100%; min-width: 0; max-width: 100%; min-height: 44px; height: 44px; padding: 8px 12px; border: 1px solid #bfc1c5; border-radius: 0; background: #fff; color: #1a1a18; box-shadow: none; font-family: inherit; font-size: 16px; font-weight: 400; line-height: 1.5; }
+.select { text-overflow: ellipsis; }
+.select:disabled { background: #efefed; color: #666660; opacity: 1; }
+.sourceBlock { display: flex; flex-direction: column; gap: 12px; min-width: 0; }
+.sourceHeading { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 0.9fr); align-items: end; gap: 16px; min-width: 0; }
+.sourceTitle, .sourceCount { margin: 0; font-size: 16px; line-height: 1.5; }
+.sourceTitle { font-weight: 750; }
+.sourceCount { color: #555550; font-variant-numeric: tabular-nums; }
+.sourceList { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); align-content: start; max-height: 164px; min-width: 0; overflow-y: auto; overscroll-behavior: contain; scrollbar-gutter: stable; border: 1px solid #bfc1c5; background: #fff; }
+.sourceOption { display: flex; align-items: center; gap: 12px; min-width: 0; min-height: 52px; padding: 10px 14px; border-right: 1px solid #dededb; border-bottom: 1px solid #dededb; font-size: 16px; line-height: 1.5; cursor: pointer; }
+.sourceOption:hover { background: #faf8ee; }
+.sourceOption:has(input:checked) { background: #f4efd5; }
+.sourceOption:has(input:disabled) { color: #666660; cursor: default; }
+.sourceCheckbox { width: 20px; height: 20px; flex: 0 0 20px; margin: 0; accent-color: #1a1a18; }
+.sourceIdentity { min-width: 0; overflow-wrap: anywhere; }
+.sourceTeam { color: #555550; font-size: 16px; }
+.error { margin: 0; border-left: 3px solid #a32020; padding: 8px 12px; color: #a32020; background: #fff4f2; font-size: 16px; line-height: 1.5; overflow-wrap: anywhere; }
+.canvas .save { width: 100%; min-height: 50px; height: auto; margin-top: auto; padding: 10px 18px; border: 1px solid #e8cf4a; border-radius: 0; background: #e8cf4a; color: #1a1a18; font-size: 20px; font-weight: 850; line-height: 1.5; box-shadow: none; white-space: normal; }
+.canvas .save svg { width: 24px; height: 24px; }
+.canvas .save:hover:not(:disabled) { background: #dcc13c; border-color: #dcc13c; }
+.canvas .save:disabled { color: #777770; background: #efefed; border-color: #dededb; opacity: 1; }
+.currentHeading [data-slot=badge] { flex: 0 0 auto; height: auto; min-height: 30px; padding: 3px 10px; border: 0; border-radius: 0; color: #1a1a18; background: #fff; font-size: 16px; font-weight: 750; font-variant-numeric: tabular-nums; }
+.emptyRule { display: flex; justify-content: center; align-items: center; min-height: 110px; margin: 40px 32px; padding: 20px; border: 1px dashed #bfc1c5; border-radius: 0; color: #555550; font-size: 16px; line-height: 1.6; text-align: center; word-break: keep-all; overflow-wrap: anywhere; }
+.rule { min-width: 0; padding: 18px; border-bottom: 1px solid #bfc1c5; }
+.rule:last-child { border-bottom: 0; }
+.ruleHeading { display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; min-width: 0; }
+.ruleCopy { min-width: 0; overflow-wrap: anywhere; }
+.ruleCopy>p:first-child { margin: 0; font-size: 18px; font-weight: 750; line-height: 1.5; }
+.ruleMeta { margin: 6px 0 0; color: #555550; font-size: 16px; line-height: 1.6; }
+.ruleActions { display: flex; flex: 0 0 auto; gap: 6px; }
+.ruleActions button { width: 44px; min-width: 44px; height: 44px; padding: 0; border: 1px solid #bfc1c5; border-radius: 0; color: #1a1a18; background: #fff; box-shadow: none; }
+.ruleActions button:hover:not(:disabled) { background: #f4efd5; }
+.ruleActions button:disabled { background: #efefed; color: #777770; opacity: 1; }
+.canvas :focus-visible { outline: 2px solid #1a1a18; outline-offset: 2px; box-shadow: 0 0 0 4px #e8cf4a; }
+.formHeading :focus-visible { outline-color: #fff; }
+@media (max-width: 1100px) {
+  .canvas { grid-template-columns: minmax(0, 1fr); }
+}
+@media (max-width: 639px) {
+  .form { padding: 0 14px 16px; }
+  .formHeading { margin: 0 -14px; }
+  .formHeading, .currentHeading { padding: 10px 14px; }
+  .formHeading h3, .currentHeading h3 { font-size: 22px; }
+  .fields, .sourceHeading, .sourceList { grid-template-columns: minmax(0, 1fr); }
+  .sourceList { max-height: 260px; }
+  .sourceOption { min-height: 52px; border-right: 0; padding: 10px 12px; }
+  .sourceHeading { gap: 10px; }
+  .emptyRule { margin: 20px 14px; padding: 16px; }
+  .rule { padding: 16px 14px; }
+  .ruleHeading { flex-direction: column; }
+  .ruleActions { align-self: flex-end; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .canvas *, .canvas *::before, .canvas *::after { transition: none !important; animation: none !important; scroll-behavior: auto !important; }
+}

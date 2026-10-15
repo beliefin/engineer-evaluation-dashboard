@@ -2,6 +2,7 @@
 
 import { CircleAlert, Plus, Trash2 } from "lucide-react"
 import { useState } from "react"
+import "./adjustment-unlock-signal.css"
 
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
@@ -95,7 +96,7 @@ export function ScoreAdjustmentPanel({
 
   if (rows.length === 0) {
     return (
-      <section className="rounded-lg border bg-card p-6 text-center">
+      <section className="signal-adjustment-empty rounded-lg border bg-card p-6 text-center">
         <p className="text-sm font-semibold">등록된 엔지니어가 없습니다.</p>
         <p className="mt-1 text-sm text-muted-foreground">명단을 먼저 등록한 뒤 가·감점을 입력해 주세요.</p>
       </section>
@@ -103,8 +104,8 @@ export function ScoreAdjustmentPanel({
   }
 
   return (
-    <section aria-labelledby="score-adjustment-title" className="overflow-hidden rounded-lg border bg-card">
-      <div className="border-b p-5 sm:p-6">
+    <section aria-labelledby="score-adjustment-title" className="signal-adjustment-panel overflow-hidden rounded-lg border bg-card">
+      <div className="signal-adjustment-heading border-b p-5 sm:p-6">
         <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
           <div>
             <h2 id="score-adjustment-title" className="text-lg font-bold">개인 총점 가·감점</h2>
@@ -116,8 +117,8 @@ export function ScoreAdjustmentPanel({
         </div>
       </div>
 
-      <div className="space-y-6 p-5 sm:p-6">
-        <div className="max-w-md space-y-2">
+      <div className="signal-adjustment-body space-y-6 p-5 sm:p-6">
+        <div className="signal-adjustment-engineer max-w-md space-y-2">
           <Label htmlFor="score-adjustment-engineer">엔지니어</Label>
           <Select
             disabled={disabled}
@@ -130,7 +131,7 @@ export function ScoreAdjustmentPanel({
             <SelectTrigger className="w-full" id="score-adjustment-engineer">
               <SelectValue />
             </SelectTrigger>
-            <SelectContent>
+            <SelectContent className="signal-adjustment-select">
               {rows.map((row) => (
                 <SelectItem key={row.engineerId} value={row.engineerId}>
                   {row.engineerName} · {row.employeeLabel} · {row.teamName}
@@ -142,7 +143,7 @@ export function ScoreAdjustmentPanel({
 
         {selected === undefined ? null : (
           <>
-            <dl className="grid overflow-hidden rounded-lg border sm:grid-cols-3">
+            <dl className="signal-adjustment-metrics grid overflow-hidden rounded-lg border sm:grid-cols-3">
               <ScoreMetric label="기본 가중 총점" value={formatScore(selected.baseScore)} />
               <ScoreMetric
                 label="누적 가·감점"
@@ -152,7 +153,7 @@ export function ScoreAdjustmentPanel({
               <ScoreMetric label="현재 최종 점수" value={formatScore(selected.finalScore)} />
             </dl>
 
-            <div className="grid gap-4 rounded-lg border bg-muted/20 p-4 lg:grid-cols-[minmax(0,12rem)_minmax(0,1fr)_auto] lg:items-end">
+            <div className="signal-adjustment-form grid gap-4 rounded-lg border bg-muted/20 p-4 lg:grid-cols-[minmax(0,12rem)_minmax(0,1fr)_auto] lg:items-end">
               <div className="space-y-2">
                 <Label htmlFor="score-adjustment-amount">가·감점 값</Label>
                 <Input
@@ -208,7 +209,7 @@ export function ScoreAdjustmentPanel({
               )}
             </div>
 
-            <div>
+            <div className="signal-adjustment-history">
               <div className="mb-3 flex items-center justify-between gap-3">
                 <h3 className="text-sm font-bold">적용 이력</h3>
                 <span className="text-xs text-muted-foreground">{selected.adjustments.length}건</span>
@@ -293,7 +294,7 @@ function AdjustmentDeleteDialog({
           <Trash2 aria-hidden="true" />
         </Button>
       </DialogTrigger>
-      <DialogContent>
+      <DialogContent className="signal-adjustment-dialog">
         <DialogHeader>
           <DialogTitle>가·감점 내역 삭제</DialogTitle>
           <DialogDescription>

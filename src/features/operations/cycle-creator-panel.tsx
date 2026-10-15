@@ -27,6 +27,7 @@ import {
 
 import { OperationPanel } from "./operation-panel"
 import { CycleSettingsDialog } from "./cycle-settings-dialog"
+import styles from "./configuration-signal.module.css"
 import type {
   EvaluationCycleDraft,
   EvaluationCycleSettingsDraft,
@@ -111,8 +112,8 @@ export function CycleCreatorPanel({
   }
 
   return (
+    <div className={styles.seasons}>
     <OperationPanel
-      aside={<Badge variant="secondary">총 {cycleCount}개 시즌</Badge>}
       description={(
         <>
           <span className="block sm:inline">시즌마다 과제와 평가방식을 독립적으로 구성합니다.</span>{" "}
@@ -121,14 +122,17 @@ export function CycleCreatorPanel({
       )}
       title="평가 시즌 관리"
     >
-      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-        <div>
-          <p className="font-medium">{cycleLabel}</p>
-          <p className="mt-1 text-sm text-muted-foreground">
-            {STATUS_LABELS[cycleStatus]} · {startsAt} ~ {endsAt}
-          </p>
+      <div className={styles.seasonCanvas}>
+      <p className={styles.seasonCount}>총 {cycleCount}개 시즌</p>
+      <div className={styles.seasonRow}>
+        <div className={styles.seasonIdentity}>
+          <div className={styles.seasonName}>
+            <h3>{cycleLabel}</h3>
+            <Badge variant="secondary">{STATUS_LABELS[cycleStatus]}</Badge>
+          </div>
+          <p>{startsAt} ~ {endsAt}</p>
         </div>
-        <div className="flex flex-wrap justify-end gap-2">
+        <div className={styles.seasonActions}>
           <CycleSettingsDialog
             cycleLabel={cycleLabel}
             cycleStatus={cycleStatus}
@@ -169,7 +173,7 @@ export function CycleCreatorPanel({
               평가 시즌 만들기
             </Button>
           </DialogTrigger>
-          <DialogContent className="sm:max-w-xl">
+          <DialogContent className={`${styles.configurationDialog} sm:max-w-xl`}>
             <form onSubmit={handleSubmit}>
               <DialogHeader>
                 <DialogTitle>새 평가 시즌 만들기</DialogTitle>
@@ -240,6 +244,8 @@ export function CycleCreatorPanel({
           </Dialog>
         </div>
       </div>
+      </div>
     </OperationPanel>
+    </div>
   )
 }

@@ -1,6 +1,8 @@
 "use client"
 
 import { useState } from "react"
+
+import "./auth-signal.css"
 import { KeyRoundIcon, PencilIcon, PlusIcon, PowerIcon, Trash2Icon } from "lucide-react"
 
 import type { AuthAccount } from "@/auth"
@@ -52,7 +54,7 @@ function AccountActions({
   onDelete,
 }: AccountActionsProps) {
   return (
-    <div className="flex flex-wrap justify-end gap-1.5">
+    <div className="signal-account-actions flex flex-wrap justify-end gap-1.5">
       <Button aria-label={`${account.displayName} 계정 편집`} disabled={pending} onClick={onEdit} size="sm" type="button" variant="ghost"><PencilIcon aria-hidden="true" />편집</Button>
       <Button aria-label={`${account.displayName} 비밀번호 재설정`} disabled={pending} onClick={onReset} size="sm" type="button" variant="ghost"><KeyRoundIcon aria-hidden="true" />비밀번호</Button>
       <Button aria-label={`${account.displayName} 계정 ${account.active ? "비활성화" : "활성화"}`} disabled={current || pending} onClick={onToggle} size="sm" type="button" variant="ghost"><PowerIcon aria-hidden="true" />{account.active ? "비활성" : "활성"}</Button>
@@ -119,26 +121,29 @@ export function AccountManagementPanel({
   }
 
   return (
-    <div className="space-y-6">
-      <header className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
+    <div className="signal-accounts space-y-6">
+      <header className="signal-account-heading flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
         <div>
           <p className="mb-2 text-xs font-semibold tracking-[0.08em] text-primary uppercase">접근 제어</p>
           <h1 className="text-[26px] leading-tight font-bold tracking-[-0.02em] sm:text-3xl">계정 관리</h1>
           <p className="mt-2 max-w-2xl text-sm text-muted-foreground">로그인 계정·역할·명단 연결·사용 상태 통합 관리</p>
         </div>
-        <Button disabled={pending} onClick={() => setEditor({ kind: "create" })} type="button"><PlusIcon aria-hidden="true" />계정 추가</Button>
       </header>
 
+      <div className="signal-account-overview">
       <section aria-label="계정 요약" className="grid grid-cols-3 divide-x divide-border rounded-lg border border-border bg-card">
         <div className="px-4 py-4"><p className="text-xs text-muted-foreground">전체</p><p className="mt-1 text-xl font-bold tabular-nums">{accounts.length}</p></div>
         <div className="px-4 py-4"><p className="text-xs text-muted-foreground">활성</p><p className="mt-1 text-xl font-bold tabular-nums text-[var(--success)]">{activeCount}</p></div>
         <div className="px-4 py-4"><p className="text-xs text-muted-foreground">운영자</p><p className="mt-1 text-xl font-bold tabular-nums">{operatorCount}</p></div>
       </section>
 
-      <section className="overflow-hidden rounded-lg border border-border bg-card" aria-labelledby="account-list-heading">
-        <div className="border-b border-border px-4 py-4 sm:px-5"><h2 className="text-base font-semibold" id="account-list-heading">로그인 계정</h2><p className="mt-1 text-sm text-muted-foreground">현재 로그인 계정의 잠금·삭제 제한</p></div>
+        <Button disabled={pending} onClick={() => setEditor({ kind: "create" })} type="button"><PlusIcon aria-hidden="true" />계정 추가</Button>
+      </div>
+
+      <section className="signal-account-list overflow-hidden rounded-lg border border-border bg-card" aria-labelledby="account-list-heading">
+        <div className="signal-account-list-heading border-b border-border px-4 py-4 sm:px-5"><h2 className="text-base font-semibold" id="account-list-heading">로그인 계정</h2><p className="mt-1 text-sm text-muted-foreground">현재 로그인 계정의 잠금·삭제 제한</p></div>
         {isMobile ? (
-          <ul className="divide-y divide-border">
+          <ul className="signal-account-cards divide-y divide-border">
             {accounts.map((account) => (
               <li className="space-y-3 px-4 py-4" key={account.id}>
                 <div className="flex items-start justify-between gap-3"><div><p className="font-semibold">{account.displayName}</p><p className="mt-0.5 text-xs text-muted-foreground">{account.username}</p></div><Badge variant={account.active ? "secondary" : "destructive"}>{account.active ? "활성" : "비활성"}</Badge></div>

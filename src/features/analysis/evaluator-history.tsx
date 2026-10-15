@@ -1,6 +1,9 @@
+import { HorizontalScroll } from "@/components/ui/horizontal-scroll"
+
 import type { EvaluatorRecentEvaluation } from "@/view-models/evaluator-detail"
 
 import { AnalysisPanel } from "./analysis-panel"
+import "./evaluator-charts-signal.css"
 
 function signed(value: number | null): string {
   if (value === null) return "비교 표본 없음"
@@ -25,63 +28,54 @@ export function EvaluatorHistory({
   data,
 }: Readonly<{ data: readonly EvaluatorRecentEvaluation[] }>) {
   return (
-    <AnalysisPanel
-      title="최근 평가 이력"
-      description="제출 원점수와 동일 대상 동료 평균의 차이, 최신순 확인"
-      isEmpty={data.length === 0}
-    >
-      <div className="hidden overflow-x-auto md:block">
-        <table className="w-full border-collapse text-sm">
-          <caption className="sr-only">평가자 최근 제출 평가 이력</caption>
-          <thead>
-            <tr className="border-b border-border-subtle text-left text-xs text-muted-foreground">
-              <th className="px-3 py-3 font-medium">평가 대상</th>
-              <th className="px-3 py-3 font-medium">과제</th>
-              <th className="px-3 py-3 text-right font-medium">원점수</th>
-              <th className="px-3 py-3 text-right font-medium">동료 평균</th>
-              <th className="px-3 py-3 text-right font-medium">차이</th>
-              <th className="px-3 py-3 font-medium">제출 시각</th>
-            </tr>
-          </thead>
-          <tbody>
-            {data.slice(0, 20).map((row) => (
-              <tr className="border-b border-border-subtle last:border-b-0" key={row.assignmentId}>
-                <td className="px-3 py-3">
-                  <span className="font-medium">{row.engineerLabel}</span>
-                  <span className="mt-1 block text-xs text-muted-foreground">{row.teamLabel}</span>
-                </td>
-                <td className="px-3 py-3">{row.taskLabel}</td>
-                <td className="numeric px-3 py-3 text-right font-semibold">{row.score.toFixed(1)}</td>
-                <td className="numeric px-3 py-3 text-right">{row.peerAverage?.toFixed(1) ?? "-"}</td>
-                <td className="numeric px-3 py-3 text-right">
-                  <span className={row.isOutlier ? "font-semibold text-destructive" : undefined}>
-                    {signed(row.residual)}
-                  </span>
-                  {row.isOutlier ? <span className="mt-1 block text-xs text-destructive">10점 이상 이탈</span> : null}
-                </td>
-                <td className="px-3 py-3 text-xs text-muted-foreground">{formatDate(row.submittedAt)}</td>
+    <div className="signal-evaluator-scene signal-evaluator-history-scene">
+      <AnalysisPanel
+        title="최근 평가 이력"
+        description="제출 원점수와 동일 대상 동료 평균의 차이, 최신순 확인"
+        isEmpty={data.length === 0}
+      >
+        <p className="signal-evaluator-table-band" aria-hidden="true">최근 평가 이력</p>
+        <HorizontalScroll
+          className="signal-evaluator-table-scroll signal-evaluator-history-scroll"
+          role="region"
+          aria-label="최근 평가 이력 상세 표, 가로 및 세로 스크롤"
+          tabIndex={0}
+        >
+          <table className="signal-evaluator-evidence-table signal-evaluator-history-table">
+            <caption className="sr-only">평가자 최근 제출 평가 이력</caption>
+            <thead>
+              <tr>
+                <th scope="col">평가 대상</th>
+                <th scope="col">과제</th>
+                <th scope="col">원점수</th>
+                <th scope="col">동료 평균</th>
+                <th scope="col">차이</th>
+                <th scope="col">제출 시각</th>
               </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
-      <ol className="divide-y divide-border-subtle md:hidden">
-        {data.slice(0, 20).map((row) => (
-          <li className="py-4 first:pt-0 last:pb-0" key={row.assignmentId}>
-            <div className="flex items-start justify-between gap-4">
-              <div className="min-w-0">
-                <p className="font-medium">{row.engineerLabel} · {row.taskLabel}</p>
-                <p className="mt-1 text-xs text-muted-foreground">{row.teamLabel} · {formatDate(row.submittedAt)}</p>
-              </div>
-              <p className="numeric shrink-0 text-base font-semibold">{row.score.toFixed(1)}점</p>
-            </div>
-            <p className="mt-3 text-sm text-muted-foreground">
-              동료 평균 {row.peerAverage?.toFixed(1) ?? "-"}점 · 차이 {signed(row.residual)}
-            </p>
-            {row.isOutlier ? <p className="mt-1 text-xs font-semibold text-destructive">10점 이상 이탈, 확인 필요</p> : null}
-          </li>
-        ))}
-      </ol>
-    </AnalysisPanel>
+            </thead>
+            <tbody>
+              {data.slice(0, 20).map((row) => (
+                <tr key={row.assignmentId}>
+                  <th scope="row">
+                    <span>{row.engineerLabel}</span>{" "}
+                    <span className="signal-evaluator-history-team">({row.teamLabel})</span>
+                  </th>
+                  <td className="signal-evaluator-history-task">{row.taskLabel}</td>
+                  <td className="numeric">{row.score.toFixed(1)}</td>
+                  <td className="numeric">{row.peerAverage?.toFixed(1) ?? "-"}</td>
+                  <td className="numeric">
+                    <span className={row.isOutlier ? "signal-evaluator-history-outlier" : undefined}>
+                      {signed(row.residual)}
+                    </span>
+                    {row.isOutlier ? <span className="signal-evaluator-history-outlier-note">10점 이상 이탈</span> : null}
+                  </td>
+                  <td className="signal-evaluator-history-date">{formatDate(row.submittedAt)}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </HorizontalScroll>
+      </AnalysisPanel>
+    </div>
   )
 }

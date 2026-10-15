@@ -1,0 +1,92 @@
+/* OP-01: presentation only; all source rows and roster actions remain available. */
+.panel {
+  min-width: 0;
+  color: #1a1a18;
+  background: #fff;
+  font-size: 16px;
+  line-height: 1.5;
+}
+.heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  min-height: 56px;
+  padding: 10px 18px;
+  color: #fff;
+  background: #1a1a18;
+}
+.heading h2 { margin: 0; font-size: 28px; font-weight: 850; line-height: 1.3; letter-spacing: -.035em; }
+.heading .count { color: #fff; background: transparent; border: 0; border-radius: 0; padding: 0; font-size: 17px; line-height: 1.5; font-weight: 650; white-space: normal; }
+.description { margin: 0; padding: 12px 8px 16px; font-size: 17px; line-height: 1.5; font-weight: 600; word-break: keep-all; }
+.body, .tabsRoot { min-width: 0; }
+.tabsRoot { gap: 0; }
+.tabs[data-slot=tabs-list] { display: flex; justify-content: flex-start; gap: 0; height: auto; padding: 0; border: 0; width: fit-content; max-width: 100%; }
+.tabs [data-slot=tabs-trigger] { flex: 0 1 190px; min-width: 150px; height: auto; min-height: 46px; padding: 10px 20px; font-size: 16px; font-weight: 750; border: 1px solid #bfc1c5; border-radius: 0; color: #1a1a18; background: #fff; }
+.tabs [data-slot=tabs-trigger]+[data-slot=tabs-trigger] { border-left: 0; }
+.tabs [data-slot=tabs-trigger][data-state=active] { background: #e8cf4a; color: #1a1a18; }
+.tabs [data-slot=tabs-trigger]::after { display: none; }
+.content { min-width: 0; margin-top: -1px; border: 1px solid #bfc1c5; padding: 16px; }
+.section { min-width: 0; }
+.sectionHeading { display: flex; justify-content: space-between; align-items: flex-start; gap: 16px; margin-bottom: 12px; }
+.sectionHeading h3 { margin: 0; font-size: 25px; line-height: 1.3; letter-spacing: -.03em; font-weight: 850; }
+.sectionHeading p { margin: 4px 0 0; font-size: 16px; color: #1a1a18; word-break: keep-all; }
+.registrationActions { display: flex; flex-wrap: wrap; justify-content: flex-end; gap: 10px; }
+.registrationActions button { min-height: 46px; height: auto; padding: 10px 18px; border: 1px solid #bfc1c5; border-radius: 0; background: #fff; color: #1a1a18; font-size: 16px; font-weight: 750; }
+.registrationActions button:first-child:not(:disabled) { background: #e8cf4a; border-color: #e8cf4a; }
+.registrationActions button:not(:disabled):hover { background: #f4efd5; }
+.list { min-width: 0; }
+.searchRow { display: flex; align-items: center; gap: 24px; margin-bottom: 10px; }
+.searchField { position: relative; min-width: 0; flex: 1; }
+.searchField input { height: 44px; font-size: 16px; color: #1a1a18; border: 1px solid #bfc1c5; border-radius: 0; background: #fff; box-shadow: none; padding-left: 40px; }
+.searchCount { margin: 0; font-size: 16px; color: #1a1a18; white-space: nowrap; }
+.tableFrame { display: block; width: 100%; max-width: 100%; max-height: 28rem; overflow: auto; border: 1px solid #bfc1c5; overscroll-behavior: contain; scrollbar-gutter: stable; }
+.tableFrame [data-slot=table-container] { overflow: visible; }
+.table { width: 100%; min-width: 1060px; border-collapse: separate; border-spacing: 0; font-size: 16px; color: #1a1a18; }
+.table thead { position: sticky; top: 0; z-index: 1; background: #efefed; }
+.table th { height: 42px; padding: 8px 12px; font-size: 15px; font-weight: 750; text-align: center; color: #1a1a18; }
+.table td { height: 49px; padding: 3px 12px; font-size: 16px; text-align: center; }
+.table :is(th, td) { border-right: 1px solid #dededb; border-bottom: 1px solid #dededb; }
+.table :is(th, td):first-child { text-align: left; }
+.table :is(th, td):last-child { border-right: 0; }
+.table tbody tr:last-child td { border-bottom: 0; }
+.table tbody tr:hover { background: #faf8ee; }
+.itemActions { display: flex; align-items: center; justify-content: flex-end; gap: 8px; }
+.itemActions button { width: 44px; min-width: 44px; height: 44px; min-height: 44px; border: 1px solid #bfc1c5; border-radius: 0; background: #fff; color: #1a1a18; }
+.itemActions button:not(:disabled):hover { background: #f4efd5; }
+.itemActions button:disabled { background: #f5f5f3; color: #96968f; border-color: #dededb; opacity: 1; }
+.linked { padding: 4px 8px; font-size: 14px; line-height: 1.4; color: #1a1a18; background: #efefed; white-space: nowrap; }
+.desktopActions { min-width: 100px; }
+.mobileActions { border-top: 1px solid #dededb; padding-top: 12px; margin-top: 14px; }
+.cards { display: none; }
+.panel :focus-visible { outline: 2px solid #1a1a18; outline-offset: 2px; box-shadow: 0 0 0 4px #e8cf4a; }
+@media (max-width: 1100px) {
+  .sectionHeading { flex-direction: column; gap: 12px; }
+  .registrationActions { justify-content: flex-start; }
+}
+@media (max-width: 767px) {
+  .heading { flex-direction: column; align-items: flex-start; gap: 6px; padding: 12px 14px; }
+  .heading h2 { font-size: 23px; }
+  .heading .count, .description { font-size: 16px; }
+  .description { padding: 12px 4px; }
+  .tabs[data-slot=tabs-list] { width: 100%; }
+  .tabs [data-slot=tabs-trigger] { flex: 1; min-width: 0; padding: 10px 8px; }
+  .content { padding: 14px 12px; }
+  .sectionHeading h3 { font-size: 23px; }
+  .registrationActions { width: 100%; gap: 8px; }
+  .registrationActions button { flex: 1 1 140px; padding: 10px 8px; white-space: normal; line-height: 1.4; }
+  .searchRow { align-items: stretch; flex-direction: column; gap: 8px; }
+  .searchCount { font-size: 16px; }
+  .tableFrame { display: none; }
+  .cards { display: block; margin: 0; padding: 0; list-style: none; border: 1px solid #bfc1c5; }
+  .card { padding: 14px 12px; border-bottom: 1px solid #bfc1c5; }
+  .card:last-child { border-bottom: 0; }
+  .cardHeading { display: flex; flex-direction: column; gap: 4px; padding-bottom: 12px; }
+  .cardHeading h4 { margin: 0; font-size: 18px; font-weight: 800; overflow-wrap: anywhere; }
+  .cardHeading span { font-size: 16px; }
+  .details { display: grid; gap: 8px; margin: 0; }
+  .details>div { display: grid; grid-template-columns: 48px minmax(0, 1fr); align-items: start; gap: 8px; font-size: 16px; line-height: 1.5; }
+  .details dt { color: #555; }
+  .details dd { margin: 0; color: #1a1a18; overflow-wrap: anywhere; }
+  .linked { margin-right: auto; white-space: normal; font-size: 16px; }
+}

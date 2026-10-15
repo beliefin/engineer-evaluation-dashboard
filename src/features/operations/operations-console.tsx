@@ -1,5 +1,7 @@
 "use client"
 
+import "./operations-signal.css"
+
 import { Badge } from "@/components/ui/badge"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { RosterManagementPanel } from "@/features/roster"
@@ -58,8 +60,8 @@ export function OperationsConsole({
   linkedEvaluatorIds = [],
 }: OperationsConsoleProps) {
   return (
-    <div className="space-y-6">
-      <header className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
+    <div className="signal-operations space-y-6">
+      <header className="signal-operations-heading flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
         <div>
           <p className="mb-2 text-xs font-semibold tracking-[0.08em] text-primary uppercase">
             운영 설정
@@ -96,8 +98,8 @@ export function OperationsConsole({
         }}
         value={activeTab}
       >
-        <div className="-mx-1 px-1 sm:mx-0 sm:overflow-x-auto sm:px-0 sm:[scrollbar-width:none] sm:[&::-webkit-scrollbar]:hidden">
-          <TabsList className="grid w-full grid-cols-3 gap-x-1 gap-y-3 group-data-horizontal/tabs:!h-auto sm:inline-flex sm:w-fit sm:min-w-max sm:justify-start sm:gap-1 sm:group-data-horizontal/tabs:!h-10" variant="line">
+        <div className="signal-operations-tab-wrap">
+          <TabsList className="signal-operations-tabs" variant="line">
             <TabsTrigger value="roster">명단 등록</TabsTrigger>
             <TabsTrigger value="season">평가 시즌</TabsTrigger>
             <TabsTrigger value="tasks">과제 구성</TabsTrigger>

@@ -5,6 +5,7 @@ import { PrinterIcon } from "lucide-react"
 import { ErrorState } from "@/components/shared"
 import { Button } from "@/components/ui/button"
 import { SeasonExportPanel } from "@/features/reports/season-export-panel"
+import "@/features/reports/report-signal.css"
 import { useEvaluation } from "@/providers"
 import { selectDashboardViewModel } from "@/view-models/dashboard"
 
@@ -26,53 +27,81 @@ export function SeasonReportScreen() {
   }).format(new Date())
 
   return (
-    <article className="season-report space-y-7 bg-white text-foreground print:space-y-5">
-      <header className="flex flex-col gap-4 border-b pb-5 sm:flex-row sm:items-start sm:justify-between">
+    <article className="season-report signal-report">
+      <header className="signal-report-header">
         <div>
-          <p className="text-sm font-semibold text-primary">엔지니어 역량평가</p>
-          <h1 className="mt-1 text-3xl font-bold tracking-tight">{cycle.name} 운영 결과 보고서</h1>
-          <p className="mt-2 text-sm text-muted-foreground">평가 기간 {cycle.startsAt} ~ {cycle.endsAt} · 출력 {generatedAt}</p>
+          <h1>{cycle.name} 운영 결과 보고서</h1>
+          <p className="signal-report-period"><strong>평가 기간</strong> {cycle.startsAt} ~ {cycle.endsAt}</p>
+          <p className="signal-report-generated">출력 {generatedAt}</p>
         </div>
-        <Button className="print:hidden" onClick={() => window.print()} type="button">
+        <Button className="signal-report-print print:hidden" onClick={() => window.print()} type="button" variant="outline">
           <PrinterIcon aria-hidden="true" />문서 인쇄 / PDF 저장
         </Button>
       </header>
 
       <SeasonExportPanel cycleId={activeCycleId} snapshot={snapshot} />
 
-      <section aria-labelledby="report-summary-title">
-        <h2 className="text-lg font-semibold" id="report-summary-title">운영 요약</h2>
-        <div className="mt-3 grid overflow-hidden rounded-md border sm:grid-cols-4">
+      <section aria-labelledby="report-summary-title" className="signal-report-section">
+        <h2 className="signal-report-bar" id="report-summary-title">운영 요약</h2>
+        <dl className="signal-report-metrics">
           {model.metrics.map((metric) => (
-            <div className="border-b p-4 last:border-b-0 sm:border-r sm:border-b-0 sm:last:border-r-0" key={metric.id}>
-              <p className="text-xs font-medium text-muted-foreground">{metric.label}</p>
-              <p className="numeric mt-1 text-2xl font-bold">{metric.value}{metric.unit}</p>
-              <p className="mt-1 text-xs text-muted-foreground">{metric.description}</p>
+            <div key={metric.id}>
+              <dt>{metric.label}</dt>
+              <dd className="numeric signal-report-metric-value">{metric.value}{metric.unit}</dd>
+              <dd className="signal-report-metric-description">{metric.description}</dd>
             </div>
           ))}
-        </div>
+        </dl>
       </section>
 
-      <section aria-labelledby="report-task-title">
-        <h2 className="text-lg font-semibold" id="report-task-title">과제별 확정 평균</h2>
+      <section aria-labelledby="report-task-title" className="signal-report-section">
+        <h2 className="signal-report-bar" id="report-task-title">과제별 확정 평균</h2>
         {model.categoryAverages.length === 0 ? (
-          <p className="mt-3 rounded-md border border-dashed p-4 text-sm text-muted-foreground">확정된 과제 점수가 없습니다.</p>
+          <p className="signal-report-empty">확정된 과제 점수가 없습니다.</p>
         ) : (
-          <table className="mt-3 w-full border-collapse text-sm">
-            <thead><tr className="border-y bg-muted/40"><th className="px-3 py-2 text-left">과제</th><th className="px-3 py-2 text-right">가중 평균</th><th className="px-3 py-2 text-right">비가중 평균</th><th className="px-3 py-2 text-right">완료 표본</th></tr></thead>
-            <tbody>{model.categoryAverages.map((task) => <tr className="border-b" key={task.id}><td className="px-3 py-2">{task.label}</td><td className="numeric px-3 py-2 text-right font-semibold">{task.weightedScore.toFixed(1)}</td><td className="numeric px-3 py-2 text-right">{task.unweightedScore.toFixed(1)}</td><td className="numeric px-3 py-2 text-right">{task.sampleSize}명</td></tr>)}</tbody>
+          <table className="signal-report-table signal-report-averages">
+            <caption className="sr-only">과제별 가중 평균, 비가중 평균과 완료 표본</caption>
+            <thead>
+              <tr><th scope="col">과제</th><th scope="col">가중 평균</th><th scope="col">비가중 평균</th><th scope="col">완료 표본</th></tr>
+            </thead>
+            <tbody>
+              {model.categoryAverages.map((task) => (
+                <tr key={task.id}>
+                  <th scope="row">{task.label}</th>
+                  <td className="numeric">{task.weightedScore.toFixed(1)}</td>
+                  <td className="numeric">{task.unweightedScore.toFixed(1)}</td>
+                  <td className="numeric">{task.sampleSize}명</td>
+                </tr>
+              ))}
+            </tbody>
           </table>
         )}
       </section>
 
-      <section aria-labelledby="report-ranking-title">
-        <div className="flex items-end justify-between gap-3"><div><h2 className="text-lg font-semibold" id="report-ranking-title">완료자 최종 순위</h2><p className="mt-1 text-xs text-muted-foreground">개인별 적용 과제 가중치 100%와 필수 입력이 모두 확정된 대상만 포함합니다.</p></div><p className="numeric shrink-0 whitespace-nowrap text-sm font-semibold">{completedRankingRows.length}명</p></div>
+      <section aria-labelledby="report-ranking-title" className="signal-report-section signal-report-ranking">
+        <div className="signal-report-bar signal-report-ranking-bar">
+          <h2 id="report-ranking-title">완료자 최종 순위</h2>
+          <p className="numeric">{completedRankingRows.length}명</p>
+        </div>
+        <p className="signal-report-ranking-note">개인별 적용 과제 가중치 100%와 필수 입력이 모두 확정된 대상만 포함합니다.</p>
         {completedRankingRows.length === 0 ? (
-          <p className="mt-3 rounded-md border border-dashed p-4 text-sm text-muted-foreground">공식 순위에 포함된 대상이 없습니다.</p>
+          <p className="signal-report-empty">공식 순위에 포함된 대상이 없습니다.</p>
         ) : (
-          <table className="mt-3 w-full border-collapse text-sm">
-            <thead><tr className="border-y bg-muted/40"><th className="px-3 py-2 text-left">순위</th><th className="px-3 py-2 text-left">이름</th><th className="px-3 py-2 text-left">팀</th><th className="px-3 py-2 text-right">최종 점수</th></tr></thead>
-            <tbody>{completedRankingRows.map((row) => <tr className="border-b break-inside-avoid" key={row.id}><td className="numeric px-3 py-2 font-semibold">{row.rank}</td><td className="px-3 py-2">{row.name}</td><td className="px-3 py-2">{row.team}</td><td className="numeric px-3 py-2 text-right font-semibold">{row.totalScore.toFixed(2)}</td></tr>)}</tbody>
+          <table className="signal-report-table signal-report-ranking-table">
+            <caption className="sr-only">완료자 {completedRankingRows.length}명의 최종 순위</caption>
+            <thead>
+              <tr><th scope="col">순위</th><th scope="col">이름</th><th scope="col">팀</th><th scope="col">최종 점수</th></tr>
+            </thead>
+            <tbody>
+              {completedRankingRows.map((row) => (
+                <tr key={row.id}>
+                  <td className="numeric">{row.rank}</td>
+                  <th scope="row">{row.name}</th>
+                  <td>{row.team}</td>
+                  <td className="numeric">{row.totalScore.toFixed(2)}</td>
+                </tr>
+              ))}
+            </tbody>
           </table>
         )}
       </section>

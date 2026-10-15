@@ -47,7 +47,7 @@ export function RankingPopulationDialog({ rows, selectedIds, onChange }: Props) 
           순위 대상 관리
         </Button>
       </DialogTrigger>
-      <DialogContent className="grid max-h-[min(42rem,calc(100dvh-2rem))] grid-rows-[auto_auto_minmax(0,1fr)_auto] gap-0 overflow-hidden p-0 sm:max-w-xl">
+      <DialogContent className="signal-ranking-population grid max-h-[min(42rem,calc(100dvh-2rem))] grid-rows-[auto_auto_minmax(0,1fr)_auto] gap-0 overflow-hidden p-0 sm:max-w-xl">
         <DialogHeader className="border-b border-border-subtle px-5 py-4 pr-12">
           <DialogTitle>전체 종합 순위 대상</DialogTitle>
           <DialogDescription>
@@ -87,17 +87,19 @@ export function RankingPopulationDialog({ rows, selectedIds, onChange }: Props) 
           <ul className="divide-y divide-border-subtle" aria-label="종합 순위 대상 목록">
             {visibleRows.map((row) => (
               <li className="flex items-center gap-3 py-2.5" key={row.id}>
-                <input
-                  aria-label={`${row.name} 순위 포함`}
-                  checked={selectedIds.has(row.id)}
-                  className="size-4 accent-primary"
-                  onChange={(event) => toggle(row.id, event.currentTarget.checked)}
-                  type="checkbox"
-                />
-                <div className="min-w-0 flex-1">
-                  <p className="truncate text-sm font-medium">{row.name}</p>
-                  <p className="mt-0.5 text-xs text-muted-foreground">{row.team}</p>
-                </div>
+                <label className="signal-ranking-population-choice">
+                  <input
+                    aria-label={`${row.name} 순위 포함`}
+                    checked={selectedIds.has(row.id)}
+                    className="size-4 accent-primary"
+                    onChange={(event) => toggle(row.id, event.currentTarget.checked)}
+                    type="checkbox"
+                  />
+                  <span className="min-w-0 flex-1">
+                    <span className="signal-ranking-person-name">{row.name}</span>
+                    <span className="signal-ranking-person-team">{row.team}</span>
+                  </span>
+                </label>
                 <p className="numeric text-xs font-semibold text-muted-foreground">
                   {row.totalScore === null ? "점수 없음" : `${row.totalScore.toFixed(2)}점`}
                 </p>

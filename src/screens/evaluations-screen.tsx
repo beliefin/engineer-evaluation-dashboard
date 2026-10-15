@@ -26,8 +26,9 @@ export function EvaluationsScreen() {
     operatorMode ? undefined : activeEvaluatorId,
   )
   return (
-    <div className="space-y-6">
+    <div className="signal-evaluation-workspace space-y-6">
       <PageHeader
+        className="signal-evaluation-page-heading"
         description={
           operatorMode
             ? "엔지니어·배정 과제·평가자 순서에 따른 점수·P/F 입력. 저장 후에도 수정 가능한 운영자 입력"

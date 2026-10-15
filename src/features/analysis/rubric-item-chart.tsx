@@ -1,5 +1,9 @@
 "use client"
 
+import { HorizontalScroll } from "@/components/ui/horizontal-scroll"
+
+import "./detail-analysis-signal.css"
+
 import {
   Bar,
   BarChart,
@@ -19,7 +23,7 @@ import type { AnalysisChartProps, RubricItemAverageDatum } from "./types"
 const chartConfig = {
   score: {
     label: "문항 평균",
-    color: "var(--chart-2)",
+    color: "#e8cf4a",
   },
 } satisfies ChartConfig
 
@@ -67,14 +71,14 @@ function RubricTaskChart({
   const chartWidth = Math.max(640, rows.length * 52)
 
   return (
-    <section className="border-t border-border-subtle pt-4 first:border-t-0 first:pt-0">
+    <section className="signal-detail-task border-t border-border-subtle pt-4 first:border-t-0 first:pt-0">
       <h3 className="text-sm font-semibold text-foreground">{taskLabel}</h3>
       {rows.length > 12 ? (
         <p className="mb-2 mt-1 text-xs font-medium text-muted-foreground">
           ↔ 좌우로 스크롤해 모든 평가 항목 보기
         </p>
       ) : null}
-      <div
+      <HorizontalScroll
         className="scrollbar-thin mt-2 overflow-x-auto pb-2 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
         role="region"
         aria-label={`${taskLabel} 평가 항목별 평균 가로 스크롤 영역`}
@@ -116,7 +120,7 @@ function RubricTaskChart({
             </Bar>
           </BarChart>
         </ChartContainer>
-      </div>
+      </HorizontalScroll>
       <AnalysisTable
         caption={`${taskLabel} 평가 항목별 환산 평균 점수와 응답 수`}
         rows={rows}
@@ -134,6 +138,7 @@ export function RubricItemChart({
   const groups = taskGroups(data)
 
   return (
+    <div className="signal-detail-panel signal-detail-rubric">
     <AnalysisPanel
       title="평가 항목별 평균"
       description="0~10점 문항 평균을 100점 기준으로 환산해 비교합니다."
@@ -146,5 +151,6 @@ export function RubricItemChart({
         ))}
       </div>
     </AnalysisPanel>
+    </div>
   )
 }

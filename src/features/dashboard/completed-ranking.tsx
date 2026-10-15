@@ -1,5 +1,7 @@
 "use client"
 
+import "./dashboard-ranking-signal.css"
+
 import { useMemo, useState } from "react"
 import {
   getCoreRowModel,
@@ -157,15 +159,15 @@ export function CompletedRanking({
   }
 
   return (
-    <section className="overflow-hidden rounded-md border border-border bg-card">
-      <div className="flex items-start justify-between gap-4 border-b border-border-subtle px-5 py-4">
+    <section className="signal-completed-ranking">
+      <div className="signal-completed-ranking-heading">
         <div>
           <h2 className="text-base font-semibold">{title}</h2>
           <p className="mt-1 max-w-2xl text-xs leading-5 text-muted-foreground">
             {description}
           </p>
         </div>
-        <div className="flex shrink-0 flex-col items-end gap-2">
+        <div className="signal-completed-ranking-actions">
           <Badge variant="outline" className="numeric">
             점수 반영 {populationRows.filter((row) => row.totalScore !== null).length}/{populationRows.length}명
           </Badge>
@@ -192,6 +194,29 @@ export function CompletedRanking({
         resultCount={visibleRows.length}
         onChange={updateFilters}
       />
+
+      <label className="signal-ranking-mobile-sort">
+        정렬 기준
+        <select
+          aria-label="종합 순위 정렬 기준"
+          value={`${activeSorting.key}:${activeSorting.direction}`}
+          onChange={(event) => {
+            const [key, direction] = event.currentTarget.value.split(":")
+            const next = parseRankingSortState(key ?? null, direction ?? null)
+            if (onSortingChange) onSortingChange(next)
+            else setInternalSorting(next)
+          }}
+        >
+          <option value="rank:asc">순위 오름차순</option>
+          <option value="rank:desc">순위 내림차순</option>
+          <option value="name:asc">이름 오름차순</option>
+          <option value="name:desc">이름 내림차순</option>
+          <option value="team:asc">팀 오름차순</option>
+          <option value="team:desc">팀 내림차순</option>
+          <option value="totalScore:desc">점수 높은 순</option>
+          <option value="totalScore:asc">점수 낮은 순</option>
+        </select>
+      </label>
 
       {visibleRows.length > 0 ? (
         <>

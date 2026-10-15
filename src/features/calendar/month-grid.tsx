@@ -1,5 +1,3 @@
-import { Clock3 } from "lucide-react"
-
 import { formatCalendarDate, toLocalDateValue } from "./calendar-helpers"
 import type { CalendarDay, CalendarEventView, CalendarInteractionMode } from "./types"
 
@@ -28,22 +26,20 @@ function CalendarEventChip({
 }>) {
   const content = (
     <>
-      <span className="block truncate font-semibold">{event.title}</span>
-      <span className="mt-0.5 flex items-center gap-1 truncate text-xs text-muted-foreground">
-        <Clock3 aria-hidden="true" className="size-3" />
-        {event.startTime ?? "시간 미정"} · {event.engineerName}
-      </span>
+      <span className="signal-calendar-chip-title">{event.title}</span>
+      <span className="numeric">{event.startTime ?? "시간 미정"}</span>
+      <span>{event.engineerName}</span>
     </>
   )
 
   const actionable = mode === "manage" || mode === "evaluate" && event.assignmentId !== null
   if (!actionable) {
-    return <div className="rounded-md border-l-2 border-l-primary bg-accent px-2 py-1.5">{content}</div>
+    return <div className="signal-calendar-chip">{content}</div>
   }
   return (
     <button
       aria-label={eventLabel(event)}
-      className="w-full rounded-md border-l-2 border-l-primary bg-accent px-2 py-1.5 text-left transition-colors hover:bg-primary/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+      className="signal-calendar-chip"
       onClick={() => onSelectEvent(event)}
       type="button"
     >
@@ -64,12 +60,13 @@ export function MonthGrid({ days, events, mode, onSelectEvent }: MonthGridProps)
   }
 
   return (
-    <div className="hidden overflow-hidden rounded-lg border border-border bg-card md:block">
-      <table className="w-full table-fixed border-collapse" aria-label="월간 발표 일정">
+    <div className="signal-calendar-grid">
+      <table className="signal-calendar-table" aria-label="월간 발표 일정">
+        <caption className="sr-only">일요일부터 토요일까지 6주간의 발표 일정. 이달의 모든 일정은 아래 이달 일정 목록에서 확인할 수 있습니다.</caption>
         <thead>
-          <tr className="bg-muted/60">
+          <tr>
             {WEEKDAYS.map((weekday) => (
-              <th className="border-b border-border px-2 py-2.5 text-center text-xs font-semibold text-muted-foreground" key={weekday} scope="col">
+              <th key={weekday} scope="col">
                 {weekday}
               </th>
             ))}
@@ -83,22 +80,21 @@ export function MonthGrid({ days, events, mode, onSelectEvent }: MonthGridProps)
                 const isToday = day.date === today
                 return (
                   <td
-                    className="h-28 border-r border-b border-border-subtle p-2 align-top last:border-r-0"
+                    className={day.isCurrentMonth ? "signal-calendar-day" : "signal-calendar-day signal-calendar-day-outside"}
                     key={day.date}
                   >
                     <time
                       aria-current={isToday ? "date" : undefined}
-                      className={isToday
-                        ? "inline-flex size-7 items-center justify-center rounded-full bg-primary text-xs font-semibold text-primary-foreground"
-                        : day.isCurrentMonth
-                          ? "text-xs font-semibold"
-                          : "text-xs text-muted-foreground"}
+                      className={isToday ? "signal-calendar-date signal-calendar-date-today" : "signal-calendar-date"}
                       dateTime={day.date}
                     >
                       {day.day}
                       {isToday ? <span className="sr-only">일, 오늘</span> : null}
                     </time>
-                    <div className="mt-1.5 grid gap-1">
+                    {dayEvents.length > 0 ? (
+                      <span aria-label={`${formatCalendarDate(day.date)} 일정 ${dayEvents.length}건`} className="signal-calendar-compact-count">{dayEvents.length}건</span>
+                    ) : null}
+                    <div className="signal-calendar-day-events">
                       {dayEvents.slice(0, 2).map((event) => (
                         <CalendarEventChip
                           event={event}
@@ -108,7 +104,7 @@ export function MonthGrid({ days, events, mode, onSelectEvent }: MonthGridProps)
                         />
                       ))}
                       {dayEvents.length > 2 ? (
-                        <p className="px-1 text-xs font-medium text-muted-foreground">
+                        <p className="signal-calendar-more">
                           일정 {dayEvents.length - 2}건 더 있음
                         </p>
                       ) : null}
