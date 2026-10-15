@@ -14,7 +14,9 @@ test("handoff changes render without desktop or mobile overflow", async ({ page 
     { name: "mobile", width: 390, height: 844 },
   ]) {
     await page.setViewportSize({ width: viewport.width, height: viewport.height })
-    await page.goto("/analysis")
+    // Keep the configured GitHub Pages project path when the test targets the
+    // deployed site; a leading slash would incorrectly navigate to /analysis.
+    await page.goto("analysis")
     await waitForApp(page)
 
     const ranking = page.locator(".signal-relative")
