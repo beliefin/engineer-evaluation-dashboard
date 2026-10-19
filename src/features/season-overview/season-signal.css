@@ -25,15 +25,14 @@
 .signal-season-principle p {align-self:center;margin:0;padding:20px;font-size:19px;line-height:1.45;word-break:keep-all}
 .signal-season-composition {border:1px solid var(--season-line);margin-bottom:28px}
 .signal-season-composition>ol {display:grid;grid-template-columns:repeat(5,minmax(0,1fr));padding:0;margin:0;list-style:none}
-.signal-season-composition>ol>li {display:flex;flex-direction:column;min-width:0;padding:20px 18px 28px;border-right:1px solid var(--season-line)}
+.signal-season-composition>ol>li {display:flex;flex-direction:column;min-width:0;padding:20px 18px 28px;border-right:1px solid var(--season-line);background:#fff}
 .signal-season-composition>ol>li:last-child {border-right:0}
-.signal-season-composition>ol>li:nth-child(-n+3) {background:var(--season-yellow)}
+.signal-season-composition>ol>li.is-highlighted {background:var(--season-yellow)}
 .signal-season-component-label {min-height:80px;text-align:center;display:flex;flex-direction:column;justify-content:center}
 .signal-season-component-name {font-size:24px;line-height:1.25;font-weight:900;letter-spacing:-.035em;word-break:keep-all;margin:0}
-.signal-season-options {font-size:16px;line-height:1.5;margin:7px 0 0;word-break:keep-all}
-.signal-season-choice-note {display:block}
+.signal-season-component-kind {font-size:16px;line-height:1.5;font-weight:800;margin:0 0 7px;word-break:keep-all}
 .signal-season-weight {font-size:clamp(52px,5.2vw,80px);line-height:1.1;font-weight:900;letter-spacing:-.05em;margin:14px 0 0;border-top:1px solid var(--season-line);padding-top:20px;text-align:center}
-.signal-season-composition>ol>li:nth-child(-n+3) .signal-season-weight {border-color:#1a1a18}
+.signal-season-composition>ol>li.is-highlighted .signal-season-weight {border-color:#1a1a18}
 .signal-season-total {position:relative;background:#efefed;border-top:1px solid var(--season-line);padding:12px 24px}
 .signal-season-total-label {display:flex;justify-content:space-between;align-items:center;gap:18px;font-size:20px;font-weight:850;margin:0;line-height:1.3}
 .signal-season-total-label strong {font-size:30px;font-weight:900}
@@ -49,7 +48,7 @@
  .signal-season-principle p {font-size:17px;padding:14px}
  .signal-season-band {font-size:22px}
  .signal-season-component-name {font-size:20px}
- .signal-season-options {font-size:16px}
+ .signal-season-component-kind {font-size:16px}
 }
 @media (max-width:767px) {
  .signal-season-hero {display:block;margin-bottom:24px}
@@ -75,9 +74,9 @@
  .signal-season-composition>ol>li:last-child {border-bottom:0}
  .signal-season-component-label {text-align:left;align-items:start;min-height:65px;padding:14px 12px}
  .signal-season-component-name {font-size:21px;line-height:1.3}
- .signal-season-options {font-size:16px;line-height:1.5;margin-top:8px}
+ .signal-season-component-kind {font-size:16px;line-height:1.5;margin:0 0 4px}
  .signal-season-weight {display:flex;align-items:center;justify-content:center;font-size:36px;border-top:0;border-left:1px solid var(--season-line);padding:12px 6px;margin:0;letter-spacing:-.04em}
- .signal-season-composition>ol>li:nth-child(-n+3) .signal-season-weight {border-color:var(--season-line)}
+ .signal-season-composition>ol>li.is-highlighted .signal-season-weight {border-color:var(--season-line)}
  .signal-season-total {padding:14px 12px}
  .signal-season-total-label {font-size:18px}
  .signal-season-total-label strong {font-size:30px}

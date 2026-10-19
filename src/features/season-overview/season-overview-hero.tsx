@@ -21,7 +21,7 @@ export function SeasonOverviewHero({ backendMode, model }: Readonly<{
   return (
     <header className="signal-season-hero">
       <div className="signal-season-intro">
-        <h1 id="season-cover-title"><span>{model.cycle.name}</span>{" "}<span>엔지니어 역량평가</span></h1>
+        <h1 id="season-cover-title"><span>{model.cycle.name}</span></h1>
         <h2>배운 내용을 업무에 다시 적용하는 과정</h2>
         <p className="signal-season-description">실제 업무 문제를 과제로 전환하고, 학습·실행 결과를 다음 업무에 다시 쓰는 성장 체계</p>
         <div className="signal-season-period">

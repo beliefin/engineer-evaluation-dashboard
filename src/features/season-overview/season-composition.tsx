@@ -3,15 +3,18 @@ import { ArrowRight } from "lucide-react"
 import type { SeasonCompositionItem } from "@/view-models/season-overview"
 
 function CompositionSegment({ item }: Readonly<{ item: SeasonCompositionItem }>) {
+  const isHighlighted = item.kind === "alternative" || item.label === "성장·탐구 계획서"
+
   return (
-    <li>
+    <li className={isHighlighted ? "is-highlighted" : undefined}>
       <div className="signal-season-component-label">
-        <p className="signal-season-component-name">{item.label}</p>
         {item.kind === "alternative" ? (
-          <p className="signal-season-options">{item.options.map((option, index) => (
-            <span key={option}>{index > 0 ? <span aria-hidden="true"> / </span> : null}<span>{option}</span></span>
-          ))}<span className="signal-season-choice-note">개인에게 지정된 과제만 합산</span></p>
-        ) : <p className="sr-only">모든 평가 대상에게 공통 반영</p>}
+          <>
+            <p className="signal-season-component-kind">선택과제</p>
+            <h3 className="signal-season-component-name">{item.options.join(" / ")}</h3>
+            <p className="sr-only">{item.label}: 개인에게 지정된 과제 1개만 반영</p>
+          </>
+        ) : <h3 className="signal-season-component-name">{item.label}</h3>}
       </div>
       <p className="signal-season-weight numeric">{item.weight}%</p>
     </li>

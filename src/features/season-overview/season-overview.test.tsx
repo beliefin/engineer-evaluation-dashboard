@@ -13,12 +13,11 @@ describe("SeasonOverview", () => {
 
     render(<SeasonOverview backendMode="local" model={model} />)
 
-    expect(screen.getByRole("heading", { level: 1, name: /2026 상반기 엔지니어 역량평가/ })).toBeInTheDocument()
+    expect(screen.getByRole("heading", { level: 1, name: "2026 상반기" })).toBeInTheDocument()
     expect(screen.getByText("최종 반영 비율 100%")) .toBeInTheDocument()
-    expect(screen.getByText("선택 과제")) .toBeInTheDocument()
-    expect(screen.getByText("OTS 시나리오 제작", { selector: "span" })).toBeInTheDocument()
-    expect(screen.getByText("AX 전환", { selector: "span" })).toBeInTheDocument()
-    expect(screen.getByRole("heading", { name: "성장·탐구 계획서" })).toBeInTheDocument()
+    expect(screen.getByText("선택과제")).toBeInTheDocument()
+    expect(screen.getByRole("heading", { name: "OTS 시나리오 제작 / AX 전환" })).toBeInTheDocument()
+    expect(screen.getAllByRole("heading", { name: "성장·탐구 계획서" })).not.toHaveLength(0)
     expect(screen.getByText("그대로 실행할 수 있는 OTS 시나리오 기획서", { exact: false })).toBeInTheDocument()
     expect(screen.getByRole("heading", { name: "수행자" })).toBeInTheDocument()
     expect(screen.getByRole("heading", { name: "평가자" })).toBeInTheDocument()
