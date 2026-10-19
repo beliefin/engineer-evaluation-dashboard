@@ -5,7 +5,7 @@
 .signal-operator-roster > div:first-child { padding: 16px; background: #f3f3f0; }
 .signal-operator-roster h3 { margin: 0 0 14px; font-size: 23px; font-weight: 850; line-height: 1.35; }
 .signal-operator-roster input { min-height: 46px; border: 1px solid #969691; border-radius: 0; font-size: 16px; }
-.signal-operator-columns,.signal-operator-person { display: grid; grid-template-columns: minmax(0,1.8fr) minmax(46px,.7fr) minmax(58px,1fr) minmax(40px,.8fr); gap: 0; }
+.signal-operator-columns,.signal-operator-person { display: grid; grid-template-columns: minmax(0,1.8fr) minmax(58px,1fr) minmax(40px,.8fr); gap: 0; }
 .signal-operator-columns { background: #ededeb; border-bottom: 1px solid #b5b5b2; font-size: 16px; font-weight: 750; }
 .signal-operator-columns > span { display: flex; align-items: center; padding: 12px 8px; border-right: 1px solid #d5d5d1; line-height: 1.4; }
 .signal-operator-columns > span:last-child { border-right: 0; }
@@ -55,7 +55,7 @@
 @media (max-width: 1279px) {
  .signal-operator-grid { grid-template-columns: minmax(0,1fr); }
  .signal-operator-people { max-height: 280px; }
- .signal-operator-columns,.signal-operator-person { grid-template-columns: minmax(0,1.8fr) minmax(46px,.7fr) minmax(58px,1fr) minmax(40px,.8fr); }
+ .signal-operator-columns,.signal-operator-person { grid-template-columns: minmax(0,1.8fr) minmax(58px,1fr) minmax(40px,.8fr); }
 }
 @media (max-width: 900px) {
  .signal-proxy-entry .signal-evaluation-header { grid-template-columns: minmax(0,1fr); padding: 16px; }

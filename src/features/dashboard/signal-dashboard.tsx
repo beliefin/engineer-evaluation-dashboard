@@ -17,11 +17,11 @@ export function SignalProgressTable({ rows, tasks }: Readonly<{ rows: readonly E
   return <section className="signal-matrix" aria-labelledby="signal-progress-title">
     <div className="signal-section-bar">
       <h2 id="signal-progress-title">엔지니어별 평가 현황</h2>
-      <label className="signal-search"><Search size={17} aria-hidden="true" /><span className="sr-only">평가 현황 엔지니어 검색</span><input value={query} placeholder="엔지니어·사번 검색" onChange={(event) => { setQuery(event.target.value); setPage(0) }} type="search" />{query !== "" && <button aria-label="검색 초기화" type="button" onClick={() => { setQuery(""); setPage(0) }}><X size={16} /></button>}</label>
+      <label className="signal-search"><Search size={17} aria-hidden="true" /><span className="sr-only">평가 현황 엔지니어 검색</span><input value={query} placeholder="엔지니어·소속 검색" onChange={(event) => { setQuery(event.target.value); setPage(0) }} type="search" />{query !== "" && <button aria-label="검색 초기화" type="button" onClick={() => { setQuery(""); setPage(0) }}><X size={16} /></button>}</label>
     </div>
     <div className="signal-table-scroll">
       <table className="signal-progress-table"><caption className="sr-only">엔지니어별 적용 과제 평가 현황</caption><thead><tr><th>엔지니어</th>{tasks.map((task) => <th key={task.id}>{task.label}</th>)}</tr></thead><tbody>
-        {pageRows.map((row) => <tr key={row.id}><th scope="row"><Link href={row.href} title={`${row.employeeCode} · ${row.team}`}>{row.name}</Link></th>{tasks.map((task) => {
+        {pageRows.map((row) => <tr key={row.id}><th scope="row"><Link href={row.href} title={row.team}>{row.name}</Link></th>{tasks.map((task) => {
           const progress = row.tasks.find((entry) => entry.taskId === task.id)
           const label = progress === undefined ? "해당 없음" : statusLabels[progress.status]
           return <td key={task.id}><span className="signal-status" title={progress === undefined ? "적용 가중치가 없는 과제" : `${label} · ${progress.score === null ? "점수 없음" : `${progress.score.toFixed(1)}점`} · 가중치 ${progress.weight}%`}><span aria-hidden="true" className={`signal-square ${progress?.status === "complete" ? "is-complete" : ""}`} />{label}</span></td>

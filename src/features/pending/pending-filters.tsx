@@ -59,7 +59,7 @@ export function PendingFilters({
   return (
     <div className="signal-pending-filters">
       <label className="signal-pending-filter-field">
-        이름 또는 사번
+        이름 또는 소속
         <span className="signal-pending-search">
           <Search
             aria-hidden="true"
@@ -67,7 +67,7 @@ export function PendingFilters({
           <Input
             type="search"
             aria-label="미평가 대상 검색"
-            placeholder="이름 또는 사번 검색"
+            placeholder="이름 또는 소속 검색"
             value={value.query}
             onChange={(event) =>
               onChange({ ...value, query: event.currentTarget.value })

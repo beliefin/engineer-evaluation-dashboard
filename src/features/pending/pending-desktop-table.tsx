@@ -45,7 +45,7 @@ export function PendingDesktopTable({ rows, role }: PendingDesktopTableProps) {
               <TableCell className="signal-pending-identity">
                 <p className="signal-pending-engineer-name">{row.engineerName}</p>
                 <p className="signal-pending-engineer-meta">
-                  {row.employeeCode} · {row.team}
+                  {row.team}
                 </p>
               </TableCell>
               <TableCell className="signal-pending-reason-cell">

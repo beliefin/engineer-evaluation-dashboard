@@ -42,7 +42,7 @@ export function RelativeRankingTable({
                   {point.engineerName}
                 </p>
                 <p className="mt-1 text-xs text-muted-foreground">
-                  {point.employeeCode} · {point.team} · {point.department}
+                  {point.team} · {point.department}
                 </p>
               </div>
               <p className="shrink-0 text-right font-semibold tabular-nums">{point.score.toFixed(1)}점</p>
@@ -91,7 +91,6 @@ export function RelativeRankingTable({
                 <td className="whitespace-nowrap px-3 py-2.5 text-right font-medium tabular-nums">{point.standardRank}위</td>
                 <td className="px-3 py-2.5">
                   <span className="font-medium">{point.engineerName}</span>
-                  <span className="ml-2 text-xs text-muted-foreground">{point.employeeCode}</span>
                 </td>
                 <td className="px-3 py-2.5 text-muted-foreground">{point.team} · {point.department}</td>
                 <td className="px-3 py-2.5 text-right font-semibold tabular-nums">{point.score.toFixed(1)}점</td>

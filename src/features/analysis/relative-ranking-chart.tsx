@@ -38,7 +38,7 @@ function RankingTooltip({ point: rawPoint }: Readonly<{ point: RelativeRankingPo
     <div className="signal-relative-tooltip min-w-56 rounded-md border bg-background p-3 text-xs shadow-lg" role="status">
       <div className="font-semibold text-foreground">{rawPoint.engineerName}</div>
       <div className="mt-0.5 text-muted-foreground">
-        {rawPoint.employeeCode} · {rawPoint.team} · {rawPoint.department}
+        {rawPoint.team} · {rawPoint.department}
       </div>
       <dl className="mt-3 grid grid-cols-2 gap-x-4 gap-y-1.5">
         <dt className="text-muted-foreground">종합점수</dt>

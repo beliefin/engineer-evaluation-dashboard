@@ -83,13 +83,13 @@ export function OperatorEvaluationWorkspace({
                 className="pl-9"
                 id="operator-engineer-search"
                 onChange={(event) => setQuery(event.currentTarget.value)}
-                placeholder="이름, 사번, 팀 검색"
+                placeholder="이름, 팀 검색"
                 type="search"
                 value={query}
               />
             </div>
           </div>
-          <div className="signal-operator-columns" aria-hidden="true"><span>이름</span><span>사번</span><span>소속 팀</span><span>평가 배정 수</span></div>
+          <div className="signal-operator-columns" aria-hidden="true"><span>이름</span><span>소속 팀</span><span>평가 배정 수</span></div>
           <div className="signal-operator-people max-h-72 overflow-y-auto lg:max-h-[70dvh]">
             {visibleEngineers.map((engineer) => {
               const count = assignments.filter((entry) => entry.engineerId === engineer.id).length
@@ -103,7 +103,6 @@ export function OperatorEvaluationWorkspace({
                   type="button"
                 >
                   <span className="signal-operator-person-name"><UserRound aria-hidden="true" />{engineer.name}</span>
-                  <span>{engineer.employeeCode}</span>
                   <span>{engineer.teamName}</span>
                   <Badge variant={count > 0 ? "secondary" : "outline"}>{count}</Badge>
                 </button>

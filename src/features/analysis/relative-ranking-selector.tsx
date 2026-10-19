@@ -81,12 +81,12 @@ export function RelativeRankingSelector({
 
       <div className="space-y-3">
         <label className="relative block">
-          <span className="sr-only">이름 또는 사번 검색</span>
+          <span className="sr-only">이름 또는 소속 검색</span>
           <Search aria-hidden="true" className="absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
           <Input
             value={query}
             onChange={(event) => setQuery(event.target.value)}
-            placeholder="이름 또는 사번 검색"
+            placeholder="이름 또는 소속 검색"
             className="pl-9"
           />
         </label>
@@ -162,7 +162,7 @@ export function RelativeRankingSelector({
                   </span>
                 </span>
                 <span className="mt-1 block truncate text-xs text-muted-foreground">
-                  {candidate.employeeCode} · {candidate.team} · {candidate.department}
+                  {candidate.team} · {candidate.department}
                 </span>
                 <span className={`mt-1 inline-flex text-xs font-medium ${
                   candidate.scoreStatus === "partial"

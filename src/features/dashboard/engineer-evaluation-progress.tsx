@@ -170,7 +170,7 @@ export function EngineerEvaluationProgress({ tasks, rows }: EngineerEvaluationPr
                       <Link className="font-semibold text-foreground underline-offset-4 hover:text-primary hover:underline" href={row.href}>
                         {row.name}
                       </Link>
-                      <p className="mt-0.5 text-xs text-muted-foreground">{row.employeeCode} · {row.team}</p>
+                      <p className="mt-0.5 text-xs text-muted-foreground">{row.team}</p>
                     </TableCell>
                     <TableCell className={STATUS_CELL_CLASS[row.status]}>
                       <ProgressStatus status={row.status} />
@@ -208,7 +208,7 @@ export function EngineerEvaluationProgress({ tasks, rows }: EngineerEvaluationPr
                     <Link className="truncate font-semibold text-foreground underline-offset-4 hover:text-primary hover:underline" href={row.href}>
                       {row.name}
                     </Link>
-                    <p className="mt-1 text-xs text-muted-foreground">{row.employeeCode} · {row.team}</p>
+                    <p className="mt-1 text-xs text-muted-foreground">{row.team}</p>
                   </div>
                   <ProgressStatus status={row.status} />
                 </div>

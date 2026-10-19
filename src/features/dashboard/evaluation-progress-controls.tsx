@@ -67,7 +67,7 @@ export function EvaluationProgressControls({
               aria-label="평가 현황 엔지니어 검색"
               className="pl-9"
               onChange={(event) => onFiltersChange({ ...filters, query: event.currentTarget.value })}
-              placeholder="이름 또는 사번"
+              placeholder="이름 또는 소속"
               type="search"
               value={filters.query}
             />

@@ -59,7 +59,7 @@ export function EvaluatorProfileSummary({
                 {evaluator.displayName}
               </h2>
               <p className="signal-evaluator-person-meta">
-                사번 {evaluator.employeeCode} · {evaluator.team} / {evaluator.department}
+                {evaluator.team} / {evaluator.department}
               </p>
             </div>
             <div className="signal-evaluator-cycle">

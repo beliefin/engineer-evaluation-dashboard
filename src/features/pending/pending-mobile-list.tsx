@@ -17,7 +17,7 @@ export function PendingMobileList({ rows, role }: PendingMobileListProps) {
           <div className="signal-pending-identity">
             <p className="signal-pending-engineer-name">{row.engineerName}</p>
             <p className="signal-pending-engineer-meta">
-              {row.employeeCode} · {row.team} · {row.position}
+              {row.team} · {row.position}
             </p>
           </div>
 

@@ -276,7 +276,7 @@ export function RelativeRankingSection({
               <div className="flex flex-wrap items-baseline justify-between gap-2">
                 <h3 className="font-semibold">{selectedPoint.engineerName}</h3>
                 <span className="text-xs text-muted-foreground">
-                  {selectedPoint.employeeCode} · {selectedPoint.team} · {selectedPoint.department}
+                  {selectedPoint.team} · {selectedPoint.department}
                 </span>
               </div>
               <dl className="mt-3 grid grid-cols-2 gap-3 sm:grid-cols-4 xl:grid-cols-7">
